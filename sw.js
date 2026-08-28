@@ -426,19 +426,15 @@ const TILE_URLS = [
   "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=46944&y=24024&z=16"
 ];
 
-// 瓦片 URL 归一化：把不同子域名统一，保证缓存命中与 Leaflet 随机子域名一致
+// 高德瓦片 URL 归一化：webrd0{1-4} -> webrd01（保证缓存命中与 Leaflet 随机子域名一致）
 function normalizeTileUrl(url) {
-  return url
-    .replace(/webrd0[1-4]\.is\.autonavi\.com/, 'webrd01.is.autonavi.com')
-    .replace(/[a-d]\.basemaps\.cartocdn\.com/, 'a.basemaps.cartocdn.com');
+  return url.replace(/webrd0[1-4]\.is\.autonavi\.com/, 'webrd01.is.autonavi.com');
 }
 
 function isTileUrl(url) {
   return /webrd0[1-4]\.is\.autonavi\.com/.test(url)
     || /tile\.openstreetmap\.org/.test(url)
-    || /server\.arcgisonline\.com/.test(url)
-    || /basemaps\.cartocdn\.com/.test(url)
-    || /tiles\.api-maps\.yandex\.ru/.test(url);
+    || /server\.arcgisonline\.com/.test(url);
 }
 
 async function postToClients(msg) {
