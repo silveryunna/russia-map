@@ -432,11 +432,8 @@ function normalizeTileUrl(url) {
 }
 
 function isTileUrl(url) {
-  return /webrd0[1-4]\.is\.autonavi\.com/.test(url)
-    || /tile\.openstreetmap\.org/.test(url)
-    || /server\.arcgisonline\.com/.test(url)
-    || /basemaps\.cartocdn\.com/.test(url)
-    || /tiles\.api-maps\.yandex\.ru/.test(url);
+  return /tile\.openstreetmap\.org/.test(url)
+    || /server\.arcgisonline\.com/.test(url);
 }
 
 async function postToClients(msg) {
