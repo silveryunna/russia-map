@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#d32f2f" />
+    <link rel="manifest" crossorigin="use-credentials" href="./manifest.json" />
+    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
+    <link rel="apple-touch-icon" href="./icon-192.png" />
+    <title>苏联现代主义·俄罗斯打卡地图</title>
+    <script type="module" crossorigin src="./assets/index-Hm9RS00E.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-D58Egvz-.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <div id="pwa-toast" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:99999;background:rgba(33,33,33,.92);color:#fff;padding:10px 18px;border-radius:24px;font:13px/1.4 -apple-system,'PingFang SC','Microsoft YaHei',sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.25);display:none;max-width:86vw;text-align:center;white-space:nowrap;transition:opacity .4s;"></div>
+    <script>
+    (function () {
+      if (!('serviceWorker' in navigator)) return;
+      var toast = document.getElementById('pwa-toast');
+      var timer = null;
+      function show(text, sticky) {
+        toast.textContent = text;
+        toast.style.display = 'block';
+        toast.style.opacity = '1';
+        if (timer) clearTimeout(timer);
+        if (!sticky) timer = setTimeout(hide, 4000);
+      }
+      function hide() { toast.style.opacity = '0'; setTimeout(function(){ toast.style.display='none'; }, 400); }
+
+      navigator.serviceWorker.addEventListener('message', function (e) {
+        var d = e.data || {};
+        if (d.type === 'tile-progress') {
+          show('\u{1F4E1} 离线地图缓存中 ' + d.done + '/' + d.total, true);
+        } else if (d.type === 'tiles-done') {
+          show(d.fail > 0
+            ? '\u2705 离线就绪（' + (d.total - d.fail) + '/' + d.total + ' 块瓦片，' + d.fail + ' 块失败）'
+            : '\u2705 离线地图已就绪（' + d.total + ' 块瓦片）');
+        }
+      });
+
+      window.addEventListener('load', function () {
+        navigator.serviceWorker.register('./sw.js').catch(function () {
+          show('\u26A0\uFE0F 离线缓存注册失败（需 https 或 localhost 环境）');
+        });
+      });
+    })();
+    </script>
+    <style>
+      #sidebar-toggle-tab {
+        position: fixed;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10001;
+        width: 20px;
+        height: 64px;
+        padding: 0;
+        border: 1px solid #E3E0D8;
+        border-left: none;
+        border-radius: 0 10px 10px 0;
+        background: rgba(255,255,255,.96);
+        color: #8A7E6B;
+        font-size: 15px;
+        line-height: 1;
+        cursor: pointer;
+        box-shadow: 2px 1px 6px rgba(0,0,0,.14);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        -webkit-tap-highlight-color: transparent;
+        touch-action: manipulation;
+      }
+      #sidebar-toggle-tab:hover { background: #fff; color: #B3541E; }
+      #sidebar-toggle-tab:active { background: #F5F1E8; }
+      #sidebar-toggle-tab.hidden { display: none; }
+      /* 触屏设备：放大 marker 点击热区（视觉大小不变，16px 圆点获得 ~42px 触控区） */
+      @media (pointer: coarse) {
+        .leaflet-marker-icon.leaflet-interactive::after {
+          content: '';
+          position: absolute;
+          inset: -13px;
+          border-radius: 50%;
+        }
+      }
+      /* 窄屏：侧栏 380px 会占满屏幕，压成 86vw（CSS 方案，不与 React 内联样式打架；
+         React 折叠时内联变 width:0px，选择器自动失配，折叠/展开互不干扰） */
+      @media (max-width: 459px) {
+        #root div[style*="width: 380px"][style*="transition"] {
+          width: 86vw !important;
+        }
+        /* 防止手指误触 attribution 链接跳转到 leafletjs.com */
+        .leaflet-control-attribution a { pointer-events: none; }
+      }
+    </style>
+    <script>
+    // 侧栏折叠小耳朵按钮：贴在左侧栏右边缘，跟随宽度动画，点击切换收起/展开
+    (function () {
+      var tab = null;
+      var sidebar = null;
+
+      function findSidebar() {
+        var divs = document.querySelectorAll('#root div');
+        for (var i = 0; i < divs.length; i++) {
+          var s = divs[i].getAttribute('style') || '';
+          if (/width:\s*(380px|0px)/.test(s) && s.indexOf('transition') > -1 && s.indexOf('overflow') > -1) return divs[i];
+        }
+        return null;
+      }
+
+      function findNativeToggle() {
+        var btns = document.querySelectorAll('button');
+        for (var i = 0; i < btns.length; i++) {
+          var t = btns[i].textContent || '';
+          if (t.indexOf('清单/动线') > -1 || (t.indexOf('收起') > -1 && t.length < 12)) return btns[i];
+        }
+        return null;
+      }
+
+      function sync() {
+        if (!sidebar || !tab) return;
+        var w = sidebar.getBoundingClientRect().width;
+        tab.style.left = w + 'px';
+        var open = w > 30;
+        tab.innerHTML = open ? '&#8249;' : '&#8250;';
+        tab.title = open ? '收起左侧栏' : '展开清单/动线';
+        var native = findNativeToggle();
+        tab.className = native ? '' : 'hidden';
+      }
+
+      function init() {
+        sidebar = findSidebar();
+        if (!sidebar) return false;
+        if (tab) return true;
+        tab = document.createElement('button');
+        tab.id = 'sidebar-toggle-tab';
+        tab.setAttribute('aria-label', '折叠或展开左侧栏');
+        tab.addEventListener('click', function () {
+          var b = findNativeToggle();
+          if (b) b.click();
+        });
+        document.body.appendChild(tab);
+        if (window.ResizeObserver) new ResizeObserver(sync).observe(sidebar);
+        window.addEventListener('resize', sync);
+        window.addEventListener('orientationchange', sync);
+        new MutationObserver(sync).observe(sidebar, { attributes: true, attributeFilter: ['style'] });
+        sync();
+        return true;
+      }
+
+      var tries = 0;
+      var autoCollapsed = false;
+      var timer = setInterval(function () {
+        if (init() || ++tries > 200) clearInterval(timer);
+        // 手机窄屏：首次加载自动收起侧栏，把全屏让给地图
+        if (!autoCollapsed && window.innerWidth < 460 && sidebar) {
+          autoCollapsed = true;
+          if (sidebar.getBoundingClientRect().width > 300) {
+            var b = findNativeToggle();
+            if (b) b.click();
+          }
+        }
+      }, 100);
+    })();
+    </script>
+  </body>
+</html>
