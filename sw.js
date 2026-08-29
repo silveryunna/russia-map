@@ -1,6 +1,6 @@
 // Service Worker - 苏联现代主义·俄罗斯打卡地图 离线版
 // v1: 应用外壳 + 高德瓦片预缓存(406块) + 运行时瓦片缓存
-const VERSION = 'v8';
+const VERSION = 'v9';
 const SHELL_CACHE = 'ru-map-shell-' + VERSION;
 const TILE_CACHE = 'ru-map-tiles-' + VERSION;
 const RUNTIME_CACHE = 'ru-map-runtime-' + VERSION;
@@ -573,7 +573,13 @@ const TILE_URLS = [
   "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=9905&y=5127&z=14",
   "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=19810&y=10254&z=15",
   "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=39620&y=20508&z=16",
-  "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=39635&y=20469&z=16"
+  "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=39635&y=20469&z=16",
+  "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=39621&y=20488&z=16",
+  "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=19805&y=10240&z=15",
+  "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=39611&y=20481&z=16",
+  "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=9905&y=5121&z=14",
+  "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=19810&y=10243&z=15",
+  "https://webrd01.is.autonavi.com/appmaptile?lang=zh_cn&size=1&scale=1&style=8&x=39620&y=20487&z=16"
 ];
 
 // 高德瓦片 URL 归一化：webrd0{1-4} -> webrd01（保证缓存命中与 Leaflet 随机子域名一致）
