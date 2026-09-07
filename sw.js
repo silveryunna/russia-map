@@ -12,7 +12,7 @@ const SHELL_ASSETS = [
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
-  './assets/index-Hm9RS00E.js',
+  './assets/index-v13.js',
   './assets/index-D58Egvz-.css'
 ];
 
