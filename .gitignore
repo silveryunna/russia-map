@@ -1,6 +1,1 @@
-.DS_Store
-Thumbs.db
-*.log
-node_modules/
-dist/
-.env
+index-beautified.js

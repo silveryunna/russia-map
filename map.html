@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#B71C1C" />
+    <meta name="description" content="旅行地图：打卡点位、每日动线、待核实坐标。" />
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="manifest" href="./manifest.json" />
+    <title>旅行地图 · 牛马打工人的旅行笔记</title>
+    <script type="module" crossorigin src="./assets/map-DEvDnF2X.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/sw-register-CT4SDRCv.js">
+    <link rel="stylesheet" crossorigin href="./assets/sw-register-DfrVyOjh.css">
+    <link rel="stylesheet" crossorigin href="./assets/map-CdOzyYYv.css">
+  </head>
+  <body>
+    <div class="map-layout">
+      <aside id="sidebar">
+        <div class="sb-inner">
+          <div class="sb-header">
+            <div class="sb-title-row">
+              <div class="sb-title">🗺️ 旅行地图</div>
+              <a class="sb-home" href="./index.html" title="返回首页">🏠 首页</a>
+            </div>
+            <div class="sb-sub" id="sb-stats">加载中…</div>
+            <div class="sb-tabs">
+              <button id="tab-points" class="active">📍 打卡清单</button>
+              <button id="tab-routes">🧭 每日动线</button>
+            </div>
+            <div class="sb-cities" id="city-pills"></div>
+          </div>
+          <div class="sb-body" id="sb-body"></div>
+        </div>
+      </aside>
+      <div class="map-wrap">
+        <div id="map"></div>
+        <button id="sidebar-toggle" class="sidebar-pill">◀ 收起</button>
+        <div class="legend" id="legend"></div>
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,462 +1,50 @@
 <!doctype html>
-<html lang="en">
+<html lang="zh-CN">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="theme-color" content="#d32f2f" />
-    <link rel="manifest" crossorigin="use-credentials" href="./manifest.json" />
-    <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
-    <link rel="apple-touch-icon" href="./icon-192.png" />
-    <title>苏联现代主义·俄罗斯打卡地图</title>
-    <script type="module" crossorigin src="./assets/index-v13.js?v=20260917"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-D58Egvz-.css?v=20260917">
+    <meta name="theme-color" content="#B71C1C" />
+    <meta name="description" content="牛马打工人的旅行笔记：个人旅行记录，含旅行笔记、相册、打卡清单与地图。" />
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="manifest" href="./manifest.json" />
+    <title>牛马打工人的旅行笔记</title>
+    <script type="module" crossorigin src="./assets/main-Cpw8ge_5.js"></script>
+    <link rel="modulepreload" crossorigin href="./assets/sw-register-CT4SDRCv.js">
+    <link rel="stylesheet" crossorigin href="./assets/sw-register-DfrVyOjh.css">
+    <link rel="stylesheet" crossorigin href="./assets/main-oSe2rD9B.css">
   </head>
   <body>
-    <div id="root"></div>
-    <div id="pwa-toast" style="position:fixed;left:50%;bottom:24px;transform:translateX(-50%);z-index:99999;background:rgba(33,33,33,.92);color:#fff;padding:10px 18px;border-radius:24px;font:13px/1.4 -apple-system,'PingFang SC','Microsoft YaHei',sans-serif;box-shadow:0 4px 16px rgba(0,0,0,.25);display:none;max-width:86vw;text-align:center;white-space:nowrap;transition:opacity .4s;"></div>
-    <script>
-    (function () {
-      if (!('serviceWorker' in navigator)) return;
-      var APP_VERSION = 'v24'; // 必须与 sw.js 的 VERSION 保持一致
-      // 页面加载时若已有 SW 控制，说明这是更新场景（而非首次安装）
-      var hadController = !!navigator.serviceWorker.controller;
-      var toast = document.getElementById('pwa-toast');
-      var timer = null;
-      function show(text, sticky) {
-        toast.textContent = text;
-        toast.style.display = 'block';
-        toast.style.opacity = '1';
-        if (timer) clearTimeout(timer);
-        if (!sticky) timer = setTimeout(hide, 4000);
-      }
-      function hide() { toast.style.opacity = '0'; setTimeout(function(){ toast.style.display='none'; }, 400); }
+    <header class="site-header">
+      <h1>🐂 牛马打工人的旅行笔记</h1>
+      <div class="sub">搬砖之余，看看世界 · 个人旅行记录</div>
+    </header>
 
-      navigator.serviceWorker.addEventListener('message', function (e) {
-        var d = e.data || {};
-        if (d.type === 'sw-activated' && d.version && d.version !== APP_VERSION && hadController) {
-          // 新版本已就绪：自动刷新一次（同一会话内同一版本只刷一次，防循环）
-          try {
-            if (sessionStorage.getItem('sw-reload-for') === d.version) return;
-            sessionStorage.setItem('sw-reload-for', d.version);
-          } catch (err) {}
-          show('🔄 检测到新版本，正在自动更新…', true);
-          setTimeout(function () { location.reload(); }, 1000);
-          return;
-        }
-      });
+    <main class="home-grid">
+      <a class="entry-card" href="./notes.html">
+        <div class="icon">📝</div>
+        <div class="name">旅行笔记</div>
+        <div class="desc" id="stat-notes">游记随笔，慢慢写</div>
+      </a>
+      <a class="entry-card" href="./album.html">
+        <div class="icon">📷</div>
+        <div class="name">旅行相册</div>
+        <div class="desc" id="stat-album">照片记录，边走边拍</div>
+      </a>
+      <a class="entry-card" href="./list.html">
+        <div class="icon">✅</div>
+        <div class="name">旅行打卡清单</div>
+        <div class="desc" id="stat-list">想去的地方，一个个勾掉</div>
+      </a>
+      <a class="entry-card" href="./map.html">
+        <div class="icon">🗺️</div>
+        <div class="name">旅行地图</div>
+        <div class="desc" id="stat-map">点位落在地图上，一目了然</div>
+      </a>
+    </main>
 
-      window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js?v=20260917', { updateViaCache: 'none' }).catch(function () {
-          show('\u26A0\uFE0F 离线缓存注册失败（需 https 或 localhost 环境）');
-        });
-      });
-    })();
-    </script>
-    <style>
-:root {
-	--fullscreen-icon-enter: url('data:image/svg+xml,<svg viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg"><path d="M5 10.3V5.9c0-.5.4-.9.9-.9h4.4c.2 0 .4.2.4.4V7c0 .2-.2.4-.4.4h-3v3c0 .2-.2.4-.4.4H5.4a.4.4 0 0 1-.4-.4zm10.3-4.9V7c0 .2.2.4.4.4h3v3c0 .2.2.4.4.4h1.5c.2 0 .4-.2.4-.4V5.9c0-.5-.4-.9-.9-.9h-4.4c-.2 0-.4.2-.4.4zm5.3 9.9H19c-.2 0-.4.2-.4.4v3h-3c-.2 0-.4.2-.4.4v1.5c0 .2.2.4.4.4h4.4c.5 0 .9-.4.9-.9v-4.4c0-.2-.2-.4-.4-.4zm-9.9 5.3V19c0-.2-.2-.4-.4-.4h-3v-3c0-.2-.2-.4-.4-.4H5.4c-.2 0-.4.2-.4.4v4.4c0 .5.4.9.9.9h4.4c.2 0 .4-.2.4-.4z" fill="%23333"/></svg>');
-	--fullscreen-icon-exit: url('data:image/svg+xml,<svg viewBox="0 0 26 26" xmlns="http://www.w3.org/2000/svg"><path d="M20.6 10.7H16a.9.9 0 0 1-.8-.8v-4.5c0-.2.2-.4.4-.4h1.4c.3 0 .5.2.5.4v3h3c.2 0 .4.2.4.5v1.4c0 .2-.2.4-.4.4zm-9.9-.8V5.4c0-.2-.2-.4-.4-.4H8.9c-.3 0-.5.2-.5.4v3h-3c-.2 0-.4.2-.4.5v1.4c0 .2.2.4.4.4H9.9c.4 0 .8-.4.8-.8zm0 10.7V16c0-.4-.4-.8-.8-.8H5.4c-.2 0-.4.2-.4.4v1.4c0 .3.2.5.4.5h3v3c0 .2.2.4.5.4h1.4c.2 0 .4-.2.4-.4zm6.9 0v-3h3c.2 0 .4-.2.4-.5v-1.4c0-.2-.2-.4-.4-.4H16c-.4 0-.8.4-.8.8v4.5c0 .2.2.4.4.4h1.5c.3 0 .5-.2.5-.4z" fill="%23333"/></svg>');
-}
+    <footer class="site-footer">
+      个人静态网站 · 内容由站长本人维护更新 · 无交互功能
+    </footer>
 
-.leaflet-fullscreen-icon {
-	background-image: var(--fullscreen-icon-enter);
-	background-size: 26px 26px;
-}
-
-.leaflet-fullscreen-icon.leaflet-fullscreen-on {
-	background-image: var(--fullscreen-icon-exit);
-}
-
-/* Safari still needs this vendor-prefix: https://caniuse.com/mdn-css_selectors_fullscreen */
-.leaflet-container:-webkit-full-screen,
-.leaflet-container:fullscreen {
-	width: 100% !important;
-	height: 100% !important;
-	z-index: 99999;
-}
-
-.leaflet-pseudo-fullscreen {
-	position: fixed !important;
-	width: 100% !important;
-	height: 100% !important;
-	top: 0 !important;
-	left: 0 !important;
-	z-index: 99999;
-}
-/* global styling */
-.leaflet-control-geosearch *,
-.leaflet-control-geosearch *:before,
-.leaflet-control-geosearch *:after {
-  box-sizing: border-box;
-}
-
-/* leaflet button styling */
-.leaflet-control-geosearch .leaflet-bar-part {
-  border-radius: 4px;
-  border-bottom: none;
-}
-
-.leaflet-control-geosearch a.leaflet-bar-part:before,
-.leaflet-control-geosearch a.leaflet-bar-part:after {
-  position: absolute;
-  display: block;
-  content: '';
-}
-
-/* magnifying glass */
-.leaflet-control-geosearch a.leaflet-bar-part:before {
-  top: 17px;
-  left: 15px;
-  width: 6px;
-  border-top: 2px solid #555;
-  transform: rotateZ(45deg);
-}
-
-.leaflet-control-geosearch a.leaflet-bar-part:after {
-  top: 10px;
-  left: 10px;
-  height: 8px;
-  width: 8px;
-  border-radius: 50%;
-  border: 2px solid #555;
-}
-
-/* resets for pending and error icons */
-.leaflet-control-geosearch.error a.leaflet-bar-part:before,
-.leaflet-control-geosearch.pending a.leaflet-bar-part:before {
-  display: none;
-}
-
-.leaflet-control-geosearch.pending a.leaflet-bar-part:after,
-.leaflet-control-geosearch.error a.leaflet-bar-part:after {
-  left: 50%;
-  top: 50%;
-  width: 18px;
-  height: 18px;
-  margin: -9px 0 0 -9px;
-  border-radius: 50%;
-}
-
-/* pending icon */
-.leaflet-control-geosearch.pending a.leaflet-bar-part:after {
-  content: '';
-  border: 2px solid #555;
-  border-top: 2px solid #f3f3f3;
-  animation: spin 1s linear infinite;
-}
-
-/* error icon */
-.leaflet-control-geosearch.error a.leaflet-bar-part:after {
-  content: '!';
-  line-height: initial;
-  font-weight: 600;
-  font-size: 18px;
-  border: none;
-}
-
-/* search form styling */
-.leaflet-control-geosearch form {
-  display: none;
-  position: absolute;
-  top: 0;
-  left: 30px;
-  border-radius: 0 4px 4px 0;
-  background-color: #fff;
-  background-clip: padding-box;
-  z-index: -1;
-  height: auto;
-  margin: 0;
-  padding: 0 8px;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.65);
-}
-
-.leaflet-geosearch-button form.open {
-  border-radius: 0 4px 4px 4px;
-}
-.leaflet-control-geosearch.active form {
-  display: block;
-}
-
-.leaflet-geosearch-button.active .leaflet-bar-part {
-  border-radius: 4px 0 0 4px;
-  width: 30px;
-}
-
-.leaflet-geosearch-button form {
-  max-width: 350px;
-}
-
-.leaflet-control-geosearch form input {
-  min-width: 200px;
-  width: 100%;
-  outline: none;
-  border: none;
-  margin: 0;
-  padding: 0;
-  font-size: 12px;
-  height: 30px;
-  border: none;
-  border-radius: 0 4px 4px 0;
-  text-indent: 8px;
-}
-
-.leaflet-touch .leaflet-geosearch-bar form {
-  border: 2px solid rgba(0,0,0,0.2);
-  box-shadow: none;
-}
-
-.leaflet-touch .leaflet-geosearch-bar form input {
-  height: 30px;
-}
-
-.leaflet-control-geosearch .results {
-  background: #fff;
-}
-
-.leaflet-control-geosearch .results > * {
-  line-height: 24px;
-  padding: 0 8px;
-  border: 1px solid transparent;
-
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.leaflet-control-geosearch .results.active {
-  padding: 8px 0;
-  border-top: 1px solid #c6c6c6;
-}
-
-.leaflet-control-geosearch .results > .active,
-.leaflet-control-geosearch .results > :hover {
-  background-color: #f8f8f8;
-  border-color: #c6c6c6;
-  cursor: pointer;
-}
-
-/* add missing border to form */
-.leaflet-control-geosearch .results.active:after {
-  content: '';
-  display: block;
-  width: 0;
-  position: absolute;
-  left: -2px;
-  bottom: -2px;
-  top: 30px;
-}
-
-.leaflet-touch .leaflet-control-geosearch .results.active:after {
-  border-left: 2px solid rgba(0, 0, 0, .2);
-}
-
-/* animations */
-@keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
-}
-
-.leaflet-top .leaflet-geosearch-bar,
-.leaflet-bottom .leaflet-geosearch-bar {
-  display: none;
-}
-
-.leaflet-geosearch-bar {
-  position: relative;
-  display: block;
-  height: auto;
-  width: 400px;
-  max-width: calc(100% - 120px);
-  margin: 10px auto 0;
-  cursor: auto;
-  z-index: 1000;
-}
-
-.leaflet-geosearch-bar form {
-  position: relative;
-  top: 0;
-  left: 0;
-  display: block;
-  border-radius: 4px;
-}
-
-.leaflet-geosearch-bar form input {
-  min-width: 100%;
-  width: 100%;
-}
-
-.leaflet-geosearch-bar .results.active:after {
-  opacity: .2;
-}
-
-.leaflet-right .leaflet-control-geosearch form {
-  right: 28px;
-  left: initial;
-  border-radius: 4px 0 0 4px;
-  border-left: inherit;
-  border-right: none;
-}
-
-.leaflet-bar-notfound {
-  font-style: italic;
-}
-
-.leaflet-control-geosearch button.reset {
-  color: black;
-  font-weight: bold;
-  position: absolute;
-  line-height: 26px;
-  padding: 0 8px;
-  right: 0;
-  top: 0;
-  cursor: pointer;
-  border: none;
-  text-decoration: none;
-  background-color: #fff;
-  border-radius: 0 4px 4px 0;
-}
-
-.leaflet-touch .leaflet-control-geosearch button.reset {
-  line-height: 30px;
-}
-
-.leaflet-control-geosearch button.reset:hover {
-  background: #f5f5f5;
-}
-.leaflet-control-locate a{cursor:pointer}.leaflet-control-locate a .leaflet-control-locate-location-arrow{display:inline-block;width:16px;height:16px;margin:7px;background-image:url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="black" d="M445 4 29 195c-48 23-32 93 19 93h176v176c0 51 70 67 93 19L508 67c16-38-25-79-63-63z"/></svg>')}.leaflet-control-locate a .leaflet-control-locate-spinner{display:inline-block;width:16px;height:16px;margin:7px;background-image:url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="black" d="M304 48a48 48 0 1 1-96 0 48 48 0 0 1 96 0zm-48 368a48 48 0 1 0 0 96 48 48 0 0 0 0-96zm208-208a48 48 0 1 0 0 96 48 48 0 0 0 0-96zM96 256a48 48 0 1 0-96 0 48 48 0 0 0 96 0zm13 99a48 48 0 1 0 0 96 48 48 0 0 0 0-96zm294 0a48 48 0 1 0 0 96 48 48 0 0 0 0-96zM109 61a48 48 0 1 0 0 96 48 48 0 0 0 0-96z"/></svg>');animation:leaflet-control-locate-spin 2s linear infinite}.leaflet-control-locate.active a .leaflet-control-locate-location-arrow{background-image:url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="rgb(32, 116, 182)" d="M445 4 29 195c-48 23-32 93 19 93h176v176c0 51 70 67 93 19L508 67c16-38-25-79-63-63z"/></svg>')}.leaflet-control-locate.following a .leaflet-control-locate-location-arrow{background-image:url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="rgb(252, 132, 40)" d="M445 4 29 195c-48 23-32 93 19 93h176v176c0 51 70 67 93 19L508 67c16-38-25-79-63-63z"/></svg>')}.leaflet-touch .leaflet-bar .leaflet-locate-text-active{width:100%;max-width:200px;text-overflow:ellipsis;white-space:nowrap;overflow:hidden;padding:0 10px}.leaflet-touch .leaflet-bar .leaflet-locate-text-active .leaflet-locate-icon{padding:0 5px 0 0}.leaflet-control-locate-location circle{animation:leaflet-control-locate-throb 4s ease infinite}@keyframes leaflet-control-locate-throb{0%{stroke-width:1}50%{stroke-width:3;transform:scale(0.8, 0.8)}100%{stroke-width:1}}@keyframes leaflet-control-locate-spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}      /* Leaflet.markercluster 聚合动画 */
-      .leaflet-cluster-anim .leaflet-marker-icon, .leaflet-cluster-anim .leaflet-marker-shadow {
-        -webkit-transition: -webkit-transform 0.3s ease-out, opacity 0.3s ease-in;
-        -moz-transition: -moz-transform 0.3s ease-out, opacity 0.3s ease-in;
-        -o-transition: -o-transform 0.3s ease-out, opacity 0.3s ease-in;
-        transition: transform 0.3s ease-out, opacity 0.3s ease-in;
-      }
-      .leaflet-cluster-spider-leg {
-        -webkit-transition: -webkit-stroke-dashoffset 0.3s ease-out, -webkit-stroke-opacity 0.3s ease-in;
-        -moz-transition: -moz-stroke-dashoffset 0.3s ease-out, -moz-stroke-opacity 0.3s ease-in;
-        -o-transition: -o-stroke-dashoffset 0.3s ease-out, -o-stroke-opacity 0.3s ease-in;
-        transition: stroke-dashoffset 0.3s ease-out, stroke-opacity 0.3s ease-in;
-      }
-      /* 手机端：搜索条右移，避开左上角“清单/动线”悬浮按钮 */
-      @media (max-width: 768px) {
-        .leaflet-geosearch-bar {
-          max-width: calc(100% - 185px);
-          margin: 10px 55px 0 130px;
-        }
-      }
-      #sidebar-toggle-tab {
-        position: fixed;
-        top: 50%;
-        transform: translateY(-50%);
-        z-index: 10001;
-        width: 20px;
-        height: 64px;
-        padding: 0;
-        border: 1px solid #E3E0D8;
-        border-left: none;
-        border-radius: 0 10px 10px 0;
-        background: rgba(255,255,255,.96);
-        color: #8A7E6B;
-        font-size: 15px;
-        line-height: 1;
-        cursor: pointer;
-        box-shadow: 2px 1px 6px rgba(0,0,0,.14);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        -webkit-tap-highlight-color: transparent;
-        touch-action: manipulation;
-      }
-      #sidebar-toggle-tab:hover { background: #fff; color: #B3541E; }
-      #sidebar-toggle-tab:active { background: #F5F1E8; }
-      #sidebar-toggle-tab.hidden { display: none; }
-      /* 触屏设备：放大 marker 点击热区（视觉大小不变，16px 圆点获得 ~42px 触控区） */
-      @media (pointer: coarse) {
-        .leaflet-marker-icon.leaflet-interactive::after {
-          content: '';
-          position: absolute;
-          inset: -13px;
-          border-radius: 50%;
-        }
-      }
-      /* 窄屏：侧栏 380px 会占满屏幕，压成 86vw（CSS 方案，不与 React 内联样式打架；
-         React 折叠时内联变 width:0px，选择器自动失配，折叠/展开互不干扰） */
-      @media (max-width: 459px) {
-        #root div[style*="width: 380px"][style*="transition"] {
-          width: 86vw !important;
-        }
-        /* 防止手指误触 attribution 链接跳转到 leafletjs.com */
-        .leaflet-control-attribution a { pointer-events: none; }
-      }
-    </style>
-    <script>
-    // 侧栏折叠小耳朵按钮：贴在左侧栏右边缘，跟随宽度动画，点击切换收起/展开
-    (function () {
-      var tab = null;
-      var sidebar = null;
-
-      function findSidebar() {
-        var divs = document.querySelectorAll('#root div');
-        for (var i = 0; i < divs.length; i++) {
-          var s = divs[i].getAttribute('style') || '';
-          if (/width:\s*(380px|0px)/.test(s) && s.indexOf('transition') > -1 && s.indexOf('overflow') > -1) return divs[i];
-        }
-        return null;
-      }
-
-      function findNativeToggle() {
-        var btns = document.querySelectorAll('button');
-        for (var i = 0; i < btns.length; i++) {
-          var t = btns[i].textContent || '';
-          if (t.indexOf('清单/动线') > -1 || (t.indexOf('收起') > -1 && t.length < 12)) return btns[i];
-        }
-        return null;
-      }
-
-      function sync() {
-        if (!sidebar || !tab) return;
-        var w = sidebar.getBoundingClientRect().width;
-        tab.style.left = w + 'px';
-        var open = w > 30;
-        tab.innerHTML = open ? '&#8249;' : '&#8250;';
-        tab.title = open ? '收起左侧栏' : '展开清单/动线';
-        var native = findNativeToggle();
-        tab.className = native ? '' : 'hidden';
-      }
-
-      function init() {
-        sidebar = findSidebar();
-        if (!sidebar) return false;
-        if (tab) return true;
-        tab = document.createElement('button');
-        tab.id = 'sidebar-toggle-tab';
-        tab.setAttribute('aria-label', '折叠或展开左侧栏');
-        tab.addEventListener('click', function () {
-          var b = findNativeToggle();
-          if (b) b.click();
-        });
-        document.body.appendChild(tab);
-        if (window.ResizeObserver) new ResizeObserver(sync).observe(sidebar);
-        window.addEventListener('resize', sync);
-        window.addEventListener('orientationchange', sync);
-        new MutationObserver(sync).observe(sidebar, { attributes: true, attributeFilter: ['style'] });
-        sync();
-        return true;
-      }
-
-      var tries = 0;
-      var autoCollapsed = false;
-      var timer = setInterval(function () {
-        if (init() || ++tries > 200) clearInterval(timer);
-        // 手机窄屏：首次加载自动收起侧栏，把全屏让给地图
-        if (!autoCollapsed && window.innerWidth < 460 && sidebar) {
-          autoCollapsed = true;
-          if (sidebar.getBoundingClientRect().width > 300) {
-            var b = findNativeToggle();
-            if (b) b.click();
-          }
-        }
-      }, 100);
-    })();
-    </script>
   </body>
 </html>
