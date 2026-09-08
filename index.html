@@ -8,8 +8,8 @@
     <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
     <link rel="apple-touch-icon" href="./icon-192.png" />
     <title>苏联现代主义·俄罗斯打卡地图</title>
-    <script type="module" crossorigin src="./assets/index-v13.js?v=20260915"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-D58Egvz-.css?v=20260915">
+    <script type="module" crossorigin src="./assets/index-v13.js?v=20260916"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-D58Egvz-.css?v=20260916">
   </head>
   <body>
     <div id="root"></div>
@@ -17,6 +17,9 @@
     <script>
     (function () {
       if (!('serviceWorker' in navigator)) return;
+      var APP_VERSION = 'v23'; // 必须与 sw.js 的 VERSION 保持一致
+      // 页面加载时若已有 SW 控制，说明这是更新场景（而非首次安装）
+      var hadController = !!navigator.serviceWorker.controller;
       var toast = document.getElementById('pwa-toast');
       var timer = null;
       function show(text, sticky) {
@@ -30,6 +33,16 @@
 
       navigator.serviceWorker.addEventListener('message', function (e) {
         var d = e.data || {};
+        if (d.type === 'sw-activated' && d.version && d.version !== APP_VERSION && hadController) {
+          // 新版本已就绪：自动刷新一次（同一会话内同一版本只刷一次，防循环）
+          try {
+            if (sessionStorage.getItem('sw-reload-for') === d.version) return;
+            sessionStorage.setItem('sw-reload-for', d.version);
+          } catch (err) {}
+          show('🔄 检测到新版本，正在自动更新…', true);
+          setTimeout(function () { location.reload(); }, 1000);
+          return;
+        }
         if (d.type === 'tile-progress') {
           show('\u{1F4E1} 离线地图缓存中 ' + d.done + '/' + d.total, true);
         } else if (d.type === 'tiles-done') {
@@ -40,7 +53,7 @@
       });
 
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js?v=20260915', { updateViaCache: 'none' }).catch(function () {
+        navigator.serviceWorker.register('./sw.js?v=20260916', { updateViaCache: 'none' }).catch(function () {
           show('\u26A0\uFE0F 离线缓存注册失败（需 https 或 localhost 环境）');
         });
       });

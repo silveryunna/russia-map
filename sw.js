@@ -1,6 +1,6 @@
 // Service Worker - 苏联现代主义·俄罗斯打卡地图 离线版
-// v1: 应用外壳 + 高德瓦片预缓存(406块) + 运行时瓦片缓存
-const VERSION = 'v22';
+// 应用外壳网络优先（?v= 版本参数生效）+ 瓦片预缓存/运行时缓存 + 新版本激活后通知页面自动刷新
+const VERSION = 'v23';
 const SHELL_CACHE = 'ru-map-shell-' + VERSION;
 const TILE_CACHE = 'ru-map-tiles-' + VERSION;
 const RUNTIME_CACHE = 'ru-map-runtime-' + VERSION;
@@ -598,10 +598,11 @@ async function postToClients(msg) {
 }
 
 // 安装：仅缓存应用外壳（快速激活，瓦片在激活后后台下载）
+// cache:'reload' 绕过 HTTP 缓存，保证拿到的是当前部署的最新文件
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(SHELL_CACHE);
-    await Promise.allSettled(SHELL_ASSETS.map(u => cache.add(u)));
+    await Promise.allSettled(SHELL_ASSETS.map(u => cache.add(new Request(u, { cache: 'reload' }))));
     await postToClients({ type: 'sw-installed' });
   })());
   self.skipWaiting();
@@ -615,7 +616,7 @@ self.addEventListener('activate', (event) => {
       k.startsWith('ru-map-') && !k.endsWith(VERSION)
     ).map(k => caches.delete(k)));
     await self.clients.claim();
-    await postToClients({ type: 'sw-activated' });
+    await postToClients({ type: 'sw-activated', version: VERSION });
     precacheTiles(); // 后台执行，不阻塞
   })());
 });
@@ -669,11 +670,9 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 同源资源：缓存优先
+  // 同源资源：网络优先（保证 ?v= 新版本参数生效），离线回退缓存
   if (new URL(url).origin === self.location.origin) {
     event.respondWith((async () => {
-      const hit = await caches.match(req, { ignoreSearch: true });
-      if (hit) return hit;
       try {
         const res = await fetch(req);
         if (res.ok) {
@@ -682,7 +681,9 @@ self.addEventListener('fetch', (event) => {
         }
         return res;
       } catch (e) {
-        return (await caches.match(req)) || Response.error();
+        return (await caches.match(req)) ||
+          (await caches.match(req, { ignoreSearch: true })) ||
+          Response.error();
       }
     })());
     return;
