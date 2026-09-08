@@ -36,6 +36,14 @@ for (const [i, p] of points.entries()) {
   } else if (!p.pending) {
     err(`${where} 无坐标且未标记 pending（会画到 (0,0)）`);
   }
+  if (p.confidence !== undefined && ![0, 75, 100].includes(p.confidence)) {
+    err(`${where} confidence 取值非法：${p.confidence}（应为 0/75/100 或缺省）`);
+  }
+  if (p.tags !== undefined) {
+    if (!Array.isArray(p.tags) || p.tags.some(t => typeof t !== 'string' || !t.trim())) {
+      err(`${where} tags 必须是字符串数组`);
+    }
+  }
 }
 const pend = points.filter(p => p.pending).length;
 ok(`点位 ${points.length} 个（待核 ${pend}），id/name 无重复`);
