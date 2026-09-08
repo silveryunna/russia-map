@@ -40,7 +40,7 @@
       });
 
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js').catch(function () {
+        navigator.serviceWorker.register('./sw.js?v=20260908', { updateViaCache: 'none' }).catch(function () {
           show('\u26A0\uFE0F 离线缓存注册失败（需 https 或 localhost 环境）');
         });
       });
