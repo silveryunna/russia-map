@@ -8,8 +8,8 @@
     <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
     <link rel="apple-touch-icon" href="./icon-192.png" />
     <title>苏联现代主义·俄罗斯打卡地图</title>
-    <script type="module" crossorigin src="./assets/index-v13.js?v=20260916"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-D58Egvz-.css?v=20260916">
+    <script type="module" crossorigin src="./assets/index-v13.js?v=20260917"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-D58Egvz-.css?v=20260917">
   </head>
   <body>
     <div id="root"></div>
@@ -17,7 +17,7 @@
     <script>
     (function () {
       if (!('serviceWorker' in navigator)) return;
-      var APP_VERSION = 'v23'; // 必须与 sw.js 的 VERSION 保持一致
+      var APP_VERSION = 'v24'; // 必须与 sw.js 的 VERSION 保持一致
       // 页面加载时若已有 SW 控制，说明这是更新场景（而非首次安装）
       var hadController = !!navigator.serviceWorker.controller;
       var toast = document.getElementById('pwa-toast');
@@ -43,17 +43,10 @@
           setTimeout(function () { location.reload(); }, 1000);
           return;
         }
-        if (d.type === 'tile-progress') {
-          show('\u{1F4E1} 离线地图缓存中 ' + d.done + '/' + d.total, true);
-        } else if (d.type === 'tiles-done') {
-          show(d.fail > 0
-            ? '\u2705 离线就绪（' + (d.total - d.fail) + '/' + d.total + ' 块瓦片，' + d.fail + ' 块失败）'
-            : '\u2705 离线地图已就绪（' + d.total + ' 块瓦片）');
-        }
       });
 
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js?v=20260916', { updateViaCache: 'none' }).catch(function () {
+        navigator.serviceWorker.register('./sw.js?v=20260917', { updateViaCache: 'none' }).catch(function () {
           show('\u26A0\uFE0F 离线缓存注册失败（需 https 或 localhost 环境）');
         });
       });
