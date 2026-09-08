@@ -8,8 +8,8 @@
     <link rel="icon" type="image/png" sizes="192x192" href="./icon-192.png" />
     <link rel="apple-touch-icon" href="./icon-192.png" />
     <title>苏联现代主义·俄罗斯打卡地图</title>
-    <script type="module" crossorigin src="./assets/index-v13.js?v=20260909"></script>
-    <link rel="stylesheet" crossorigin href="./assets/index-D58Egvz-.css?v=20260909">
+    <script type="module" crossorigin src="./assets/index-v13.js?v=20260910"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-D58Egvz-.css?v=20260910">
   </head>
   <body>
     <div id="root"></div>
@@ -40,13 +40,26 @@
       });
 
       window.addEventListener('load', function () {
-        navigator.serviceWorker.register('./sw.js?v=20260909', { updateViaCache: 'none' }).catch(function () {
+        navigator.serviceWorker.register('./sw.js?v=20260910', { updateViaCache: 'none' }).catch(function () {
           show('\u26A0\uFE0F 离线缓存注册失败（需 https 或 localhost 环境）');
         });
       });
     })();
     </script>
     <style>
+      /* Leaflet.markercluster 聚合动画 */
+      .leaflet-cluster-anim .leaflet-marker-icon, .leaflet-cluster-anim .leaflet-marker-shadow {
+        -webkit-transition: -webkit-transform 0.3s ease-out, opacity 0.3s ease-in;
+        -moz-transition: -moz-transform 0.3s ease-out, opacity 0.3s ease-in;
+        -o-transition: -o-transform 0.3s ease-out, opacity 0.3s ease-in;
+        transition: transform 0.3s ease-out, opacity 0.3s ease-in;
+      }
+      .leaflet-cluster-spider-leg {
+        -webkit-transition: -webkit-stroke-dashoffset 0.3s ease-out, -webkit-stroke-opacity 0.3s ease-in;
+        -moz-transition: -moz-stroke-dashoffset 0.3s ease-out, -moz-stroke-opacity 0.3s ease-in;
+        -o-transition: -o-stroke-dashoffset 0.3s ease-out, -o-stroke-opacity 0.3s ease-in;
+        transition: stroke-dashoffset 0.3s ease-out, stroke-opacity 0.3s ease-in;
+      }
       #sidebar-toggle-tab {
         position: fixed;
         top: 50%;
