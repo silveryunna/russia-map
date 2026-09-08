@@ -1,20 +1,20 @@
-import"./base-PdgKi3kY.js";import{t as e}from"./sw-register-DQUWfbwc.js";var t=`travel-checkin-v1`,n=document.getElementById(`list-app`),r=e=>String(e??``).replace(/[&<>"']/g,e=>({"&":`&amp;`,"<":`&lt;`,">":`&gt;`,'"':`&quot;`,"'":`&#39;`})[e]),i=[],a={cityColors:{},cities:[]},o={query:``,collapsed:new Set,checked:new Set(JSON.parse(localStorage.getItem(t)||`[]`))},s=()=>i.filter(e=>!e.pending),c=()=>i.filter(e=>e.pending);function l(){let e=o.query.trim().toLowerCase(),t=s();e&&(t=t.filter(t=>t.name.toLowerCase().includes(e)||t.cluster.toLowerCase().includes(e)||t.type.toLowerCase().includes(e)||(t.highlight||``).toLowerCase().includes(e)||t.city.toLowerCase().includes(e)));let n=new Map;for(let e of t){n.has(e.city)||n.set(e.city,new Map);let t=n.get(e.city);t.has(e.cluster)||t.set(e.cluster,[]),t.get(e.cluster).push(e)}return[...n.entries()].map(([e,t])=>({city:e,clusters:[...t.entries()].map(([e,t])=>({cluster:e,points:t}))}))}function u(){let e=o.query.trim().toLowerCase();return e?c().filter(t=>t.name.toLowerCase().includes(e)||t.type.toLowerCase().includes(e)||(t.highlight||``).toLowerCase().includes(e)||t.city.toLowerCase().includes(e)):c()}function d(){let e=s().filter(e=>o.checked.has(e.name)).length,t=s().length?Math.round(e/s().length*100):0,i=`
+import"./base-PdgKi3kY.js";import{t as e}from"./sw-register-DPVxZZsI.js";var t=`travel-checkin-v1`,n=document.getElementById(`list-app`),r=e=>String(e??``).replace(/[&<>"']/g,e=>({"&":`&amp;`,"<":`&lt;`,">":`&gt;`,'"':`&quot;`,"'":`&#39;`})[e]),i=[],a={cityColors:{},cities:[]},o={query:``,collapsed:new Set,checked:new Set(JSON.parse(localStorage.getItem(t)||`[]`))},s=()=>i.filter(e=>!e.pending),c=()=>i.filter(e=>e.pending);function l(){let e=o.query.trim().toLowerCase(),t=s();e&&(t=t.filter(t=>t.name.toLowerCase().includes(e)||t.cluster.toLowerCase().includes(e)||t.type.toLowerCase().includes(e)||(t.highlight||``).toLowerCase().includes(e)||t.city.toLowerCase().includes(e)));let n=new Map;for(let e of t){n.has(e.city)||n.set(e.city,new Map);let t=n.get(e.city);t.has(e.cluster)||t.set(e.cluster,[]),t.get(e.cluster).push(e)}return[...n.entries()].map(([e,t])=>({city:e,clusters:[...t.entries()].map(([e,t])=>({cluster:e,points:t}))}))}function u(){let e=o.query.trim().toLowerCase();return e?c().filter(t=>t.name.toLowerCase().includes(e)||t.type.toLowerCase().includes(e)||(t.highlight||``).toLowerCase().includes(e)||t.city.toLowerCase().includes(e)):c()}function d(){let e=s().filter(e=>o.checked.has(e.id)).length,t=s().length?Math.round(e/s().length*100):0,i=`
     <div class="list-summary">
       共 ${s().length} 个点位 · 已打卡 <b>${e}</b> 个 · 完成度 ${t}%
       <span class="ls-bar"><span class="ls-fill" style="width:${t}%"></span></span>
     </div>
-    <input class="list-search" type="text" placeholder="搜索点位 / 类别 / 城市…" value="${r(o.query)}">`;for(let{city:e,clusters:t}of l()){let n=a.cityColors[e]||`#546E7A`,s=`city:`+e,c=o.collapsed.has(s),l=t.reduce((e,t)=>e+t.points.length,0),u=t.reduce((e,t)=>e+t.points.filter(e=>o.checked.has(e.name)).length,0);if(i+=`
+    <input class="list-search" type="text" placeholder="搜索点位 / 类别 / 城市…" value="${r(o.query)}">`;for(let{city:e,clusters:t}of l()){let n=a.cityColors[e]||`#546E7A`,s=`city:`+e,c=o.collapsed.has(s),l=t.reduce((e,t)=>e+t.points.length,0),u=t.reduce((e,t)=>e+t.points.filter(e=>o.checked.has(e.id)).length,0);if(i+=`
       <div class="l-city" data-toggle="${r(s)}">
         <span class="head-arrow">${c?`▶`:`▼`}</span>
         <span class="head-dot" style="background:${n}"></span>${r(e)}
         <span class="head-count">（${u}/${l}）</span>
-      </div>`,!c)for(let{cluster:n,points:a}of t){let t=e+`||`+n,s=o.collapsed.has(t),c=a.filter(e=>o.checked.has(e.name)).length;i+=`
+      </div>`,!c)for(let{cluster:n,points:a}of t){let t=e+`||`+n,s=o.collapsed.has(t),c=a.filter(e=>o.checked.has(e.id)).length;i+=`
         <div class="l-cluster" data-toggle="${r(t)}">
           <span class="head-arrow">${s?`▶`:`▼`}</span>${r(n)}
           <span class="head-count">（${c}/${a.length}）</span>
-        </div>`,!s&&(i+=a.map(e=>{let t=o.checked.has(e.name);return`
+        </div>`,!s&&(i+=a.map(e=>{let t=o.checked.has(e.id);return`
         <label class="l-point${t?` done`:``}">
-          <input type="checkbox" data-check="${r(e.name)}" ${t?`checked`:``}>
+          <input type="checkbox" data-check="${r(e.id)}" ${t?`checked`:``}>
           <span class="lp-main">
             <span class="lp-name">${r(e.name)}</span>
             <span class="lp-sub">${r(e.type)} · ${r(e.highlight||``)}</span>

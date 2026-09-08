@@ -1,0 +1,14 @@
+# 推送即校验：点位/动线数据完整性（防止脏数据上线）
+name: data-check
+on: [push]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      # 部署仓库根目录的 data/ 即线上数据（dist 原样拷贝）
+      - run: node tools/check-data.mjs ./data

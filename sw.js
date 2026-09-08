@@ -4,7 +4,7 @@
 //
 // 【更新发布流程】每次部署新版本时，把下面的 VERSION 改一个新值（如 tn-v2、tn-v3…），
 // 用户打开页面时会自动检测并刷新到新版本。
-const VERSION = 'tn-v2';
+const VERSION = 'tn-v3';
 const SHELL_CACHE = 'tn-shell-' + VERSION;
 const RUNTIME_CACHE = 'tn-runtime-' + VERSION;
 
