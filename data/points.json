@@ -322,7 +322,7 @@
   {
     "id": "p024",
     "name": "皮赫蒂诺站（单独远点）",
-    "name_en": "Borovskoye Highway",
+    "name_en": "Pykhtino Metro Station",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁·航空主题",
@@ -768,7 +768,7 @@
   {
     "id": "p057",
     "name": "马雅可夫斯基站",
-    "name_en": "1st Tverskaya-Yamskaya Street",
+    "name_en": "Mayakovskaya Metro Station",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -783,7 +783,7 @@
   {
     "id": "p058",
     "name": "共青团站",
-    "name_en": "Komsomolskaya Square",
+    "name_en": "Komsomolskaya Metro Station",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -798,7 +798,7 @@
   {
     "id": "p059",
     "name": "革命广场站",
-    "name_en": "Bogoyavlenskiy Lane, 2",
+    "name_en": "Ploshchad Revolyutsii Metro Station",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -813,7 +813,7 @@
   {
     "id": "p060",
     "name": "新村庄站",
-    "name_en": "Novoslobodskaya Street, 2",
+    "name_en": "Novoslobodskaya Metro Station",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -843,7 +843,7 @@
   {
     "id": "p062",
     "name": "基辅站",
-    "name_en": "Kiyevskogo Vokzala Square, 2",
+    "name_en": "Kiyevskaya Metro Station",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -858,7 +858,7 @@
   {
     "id": "p063",
     "name": "塔甘卡站",
-    "name_en": "Taganskaya Square",
+    "name_en": "Taganskaya Metro Station",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -1407,7 +1407,7 @@
   {
     "id": "p104",
     "name": "《地铁时代》主题列车（Эпохи метро）",
-    "name_en": "Alexandra Nevskogo Square, 2А",
+    "name_en": "Ploshchad Alexandra Nevskogo Metro Station",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "地铁·主题列车",
@@ -1509,7 +1509,7 @@
   {
     "id": "p112",
     "name": "基洛夫工厂地铁站",
-    "name_en": "Stachek Avenue, 70",
+    "name_en": "Kirovsky Zavod Metro Station",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "地铁站",
@@ -1815,7 +1815,7 @@
   {
     "id": "p137",
     "name": "地铁·丝绸之路站 Zhibek Zholy",
-    "name_en": "Zhibek Zholy",
+    "name_en": "Zhibek Zholy Metro Station",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地铁站",
@@ -1830,7 +1830,7 @@
   {
     "id": "p138",
     "name": "地铁·苹果站 Almaly",
-    "name_en": "Almaly",
+    "name_en": "Almaly Metro Station",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地铁站",
@@ -1845,7 +1845,7 @@
   {
     "id": "p139",
     "name": "地铁·阿乌埃佐夫剧院站 Auezov Theater",
-    "name_en": "Auezov Theater",
+    "name_en": "Auezov Theater Metro Station",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地铁站",
@@ -1860,7 +1860,7 @@
   {
     "id": "p140",
     "name": "地铁·萨雷亚尔卡站 Saryarka",
-    "name_en": "Saryarka",
+    "name_en": "Saryarka Metro Station",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地铁站",
@@ -1875,7 +1875,7 @@
   {
     "id": "p141",
     "name": "地铁·拜科努尔站 Baikonur",
-    "name_en": "Baikonur",
+    "name_en": "Baikonur Metro Station",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地铁站",
@@ -3417,7 +3417,7 @@
   {
     "id": "p269",
     "name": "新切列穆什基站",
-    "name_en": "Profsoyuznaya Street",
+    "name_en": "Novye Cheryomushki Metro Station",
     "city": "莫斯科",
     "cluster": "㉔ 沃龙佐夫公园-卡卢加公路文学群",
     "type": "地铁站·社会主义住宅",
@@ -3432,7 +3432,7 @@
   {
     "id": "p270",
     "name": "新阿托尔斯卡娅站",
-    "name_en": "Novatorov Street",
+    "name_en": "Novatorskaya Metro Station",
     "city": "莫斯科",
     "cluster": "㉔ 沃龙佐夫公园-卡卢加公路文学群",
     "type": "地铁站·城市未来",
@@ -3627,7 +3627,7 @@
   {
     "id": "p286",
     "name": "科茹霍沃地铁站",
-    "name_en": "Yuzhnoportovaya Street",
+    "name_en": "Kozhukhovskaya Metro Station",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "地铁站·终点",
