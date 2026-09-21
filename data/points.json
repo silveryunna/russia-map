@@ -2,6 +2,7 @@
   {
     "id": "p001",
     "name": "红场",
+    "name_en": "Red Square",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "广场",
@@ -16,6 +17,7 @@
   {
     "id": "p002",
     "name": "克里姆林宫",
+    "name_en": "Moscow Kremlin",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "宫殿建筑群",
@@ -27,6 +29,7 @@
   {
     "id": "p003",
     "name": "圣瓦西里大教堂",
+    "name_en": "Red Square, 7",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "教堂·外观",
@@ -41,6 +44,7 @@
   {
     "id": "p004",
     "name": "历史博物馆（红砖楼）",
+    "name_en": "Red Square, 1",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "博物馆·外观",
@@ -52,6 +56,7 @@
   {
     "id": "p005",
     "name": "古姆百货 + 冰淇淋",
+    "name_en": "Red Square, 3",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "商场·美食",
@@ -63,6 +68,7 @@
   {
     "id": "p006",
     "name": "莫斯科大剧院（芭蕾）",
+    "name_en": "Teatralnaya Square, 1",
     "city": "莫斯科",
     "cluster": "② 剧院-牧首湖群",
     "type": "演出",
@@ -74,6 +80,7 @@
   {
     "id": "p007",
     "name": "牧首湖 + 布尔加科夫",
+    "name_en": "Patriarch's Ponds",
     "city": "莫斯科",
     "cluster": "② 剧院-牧首湖群",
     "type": "文学·公园",
@@ -88,6 +95,7 @@
   {
     "id": "p008",
     "name": "老阿尔巴特步行街 + 维克多·崔纪念墙（痛哭之墙）",
+    "name_en": "Krivoarbatsky Lane",
     "city": "莫斯科",
     "cluster": "③ 阿尔巴特-河湾文化群",
     "type": "步行街·摇滚圣地",
@@ -102,6 +110,7 @@
   {
     "id": "p009",
     "name": "圣母无原罪主教座堂",
+    "name_en": "Malaya Gruzinskaya Street, 27/13с1",
     "city": "莫斯科",
     "cluster": "③ 阿尔巴特-河湾文化群",
     "type": "教堂·新哥特",
@@ -116,6 +125,7 @@
   {
     "id": "p010",
     "name": "普希金国家美术博物馆",
+    "name_en": "Volkhonka Street, 12",
     "city": "莫斯科",
     "cluster": "③ 阿尔巴特-河湾文化群",
     "type": "博物馆·美术",
@@ -127,6 +137,7 @@
   {
     "id": "p011",
     "name": "果戈里故居",
+    "name_en": "Nikitskiy Boulevard, 7А",
     "city": "莫斯科",
     "cluster": "④ 文学故居群（林荫道环线）",
     "type": "故居博物馆",
@@ -138,6 +149,7 @@
   {
     "id": "p012",
     "name": "高尔基故居",
+    "name_en": "Malaya Nikitskaya Street, 6/2с5",
     "city": "莫斯科",
     "cluster": "④ 文学故居群（林荫道环线）",
     "type": "故居博物馆",
@@ -149,6 +161,7 @@
   {
     "id": "p013",
     "name": "托尔斯泰故居",
+    "name_en": "Lva Tolstogo Street, 21с1",
     "city": "莫斯科",
     "cluster": "④ 文学故居群（林荫道环线）",
     "type": "故居博物馆",
@@ -160,6 +173,7 @@
   {
     "id": "p014",
     "name": "莫斯科河夜游船",
+    "name_en": "Kutuzovsky Avenue, 2/1с1",
     "city": "莫斯科",
     "cluster": "⑤ 斯大林七姐妹 City walk",
     "type": "夜游·游船",
@@ -171,6 +185,7 @@
   {
     "id": "p015",
     "name": "俄罗斯科学院“金脑子”",
+    "name_en": "Leninsky Avenue, 32А",
     "city": "莫斯科",
     "cluster": "⑥ 航天科学线（列宁大街→VDNKh）",
     "type": "苏联现代主义",
@@ -185,6 +200,7 @@
   {
     "id": "p016",
     "name": "加加林广场",
+    "name_en": "Gagarina Square",
     "city": "莫斯科",
     "cluster": "⑥ 航天科学线（列宁大街→VDNKh）",
     "type": "航天纪念地",
@@ -199,6 +215,7 @@
   {
     "id": "p017",
     "name": "莫斯科航天博物馆",
+    "name_en": "Mira Avenue, 111",
     "city": "莫斯科",
     "cluster": "⑥ 航天科学线（列宁大街→VDNKh）",
     "type": "航天博物馆",
@@ -214,6 +231,7 @@
   {
     "id": "p018",
     "name": "VDNKh 全俄展览中心",
+    "name_en": "VDNKh",
     "city": "莫斯科",
     "cluster": "⑥ 航天科学线（列宁大街→VDNKh）",
     "type": "公园·苏联建筑",
@@ -228,6 +246,7 @@
   {
     "id": "p019",
     "name": "胜利广场",
+    "name_en": "Kutuzovsky Avenue",
     "city": "莫斯科",
     "cluster": "⑦ 波克隆纳亚山胜利群",
     "type": "纪念广场",
@@ -242,6 +261,7 @@
   {
     "id": "p020",
     "name": "圣乔治胜利教堂",
+    "name_en": "Pobedy Square, 3Б",
     "city": "莫斯科",
     "cluster": "⑦ 波克隆纳亚山胜利群",
     "type": "教堂",
@@ -256,6 +276,7 @@
   {
     "id": "p021",
     "name": "凯旋门",
+    "name_en": "Kutuzovsky Avenue",
     "city": "莫斯科",
     "cluster": "⑦ 波克隆纳亚山胜利群",
     "type": "凯旋门",
@@ -270,6 +291,7 @@
   {
     "id": "p022",
     "name": "察里津诺庄园（公主换装）",
+    "name_en": "Tsaritsyno Museum-Reserve",
     "city": "莫斯科",
     "cluster": "⑧ 察里津诺群（南线）",
     "type": "庄园·公园",
@@ -285,6 +307,7 @@
   {
     "id": "p023",
     "name": "圣母生命之泉圣像教堂",
+    "name_en": "Dolskaya Street, 2",
     "city": "莫斯科",
     "cluster": "⑧ 察里津诺群（南线）",
     "type": "教堂",
@@ -299,6 +322,7 @@
   {
     "id": "p024",
     "name": "皮赫蒂诺站（单独远点）",
+    "name_en": "Borovskoye Highway",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁·航空主题",
@@ -313,6 +337,7 @@
   {
     "id": "p025",
     "name": "特列季亚科夫画廊",
+    "name_en": "Lavrushinsky Lane, 10с4",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "博物馆·美术",
@@ -327,6 +352,7 @@
   {
     "id": "p026",
     "name": "武装力量大教堂（库宾卡爱国者公园）",
+    "name_en": "2-ya Parkovochnaya alleya",
     "city": "莫斯科州/近郊",
     "cluster": "独立点位",
     "type": "教堂·军事地标",
@@ -342,6 +368,7 @@
   {
     "id": "p027",
     "name": "杜布罗维茨圣母显灵教堂（皇冠教堂）",
+    "name_en": "Dubrovitsy Village",
     "city": "莫斯科州/近郊",
     "cluster": "独立点位",
     "type": "教堂·巴洛克",
@@ -356,6 +383,7 @@
   {
     "id": "p028",
     "name": "谢尔盖耶夫小镇（圣三一修道院）",
+    "name_en": "Sergiyev Posad",
     "city": "莫斯科州/近郊",
     "cluster": "独立点位",
     "type": "小镇·金环",
@@ -367,6 +395,7 @@
   {
     "id": "p029",
     "name": "苏兹达尔（+弗拉基米尔）",
+    "name_en": "Suzdal",
     "city": "莫斯科州/近郊",
     "cluster": "独立点位",
     "type": "小镇·金环",
@@ -378,6 +407,7 @@
   {
     "id": "p030",
     "name": "冬宫老馆（艾尔米塔什主馆）",
+    "name_en": "Dvortsovaya Embankment, 38",
     "city": "圣彼得堡",
     "cluster": "① 冬宫群（冬宫广场-宫廷滨河-瓦西里岛）",
     "type": "博物馆",
@@ -393,6 +423,7 @@
   {
     "id": "p031",
     "name": "冬宫新馆（总参谋部大楼“现代馆”）",
+    "name_en": "Palace Square, 10",
     "city": "圣彼得堡",
     "cluster": "① 冬宫群（冬宫广场-宫廷滨河-瓦西里岛）",
     "type": "博物馆",
@@ -404,6 +435,7 @@
   {
     "id": "p032",
     "name": "人类学民族学博物馆（Kunstkamera珍奇馆）",
+    "name_en": "Kunstkamera",
     "city": "圣彼得堡",
     "cluster": "① 冬宫群（冬宫广场-宫廷滨河-瓦西里岛）",
     "type": "博物馆",
@@ -415,6 +447,7 @@
   {
     "id": "p033",
     "name": "喀山大教堂",
+    "name_en": "Kazanskaya Square, 2",
     "city": "圣彼得堡",
     "cluster": "② 涅瓦大街群",
     "type": "教堂",
@@ -429,6 +462,7 @@
   {
     "id": "p034",
     "name": "百年书店",
+    "name_en": "Nevskiy Avenue, 28",
     "city": "圣彼得堡",
     "cluster": "② 涅瓦大街群",
     "type": "书店·纪念品",
@@ -443,6 +477,7 @@
   {
     "id": "p035",
     "name": "滴血复活大教堂",
+    "name_en": "Kanala Griboedova Embankment, 2Б",
     "city": "圣彼得堡",
     "cluster": "② 涅瓦大街群",
     "type": "教堂",
@@ -454,6 +489,7 @@
   {
     "id": "p036",
     "name": "战神广场",
+    "name_en": "Field of Mars",
     "city": "圣彼得堡",
     "cluster": "② 涅瓦大街群",
     "type": "公园",
@@ -468,6 +504,7 @@
   {
     "id": "p037",
     "name": "圣以撒大教堂（参观+登顶）",
+    "name_en": "Saint Isaac's Square, 4",
     "city": "圣彼得堡",
     "cluster": "③ 圣以撒群（圣以撒广场）",
     "type": "教堂·观景",
@@ -479,6 +516,7 @@
   {
     "id": "p038",
     "name": "尼古拉一世纪念碑",
+    "name_en": "Saint Isaac's Square",
     "city": "圣彼得堡",
     "cluster": "③ 圣以撒群（圣以撒广场）",
     "type": "沙皇纪念碑",
@@ -493,6 +531,7 @@
   {
     "id": "p039",
     "name": "彼得保罗要塞",
+    "name_en": "Territory of the Peter and Paul Fortress, 3Т",
     "city": "圣彼得堡",
     "cluster": "④ 彼得保罗要塞群（兔子岛-彼得格勒区）",
     "type": "要塞·博物馆群",
@@ -507,6 +546,7 @@
   {
     "id": "p040",
     "name": "阿芙乐尔巡洋舰",
+    "name_en": "Cruiser Aurora",
     "city": "圣彼得堡",
     "cluster": "④ 彼得保罗要塞群（兔子岛-彼得格勒区）",
     "type": "军舰·博物馆",
@@ -521,6 +561,7 @@
   {
     "id": "p041",
     "name": "涅瓦河游船 / 开桥 / 白夜",
+    "name_en": "Dvortsoviy Bridge",
     "city": "圣彼得堡",
     "cluster": "⑤ 涅瓦河夜景三件套",
     "type": "游船·夜景",
@@ -535,6 +576,7 @@
   {
     "id": "p042",
     "name": "马林斯基剧院（芭蕾）",
+    "name_en": "Teatralnaya Square, 1",
     "city": "圣彼得堡",
     "cluster": "⑥ 文学纪念地组合",
     "type": "演出",
@@ -546,6 +588,7 @@
   {
     "id": "p043",
     "name": "中央机器人技术与技术控制论研究所（ЦНИИ РТК“索伦之塔”）★",
+    "name_en": "Tikhoretskiy Avenue, 21",
     "city": "圣彼得堡",
     "cluster": "⑥ 文学纪念地组合",
     "type": "苏联现代主义",
@@ -560,6 +603,7 @@
   {
     "id": "p044",
     "name": "夏宫（彼得霍夫）",
+    "name_en": "Razvodnaya Street, 2",
     "city": "圣彼得堡",
     "cluster": "⑥ 文学纪念地组合",
     "type": "宫殿·花园",
@@ -571,6 +615,7 @@
   {
     "id": "p045",
     "name": "叶卡捷琳娜宫（皇村）",
+    "name_en": "Sadovaya Street, 9",
     "city": "圣彼得堡",
     "cluster": "⑥ 文学纪念地组合",
     "type": "宫殿·花园",
@@ -582,6 +627,7 @@
   {
     "id": "p046",
     "name": "维堡（周边一日游）",
+    "name_en": "Zamkoviy Island, 1",
     "city": "圣彼得堡",
     "cluster": "⑥ 文学纪念地组合",
     "type": "小镇",
@@ -593,6 +639,7 @@
   {
     "id": "p047",
     "name": "勒热夫战争纪念碑（鹤群）",
+    "name_en": "Rzhev Memorial to Soviet Soldiers",
     "city": "其他城市",
     "cluster": "独立点位",
     "type": "战争纪念地",
@@ -607,6 +654,7 @@
   {
     "id": "p048",
     "name": "陀思妥耶夫斯基戏剧剧院",
+    "name_en": "Desyatinnaya Street, 2",
     "city": "其他城市",
     "cluster": "独立点位",
     "type": "苏联现代主义",
@@ -618,6 +666,7 @@
   {
     "id": "p049",
     "name": "阿廖沙雕塑（极地卫士纪念碑）",
+    "name_en": "Murmansk",
     "city": "其他城市",
     "cluster": "独立点位",
     "type": "战争纪念地",
@@ -632,6 +681,7 @@
   {
     "id": "p050",
     "name": "隆重仪式宫（婚礼宫）",
+    "name_en": "Tbilisi",
     "city": "其他城市",
     "cluster": "独立点位",
     "type": "苏联现代主义",
@@ -643,6 +693,7 @@
   {
     "id": "p051",
     "name": "陀思妥耶夫斯基故居",
+    "name_en": "Dostoyevskogo Street, 2/5",
     "city": "圣彼得堡",
     "cluster": "⑥ 文学纪念地组合",
     "type": "故居博物馆",
@@ -654,6 +705,7 @@
   {
     "id": "p052",
     "name": "季赫温公墓",
+    "name_en": "Glavnaya dorozhka",
     "city": "圣彼得堡",
     "cluster": "⑥ 文学纪念地组合",
     "type": "公墓·纪念地",
@@ -665,6 +717,7 @@
   {
     "id": "p053",
     "name": "零公里地标",
+    "name_en": "Revolyutsii Square",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "地标",
@@ -679,6 +732,7 @@
   {
     "id": "p054",
     "name": "圣母升天大教堂（克里姆林宫）",
+    "name_en": "Kreml Territory, 13",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "教堂·入内",
@@ -690,6 +744,7 @@
   {
     "id": "p055",
     "name": "天使长大教堂（克里姆林宫）",
+    "name_en": "Kreml Territory, 19",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "教堂·入内",
@@ -701,6 +756,7 @@
   {
     "id": "p056",
     "name": "圣母诞生教堂（门廊教堂）",
+    "name_en": "Church of the Nativity of the Theotokos",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "教堂·外观",
@@ -712,6 +768,7 @@
   {
     "id": "p057",
     "name": "马雅可夫斯基站",
+    "name_en": "1st Tverskaya-Yamskaya Street",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -726,6 +783,7 @@
   {
     "id": "p058",
     "name": "共青团站",
+    "name_en": "Komsomolskaya Square",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -740,6 +798,7 @@
   {
     "id": "p059",
     "name": "革命广场站",
+    "name_en": "Bogoyavlenskiy Lane, 2",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -754,6 +813,7 @@
   {
     "id": "p060",
     "name": "新村庄站",
+    "name_en": "Novoslobodskaya Street, 2",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -768,6 +828,7 @@
   {
     "id": "p061",
     "name": "和平大街站",
+    "name_en": "Prospekt Mira Metro Station",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -782,6 +843,7 @@
   {
     "id": "p062",
     "name": "基辅站",
+    "name_en": "Kiyevskogo Vokzala Square, 2",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -796,6 +858,7 @@
   {
     "id": "p063",
     "name": "塔甘卡站",
+    "name_en": "Taganskaya Square",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼（18站）",
     "type": "地铁站",
@@ -810,6 +873,7 @@
   {
     "id": "p064",
     "name": "人民财政委员之家（Narkomfin）",
+    "name_en": "Narkomfin",
     "city": "莫斯科",
     "cluster": "⑩ 构成主义·先锋派建筑线",
     "type": "建筑·构成主义",
@@ -824,6 +888,7 @@
   {
     "id": "p065",
     "name": "利哈乔夫文化宫（ZIL文化宫）",
+    "name_en": "ZIL",
     "city": "莫斯科",
     "cluster": "⑩ 构成主义·先锋派建筑线",
     "type": "建筑·文化宫",
@@ -835,6 +900,7 @@
   {
     "id": "p066",
     "name": "鲁萨科夫文化宫",
+    "name_en": "Rusakov Workers' Club",
     "city": "莫斯科",
     "cluster": "⑩ 构成主义·先锋派建筑线",
     "type": "建筑·构成主义",
@@ -849,6 +915,7 @@
   {
     "id": "p067",
     "name": "手风琴楼（Дом-гармошка）",
+    "name_en": "Novokuznetskaya Street, 13с1",
     "city": "莫斯科",
     "cluster": "⑩ 构成主义·先锋派建筑线",
     "type": "建筑·奇观",
@@ -863,6 +930,7 @@
   {
     "id": "p068",
     "name": "国家计委车库（Гараж Госплана）",
+    "name_en": "Aviamotornaya Street, 63с1",
     "city": "莫斯科",
     "cluster": "⑩ 构成主义·先锋派建筑线",
     "type": "建筑·先锋派",
@@ -877,6 +945,7 @@
   {
     "id": "p069",
     "name": "克里沃阿尔巴特巷",
+    "name_en": "Krivoarbatsky Lane",
     "city": "莫斯科",
     "cluster": "⑪ 老街巷漫步线",
     "type": "街巷·拍照",
@@ -891,6 +960,7 @@
   {
     "id": "p070",
     "name": "西夫采夫·弗拉热克巷",
+    "name_en": "Gogolevskiy Boulevard, 21с1",
     "city": "莫斯科",
     "cluster": "⑪ 老街巷漫步线",
     "type": "街巷·漫步",
@@ -905,6 +975,7 @@
   {
     "id": "p071",
     "name": "捷辛斯基桥",
+    "name_en": "Tessinsky Bridge",
     "city": "莫斯科",
     "cluster": "⑪ 老街巷漫步线",
     "type": "桥·拍照",
@@ -919,6 +990,7 @@
   {
     "id": "p072",
     "name": "第二&第三特维尔亚姆斯卡亚街",
+    "name_en": "2nd Tverskaya-Yamskaya Street, 26А",
     "city": "莫斯科",
     "cluster": "⑪ 老街巷漫步线",
     "type": "街巷·漫步",
@@ -933,6 +1005,7 @@
   {
     "id": "p073",
     "name": "伊万诺夫斯卡亚山（小伊万诺夫斯基巷）",
+    "name_en": "Maly Ivanovsky Lane",
     "city": "莫斯科",
     "cluster": "⑪ 老街巷漫步线",
     "type": "街巷·摄影",
@@ -947,6 +1020,7 @@
   {
     "id": "p074",
     "name": "卡洛明斯克庄园",
+    "name_en": "Kolomenskoye Museum-Reserve",
     "city": "莫斯科",
     "cluster": "⑫ 庄园群",
     "type": "庄园·公园",
@@ -961,6 +1035,7 @@
   {
     "id": "p075",
     "name": "库斯科沃庄园",
+    "name_en": "Kuskovo Estate",
     "city": "莫斯科",
     "cluster": "⑫ 庄园群",
     "type": "庄园·博物馆",
@@ -972,6 +1047,7 @@
   {
     "id": "p076",
     "name": "奥斯坦基诺庄园",
+    "name_en": "1st Ostankinskaya Street",
     "city": "莫斯科",
     "cluster": "⑫ 庄园群",
     "type": "庄园·博物馆",
@@ -983,6 +1059,7 @@
   {
     "id": "p077",
     "name": "赫尔岑故居博物馆",
+    "name_en": "Gagarinsky Lane, 22с1",
     "city": "莫斯科",
     "cluster": "⑬ 故居博物馆群（补充）",
     "type": "故居博物馆",
@@ -994,6 +1071,7 @@
   {
     "id": "p078",
     "name": "阿列克谢·托尔斯泰故居博物馆",
+    "name_en": "Malaya Nikitskaya Street, 20с2",
     "city": "莫斯科",
     "cluster": "⑬ 故居博物馆群（补充）",
     "type": "故居博物馆",
@@ -1005,6 +1083,7 @@
   {
     "id": "p079",
     "name": "白银时代博物馆",
+    "name_en": "Bolshaya Sukharevskaya Square, 3с11",
     "city": "莫斯科",
     "cluster": "⑬ 故居博物馆群（补充）",
     "type": "博物馆",
@@ -1016,6 +1095,7 @@
   {
     "id": "p080",
     "name": "柴可夫斯基博物馆",
+    "name_en": "Konyushkovskaya Street, 31с1",
     "city": "莫斯科",
     "cluster": "⑬ 故居博物馆群（补充）",
     "type": "故居博物馆",
@@ -1027,6 +1107,7 @@
   {
     "id": "p081",
     "name": "陀思妥耶夫斯基故居博物馆（莫斯科）",
+    "name_en": "Suvorovskaya Square, 2",
     "city": "莫斯科",
     "cluster": "⑬ 故居博物馆群（补充）",
     "type": "故居博物馆",
@@ -1038,6 +1119,7 @@
   {
     "id": "p082",
     "name": "卢日尼基码头（水上巴士）",
+    "name_en": "Luzhniki Street, 24с4",
     "city": "莫斯科",
     "cluster": "⑭ 水上巴士航线",
     "type": "码头·电动航线",
@@ -1052,6 +1134,7 @@
   {
     "id": "p083",
     "name": "基辅码头（水上巴士）",
+    "name_en": "Berezhkovskaya Embankment, 1",
     "city": "莫斯科",
     "cluster": "⑭ 水上巴士航线",
     "type": "码头·电动航线",
@@ -1066,6 +1149,7 @@
   {
     "id": "p084",
     "name": "乌克兰饭店（七姐妹 1/7）",
+    "name_en": "Kutuzovsky Avenue, 2/1с1",
     "city": "莫斯科",
     "cluster": "⑤ 斯大林七姐妹 City walk",
     "type": "斯大林建筑·七姐妹",
@@ -1077,6 +1161,7 @@
   {
     "id": "p085",
     "name": "外交部大楼（七姐妹 2/7）",
+    "name_en": "Smolenskaya-Sennaya Square, 32-34",
     "city": "莫斯科",
     "cluster": "⑤ 斯大林七姐妹 City walk",
     "type": "斯大林建筑·七姐妹",
@@ -1088,6 +1173,7 @@
   {
     "id": "p086",
     "name": "文化人公寓·库德林斯卡亚广场高楼（七姐妹 3/7）",
+    "name_en": "Bolshoy Konyushkovsky Lane",
     "city": "莫斯科",
     "cluster": "⑤ 斯大林七姐妹 City walk",
     "type": "斯大林建筑·七姐妹",
@@ -1099,6 +1185,7 @@
   {
     "id": "p087",
     "name": "莫斯科大学主楼（七姐妹 4/7）",
+    "name_en": "Leninskie Gory Territory, 1",
     "city": "莫斯科",
     "cluster": "⑤ 斯大林七姐妹 City walk",
     "type": "斯大林建筑·七姐妹",
@@ -1110,6 +1197,7 @@
   {
     "id": "p088",
     "name": "红门高楼·重工业部大楼（七姐妹 5/7）",
+    "name_en": "Sadovaya-Spasskaya Street",
     "city": "莫斯科",
     "cluster": "⑤ 斯大林七姐妹 City walk",
     "type": "斯大林建筑·七姐妹",
@@ -1121,6 +1209,7 @@
   {
     "id": "p089",
     "name": "列宁格勒酒店·希尔顿（七姐妹 6/7）",
+    "name_en": "Komsomolskaya Square, 2",
     "city": "莫斯科",
     "cluster": "⑤ 斯大林七姐妹 City walk",
     "type": "斯大林建筑·七姐妹",
@@ -1132,6 +1221,7 @@
   {
     "id": "p090",
     "name": "科捷尔尼切斯卡亚滨河大厦（七姐妹 7/7）",
+    "name_en": "Goncharnaya Street, 1",
     "city": "莫斯科",
     "cluster": "⑤ 斯大林七姐妹 City walk",
     "type": "斯大林建筑·七姐妹",
@@ -1143,6 +1233,7 @@
   {
     "id": "p091",
     "name": "Museum of Guns 枪械博物馆（一只蚂蚁市场内）",
+    "name_en": "Museum of Guns",
     "city": "莫斯科",
     "cluster": "独立点位",
     "type": "博物馆·军事装备",
@@ -1154,6 +1245,7 @@
   {
     "id": "p092",
     "name": "RT-64 射电望远镜（现实版「红岸基地」）",
+    "name_en": "RT-64",
     "city": "莫斯科州/近郊",
     "cluster": "独立点位",
     "type": "苏联科技遗迹·现役设施",
@@ -1165,6 +1257,7 @@
   {
     "id": "p093",
     "name": "莱卡纪念碑（首只太空犬）",
+    "name_en": "Khoroshyovskoye Highway, 76Ас19",
     "city": "莫斯科",
     "cluster": "⑥ 航天科学线（列宁大街→VDNKh）",
     "type": "纪念碑·航天",
@@ -1179,6 +1272,7 @@
   {
     "id": "p094",
     "name": "圣彼得堡海运站（Морской вокзал）",
+    "name_en": "ploshchad Morskoy Slavy, 1",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "苏联现代主义·建筑",
@@ -1190,6 +1284,7 @@
   {
     "id": "p095",
     "name": "俄罗斯国立图书馆（莫斯科 · 原列宁图书馆）",
+    "name_en": "Vozdvizhenka Street, 3/5",
     "city": "莫斯科",
     "cluster": "独立点位",
     "type": "文化地标·图书馆",
@@ -1204,6 +1299,7 @@
   {
     "id": "p096",
     "name": "俄罗斯国家图书馆（圣彼得堡 · 主楼）",
+    "name_en": "Sadovaya Street, 18",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "文化地标·图书馆",
@@ -1215,6 +1311,7 @@
   {
     "id": "p097",
     "name": "波洛夫佐夫官邸（建筑师之家）",
+    "name_en": "Bol'shaya Morskaya Street, 52",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "历史建筑·贵族官邸",
@@ -1229,6 +1326,7 @@
   {
     "id": "p098",
     "name": "叶利谢耶夫食品店（圣彼得堡）",
+    "name_en": "Nevskiy Avenue, 56",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "历史建筑·老食品店",
@@ -1240,6 +1338,7 @@
   {
     "id": "p099",
     "name": "叶利谢耶夫商店（莫斯科 · 特维尔大街）",
+    "name_en": "Tverskaya Street, 14",
     "city": "莫斯科",
     "cluster": "独立点位",
     "type": "历史建筑·老食品店",
@@ -1251,6 +1350,7 @@
   {
     "id": "p100",
     "name": "网红口腔诊所·几何拼色墙",
+    "name_en": "5th Vasilyevskogo Ostrova Line",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "建筑·奇观",
@@ -1262,6 +1362,7 @@
   {
     "id": "p101",
     "name": "三一主教座堂（圣三一大教堂）",
+    "name_en": "Izmaylovskiy Avenue, 7А",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "教堂",
@@ -1276,6 +1377,7 @@
   {
     "id": "p102",
     "name": "海军圣尼古拉主教座堂",
+    "name_en": "Nikol'skaya Square, 1",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "教堂·巴洛克",
@@ -1290,6 +1392,7 @@
   {
     "id": "p103",
     "name": "圣尼古拉海员主教座堂（喀琅施塔得）",
+    "name_en": "Yakornaya Square, 1",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "教堂·观景",
@@ -1304,6 +1407,7 @@
   {
     "id": "p104",
     "name": "《地铁时代》主题列车（Эпохи метро）",
+    "name_en": "Alexandra Nevskogo Square, 2А",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "地铁·主题列车",
@@ -1318,6 +1422,7 @@
   {
     "id": "p105",
     "name": "圣彼得堡国立艺术设计学院（施蒂格利茨学院）",
+    "name_en": "Solyanoy Lane, 15",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "历史建筑·艺术学府",
@@ -1329,6 +1434,7 @@
   {
     "id": "p106",
     "name": "维捷布斯克火车站",
+    "name_en": "Zagorodniy Avenue",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "火车站·历史建筑",
@@ -1343,6 +1449,7 @@
   {
     "id": "p107",
     "name": "米哈伊尔大公废弃宫殿（米哈伊洛夫庄园）",
+    "name_en": "St. Petersburg Highway, 109Б",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "宫殿·废墟",
@@ -1354,6 +1461,7 @@
   {
     "id": "p108",
     "name": "「艾拉尔塔」当代艺术博物馆（Эрарта）",
+    "name_en": "29th Vasilyevskogo Ostrova Line, 2",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "博物馆·美术",
@@ -1365,6 +1473,7 @@
   {
     "id": "p109",
     "name": "苏联老虎机博物馆",
+    "name_en": "Konyushennaya Square, 2В",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "博物馆",
@@ -1376,6 +1485,7 @@
   {
     "id": "p110",
     "name": "法贝热博物馆",
+    "name_en": "Fontanka River Embankment, 21",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "博物馆·美术",
@@ -1387,6 +1497,7 @@
   {
     "id": "p111",
     "name": "银行桥（狮鹫桥）",
+    "name_en": "Bankovskiy most",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "桥·拍照",
@@ -1398,6 +1509,7 @@
   {
     "id": "p112",
     "name": "基洛夫工厂地铁站",
+    "name_en": "Stachek Avenue, 70",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "地铁站",
@@ -1412,6 +1524,7 @@
   {
     "id": "p113",
     "name": "阿西-图尔根天文台",
+    "name_en": "Assy-Turgen Observatory",
     "city": "其他城市",
     "cluster": "独立点位",
     "type": "苏联科技遗迹·现役设施",
@@ -1423,6 +1536,7 @@
   {
     "id": "p114",
     "name": "马德里旅馆（乌拉尔重型机器制造厂构成主义综合体）",
+    "name_en": "Kultury Street, 1",
     "city": "其他城市",
     "cluster": "独立点位",
     "type": "建筑·构成主义",
@@ -1434,6 +1548,7 @@
   {
     "id": "p115",
     "name": "中央消费合作社大楼（柯布西耶）",
+    "name_en": "Myasnitskaya Street, 39с1",
     "city": "莫斯科",
     "cluster": "⑩ 构成主义·先锋派建筑线",
     "type": "建筑·构成主义",
@@ -1445,6 +1560,7 @@
   {
     "id": "p116",
     "name": "国家杜马大楼",
+    "name_en": "Tverskaya Street, 2",
     "city": "莫斯科",
     "cluster": "独立点位",
     "type": "苏联现代主义·建筑",
@@ -1456,6 +1572,7 @@
   {
     "id": "p117",
     "name": "船屋（泰坦尼克号·核工之家）",
+    "name_en": "Bolshaya Tulskaya Street, 2",
     "city": "莫斯科",
     "cluster": "独立点位",
     "type": "建筑·奇观",
@@ -1470,6 +1587,7 @@
   {
     "id": "p118",
     "name": "莫斯科造币厂",
+    "name_en": "Danilovskiy Val Street, 1с6",
     "city": "莫斯科",
     "cluster": "独立点位",
     "type": "苏联现代主义·建筑",
@@ -1481,6 +1599,7 @@
   {
     "id": "p119",
     "name": "哈萨克斯坦大酒店 Hotel Kazakhstan",
+    "name_en": "Hotel Kazakhstan",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1492,6 +1611,7 @@
   {
     "id": "p120",
     "name": "哈萨克斯坦独立纪念碑",
+    "name_en": "Republic Square",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地标",
@@ -1503,6 +1623,7 @@
   {
     "id": "p121",
     "name": "阿拉木图市政府 Akimat",
+    "name_en": "Akimat",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地标",
@@ -1514,6 +1635,7 @@
   {
     "id": "p122",
     "name": "哈萨克斯坦中央国家博物馆",
+    "name_en": "Samal-1 shaǵyn aýdany, 44",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "博物馆",
@@ -1525,6 +1647,7 @@
   {
     "id": "p123",
     "name": "阿拜国家歌剧芭蕾舞剧院",
+    "name_en": "Kabanbai Batyr Street, 110",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "演出",
@@ -1536,6 +1659,7 @@
   {
     "id": "p124",
     "name": "江布尔·扎巴耶夫纪念碑",
+    "name_en": "Kabanbai Batyr Street",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地标",
@@ -1547,6 +1671,7 @@
   {
     "id": "p125",
     "name": "阿乌埃佐夫戏剧学院·戏剧博物馆",
+    "name_en": "Abay Avenue, 103",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "博物馆",
@@ -1558,6 +1683,7 @@
   {
     "id": "p126",
     "name": "里海大学 Caspian University",
+    "name_en": "Caspian University",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1569,6 +1695,7 @@
   {
     "id": "p127",
     "name": "KIMEP 大学",
+    "name_en": "KIMEP",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1580,6 +1707,7 @@
   {
     "id": "p128",
     "name": "Kok-Tobe 缆车下站",
+    "name_en": "Kok-Tobe",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地标",
@@ -1591,6 +1719,7 @@
   {
     "id": "p129",
     "name": "Arman 电影院",
+    "name_en": "Arman",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1602,6 +1731,7 @@
   {
     "id": "p130",
     "name": "阿拉木图艺术博物馆",
+    "name_en": "Al-Farabi Avenue, 28",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "博物馆·美术",
@@ -1613,6 +1743,7 @@
   {
     "id": "p131",
     "name": "二手书店 Букинист",
+    "name_en": "D3/D2",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "书店·纪念品",
@@ -1624,6 +1755,7 @@
   {
     "id": "p132",
     "name": "时装大厦·Symbat 中心",
+    "name_en": "Symbat",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1635,6 +1767,7 @@
   {
     "id": "p133",
     "name": "Telecenter 冰柱电视演播室",
+    "name_en": "Telecenter",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1646,6 +1779,7 @@
   {
     "id": "p134",
     "name": "升天大教堂（津科夫大教堂）",
+    "name_en": "Gogol Street, 40В",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "教堂",
@@ -1657,6 +1791,7 @@
   {
     "id": "p135",
     "name": "潘菲洛夫二十八勇士纪念碑",
+    "name_en": "Park of 28 Panfilov Guardsmen",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "纪念广场",
@@ -1668,6 +1803,7 @@
   {
     "id": "p136",
     "name": "阿拉木图军事历史博物馆",
+    "name_en": "Central State Museum of Kazakhstan",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "博物馆",
@@ -1679,6 +1815,7 @@
   {
     "id": "p137",
     "name": "地铁·丝绸之路站 Zhibek Zholy",
+    "name_en": "Zhibek Zholy",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地铁站",
@@ -1693,6 +1830,7 @@
   {
     "id": "p138",
     "name": "地铁·苹果站 Almaly",
+    "name_en": "Almaly",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地铁站",
@@ -1707,6 +1845,7 @@
   {
     "id": "p139",
     "name": "地铁·阿乌埃佐夫剧院站 Auezov Theater",
+    "name_en": "Auezov Theater",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地铁站",
@@ -1721,6 +1860,7 @@
   {
     "id": "p140",
     "name": "地铁·萨雷亚尔卡站 Saryarka",
+    "name_en": "Saryarka",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地铁站",
@@ -1735,6 +1875,7 @@
   {
     "id": "p141",
     "name": "地铁·拜科努尔站 Baikonur",
+    "name_en": "Baikonur",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地铁站",
@@ -1749,6 +1890,7 @@
   {
     "id": "p142",
     "name": "婚礼殿堂（中央婚礼宫）",
+    "name_en": "Central Wedding Palace, Moscow",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1760,6 +1902,7 @@
   {
     "id": "p143",
     "name": "Tselinny 当代文化中心",
+    "name_en": "Tselinny",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1771,6 +1914,7 @@
   {
     "id": "p144",
     "name": "宇航员马赛克墙",
+    "name_en": "Magaz Masanchi Street, 39",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义",
@@ -1782,6 +1926,7 @@
   {
     "id": "p145",
     "name": "切尔诺贝利清洁工纪念碑",
+    "name_en": "Ahmet Baıtursynov atyndaǵy gúl baǵy",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "战争纪念地",
@@ -1793,6 +1938,7 @@
   {
     "id": "p146",
     "name": "独立曙光纪念碑 Zheltoksan",
+    "name_en": "Zheltoksan",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "纪念广场",
@@ -1804,6 +1950,7 @@
   {
     "id": "p147",
     "name": "Kamkor 酒店",
+    "name_en": "Kamkor",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1815,6 +1962,7 @@
   {
     "id": "p148",
     "name": "Almaty Hotel 阿拉木图酒店",
+    "name_en": "Almaty Hotel",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1826,6 +1974,7 @@
   {
     "id": "p149",
     "name": "Aul 住宅综合楼",
+    "name_en": "Aul",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1837,6 +1986,7 @@
   {
     "id": "p150",
     "name": "Semirechie 二手市场",
+    "name_en": "Semirechie",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "书店·纪念品",
@@ -1848,6 +1998,7 @@
   {
     "id": "p151",
     "name": "AUYL 新游牧餐厅",
+    "name_en": "AUYL",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "商场·美食",
@@ -1862,6 +2013,7 @@
   {
     "id": "p152",
     "name": "法语屋 French House",
+    "name_en": "French House",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1873,6 +2025,7 @@
   {
     "id": "p153",
     "name": "总统府（原列宁博物馆分馆）",
+    "name_en": "Mahatma Gandhi Street",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "地标",
@@ -1884,6 +2037,7 @@
   {
     "id": "p154",
     "name": "Dostyk 44 住宅",
+    "name_en": "Dostyk 44",
     "city": "其他城市",
     "cluster": "⑮ 阿拉木图群",
     "type": "苏联现代主义·建筑",
@@ -1895,6 +2049,7 @@
   {
     "id": "p155",
     "name": "斯莫尔尼大教堂登高点",
+    "name_en": "Rastrelli Square, 1",
     "city": "圣彼得堡",
     "cluster": "城市登高点",
     "type": "教堂·登顶",
@@ -1906,6 +2061,7 @@
   {
     "id": "p156",
     "name": "市政厅塔楼登高点",
+    "name_en": "Palace Square",
     "city": "圣彼得堡",
     "cluster": "城市登高点",
     "type": "塔楼·登顶",
@@ -1917,6 +2073,7 @@
   {
     "id": "p157",
     "name": "弗拉基米尔教堂登高点",
+    "name_en": "Vladimirskiy Avenue, 20",
     "city": "圣彼得堡",
     "cluster": "城市登高点",
     "type": "教堂·登顶",
@@ -1928,6 +2085,7 @@
   {
     "id": "p158",
     "name": "利哈乔夫纪念碑",
+    "name_en": "Avtozavodskaya Street",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "工业遗产·苏联汽车",
@@ -1939,6 +2097,7 @@
   {
     "id": "p159",
     "name": "老厂管理部（红建筑）",
+    "name_en": "Avtozavodskaya Street, 23с135",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "工业遗产·苏联现代主义",
@@ -1950,6 +2109,7 @@
   {
     "id": "p160",
     "name": "锻造车间行政生活楼(АБК)",
+    "name_en": "Avtozavodskaya Street, 23с32",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "工业遗产·工厂建筑",
@@ -1961,6 +2121,7 @@
   {
     "id": "p161",
     "name": "洗浴洗衣综合体+\"鱼雷\"泳池",
+    "name_en": "Vostochnaya Street",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "工业遗产·工厂福利",
@@ -1972,6 +2133,7 @@
   {
     "id": "p162",
     "name": "科茹霍沃火车站",
+    "name_en": "Danilovskiy District",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "铁路遗产·新艺术风格",
@@ -1983,6 +2145,7 @@
   {
     "id": "p163",
     "name": "МЦК\"ZIL\"站",
+    "name_en": "Bratyev Ryabushinskikh Street",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "交通基础设施·МЦК",
@@ -1994,6 +2157,7 @@
   {
     "id": "p164",
     "name": "ZILART住宅区瞭望点",
+    "name_en": "ZILART",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "后工业更新·当代住宅",
@@ -2005,6 +2169,7 @@
   {
     "id": "p165",
     "name": "\"夏加尔\"高层住宅",
+    "name_en": "2-ya ochered, Дс1",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "后工业更新·当代住宅",
@@ -2016,6 +2181,7 @@
   {
     "id": "p166",
     "name": "舒霍夫电视塔",
+    "name_en": "Shukhova Street, 10с1",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "工业遗产·苏联先锋建筑",
@@ -2027,6 +2193,7 @@
   {
     "id": "p167",
     "name": "沙博洛夫卡街三棵白杨",
+    "name_en": "Shabolovka Street, 21",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "文学地理·苏联文学",
@@ -2038,6 +2205,7 @@
   {
     "id": "p168",
     "name": "列斯特瓦街",
+    "name_en": "Lesteva Street",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "街道命名·苏联军事",
@@ -2049,6 +2217,7 @@
   {
     "id": "p169",
     "name": "鸽舍别墅",
+    "name_en": "Donskaya Street",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "贵族庄园·文学记忆",
@@ -2060,6 +2229,7 @@
   {
     "id": "p170",
     "name": "贝克特池塘",
+    "name_en": "Zagorodnoye Highway",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "自然遗迹·城市生态",
@@ -2071,6 +2241,7 @@
   {
     "id": "p171",
     "name": "切列穆什基村旧址",
+    "name_en": "Novocheryomushkinskaya Street",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "城市层积·社会主义住宅",
@@ -2082,6 +2253,7 @@
   {
     "id": "p172",
     "name": "克尔日扎诺夫斯基街",
+    "name_en": "Krzhizhanovskogo Street",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "街道命名·苏联科学",
@@ -2093,6 +2265,7 @@
   {
     "id": "p173",
     "name": "沙博洛夫池塘",
+    "name_en": "Novocheryomushkinskaya Street",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "贵族庄园·自然遗迹",
@@ -2104,6 +2277,7 @@
   {
     "id": "p174",
     "name": "纳希莫夫斯基大街",
+    "name_en": "Azovskaya Street",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "街道命名·苏联军事",
@@ -2115,6 +2289,7 @@
   {
     "id": "p175",
     "name": "前\"发电机\"厂",
+    "name_en": "Leninskaya Sloboda Street, 26",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "工业遗产·电气工业",
@@ -2126,6 +2301,7 @@
   {
     "id": "p176",
     "name": "老西蒙诺沃",
+    "name_en": "Vostochnaya Street, 4",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "中世纪·修道院",
@@ -2137,6 +2313,7 @@
   {
     "id": "p177",
     "name": "圣母诞生教堂",
+    "name_en": "Vostochnaya Street, 6",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "宗教建筑·苏联破坏",
@@ -2148,6 +2325,7 @@
   {
     "id": "p178",
     "name": "VTI(全俄热工研究所)",
+    "name_en": "VTI",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "科研机构·苏联科学",
@@ -2159,6 +2337,7 @@
   {
     "id": "p179",
     "name": "无产阶级区民兵纪念碑",
+    "name_en": "Avtozavodskaya Street",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "卫国战争·纪念碑",
@@ -2170,6 +2349,7 @@
   {
     "id": "p180",
     "name": "马斯特尔科娃街纪念牌",
+    "name_en": "Masterkova Street",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "卫国战争·苏联英雄",
@@ -2181,6 +2361,7 @@
   {
     "id": "p181",
     "name": "歼击营纪念牌",
+    "name_en": "Leninskaya Sloboda Street, 9",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "卫国战争·莫斯科保卫战",
@@ -2192,6 +2373,7 @@
   {
     "id": "p182",
     "name": "马克·夏加尔河岸",
+    "name_en": "Marka Shagala Embankment, 1к2",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "后工业更新·河滨空间",
@@ -2203,6 +2385,7 @@
   {
     "id": "p183",
     "name": "ZILART住宅区",
+    "name_en": "ZILART",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "后工业更新·当代艺术",
@@ -2214,6 +2397,7 @@
   {
     "id": "p184",
     "name": "ZILART博物馆",
+    "name_en": "ZILART",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "后工业更新·当代艺术博物馆",
@@ -2225,6 +2409,7 @@
   {
     "id": "p185",
     "name": "图菲列夫树林公园",
+    "name_en": "Tyufeleva Roscha Park",
     "city": "莫斯科",
     "cluster": "⑯ ZIL-沙博洛夫卡工业考古群",
     "type": "后工业更新·城市公园",
@@ -2236,6 +2421,7 @@
   {
     "id": "p186",
     "name": "普列奇斯坚门广场",
+    "name_en": "Gogolevskiy Boulevard",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "历史广场·白城",
@@ -2247,6 +2433,7 @@
   {
     "id": "p187",
     "name": "果戈里林荫大道",
+    "name_en": "Gogolevskiy Boulevard",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "水文考古·消失的河流",
@@ -2258,6 +2445,7 @@
   {
     "id": "p188",
     "name": "加加林胡同",
+    "name_en": "Gagarinsky Lane",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "贵族记忆·街道命名",
@@ -2269,6 +2457,7 @@
   {
     "id": "p189",
     "name": "谢克列塔列夫城市庄园",
+    "name_en": "Gogolevskiy Boulevard, 5с1",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "贵族庄园·文艺复兴",
@@ -2280,6 +2469,7 @@
   {
     "id": "p190",
     "name": "纳绍金之家",
+    "name_en": "Vorotnikovsky Lane, 12с1",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "文学记忆·普希金",
@@ -2291,6 +2481,7 @@
   {
     "id": "p191",
     "name": "圣阿法纳西与基里尔教堂",
+    "name_en": "Filippovskiy Lane",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "宗教奇迹·苏联破坏",
@@ -2302,6 +2493,7 @@
   {
     "id": "p192",
     "name": "莱蒙托夫广场",
+    "name_en": "Sadovaya-Spasskaya Street",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "文学记忆·诗人纪念",
@@ -2313,6 +2505,7 @@
   {
     "id": "p193",
     "name": "莫斯科民族之家",
+    "name_en": "Novaya Basmannaya Street, 4с1",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "安娜巴洛克·慈善机构",
@@ -2324,6 +2517,7 @@
   {
     "id": "p194",
     "name": "阿列克谢耶夫庄园",
+    "name_en": "Aleksandra Solzhenitsyna Street, 29/18",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "文学记忆·斯坦尼斯拉夫斯基",
@@ -2335,6 +2529,7 @@
   {
     "id": "p195",
     "name": "冯·德尔维兹公馆",
+    "name_en": "Sadovaya-Chernogryazskaya Street, 8с6",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "贵族公馆·不对外开放",
@@ -2346,6 +2541,7 @@
   {
     "id": "p196",
     "name": "博亚尔斯基胡同",
+    "name_en": "Boyarsky Lane",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "历史胡同·莫斯科古街",
@@ -2357,6 +2553,7 @@
   {
     "id": "p197",
     "name": "帕夫洛夫-谢夫留戈夫公馆",
+    "name_en": "Bolshoy Kozlovsky Lane, 4с2",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "商人建筑·古典主义",
@@ -2368,6 +2565,7 @@
   {
     "id": "p198",
     "name": "土地人民委员部大楼(Наркомзем)",
+    "name_en": "Sadovaya-Spasskaya Street, 11/1",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "构成主义·舒谢夫",
@@ -2379,6 +2577,7 @@
   {
     "id": "p199",
     "name": "构成主义住宅群",
+    "name_en": "Tokmakov Lane, 11",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "构成主义·苏联先锋建筑",
@@ -2390,6 +2589,7 @@
   {
     "id": "p200",
     "name": "多米尼科夫街(今玛莎·波雷瓦耶娃街)",
+    "name_en": "Mashi Poryvayevoy Street",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "城市层积·文学地理",
@@ -2401,6 +2601,7 @@
   {
     "id": "p201",
     "name": "奥尔利科夫胡同",
+    "name_en": "Orlikov Lane",
     "city": "莫斯科",
     "cluster": "⑰ 阿尔巴特-红门文学贵族群",
     "type": "历史胡同·街道命名",
@@ -2412,6 +2613,7 @@
   {
     "id": "p202",
     "name": "斯塔赫耶夫公寓楼",
+    "name_en": "Lubyanskіy Drive, 3/6с17",
     "city": "莫斯科",
     "cluster": "⑱ 米亚斯尼茨卡娅商人构成主义群",
     "type": "商人建筑·新艺术风格",
@@ -2423,6 +2625,7 @@
   {
     "id": "p203",
     "name": "切尔科夫公寓楼(萨尔蒂科夫-切尔科夫庄园)",
+    "name_en": "Myasnitskaya Street, 7с2",
     "city": "莫斯科",
     "cluster": "⑱ 米亚斯尼茨卡娅商人构成主义群",
     "type": "贵族庄园·文学沙龙",
@@ -2434,6 +2637,7 @@
   {
     "id": "p204",
     "name": "韦涅维季诺夫公寓楼",
+    "name_en": "Krivokolenny Lane",
     "city": "莫斯科",
     "cluster": "⑱ 米亚斯尼茨卡娅商人构成主义群",
     "type": "古典主义·诗人记忆",
@@ -2445,6 +2649,7 @@
   {
     "id": "p205",
     "name": "佩尔洛夫茶屋",
+    "name_en": "Myasnitskaya Street, 19",
     "city": "莫斯科",
     "cluster": "⑱ 米亚斯尼茨卡娅商人构成主义群",
     "type": "伪中国风格·茶文化",
@@ -2456,6 +2661,7 @@
   {
     "id": "p206",
     "name": "格里鲍耶陀夫纪念碑",
+    "name_en": "Chistoprudniy Boulevard",
     "city": "莫斯科",
     "cluster": "⑱ 米亚斯尼茨卡娅商人构成主义群",
     "type": "文学纪念·纪念碑",
@@ -2467,6 +2673,7 @@
   {
     "id": "p207",
     "name": "索尔达坚科夫庄园",
+    "name_en": "Myasnitskaya Street, 37с1",
     "city": "莫斯科",
     "cluster": "⑱ 米亚斯尼茨卡娅商人构成主义群",
     "type": "贵族庄园·卫国战争",
@@ -2478,6 +2685,7 @@
   {
     "id": "p208",
     "name": "维塔利喷泉(彼得罗夫斯基喷泉)",
+    "name_en": "Teatralnaya Square",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "喷泉·剧院广场",
@@ -2489,6 +2697,7 @@
   {
     "id": "p209",
     "name": "大都会酒店",
+    "name_en": "Teatralny Drive, 2",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "新艺术风格·酒店",
@@ -2500,6 +2709,7 @@
   {
     "id": "p210",
     "name": "小剧院",
+    "name_en": "Neglinnaya Street, 1",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "剧院史·格里鲍耶陀夫",
@@ -2511,6 +2721,7 @@
   {
     "id": "p211",
     "name": "俄罗斯学术青年剧院(РАМТ)",
+    "name_en": "Teatralnaya Square, 2",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "儿童剧院·萨茨",
@@ -2522,6 +2733,7 @@
   {
     "id": "p212",
     "name": "德米特罗夫卡街",
+    "name_en": "Bolshaya Dmitrovka Street, 22с1",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "文学地理·古街",
@@ -2533,6 +2745,7 @@
   {
     "id": "p213",
     "name": "卡梅格尔胡同",
+    "name_en": "Kamergersky Lane",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "历史胡同·贵族记忆",
@@ -2544,6 +2757,7 @@
   {
     "id": "p214",
     "name": "莫斯科艺术剧院(МХАТ)",
+    "name_en": "Kamergersky Lane, 3с1",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "МХАТ·斯坦尼斯拉夫斯基",
@@ -2555,6 +2769,7 @@
   {
     "id": "p215",
     "name": "契诃夫纪念碑",
+    "name_en": "Kamergersky Lane, 2",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "文学纪念·契诃夫",
@@ -2566,6 +2781,7 @@
   {
     "id": "p216",
     "name": "斯坦尼斯拉夫斯基与涅米罗维奇-丹琴科纪念碑",
+    "name_en": "Kamergersky Lane",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "文学纪念·МХАТ",
@@ -2577,6 +2793,7 @@
   {
     "id": "p217",
     "name": "莫斯科柴可夫斯基音乐学院",
+    "name_en": "Bolshaya Nikitskaya Street, 11/4с1",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "音乐教育·音乐学院",
@@ -2588,6 +2805,7 @@
   {
     "id": "p218",
     "name": "马雅可夫斯基模范剧院",
+    "name_en": "Bolshaya Nikitskaya Street, 19/13с1",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "构成主义·剧院建筑",
@@ -2599,6 +2817,7 @@
   {
     "id": "p219",
     "name": "俄罗斯戏剧艺术学院(ГИТИС)",
+    "name_en": "Maly Kislovsky Lane, 6с1",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "戏剧教育·ГИТИС",
@@ -2610,6 +2829,7 @@
   {
     "id": "p220",
     "name": "下基斯洛夫胡同",
+    "name_en": "Nizhny Kislovsky Lane",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "先锋艺术·罗琴科",
@@ -2621,6 +2841,7 @@
   {
     "id": "p221",
     "name": "莫塞尔普罗马大楼",
+    "name_en": "Nizhny Kislovsky Lane",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "先锋艺术·马雅可夫斯基",
@@ -2632,6 +2853,7 @@
   {
     "id": "p222",
     "name": "谢克列塔列夫剧院旧址",
+    "name_en": "Nizhny Kislovsky Lane, 5с1",
     "city": "莫斯科",
     "cluster": "⑲ 剧院广场-尼基茨基戏剧音乐群",
     "type": "剧院史·犹太剧院",
@@ -2643,6 +2865,7 @@
   {
     "id": "p223",
     "name": "同志胡同",
+    "name_en": "Tovarischesky Lane",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "旧礼仪派·街道命名政治学",
@@ -2654,6 +2877,7 @@
   {
     "id": "p224",
     "name": "科罗温兄弟出生地",
+    "name_en": "Tovarischesky Lane, 24с7",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "艺术记忆·科罗温",
@@ -2665,6 +2889,7 @@
   {
     "id": "p225",
     "name": "苏里科夫美术学院",
+    "name_en": "Tovarischesky Lane, 30",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "艺术教育·苏里科夫",
@@ -2676,6 +2901,7 @@
   {
     "id": "p226",
     "name": "俄罗斯第一家陶瓷厂遗址",
+    "name_en": "Tovarischesky Lane",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "陶瓷工业·工业遗产",
@@ -2687,6 +2913,7 @@
   {
     "id": "p227",
     "name": "儿童公园(普里亚米科夫公园)",
+    "name_en": "Taganskaya Street, 40-42",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "城市公园·儿童设施",
@@ -2698,6 +2925,7 @@
   {
     "id": "p228",
     "name": "索尔仁尼琴街",
+    "name_en": "Aleksandra Solzhenitsyna Street",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "街道命名·文学记忆",
@@ -2709,6 +2937,7 @@
   {
     "id": "p229",
     "name": "古萨特尼科夫贸易行→\"星星\"商店",
+    "name_en": "Taganskaya Street, 1с1",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "商人建筑·商业史",
@@ -2720,6 +2949,7 @@
   {
     "id": "p230",
     "name": "克列斯托夫尼科娃城市庄园",
+    "name_en": "Aleksandra Solzhenitsyna Street, 2Ас2",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "商人建筑·古典主义",
@@ -2731,6 +2961,7 @@
   {
     "id": "p231",
     "name": "斯捷潘诺夫商人庄园",
+    "name_en": "Aleksandra Solzhenitsyna Street, 4с1",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "商人建筑·古典主义",
@@ -2742,6 +2973,7 @@
   {
     "id": "p232",
     "name": "波列扎耶夫-祖博夫庄园",
+    "name_en": "Aleksandra Solzhenitsyna Street, 9с1",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "音乐收藏·贵族庄园",
@@ -2753,6 +2985,7 @@
   {
     "id": "p233",
     "name": "新艺术风格公寓楼",
+    "name_en": "Aleksandra Solzhenitsyna Street, 14к1",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "新艺术风格·公寓建筑",
@@ -2764,6 +2997,7 @@
   {
     "id": "p234",
     "name": "洛斯科托夫宅邸",
+    "name_en": "Aleksandra Solzhenitsyna Street, 18",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "商人建筑·古典主义",
@@ -2775,6 +3009,7 @@
   {
     "id": "p235",
     "name": "圣马丁忏悔者教堂",
+    "name_en": "Aleksandra Solzhenitsyna Street, 15/2",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "宗教建筑·教皇",
@@ -2786,6 +3021,7 @@
   {
     "id": "p236",
     "name": "索尔仁尼琴小广场与纪念碑",
+    "name_en": "Aleksandra Solzhenitsyna Street, 11",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "文学纪念·索尔仁尼琴",
@@ -2797,6 +3033,7 @@
   {
     "id": "p237",
     "name": "塔甘斯卡娅广场",
+    "name_en": "Taganskaya Square",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "历史广场·七大传奇山丘",
@@ -2808,6 +3045,7 @@
   {
     "id": "p238",
     "name": "博韦贸易行遗址",
+    "name_en": "Taganskaya Square",
     "city": "莫斯科",
     "cluster": "⑳ 塔甘卡旧礼仪派商人群",
     "type": "贸易行·博韦",
@@ -2819,6 +3057,7 @@
   {
     "id": "p239",
     "name": "科罗布科夫果园",
+    "name_en": "Azovskaya Street",
     "city": "莫斯科",
     "cluster": "㉑ 科特洛夫卡自然遗迹群",
     "type": "自然遗迹·果园生态",
@@ -2830,6 +3069,7 @@
   {
     "id": "p240",
     "name": "叶夫弗罗西尼娅小广场",
+    "name_en": "Nakhimovsky Avenue, 8",
     "city": "莫斯科",
     "cluster": "㉑ 科特洛夫卡自然遗迹群",
     "type": "城市绿地·水文遗迹",
@@ -2841,6 +3081,7 @@
   {
     "id": "p241",
     "name": "索森基公园(蒂穆鲁夫斯卡亚街入口)",
+    "name_en": "Sosenki Park",
     "city": "莫斯科",
     "cluster": "㉑ 科特洛夫卡自然遗迹群",
     "type": "城市公园·古松林",
@@ -2852,6 +3093,7 @@
   {
     "id": "p242",
     "name": "巴金斯卡亚街私人住宅",
+    "name_en": "Nagornaya Street, 39к3",
     "city": "莫斯科",
     "cluster": "㉑ 科特洛夫卡自然遗迹群",
     "type": "城市化·村庄消失",
@@ -2863,6 +3105,7 @@
   {
     "id": "p243",
     "name": "阿尔希诺夫斯基公园",
+    "name_en": "Green Ring",
     "city": "莫斯科",
     "cluster": "㉑ 科特洛夫卡自然遗迹群",
     "type": "自然遗迹·私家园林",
@@ -2874,6 +3117,7 @@
   {
     "id": "p244",
     "name": "亚速夫街",
+    "name_en": "Azovskaya Street",
     "city": "莫斯科",
     "cluster": "㉑ 科特洛夫卡自然遗迹群",
     "type": "街道命名·社会主义住宅",
@@ -2885,6 +3129,7 @@
   {
     "id": "p245",
     "name": "列米佐娃街",
+    "name_en": "Remizova Street",
     "city": "莫斯科",
     "cluster": "㉑ 科特洛夫卡自然遗迹群",
     "type": "街道命名·苏联英雄",
@@ -2896,6 +3141,7 @@
   {
     "id": "p246",
     "name": "圣叶夫弗罗西尼娅·莫斯科夫斯卡娅教堂",
+    "name_en": "Nakhimovsky Avenue, 8",
     "city": "莫斯科",
     "cluster": "㉑ 科特洛夫卡自然遗迹群",
     "type": "当代教堂·宗主教府邸",
@@ -2907,6 +3153,7 @@
   {
     "id": "p247",
     "name": "布留索夫胡同",
+    "name_en": "Bryusov Lane",
     "city": "莫斯科",
     "cluster": "㉒ 布留索夫-报纸胡同秘密通道群",
     "type": "街道命名·象征主义",
@@ -2918,6 +3165,7 @@
   {
     "id": "p248",
     "name": "雅各布·布留斯宫殿遗址",
+    "name_en": "Bryusov Lane, 2/14с8",
     "city": "莫斯科",
     "cluster": "㉒ 布留索夫-报纸胡同秘密通道群",
     "type": "秘密通道·都市传说",
@@ -2929,6 +3177,7 @@
   {
     "id": "p249",
     "name": "意象派书店",
+    "name_en": "Bryusov Lane",
     "city": "莫斯科",
     "cluster": "㉒ 布留索夫-报纸胡同秘密通道群",
     "type": "文学记忆·意象派",
@@ -2940,6 +3189,7 @@
   {
     "id": "p250",
     "name": "报纸胡同",
+    "name_en": "Gazetny Lane",
     "city": "莫斯科",
     "cluster": "㉒ 布留索夫-报纸胡同秘密通道群",
     "type": "新闻出版·街道命名政治学",
@@ -2951,6 +3201,7 @@
   {
     "id": "p251",
     "name": "尼古拉一世与十二月党人纪念牌冲突",
+    "name_en": "Gazetny Lane",
     "city": "莫斯科",
     "cluster": "㉒ 布留索夫-报纸胡同秘密通道群",
     "type": "十二月党人·政治记忆",
@@ -2962,6 +3213,7 @@
   {
     "id": "p252",
     "name": "亚恩科夫-达维多夫庄园",
+    "name_en": "Gazetny Lane, 9с4",
     "city": "莫斯科",
     "cluster": "㉒ 布留索夫-报纸胡同秘密通道群",
     "type": "贵族庄园·巴洛克",
@@ -2973,6 +3225,7 @@
   {
     "id": "p253",
     "name": "圣母升天教堂",
+    "name_en": "Gazetny Lane, 15",
     "city": "莫斯科",
     "cluster": "㉒ 布留索夫-报纸胡同秘密通道群",
     "type": "宗教建筑·新古典主义",
@@ -2984,6 +3237,7 @@
   {
     "id": "p254",
     "name": "中央电报局大楼",
+    "name_en": "Gazetny Lane, 1/12с4",
     "city": "莫斯科",
     "cluster": "㉒ 布留索夫-报纸胡同秘密通道群",
     "type": "苏联通信·工业建筑",
@@ -2995,6 +3249,7 @@
   {
     "id": "p255",
     "name": "门希科夫公爵宫殿",
+    "name_en": "Tverskaya Street, 8к1",
     "city": "莫斯科",
     "cluster": "㉒ 布留索夫-报纸胡同秘密通道群",
     "type": "贵族宫殿·彼得大帝时代",
@@ -3006,6 +3261,7 @@
   {
     "id": "p256",
     "name": "罗科索夫斯基元帅纪念碑",
+    "name_en": "Marshala Rokossovskogo Boulevard",
     "city": "莫斯科",
     "cluster": "㉓ 罗科索夫斯基林荫道东部群",
     "type": "军事纪念·雕塑",
@@ -3017,6 +3273,7 @@
   {
     "id": "p257",
     "name": "罗科索夫斯基肖像壁画",
+    "name_en": "Marshala Rokossovskogo Boulevard, 27/20",
     "city": "莫斯科",
     "cluster": "㉓ 罗科索夫斯基林荫道东部群",
     "type": "街头艺术·军事记忆",
@@ -3028,6 +3285,7 @@
   {
     "id": "p258",
     "name": "变容教堂",
+    "name_en": "Krasnobogatyrskaya Street, 17",
     "city": "莫斯科",
     "cluster": "㉓ 罗科索夫斯基林荫道东部群",
     "type": "木制教堂·宗教建筑",
@@ -3039,6 +3297,7 @@
   {
     "id": "p259",
     "name": "百万街",
+    "name_en": "Millionnaya Street",
     "city": "莫斯科",
     "cluster": "㉓ 罗科索夫斯基林荫道东部群",
     "type": "历史街道·博戈罗季斯科耶",
@@ -3050,6 +3309,7 @@
   {
     "id": "p260",
     "name": "列夫·雅辛相关地点",
+    "name_en": "Narimanovskaya Street",
     "city": "莫斯科",
     "cluster": "㉓ 罗科索夫斯基林荫道东部群",
     "type": "体育记忆·苏联足球",
@@ -3061,6 +3321,7 @@
   {
     "id": "p261",
     "name": "文学名人别墅区",
+    "name_en": "3rd Grazhdanskaya Street, 35с6",
     "city": "莫斯科",
     "cluster": "㉓ 罗科索夫斯基林荫道东部群",
     "type": "文学记忆·别墅区",
@@ -3072,6 +3333,7 @@
   {
     "id": "p262",
     "name": "\"琥珀山\"人民公园",
+    "name_en": "mikrorayon 8B",
     "city": "莫斯科",
     "cluster": "㉓ 罗科索夫斯基林荫道东部群",
     "type": "城市公园·生态风险",
@@ -3083,6 +3345,7 @@
   {
     "id": "p263",
     "name": "谢苗诺夫斯科耶村",
+    "name_en": "Vavilova Street",
     "city": "莫斯科",
     "cluster": "㉔ 沃龙佐夫公园-卡卢加公路文学群",
     "type": "古村落·中世纪",
@@ -3094,6 +3357,7 @@
   {
     "id": "p264",
     "name": "沃龙佐夫公园/庄园",
+    "name_en": "Vorontsovsky Park",
     "city": "莫斯科",
     "cluster": "㉔ 沃龙佐夫公园-卡卢加公路文学群",
     "type": "贵族庄园·文学地理",
@@ -3105,6 +3369,7 @@
   {
     "id": "p265",
     "name": "\"土耳其要塞\"入口大门与塔楼",
+    "name_en": "Vorontsovsky Park",
     "city": "莫斯科",
     "cluster": "㉔ 沃龙佐夫公园-卡卢加公路文学群",
     "type": "哥特复兴·公园建筑",
@@ -3116,6 +3381,7 @@
   {
     "id": "p266",
     "name": "5个池塘瀑布群",
+    "name_en": "Vorontsovskiye Prudy Street, 3",
     "city": "莫斯科",
     "cluster": "㉔ 沃龙佐夫公园-卡卢加公路文学群",
     "type": "水文遗迹·自然景观",
@@ -3127,6 +3393,7 @@
   {
     "id": "p267",
     "name": "莫斯科郊区第一家披萨店",
+    "name_en": "Profsoyuznaya Street",
     "city": "莫斯科",
     "cluster": "㉔ 沃龙佐夫公园-卡卢加公路文学群",
     "type": "改革时期·快餐文化",
@@ -3138,6 +3405,7 @@
   {
     "id": "p268",
     "name": "罗蒙诺索夫区图书馆群",
+    "name_en": "Michurinsky Avenue",
     "city": "莫斯科",
     "cluster": "㉔ 沃龙佐夫公园-卡卢加公路文学群",
     "type": "图书馆·社区文化",
@@ -3149,6 +3417,7 @@
   {
     "id": "p269",
     "name": "新切列穆什基站",
+    "name_en": "Profsoyuznaya Street",
     "city": "莫斯科",
     "cluster": "㉔ 沃龙佐夫公园-卡卢加公路文学群",
     "type": "地铁站·社会主义住宅",
@@ -3163,6 +3432,7 @@
   {
     "id": "p270",
     "name": "新阿托尔斯卡娅站",
+    "name_en": "Novatorov Street",
     "city": "莫斯科",
     "cluster": "㉔ 沃龙佐夫公园-卡卢加公路文学群",
     "type": "地铁站·城市未来",
@@ -3177,6 +3447,7 @@
   {
     "id": "p271",
     "name": "基尔萨诺夫《卡卢加公路》诗歌现场",
+    "name_en": "Vavilova Street",
     "city": "莫斯科",
     "cluster": "㉔ 沃龙佐夫公园-卡卢加公路文学群",
     "type": "苏联诗歌·文学地理",
@@ -3188,6 +3459,7 @@
   {
     "id": "p272",
     "name": "МЦК\"汽车厂\"站步行桥",
+    "name_en": "2nd Kozhukhovsky Drive",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "交通基础设施·МЦК",
@@ -3199,6 +3471,7 @@
   {
     "id": "p273",
     "name": "杜什金项目对比",
+    "name_en": "Danilovskiy District",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "建筑对比·杜什金",
@@ -3210,6 +3483,7 @@
   {
     "id": "p274",
     "name": "1949-1950年代住宅",
+    "name_en": "Danilovskiy District",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "斯大林式住宅·工人住宅",
@@ -3221,6 +3495,7 @@
   {
     "id": "p275",
     "name": "特罗菲莫夫街",
+    "name_en": "Trofimova Street",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "街道命名·苏联英雄",
@@ -3232,6 +3507,7 @@
   {
     "id": "p276",
     "name": "穿越赛金娜街立交桥",
+    "name_en": "mikrorayon Ye",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "城市交通·基础设施",
@@ -3243,6 +3519,7 @@
   {
     "id": "p277",
     "name": "1950年代学校+\"在战争的道路上\"纪念碑",
+    "name_en": "Danilovskiy District",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "苏联教育·卫国战争纪念",
@@ -3254,6 +3531,7 @@
   {
     "id": "p278",
     "name": "\"自由\"电影院",
+    "name_en": "Trofimova Street, 17",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "苏联文化空间·后苏联转型",
@@ -3265,6 +3543,7 @@
   {
     "id": "p279",
     "name": "第五科茹霍夫斯卡娅街新型住宅",
+    "name_en": "5th Kozhukhovskaya Street",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "当代住宅·城市更新",
@@ -3276,6 +3555,7 @@
   {
     "id": "p280",
     "name": "1950年代\"绿色住宅\"",
+    "name_en": "Danilovskiy District",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "理性主义·绿色住宅",
@@ -3287,6 +3567,7 @@
   {
     "id": "p281",
     "name": "建筑学院",
+    "name_en": "Danilovskiy District",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "职业教育·建筑教育",
@@ -3298,6 +3579,7 @@
   {
     "id": "p282",
     "name": "1952年学校+1940年幼儿园",
+    "name_en": "Danilovskiy District",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "苏联教育·教育建筑史",
@@ -3309,6 +3591,7 @@
   {
     "id": "p283",
     "name": "彼得·罗曼诺夫街",
+    "name_en": "Petra Romanova Street",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "街道命名·苏联记忆",
@@ -3320,6 +3603,7 @@
   {
     "id": "p284",
     "name": "\"拍电影的房子\"",
+    "name_en": "Petra Romanova Street",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "电影取景·工业背景",
@@ -3331,6 +3615,7 @@
   {
     "id": "p285",
     "name": "尤日诺波尔托瓦亚街斯大林帝国风格",
+    "name_en": "Yuzhnoportovaya Street",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "斯大林帝国风格·社会主义城市",
@@ -3342,6 +3627,7 @@
   {
     "id": "p286",
     "name": "科茹霍沃地铁站",
+    "name_en": "Yuzhnoportovaya Street",
     "city": "莫斯科",
     "cluster": "㉕ 达尼洛夫斯基-科茹霍沃城市群",
     "type": "地铁站·终点",
@@ -3356,6 +3642,7 @@
   {
     "id": "p287",
     "name": "\"亚当与夏娃\"喷泉",
+    "name_en": "Zamoskvorechye District",
     "city": "莫斯科",
     "cluster": "㉖ 扎莫斯基传说与神话群",
     "type": "现代喷泉·都市传说",
@@ -3367,6 +3654,7 @@
   {
     "id": "p288",
     "name": "托尔斯泰博物馆",
+    "name_en": "Pyatnitskaya Street, 12с2",
     "city": "莫斯科",
     "cluster": "㉖ 扎莫斯基传说与神话群",
     "type": "文学记忆·托尔斯泰",
@@ -3378,6 +3666,7 @@
   {
     "id": "p289",
     "name": "罗马教皇克雷芒教堂",
+    "name_en": "Pyatnitskaya Street, 26с1",
     "city": "莫斯科",
     "cluster": "㉖ 扎莫斯基传说与神话群",
     "type": "宗教建筑·教皇圣髑",
@@ -3389,6 +3678,7 @@
   {
     "id": "p290",
     "name": "奥斯特洛夫斯基故居博物馆",
+    "name_en": "Malaya Ordynka Street, 9/12с6",
     "city": "莫斯科",
     "cluster": "㉖ 扎莫斯基传说与神话群",
     "type": "戏剧史·奥斯特洛夫斯基",
@@ -3400,6 +3690,7 @@
   {
     "id": "p291",
     "name": "皮日赫的尼古拉教堂",
+    "name_en": "Bolshaya Ordynka Street",
     "city": "莫斯科",
     "cluster": "㉖ 扎莫斯基传说与神话群",
     "type": "斯特列尔茨·宗教建筑",
@@ -3411,6 +3702,7 @@
   {
     "id": "p292",
     "name": "马尔福-玛丽亚修道院",
+    "name_en": "Bolshaya Ordynka Street, 34",
     "city": "莫斯科",
     "cluster": "㉖ 扎莫斯基传说与神话群",
     "type": "慈善修道院·休谢夫",
@@ -3422,6 +3714,7 @@
   {
     "id": "p293",
     "name": "АТС大楼(自动电话站)",
+    "name_en": "Bolshaya Ordynka Street, 25с1",
     "city": "莫斯科",
     "cluster": "㉖ 扎莫斯基传说与神话群",
     "type": "苏联通信·技术乌托邦",
@@ -3433,6 +3726,7 @@
   {
     "id": "p294",
     "name": "阿赫玛托娃故居",
+    "name_en": "Bolshaya Ordynka Street, 17с1",
     "city": "莫斯科",
     "cluster": "㉖ 扎莫斯基传说与神话群",
     "type": "文学记忆·阿赫玛托娃",
@@ -3444,6 +3738,7 @@
   {
     "id": "p295",
     "name": "众哀伤者之喜教堂",
+    "name_en": "Bolshaya Ordynka Street, 20с10",
     "city": "莫斯科",
     "cluster": "㉖ 扎莫斯基传说与神话群",
     "type": "宗教奇迹·巴热诺夫",
@@ -3455,6 +3750,7 @@
   {
     "id": "p296",
     "name": "\"灵感\"喷泉",
+    "name_en": "Bolshoy Tolmachyovsky Lane",
     "city": "莫斯科",
     "cluster": "㉖ 扎莫斯基传说与神话群",
     "type": "现代喷泉·特列季亚科夫",
@@ -3466,6 +3762,7 @@
   {
     "id": "p297",
     "name": "杰米多夫庄园",
+    "name_en": "Bolshoy Tolmachyovsky Lane",
     "city": "莫斯科",
     "cluster": "㉖ 扎莫斯基传说与神话群",
     "type": "贵族庄园·工业家",
@@ -3477,6 +3774,7 @@
   {
     "id": "p298",
     "name": "作家之家",
+    "name_en": "Lavrushinsky Lane, 17с2",
     "city": "莫斯科",
     "cluster": "㉖ 扎莫斯基传说与神话群",
     "type": "斯大林帝国风格·苏联文学",
@@ -3488,6 +3786,7 @@
   {
     "id": "p299",
     "name": "亚历山大·涅夫斯基大桥（涅瓦桥）",
+    "name_en": "Alexander Nevsky Bridge",
     "city": "圣彼得堡",
     "cluster": "新增点位 · 圣彼得堡",
     "type": "建筑 · 苏联现代主义",
@@ -3503,6 +3802,7 @@
   {
     "id": "p300",
     "name": "沃洛达尔斯基桥",
+    "name_en": "Volodarskiy Bridge",
     "city": "圣彼得堡",
     "cluster": "新增点位 · 圣彼得堡",
     "type": "建筑 · 苏联现代主义",
@@ -3518,6 +3818,7 @@
   {
     "id": "p301",
     "name": "俄罗斯科学院分析仪器特种设计局（\"科学仪器\"）",
+    "name_en": "Comma Avenue",
     "city": "圣彼得堡",
     "cluster": "新增点位 · 圣彼得堡",
     "type": "建筑 · 苏联现代主义",
@@ -3530,6 +3831,7 @@
   {
     "id": "p302",
     "name": "契卡特务诞生地（政治警察与国家安全机构博物馆分馆）",
+    "name_en": "Zaharyevskaya Street, 6БД",
     "city": "圣彼得堡",
     "cluster": "新增点位 · 圣彼得堡",
     "type": "博物馆 · 苏联史",
@@ -3542,6 +3844,7 @@
   {
     "id": "p303",
     "name": "水上的士（Water Taxi）",
+    "name_en": "Water Taxi",
     "city": "圣彼得堡",
     "cluster": "新增点位 · 圣彼得堡",
     "type": "交通 · 本地体验",
@@ -3554,6 +3857,7 @@
   {
     "id": "p304",
     "name": "瓦西里岛中大街",
+    "name_en": "Comma Avenue",
     "city": "圣彼得堡",
     "cluster": "新增点位 · 圣彼得堡",
     "type": "街区 · 摄影扫街",
@@ -3569,6 +3873,7 @@
   {
     "id": "p305",
     "name": "\"恩典号\"帆船",
+    "name_en": "munitsipalny okrug Posadskiy",
     "city": "圣彼得堡",
     "cluster": "新增点位 · 圣彼得堡",
     "type": "餐厅船 · 打卡",
@@ -3584,6 +3889,7 @@
   {
     "id": "p306",
     "name": "列宁格勒摇滚俱乐部旧址",
+    "name_en": "Rubinshteyna Street, 13",
     "city": "圣彼得堡",
     "cluster": "摇滚之旅",
     "type": "摇滚之旅 ①",
@@ -3596,6 +3902,7 @@
   {
     "id": "p307",
     "name": "Fish Fabrique",
+    "name_en": "Fish Fabrique",
     "city": "圣彼得堡",
     "cluster": "摇滚之旅",
     "type": "摇滚之旅 ②",
@@ -3608,6 +3915,7 @@
   {
     "id": "p308",
     "name": "普希金街10号艺术中心",
+    "name_en": "Pushkinskaya Street, 10",
     "city": "圣彼得堡",
     "cluster": "摇滚之旅",
     "type": "摇滚之旅 ③",
@@ -3620,6 +3928,7 @@
   {
     "id": "p309",
     "name": "\"精灵花园\"广场",
+    "name_en": "Comma Avenue",
     "city": "圣彼得堡",
     "cluster": "摇滚之旅",
     "type": "摇滚之旅 ④",
@@ -3635,6 +3944,7 @@
   {
     "id": "p310",
     "name": "Kamchatka",
+    "name_en": "Kamchatka",
     "city": "圣彼得堡",
     "cluster": "摇滚之旅",
     "type": "摇滚之旅 ⑤",
@@ -3647,6 +3957,7 @@
   {
     "id": "p311",
     "name": "西贡咖啡馆旧址",
+    "name_en": "Fontanka River Embankment, 29/66",
     "city": "圣彼得堡",
     "cluster": "摇滚之旅",
     "type": "摇滚之旅 ⑥",
@@ -3659,6 +3970,7 @@
   {
     "id": "p312",
     "name": "Castle Rock 摇滚商店",
+    "name_en": "Castle Rock",
     "city": "圣彼得堡",
     "cluster": "摇滚之旅",
     "type": "摇滚之旅 ⑦",
@@ -3674,6 +3986,7 @@
   {
     "id": "p313",
     "name": "Abbey Road 披头士纪念点",
+    "name_en": "Abbey Road",
     "city": "圣彼得堡",
     "cluster": "摇滚之旅",
     "type": "摇滚之旅 ⑧",
@@ -3689,6 +4002,7 @@
   {
     "id": "p314",
     "name": "Liverpool Bar",
+    "name_en": "Liverpool Bar",
     "city": "圣彼得堡",
     "cluster": "摇滚之旅",
     "type": "摇滚之旅 ⑨",
@@ -3701,6 +4015,7 @@
   {
     "id": "p315",
     "name": "新圣女公墓",
+    "name_en": "Novodevichy Convent",
     "city": "莫斯科",
     "cluster": "新增点位 · 莫斯科",
     "type": "公墓 · 墓碑雕塑",
@@ -3716,6 +4031,7 @@
   {
     "id": "p316",
     "name": "ГЭС-2 文化中心",
+    "name_en": "Bolotnaya Embankment, 15",
     "city": "莫斯科",
     "cluster": "新增点位 · 莫斯科",
     "type": "当代艺术 · 文化中心",
@@ -3731,6 +4047,7 @@
   {
     "id": "p317",
     "name": "新特里季亚科夫画廊（新馆）",
+    "name_en": "Krymsky Val Street, 10",
     "city": "莫斯科",
     "cluster": "新增点位 · 莫斯科",
     "type": "美术馆",
@@ -3747,6 +4064,7 @@
   {
     "id": "p318",
     "name": "俄罗斯国家图书馆",
+    "name_en": "Vozdvizhenka Street, 3/5",
     "city": "莫斯科",
     "cluster": "新增点位 · 莫斯科",
     "type": "图书馆 · 公共空间",
@@ -3762,6 +4080,7 @@
   {
     "id": "p319",
     "name": "陀思妥耶夫斯基书店",
+    "name_en": "Comma Avenue",
     "city": "莫斯科",
     "cluster": "新增点位 · 莫斯科",
     "type": "书店 · 咖啡",
@@ -3774,6 +4093,7 @@
   {
     "id": "p320",
     "name": "Karavaevs Brothers（两兄弟餐厅）",
+    "name_en": "Karavaevs Brothers",
     "city": "莫斯科",
     "cluster": "新增点位 · 莫斯科",
     "type": "餐厅 · 文青都市食堂",
@@ -3786,6 +4106,7 @@
   {
     "id": "p321",
     "name": "国际象棋博物馆旁的公园",
+    "name_en": "Gogolevskiy Boulevard, 14",
     "city": "莫斯科",
     "cluster": "新增点位 · 莫斯科",
     "type": "公园 · 棋主题",
@@ -3801,6 +4122,7 @@
   {
     "id": "p322",
     "name": "航空博物馆（太空征服者纪念碑下）",
+    "name_en": "Mira Avenue, 111",
     "city": "莫斯科",
     "cluster": "新增点位 · 莫斯科",
     "type": "博物馆 · 航天",
@@ -3816,6 +4138,7 @@
   {
     "id": "p323",
     "name": "МАНИЯ 咖啡",
+    "name_en": "Comma Avenue",
     "city": "莫斯科",
     "cluster": "新增点位 · 莫斯科",
     "type": "咖啡厅",
@@ -3828,6 +4151,7 @@
   {
     "id": "p324",
     "name": "Rockets（Brunch 餐厅）",
+    "name_en": "Rockets Brunch",
     "city": "莫斯科",
     "cluster": "新增点位 · 莫斯科",
     "type": "Brunch · 甜品",
@@ -3840,6 +4164,7 @@
   {
     "id": "p325",
     "name": "Ugolek 酒吧",
+    "name_en": "Ugolek",
     "city": "莫斯科",
     "cluster": "新增点位 · 莫斯科",
     "type": "酒吧",
@@ -3852,6 +4177,7 @@
   {
     "id": "p326",
     "name": "巴达耶夫斯基啤酒厂改造（\"空中之城\"）",
+    "name_en": "Kutuzovsky Avenue, 12",
     "city": "莫斯科",
     "cluster": "新增点位 · 莫斯科",
     "type": "建筑 · 苏联工业遗产改造",
@@ -3864,6 +4190,7 @@
   {
     "id": "p327",
     "name": "共和国青少年宫（阿拉木图少年宫）",
+    "name_en": "Dostyk Avenue",
     "city": "其他城市",
     "cluster": "新增点位 · 阿拉木图",
     "type": "建筑 · 苏联晚期现代主义",
@@ -3876,6 +4203,7 @@
   {
     "id": "p328",
     "name": "阿拉木图市政厅",
+    "name_en": "Republic Square, 4",
     "city": "其他城市",
     "cluster": "新增点位 · 阿拉木图",
     "type": "建筑 · 苏联式政府建筑",
@@ -3888,6 +4216,7 @@
   {
     "id": "p329",
     "name": "萨伊兰汽车站",
+    "name_en": "Tole Bi Street, 294",
     "city": "其他城市",
     "cluster": "新增点位 · 阿拉木图",
     "type": "建筑 · 粗野主义",
@@ -3900,6 +4229,7 @@
   {
     "id": "p330",
     "name": "巴尔耶商务中心",
+    "name_en": "Comma Avenue",
     "city": "其他城市",
     "cluster": "新增点位 · 阿拉木图",
     "type": "建筑 · 粗野主义（结构表现）",
@@ -3912,6 +4242,7 @@
   {
     "id": "p331",
     "name": "哈萨克国立学术戏剧院",
+    "name_en": "Abay Avenue, 103",
     "city": "其他城市",
     "cluster": "新增点位 · 阿拉木图",
     "type": "建筑 · 粗野主义",
@@ -3924,6 +4255,7 @@
   {
     "id": "p332",
     "name": "阿桑水疗保健中心",
+    "name_en": "Comma Avenue",
     "city": "其他城市",
     "cluster": "新增点位 · 阿拉木图",
     "type": "建筑 · 苏联现代主义+中亚传统",
@@ -3936,6 +4268,7 @@
   {
     "id": "p333",
     "name": "阿尔巴特街双塔板楼",
+    "name_en": "Comma Avenue",
     "city": "其他城市",
     "cluster": "新增点位 · 阿拉木图",
     "type": "建筑 · 粗野主义实用变体",
@@ -3948,6 +4281,7 @@
   {
     "id": "p334",
     "name": "国家马戏团",
+    "name_en": "Abay Avenue, 50",
     "city": "其他城市",
     "cluster": "新增点位 · 阿拉木图",
     "type": "建筑 · 苏联现代主义（游牧意象）",
@@ -3960,6 +4294,7 @@
   {
     "id": "p335",
     "name": "列宁格勒火车站（Ленинградский вокзал）",
+    "name_en": "Leningradsky Railway Station",
     "city": "莫斯科",
     "cluster": "独立点位",
     "type": "火车站",
@@ -3975,6 +4310,7 @@
   {
     "id": "p336",
     "name": "莫斯科火车站（Московский вокзал）",
+    "name_en": "Moskovsky Railway Station",
     "city": "圣彼得堡",
     "cluster": "独立点位",
     "type": "火车站",
