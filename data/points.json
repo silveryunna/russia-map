@@ -1511,10 +1511,10 @@
     "name": "基洛夫工厂地铁站",
     "name_en": "Kirovsky Zavod Metro Station",
     "city": "圣彼得堡",
-    "cluster": "独立点位",
+    "cluster": "㉗ 专题：圣彼得堡地铁巡礼",
     "type": "地铁站",
-    "highlight": "Кировский завод：1 号红线，1955 年开通的苏联工业美学代表站——大理石拱门柱廊+顶灯阵列，站台尽头有列宁浮雕",
-    "note": "1 号红线；向北一站 Нарвская 可顺看纳尔瓦凯旋门",
+    "highlight": "工业英雄风：厚重浮雕+劳动人民赞歌；列宁格勒围困期间的1955年首批开通站；出片极霸气",
+    "note": "1号线；Stachek Avenue, 70；金属与石材工业主题装饰",
     "lat": 59.8797,
     "lon": 30.2619,
     "tags": [
@@ -4817,6 +4817,246 @@
     "confidence": 100,
     "tags": [
       "文学"
+    ]
+  },
+  {
+    "id": "p368",
+    "name": "海军部站（Адмиралтейская）",
+    "name_en": "Admiralteyskaya Metro Station",
+    "city": "圣彼得堡",
+    "cluster": "㉗ 专题：圣彼得堡地铁巡礼",
+    "type": "地铁站·深站",
+    "highlight": "全俄最深地铁站（86米，相当于28层楼）；米色大理石如海浪；列车曾过而不停数十年，2011年才启用——著名“幽灵车站”",
+    "note": "5号线；坐扶梯如进入地下城市；光坐电梯都值",
+    "lat": 59.93598,
+    "lon": 30.315096,
+    "confidence": 100,
+    "tags": [
+      "地铁站"
+    ]
+  },
+  {
+    "id": "p369",
+    "name": "阿夫托沃站（Автово）",
+    "name_en": "Avtovo Metro Station",
+    "city": "圣彼得堡",
+    "cluster": "㉗ 专题：圣彼得堡地铁巡礼",
+    "type": "地铁站",
+    "highlight": "世界最美地铁站之一：水晶玻璃装饰柱+大理石大厅+精美浮雕；开放之初玻璃柱设计是独特工程技术",
+    "note": "1号线；1955年首批开通站；光线像水晶吊灯，必须拍照",
+    "lat": 59.867281,
+    "lon": 30.260999,
+    "confidence": 100,
+    "tags": [
+      "地铁站"
+    ]
+  },
+  {
+    "id": "p370",
+    "name": "起义广场站（Площадь Восстания）",
+    "name_en": "Ploshchad Vosstaniya Metro Station",
+    "city": "圣彼得堡",
+    "cluster": "㉗ 专题：圣彼得堡地铁巡礼",
+    "type": "地铁站·历史站",
+    "highlight": "站名对应1905/1917年起义历史事件；浮雕与灯饰革命叙事感强；马赛克+英雄主义装饰",
+    "note": "1/3号线换乘枢纽；与莫斯科火车站同广场",
+    "lat": 59.931522,
+    "lon": 30.360568,
+    "confidence": 100,
+    "tags": [
+      "地铁站"
+    ]
+  },
+  {
+    "id": "p371",
+    "name": "体育站（Спортивная）",
+    "name_en": "Sportivnaya Metro Station",
+    "city": "圣彼得堡",
+    "cluster": "㉗ 专题：圣彼得堡地铁巡礼",
+    "type": "地铁站",
+    "highlight": "双层站台罕见设计+约300米地下自动步道；奥运体育主题装饰",
+    "note": "5/7号线；自动步道体验像机场",
+    "lat": 59.95019,
+    "lon": 30.288335,
+    "confidence": 100,
+    "tags": [
+      "地铁站"
+    ]
+  },
+  {
+    "id": "p372",
+    "name": "兹韦尼戈罗德站（Звенигородская）",
+    "name_en": "Zvenigorodskaya Metro Station",
+    "city": "圣彼得堡",
+    "cluster": "㉗ 专题：圣彼得堡地铁巡礼",
+    "type": "地铁站",
+    "highlight": "军事历史长卷：巨大马赛克壁画《波尔塔瓦战役》（彼得大帝胜瑞典），颜色超美",
+    "note": "5号线",
+    "lat": 59.922255,
+    "lon": 30.335712,
+    "confidence": 100,
+    "tags": [
+      "地铁站"
+    ]
+  },
+  {
+    "id": "p373",
+    "name": "航道运河站（Обводный канал）",
+    "name_en": "Obvodny Kanal Metro Station",
+    "city": "圣彼得堡",
+    "cluster": "㉗ 专题：圣彼得堡地铁巡礼",
+    "type": "地铁站·工业风",
+    "highlight": "老厂区改造：红砖+玻璃，粗犷又文艺，工业loft与古典站对比最强的一站",
+    "note": "5号线；原铁路厂房遗址上建",
+    "lat": 59.914714,
+    "lon": 30.349699,
+    "confidence": 100,
+    "tags": [
+      "地铁站"
+    ]
+  },
+  {
+    "id": "p374",
+    "name": "国际站（Международная）",
+    "name_en": "Mezhdunarodnaya Metro Station",
+    "city": "圣彼得堡",
+    "cluster": "㉗ 专题：圣彼得堡地铁巡礼",
+    "type": "地铁站",
+    "highlight": "金色阿特兰特巨像托举柱廊，一秒到雅典；古典主义与商业区现代感融合",
+    "note": "5号线",
+    "lat": 59.870208,
+    "lon": 30.379298,
+    "confidence": 100,
+    "tags": [
+      "地铁站"
+    ]
+  },
+  {
+    "id": "p375",
+    "name": "普希金站（Пушкинская）",
+    "name_en": "Pushkinskaya Metro Station",
+    "city": "圣彼得堡",
+    "cluster": "㉗ 专题：圣彼得堡地铁巡礼",
+    "type": "地铁站·文学站",
+    "highlight": "文学主题车站；与亚历山大·涅夫斯基广场站换乘；近陀雕像与弗拉基米尔教堂",
+    "note": "1号线",
+    "lat": 59.920686,
+    "lon": 30.330124,
+    "confidence": 100,
+    "tags": [
+      "地铁站"
+    ]
+  },
+  {
+    "id": "p376",
+    "name": "纳尔夫斯卡亚站（Нарвская）",
+    "name_en": "Narvskaya Metro Station",
+    "city": "圣彼得堡",
+    "cluster": "㉗ 专题：圣彼得堡地铁巡礼",
+    "type": "地铁站",
+    "highlight": "斯大林式建筑典范：纪念性雕塑+工业劳动主题马赛克；宏大庄重出片霸气",
+    "note": "1号线",
+    "lat": 59.900795,
+    "lon": 30.274824,
+    "confidence": 100,
+    "tags": [
+      "地铁站"
+    ]
+  },
+  {
+    "id": "p377",
+    "name": "切尔内舍夫斯卡娅站（Чернышевская）",
+    "name_en": "Chernyshevskaya Metro Station",
+    "city": "圣彼得堡",
+    "cluster": "㉗ 专题：圣彼得堡地铁巡礼",
+    "type": "地铁站",
+    "highlight": "周边是City Walk宝地：复古空间/施蒂格利茨博物馆/独立影院/庭院咖啡全在步行圈",
+    "note": "1号线；住宿推荐区",
+    "lat": 59.94444,
+    "lon": 30.360065,
+    "confidence": 100,
+    "tags": [
+      "地铁站"
+    ]
+  },
+  {
+    "id": "p378",
+    "name": "巴卡之家（Дом Бака）",
+    "name_en": "Dom Baka",
+    "city": "圣彼得堡",
+    "cluster": "独立点位",
+    "type": "圣彼得堡",
+    "highlight": "老建筑里的复古空间，内部装饰出片，喜欢拍照别错过",
+    "note": "Кирочная ул., 24；切尔内舍夫斯卡娅站步行圈",
+    "lat": 59.944156,
+    "lon": 30.357927,
+    "confidence": 100,
+    "tags": [
+      "City Walk"
+    ]
+  },
+  {
+    "id": "p379",
+    "name": "施蒂格利茨博物馆（Музей Штиглица）",
+    "name_en": "Stieglitz Museum",
+    "city": "圣彼得堡",
+    "cluster": "独立点位",
+    "type": "圣彼得堡",
+    "highlight": "装饰艺术与应用艺术学院博物馆：建筑本身就很值得逛，室内好拍",
+    "note": "Соляной пер., 13",
+    "lat": 59.943616,
+    "lon": 30.340841,
+    "confidence": 100,
+    "tags": [
+      "City Walk"
+    ]
+  },
+  {
+    "id": "p380",
+    "name": "Out Cinema 独立电影院",
+    "name_en": "Out Cinema",
+    "city": "圣彼得堡",
+    "cluster": "独立点位",
+    "type": "圣彼得堡",
+    "highlight": "小众独立电影院，复古氛围，电影爱好者友好",
+    "note": "Ковенский пер., 14",
+    "lat": 59.937481,
+    "lon": 30.359014,
+    "confidence": 100,
+    "tags": [
+      "City Walk"
+    ]
+  },
+  {
+    "id": "p381",
+    "name": "Gotcha 咖啡",
+    "name_en": "Gotcha Cafe",
+    "city": "圣彼得堡",
+    "cluster": "独立点位",
+    "type": "圣彼得堡",
+    "highlight": "氛围感咖啡小店，适合走累休息；周边街区好逛",
+    "note": "Суворовский пр., 40",
+    "lat": 59.941493,
+    "lon": 30.380062,
+    "confidence": 100,
+    "tags": [
+      "City Walk"
+    ]
+  },
+  {
+    "id": "p382",
+    "name": "圣日耳曼庭院（Двор Сен-Жермен）",
+    "name_en": "Courtyard of Saint-Germain",
+    "city": "圣彼得堡",
+    "cluster": "独立点位",
+    "type": "圣彼得堡",
+    "highlight": "藏在街区里的小庭院：老建筑+绿荫，City Walk顺路最佳",
+    "note": "Литейный пр., 46",
+    "lat": 59.937576,
+    "lon": 30.348657,
+    "confidence": 100,
+    "tags": [
+      "City Walk"
     ]
   }
 ]
