@@ -125,16 +125,36 @@ Yandex Geocoder 的 `kind=metro` 结果有 bug：`name` 字段返回"Russian Fed
 ### 5.1 分流逻辑（点位渲染处唯一调用点）
 
 ```
-type==="火车站"        → __stationIconFn__   🚉 深灰方块
-tags 含 "地铁站"        → __metroIconFn__     红底白字 M 方块
-tags 含 "水上巴士"       → __boatIconFn__      蓝底 🚤 方块
-其他                   → ge()                彩色圆点（按城市色）
+type==="火车站"         → __stationIconFn__   🚉 深灰方块
+tags 含 "地铁站"         → __metroIconFn__     红底白字 M 方块
+tags 含 "水上巴士"        → __boatIconFn__      蓝底 🚤 方块
+tags 含 "餐厅/咖啡"       → __cafeIconFn__      棕底 ☕ 方块
+tags 含 "酒店/旅馆"       → __hotelIconFn__     青绿底 🏨 方块
+tags 含 "机场"           → __airportIconFn__   橙底 ✈ 方块
+tags 含 "地堡"           → __bunkerIconFn__    灰底 ☢ 方块
+其他                    → ge()                彩色圆点（按城市色）
 ```
 
 **新增图标类型方法**：
 1. `data/points.json` 目标点位加对应 `tags` 值（标签筛选器自动生成）
 2. `assets/map-D2GUsbT3.js` 中 `function ge(` 前插入 `__xxxIconFn__(e,t)` 函数（e=已打卡置灰，t=选中放大）
 3. 分流分支处插入 `:(t.tags||[]).includes("标签")?__xxxIconFn__(M.checked.has(t.id),M.selected===t.id)`
+
+### 5.3 地图覆盖层（data/overlays.json，2026-09 新增）
+
+虚线路线覆盖层与点位分离存储，渲染函数 `de(e,t)` 数据驱动（读取 `window.__overlaysData__`）：
+
+```json
+{ "id": "wbus-1", "kind": "水上巴士航线", "city": "莫斯科",
+  "title": "…", "color": "#7B1FA2", "weight": 4, "opacity": 0.85, "dash": "2 8",
+  "popup": "<b>…</b>（点击折线的弹窗 HTML）",
+  "pts": [[lat,lon], …],           // 折线轨迹，≥2 点
+  "stops": [{ "label": "码头名", "lat": …, "lon": … }] }  // 可选，圆点+悬停tooltip
+```
+
+- 加载器与 points/routes/meta 并行 fetch；文件缺失或空数组时容错不渲染
+- `tools/check-data.mjs` 已含覆盖层校验（id 唯一/color 格式/pts 坐标/stops 格式）
+- 当前内容：水上巴士①-④号线 + 构成主义一日打卡顺序（由早期硬编码迁移）
 
 ### 5.2 popup 英文名 + 复制
 
