@@ -63,6 +63,28 @@ const cities = new Set(points.map(p => p.city));
 for (const c of cities) if (!meta.cityColors?.[c]) err(`城市「${c}」在 meta.cityColors 中无配色`);
 ok(`城市 ${cities.size} 个，配色覆盖检查完成`);
 
+// --- 地图覆盖层（overlays.json，可选文件）---
+import { existsSync } from 'node:fs';
+if (existsSync(resolve(dir, 'overlays.json'))) {
+  const overlays = read('overlays.json');
+  if (!Array.isArray(overlays) || !overlays.length) {
+    err('overlays.json 不是非空数组');
+  } else {
+    const oid = new Set();
+    for (const [i, o] of overlays.entries()) {
+      const where = `overlays[${i}]（${o?.id ?? '?'}）`;
+      if (!o.id || typeof o.id !== 'string') err(`${where} 缺少 id`);
+      else if (oid.has(o.id)) err(`${where} id 重复：${o.id}`);
+      oid.add(o.id);
+      if (!/^#[0-9A-Fa-f]{6}$/.test(o.color || '')) err(`${where} color 非法：${o.color}`);
+      if (!Array.isArray(o.pts) || o.pts.length < 2 || o.pts.some(p => !Array.isArray(p) || p.length !== 2 || p.some(Number.isNaN))) err(`${where} pts 必须是 [[lat,lon],...] 且至少 2 点`);
+      if (o.stops !== undefined && (!Array.isArray(o.stops) || o.stops.some(s => typeof s.label !== 'string' || Number.isNaN(s.lat) || Number.isNaN(s.lon)))) err(`${where} stops 字段格式不对`);
+      if (typeof o.popup !== 'string' || !o.popup) err(`${where} 缺少 popup 文案`);
+    }
+    ok(`覆盖层 ${overlays.length} 条，格式检查完成`);
+  }
+}
+
 if (fail) {
   console.error(`\n${fail} 个问题，请修复后再发布`);
   process.exit(1);
