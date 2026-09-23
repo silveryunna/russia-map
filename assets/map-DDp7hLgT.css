@@ -12,3 +12,4 @@ b.hl{color:#B71C1C;font-weight:700}
 .rl-spin{width:14px;height:14px;border:2px solid #bbb;border-top-color:#1E5A8A;border-radius:50%;animation:rlspin .8s linear infinite;display:inline-block}
 @keyframes rlspin{to{transform:rotate(360deg)}}
 @media (width<=768px){#sidebar:not(.closed)~.map-wrap .sidebar-pill{left:min(380px,88vw);z-index:1201}#sidebar:not(.closed)~.map-wrap .leaflet-top.leaflet-left{left:calc(min(380px,88vw) + 8px);top:10px}#sidebar.closed~.map-wrap .leaflet-top.leaflet-left{left:10px;top:56px}}
+.cnbase-wrap{display:none;gap:3px;margin-left:4px}.cnbase-btn{border:1px solid #ddd;background:#fff;border-radius:6px;padding:2px 7px;font-size:10px;cursor:pointer;color:#333;white-space:nowrap}.cnbase-btn.active{background:#2E7D32;color:#fff;border-color:#2E7D32;font-weight:700}
