@@ -48,6 +48,32 @@ for (const [i, p] of points.entries()) {
 const pend = points.filter(p => p.pending).length;
 ok(`点位 ${points.length} 个（待核 ${pend}），id/name 无重复`);
 
+// --- 离群坐标校验（防"坐标写错城市/经纬度写反"，源自 travel-plan-viz validate.js 的思路）---
+// 按城市分组取坐标中位数，与中位点偏差 >3° 即警告（仅警告不阻断）
+{
+  const byCity = new Map();
+  for (const p of points) {
+    if (typeof p.lat === 'number' && typeof p.lon === 'number' && !p.pending) {
+      if (!byCity.has(p.city)) byCity.set(p.city, []);
+      byCity.get(p.city).push(p);
+    }
+  }
+  let outliers = 0;
+  for (const [city, ps] of byCity) {
+    if (ps.length < 5) continue; // 样本太少不做离群判断
+    const lats = ps.map(p => p.lat).sort((a, b) => a - b);
+    const lons = ps.map(p => p.lon).sort((a, b) => a - b);
+    const mlat = lats[Math.floor(lats.length / 2)], mlon = lons[Math.floor(lons.length / 2)];
+    for (const p of ps) {
+      if (Math.abs(p.lat - mlat) > 3 || Math.abs(p.lon - mlon) > 3) {
+        console.warn(`⚠️ 离群坐标：${p.id}（${p.name}）${p.lat},${p.lon} 偏离 ${city} 中位点 ${mlat},${mlon} 超 3°`);
+        outliers++;
+      }
+    }
+  }
+  ok(`离群坐标检查完成（${outliers} 个警告，仅提示不阻断）`);
+}
+
 // --- 动线引用 ---
 let badRefs = 0;
 for (const r of routes) {
