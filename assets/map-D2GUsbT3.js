@@ -18,12 +18,12 @@ import{r as e,t}from"./leaflet-default-icon-z5NjA5XR.js";import"./base-BJw1lW7I.
     <div class="sb-tools">
       <input class="sb-search" type="text" placeholder="搜索打卡点 / 类别 / 区域..." value="${k(M.query)}">
       ${M.myLoc?`<button class="sb-sort${M.sortBy===`distance`?` active`:``}" data-sort title="按离我距离排序">⇅ 距离</button>`:``}
-    </div>`;if(M.sortBy===`distance`&&M.myLoc){let t=M.query.trim().toLowerCase(),n=W().filter(q).filter(e=>M.city===`全部`||e.city===M.city).filter(e=>!t||__matchIds__(t).has(e.id)).map(e=>({p:e,d:R.distance(M.myLoc,[e.lat,e.lon])})).sort((e,t)=>e.d-t.d);for(let{p:t,d:r}of n)e+=Z(t,M.myLoc?r:null);return n.length||(e+=`<div style="padding:16px;font-size:12px;color:#999;text-align:center">无匹配点位</div>`),e}for(let{country:cn,cities:cns}of Se()){let cc={俄罗斯:`#B71C1C`,哈萨克斯坦:`#00796B`,中国:`#E65100`,其他:`#546E7A`}[cn]||`#546E7A`,ck=`country:`+cn,copen=!M.collapsed.has(ck),ccount=cns.reduce((e,t)=>e+t.clusters.reduce((e,t)=>e+t.points.length,0),0);if(e+=`
-      <div class="city-head country-head" data-toggle="${k(ck)}">
-        <span class="head-arrow">${copen?`▼`:`▶`}</span>
-        <span class="head-dot" style="background:${cc}"></span>${k(cn)}
-        <span class="head-count">（${ccount}）</span>
-      </div>`,!copen)continue;for(let{city:t,clusters:n}of cns){let r=F.cityColors[t]||`#546E7A`,i=`city:`+t,a=!M.opened.has(i),o=n.reduce((e,t)=>e+t.points.length,0),s=M.highlight?.type===`city`&&M.highlight.value===t;if(e+=`
+    </div>`;if(M.sortBy===`distance`&&M.myLoc){let t=M.query.trim().toLowerCase(),n=W().filter(q).filter(e=>M.city===`全部`||e.city===M.city).filter(e=>!t||__matchIds__(t).has(e.id)).map(e=>({p:e,d:R.distance(M.myLoc,[e.lat,e.lon])})).sort((e,t)=>e.d-t.d);for(let{p:t,d:r}of n)e+=Z(t,M.myLoc?r:null);return n.length||(e+=`<div style="padding:16px;font-size:12px;color:#999;text-align:center">无匹配点位</div>`),e}for(let{country:cn,cities:cns}of Se()){let cc={俄罗斯:`#B71C1C`,哈萨克斯坦:`#00796B`,中国:`#E65100`,其他:`#546E7A`}[cn]||`#546E7A`,cf={俄罗斯:`🇷🇺`,哈萨克斯坦:`🇰🇿`,中国:`🇨🇳`,其他:`🌍`}[cn]||`🌍`,ck=`country:`+cn,copen=!M.collapsed.has(ck),ccount=cns.reduce((e,t)=>e+t.clusters.reduce((e,t)=>e+t.points.length,0),0);if(e+=`
+      <div class="country-head" data-toggle="${k(ck)}" style="--cc:${cc}">
+        <span class="ch-flag">${cf}</span><span class="ch-name">${k(cn)}</span>
+        <span class="head-pill">${ccount}</span>
+        <span class="ch-arrow">${copen?`▼`:`▶`}</span>
+      </div>`,!copen)continue;e+=`<div class="country-children" style="--cc:${cc}">`;for(let{city:t,clusters:n}of cns){let r=F.cityColors[t]||`#546E7A`,i=`city:`+t,a=!M.opened.has(i),o=n.reduce((e,t)=>e+t.points.length,0),s=M.highlight?.type===`city`&&M.highlight.value===t;if(e+=`
       <div class="city-head${s?` hl`:``}" data-toggle="${k(i)}">
         <span class="head-arrow">${a?`▶`:`▼`}</span>
         <span class="head-dot" style="background:${r}"></span>${k(t)}
@@ -48,7 +48,7 @@ import{r as e,t}from"./leaflet-default-icon-z5NjA5XR.js";import"./base-BJw1lW7I.
             <div class="pr-name">${k(t.name)}</div>
             <div class="pr-sub">${k(t.city)} · ${k(t.type)} · ${k(t.highlight)}</div>
           </div>
-        </div>`}}}return e}function Z(e,t){let n=M.checked.has(e.id),r=t?A(R.distance(t,[e.lat,e.lon])):null;return`
+        </div>`}}e+=`</div>`}return e}function Z(e,t){let n=M.checked.has(e.id),r=t?A(R.distance(t,[e.lat,e.lon])):null;return`
     <div class="point-row${M.selected===e.id?` selected`:``}" data-pid="${k(e.id)}">
       <input type="checkbox" data-check="${k(e.id)}" style="accent-color:${F.cityColors[e.city]||`#546E7A`}" ${n?`checked`:``} title="标记已打卡">
       <div class="pr-main">
