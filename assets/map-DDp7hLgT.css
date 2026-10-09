@@ -22,3 +22,38 @@ b.hl{color:#B71C1C;font-weight:700}
 .country-head .ch-arrow{color:var(--cc);font-size:11px;opacity:.75}
 .head-pill{font-size:11px;font-weight:700;padding:2px 10px;border-radius:99px;background:color-mix(in srgb,var(--cc) 14%,transparent);color:var(--cc);letter-spacing:0;flex:none}
 .country-children{margin:2px 0 8px 24px;padding-left:11px;border-left:2px solid color-mix(in srgb,var(--cc) 26%,transparent)}
+/* ===== UX 优化（ui-ux-pro-max 准则） ===== */
+/* 1. 移动端触摸目标扩大至 44px（iOS 指导值） */
+@media (width<=768px){
+  .region-ico{min-width:44px;min-height:44px;padding:8px;font-size:16px}
+  .region-btn{min-height:44px;padding:6px 14px;font-size:13px}
+  .sb-tabs button{padding:10px 0;min-height:44px}
+  .sb-cities button{min-height:44px;padding:8px 14px;font-size:13px}
+  .tag-chip{min-height:44px;padding:8px 14px;font-size:12px}
+  .city-head,.cluster-head{min-height:44px;padding:10px 16px}
+  .country-head{min-height:44px;padding:12px 13px}
+  .point-row{padding:10px 12px 10px 42px;min-height:44px}
+  .cj-item{min-height:44px;padding:10px 10px}
+  .route-card{padding:12px 14px}
+  .cities-toggle,.tags-toggle{min-height:44px;padding:8px 0}
+  .sidebar-pill{min-height:44px}
+  .leaflet-popup-close-button{width:32px;height:32px;font-size:18px;line-height:32px}
+  .leaflet-control-layers-list label{padding:8px 4px}
+}
+/* 2. 触控反馈（touch 设备替代 hover 依赖） */
+@media (hover:none){
+  .point-row:active,.cj-item:active,.city-head:active,.cluster-head:active,
+  .tag-chip:active,.sb-cities button:active,.region-btn:active,.region-ico:active,
+  .cities-toggle:active,.tags-toggle:active{background:#f3f0e9}
+  .route-card:active{border-color:#1E5A8A}
+}
+@media (hover:hover){
+  .point-row:hover,.cj-item:hover{background:#f3f0e9}
+}
+/* 3. 一致的过渡动效（200ms 反馈节奏） */
+.point-row,.cj-item,.city-head,.cluster-head,.country-head,.tag-chip,.sb-cities button,
+.region-btn,.region-ico,.cities-toggle,.tags-toggle{transition:background-color .2s ease,border-color .2s ease}
+/* 4. 消灭 300ms 点击延迟 */
+.sb-cities button,.tag-chip,.point-row,.cj-item,.city-head,.cluster-head,.country-head,
+.region-btn,.region-ico,.cities-toggle,.tags-toggle,.sidebar-pill,.star-btn,
+.sb-tabs button,.leaflet-control-layers-list label{touch-action:manipulation}
