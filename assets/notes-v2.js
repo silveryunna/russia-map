@@ -1,27 +1,25 @@
-// 旅行笔记 v2：足迹仪表盘 + 打卡清单 + 笔记（共享 travel-checkin-v1 打卡状态）
+// 旅行笔记 v2：足迹仪表盘 + 打卡清单 + 笔记（打卡状态 v2：次数/日期/感想）
 import './base-BJw1lW7I.js';
 import { t as marked } from './marked.esm-HaWzKJJ6.js';
+import { loadCheckins, hasCheckin, toggleCheckin, updateCheckin, totalVisits } from './checkin-v2.js';
 
 marked.setOptions({ gfm: true, breaks: true });
 
 const $app = document.getElementById('notes-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const CHECKIN_KEY = 'travel-checkin-v1';
 const COUNTRY = c => ({ '莫斯科': '俄罗斯', '莫斯科州/近郊': '俄罗斯', '圣彼得堡': '俄罗斯', '叶卡捷琳堡': '俄罗斯', '阿拉木图': '哈萨克斯坦', '哈尔滨': '中国', '伊宁': '中国', '三亚': '中国' }[c] || '其他');
 const COUNTRY_ORDER = { '中国': 0, '俄罗斯': 1, '哈萨克斯坦': 2, '其他': 3 };
 const FLAG = { '中国': '🇨🇳', '俄罗斯': '🇷🇺', '哈萨克斯坦': '🇰🇿', '其他': '🌍' };
 
 let points = [], meta = { cities: [], cityColors: {} }, notes = [];
-let checked = new Set(JSON.parse(localStorage.getItem(CHECKIN_KEY) || '[]'));
+let checked = loadCheckins();
 let collapsed = new Set();
 let query = '';
 let openNote = null;
+let editing = null; // 正在编辑打卡详情的点位 id
 
 const nonPending = () => points.filter(p => !p.pending);
-
-function saveChecked() {
-  localStorage.setItem(CHECKIN_KEY, JSON.stringify([...checked]));
-}
+const ck = id => hasCheckin(checked, id);
 
 /* ---------- 足迹仪表盘 ---------- */
 function ringSVG(ratio) {
@@ -36,14 +34,15 @@ function ringSVG(ratio) {
 
 function dashboardHTML() {
   const all = nonPending();
-  const done = all.filter(p => checked.has(p.id));
+  const done = all.filter(p => ck(p.id));
   const pend = points.length - all.length;
+  const visits = totalVisits(checked);
   const byCountry = {};
   for (const p of all) {
     const cn = COUNTRY(p.city);
     byCountry[cn] = byCountry[cn] || { total: 0, done: 0 };
     byCountry[cn].total++;
-    if (checked.has(p.id)) byCountry[cn].done++;
+    if (ck(p.id)) byCountry[cn].done++;
   }
   const countries = Object.keys(byCountry).sort((a, b) => COUNTRY_ORDER[a] - COUNTRY_ORDER[b]);
   return `<section class="dash card">
@@ -52,6 +51,7 @@ function dashboardHTML() {
       <div class="dash-nums">
         <div class="dn-row"><b>${all.length}</b><span>点位</span></div>
         <div class="dn-row"><b class="dn-done">${done.length}</b><span>已打卡</span></div>
+        <div class="dn-row"><b>${visits}</b><span>累计次数</span></div>
         <div class="dn-row"><b>${pend}</b><span>待核</span></div>
       </div>
     </div>
@@ -64,7 +64,7 @@ function dashboardHTML() {
         return ra !== rb ? ra - rb : meta.cities.indexOf(a) - meta.cities.indexOf(b);
       }).filter(city => all.some(p => p.city === city)).map(city => {
         const list = all.filter(p => p.city === city);
-        const d = list.filter(p => checked.has(p.id)).length;
+        const d = list.filter(p => ck(p.id)).length;
         const col = meta.cityColors[city] || '#546E7A';
         return `<div class="dc-row">
           <span class="dc-name">${esc(city)}</span>
@@ -95,7 +95,7 @@ function checklistHTML() {
   if (!all.length) html += `<div class="empty">无匹配点位</div>`;
   for (const city of cities) {
     const list = byCity.get(city);
-    const d = list.filter(p => checked.has(p.id)).length;
+    const d = list.filter(p => ck(p.id)).length;
     const col = meta.cityColors[city] || '#546E7A';
     const key = city, isCol = collapsed.has(key);
     html += `<div class="cl-city" data-toggle="${esc(key)}">
@@ -105,12 +105,24 @@ function checklistHTML() {
       <span class="cl-count">${d}/${list.length}</span>
     </div>`;
     if (!isCol) for (const p of list) {
-      const ck = checked.has(p.id);
-      html += `<label class="cl-row${ck ? ' done' : ''}">
-        <input type="checkbox" data-check="${esc(p.id)}" ${ck ? 'checked' : ''} style="accent-color:${col}">
-        <span class="cl-pname">${esc(p.name)}</span>
+      const isDone = ck(p.id);
+      const info = checked[p.id] || {};
+      const sub = isDone ? [info.last, info.n > 1 ? `第 ${info.n} 次` : '', info.note].filter(Boolean).join(' · ') : '';
+      html += `<label class="cl-row${isDone ? ' done' : ''}">
+        <input type="checkbox" data-check="${esc(p.id)}" ${isDone ? 'checked' : ''} style="accent-color:${col}">
+        <span class="cl-pname">${esc(p.name)}${sub ? `<span class="cl-ckinfo">${esc(sub)}</span>` : ''}</span>
         <span class="cl-ptype">${esc(p.type)}</span>
+        ${isDone ? `<button class="cl-edit" data-edit="${esc(p.id)}" title="记录日期 / 次数 / 感想">✎</button>` : ''}
       </label>`;
+      if (editing === p.id) html += `<div class="cl-editor" data-editor="${esc(p.id)}">
+        <label>日期 <input type="date" data-f="last" value="${esc(info.last || new Date().toISOString().slice(0, 10))}"></label>
+        <label>第几次 <input type="number" data-f="n" min="1" max="99" value="${info.n || 1}"></label>
+        <label>一句话感想 <input type="text" data-f="note" maxlength="100" placeholder="如：夕阳下的红场" value="${esc(info.note || '')}"></label>
+        <div class="cl-editor-ops">
+          <button class="cl-save" data-save="${esc(p.id)}">保存</button>
+          <button class="cl-cancel" data-cancel>取消</button>
+        </div>
+      </div>`;
     }
   }
   return html + `</section>`;
@@ -167,13 +179,34 @@ function render() {
       body.dataset.loaded = '1';
       fetch(`./content/notes/${encodeURIComponent(openNote)}.md`).then(r => r.text()).then(raw => {
         const { meta, html } = parseMd(raw);
-        body.innerHTML = `<div class="md">${html}</div><div class="note-meta">${esc(meta.location || '')}</div>`;
+        // 图片优雅降级：懒加载 + 加载失败隐藏（避免破图）
+        const safeHtml = html.replace(/<img\s/gi, '<img loading="lazy" onerror="this.style.display=\'none\'" ');
+        body.innerHTML = `<div class="md">${safeHtml}</div><div class="note-meta">${esc(meta.location || '')}</div>`;
       });
     }
   }
 }
 
 $app.addEventListener('click', e => {
+  const editBtn = e.target.closest('[data-edit]');
+  if (editBtn) {
+    e.preventDefault();
+    const id = editBtn.dataset.edit;
+    editing = editing === id ? null : id;
+    render();
+    return;
+  }
+  if (e.target.closest('[data-cancel]')) { editing = null; render(); return; }
+  const saveBtn = e.target.closest('[data-save]');
+  if (saveBtn) {
+    const id = saveBtn.dataset.save;
+    const box = $app.querySelector(`[data-editor="${CSS.escape(id)}"]`);
+    const get = f => box?.querySelector(`[data-f="${f}"]`)?.value ?? '';
+    updateCheckin(checked, id, { last: get('last'), n: get('n'), note: get('note') });
+    editing = null;
+    render();
+    return;
+  }
   const t = e.target.closest('[data-toggle]');
   if (t) {
     const k = t.dataset.toggle;
@@ -185,16 +218,15 @@ $app.addEventListener('click', e => {
   if (row && !e.target.closest('a')) {
     openNote = openNote === row.dataset.note ? null : row.dataset.note;
     render();
-    if (openNote) row = null, document.querySelector(`[data-note="${CSS.escape(openNote)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (openNote) document.querySelector(`[data-note="${CSS.escape(openNote)}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     return;
   }
 });
 $app.addEventListener('change', e => {
   const cb = e.target.closest('input[data-check]');
   if (!cb) return;
-  const id = cb.dataset.check;
-  checked.has(id) ? checked.delete(id) : checked.add(id);
-  saveChecked();
+  toggleCheckin(checked, cb.dataset.check);
+  if (editing && editing !== cb.dataset.check) editing = null;
   render();
 });
 

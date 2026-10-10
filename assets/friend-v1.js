@@ -1,10 +1,13 @@
 // 朋友投稿页：传照片 / 写笔记 / 打卡（需管理员在 account.html 开的账号）
 import './base-BJw1lW7I.js';
+import { loadCheckins, hasCheckin } from './checkin-v2.js';
 
 const $app = document.getElementById('friend-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const LS = 'friend-token';
 const API = './api/index.php';
+// 幂等键：同一次提交动作重试只入库一次（弱网/连点防重复）
+const newIdem = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2));
 
 let token = localStorage.getItem(LS) || '';
 let me = null;
@@ -129,10 +132,11 @@ function renderPhoto(body) {
   document.getElementById('ph-send').onclick = async () => {
     const btn = document.getElementById('ph-send');
     btn.disabled = true; btn.textContent = '提交中…';
+    const idem = newIdem();
     try {
       const ptName = document.getElementById('ph-point').value.trim();
       const pt = points.find(p => p.name === ptName);
-      await api('submit', { type: 'photo', title: document.getElementById('ph-title').value.trim(), pointId: pt ? pt.id : '', dataUrl });
+      await api('submit', { type: 'photo', title: document.getElementById('ph-title').value.trim(), pointId: pt ? pt.id : '', dataUrl, idem });
       toast('已提交，等待站长审核 ✓');
       tab = 'mine'; renderMain();
     } catch (e) { toast('失败：' + e.message); btn.disabled = false; btn.textContent = '提交审核'; }
@@ -153,7 +157,7 @@ function renderNote(body) {
     const ptName = document.getElementById('nt-point').value.trim();
     const pt = points.find(p => p.name === ptName);
     try {
-      await api('submit', { type: 'note', title: document.getElementById('nt-title').value.trim(), body: document.getElementById('nt-body').value, pointId: pt ? pt.id : '' });
+      await api('submit', { type: 'note', title: document.getElementById('nt-title').value.trim(), body: document.getElementById('nt-body').value, pointId: pt ? pt.id : '', idem: newIdem() });
       toast('已提交，等待站长审核 ✓');
       tab = 'mine'; renderMain();
     } catch (e) { toast('失败：' + e.message); }
@@ -161,7 +165,7 @@ function renderNote(body) {
 }
 
 function renderCheckin(body) {
-  const done = new Set(JSON.parse(localStorage.getItem('travel-checkin-v1') || '[]'));
+  const ckMap = loadCheckins();
   body.innerHTML = `
     <div class="card fr-form">
       <label>搜索点位 <input id="ck-q" placeholder="如：中央大街 / 红场"></label>
@@ -171,15 +175,18 @@ function renderCheckin(body) {
   const list = document.getElementById('ck-list');
   const draw = q => {
     const hit = points.filter(p => !p.pending && (!q || p.name.toLowerCase().includes(q) || (p.name_en || '').toLowerCase().includes(q))).slice(0, 30);
-    list.innerHTML = hit.map(p => `
+    list.innerHTML = hit.map(p => {
+      const known = hasCheckin(ckMap, p.id);
+      return `
       <div class="fr-ckrow">
         <span>${esc(p.name)}</span>
-        <button class="pl-btn small" data-ck="${esc(p.id)}" ${done.has(p.id) ? 'disabled' : ''}>${done.has(p.id) ? '本站已打卡' : '提交打卡'}</button>
-      </div>`).join('') || '<div class="fr-note">无匹配点位</div>';
+        <button class="pl-btn small" data-ck="${esc(p.id)}" ${known ? 'disabled' : ''}>${known ? '本站已打卡' : '提交打卡'}</button>
+      </div>`;
+    }).join('') || '<div class="fr-note">无匹配点位</div>';
     list.querySelectorAll('[data-ck]').forEach(b => b.onclick = async () => {
       b.disabled = true; b.textContent = '提交中…';
       try {
-        await api('submit', { type: 'checkin', pointId: b.dataset.ck });
+        await api('submit', { type: 'checkin', pointId: b.dataset.ck, idem: newIdem() });
         toast('打卡已提交 ✓'); b.textContent = '已提交';
       } catch (e) { toast('失败：' + e.message); b.disabled = false; b.textContent = '提交打卡'; }
     });

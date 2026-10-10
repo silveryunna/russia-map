@@ -19,6 +19,14 @@ $db->exec('CREATE TABLE IF NOT EXISTS submissions(
   status TEXT DEFAULT "pending", created INTEGER)');
 $db->exec('CREATE TABLE IF NOT EXISTS fails(
   k TEXT PRIMARY KEY, n INTEGER, until INTEGER)');
+// 幂等键列（旧库自动补列；同一次提交重试只入库一次）
+try { $db->exec('ALTER TABLE submissions ADD COLUMN idem TEXT'); } catch (PDOException $e) { /* 已存在 */ }
+$db->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_sub_idem ON submissions(idem)');
+
+// 渲染侧（弹窗/笔记）会拼 HTML，入口拦掉脚本注入
+function unsafe_html(string $s): bool {
+  return (bool)preg_match('/<\s*script|<\s*iframe|<\s*object|<\s*embed|javascript\s*:|on[a-z]+\s*=/i', $s);
+}
 
 function out($d, int $code = 200): void { http_response_code($code); echo json_encode($d, JSON_UNESCAPED_UNICODE); exit; }
 function body(): array { $b = json_decode(file_get_contents('php://input') ?: '', true); return is_array($b) ? $b : []; }
@@ -115,8 +123,17 @@ switch ($a) {
     $b = body();
     $type = (string)($b['type'] ?? '');
     if (!in_array($type, ['photo', 'note', 'checkin'], true)) out(['error' => '类型非法'], 400);
+    // 幂等：同一 idem 已提交过则直接返回原记录，不重复入库
+    $idem = preg_replace('/[^\w-]/', '', (string)($b['idem'] ?? ''));
+    if ($idem) {
+      $q = $db->prepare('SELECT id FROM submissions WHERE idem=?');
+      $q->execute([$idem]);
+      $dup = $q->fetchColumn();
+      if ($dup) out(['ok' => true, 'id' => (int)$dup, 'duplicate' => true]);
+    }
     $title = mb_substr((string)($b['title'] ?? ''), 0, 120);
     $text = mb_substr((string)($b['body'] ?? ''), 0, 5000);
+    if (unsafe_html($title) || unsafe_html($text)) out(['error' => '内容含不允许的脚本代码'], 400);
     $point = preg_replace('/[^p\d]/', '', (string)($b['pointId'] ?? ''));
     $file = null;
     if ($type === 'photo') {
@@ -136,8 +153,19 @@ switch ($a) {
       $title = '打卡';
       if (!$point) out(['error' => '缺少点位'], 400);
     }
-    $db->prepare('INSERT INTO submissions(username,type,title,body,point_id,file,created) VALUES(?,?,?,?,?,?,?)')
-      ->execute([$s['who'], $type, $title, $text, $point ?: null, $file, time()]);
+    try {
+      $db->prepare('INSERT INTO submissions(username,type,title,body,point_id,file,created,idem) VALUES(?,?,?,?,?,?,?,?)')
+        ->execute([$s['who'], $type, $title, $text, $point ?: null, $file, time(), $idem ?: null]);
+    } catch (PDOException $e) {
+      // 并发同 idem：返回已存在的那条
+      if ($idem) {
+        $q = $db->prepare('SELECT id FROM submissions WHERE idem=?');
+        $q->execute([$idem]);
+        $dup = $q->fetchColumn();
+        if ($dup) out(['ok' => true, 'id' => (int)$dup, 'duplicate' => true]);
+      }
+      out(['error' => '提交失败，请重试'], 500);
+    }
     out(['ok' => true, 'id' => (int)$db->lastInsertId()]);
   }
   case 'my': {

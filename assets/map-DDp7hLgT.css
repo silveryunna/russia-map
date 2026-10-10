@@ -57,3 +57,10 @@ b.hl{color:#B71C1C;font-weight:700}
 .sb-cities button,.tag-chip,.point-row,.cj-item,.city-head,.cluster-head,.country-head,
 .region-btn,.region-ico,.cities-toggle,.tags-toggle,.sidebar-pill,.star-btn,
 .sb-tabs button,.leaflet-control-layers-list label{touch-action:manipulation}
+
+/* 动线播放按钮 + 当前落点高亮 */
+.route-play { display: block; width: calc(100% - 24px); margin: 10px 12px 0; border: 1.5px solid #B71C1C; background: #B71C1C; color: #fff; border-radius: 9px; padding: 11px; font-size: 13px; font-weight: 600; cursor: pointer; touch-action: manipulation; }
+.route-play:active { background: #8E1414; }
+.leaflet-marker-icon.mp > div { outline: 3px solid #FFB300; outline-offset: 2px; }
+/* 弹窗内一键导航按钮点击态 */
+.popup-nav:active { background: #8E1414 !important; }

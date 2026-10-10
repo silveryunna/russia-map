@@ -50,9 +50,21 @@ for (const [i, p] of points.entries()) {
       err(`${where} ${f} 必须是字符串`);
     }
   }
+  // url 白名单：只允许 http/https（弹窗直接拼进 href，防 javascript: 注入）
+  if (p.url && !/^https?:\/\//i.test(p.url)) err(`${where} url 必须是 http(s) 链接：${p.url}`);
 }
 const pend = points.filter(p => p.pending).length;
 ok(`点位 ${points.length} 个（待核 ${pend}），id/name 无重复`);
+
+// name_en 完整性（三语搜索不遗漏）
+{
+  const noEn = points.filter(p => !p.pending && p.name && !p.name_en);
+  if (noEn.length) {
+    console.warn(`⚠️ ${noEn.length} 个点位缺少 name_en（英文/俄文搜索会漏）：` +
+      noEn.slice(0, 12).map(p => `${p.id} ${p.name}`).join('、') + (noEn.length > 12 ? ' …' : ''));
+  }
+  ok(`name_en 覆盖 ${points.length - noEn.length}/${points.length}`);
+}
 
 // --- 离群坐标校验（防"坐标写错城市/经纬度写反"，源自 travel-plan-viz validate.js 的思路）---
 // 按城市分组取坐标中位数，与中位点偏差 >3° 即警告（仅警告不阻断）

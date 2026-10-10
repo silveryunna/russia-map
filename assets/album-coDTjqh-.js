@@ -6,7 +6,7 @@ import"./base-BJw1lW7I.js";import{n as e,t}from"./sw-register-DJuU55yn.js";var n
     <div class="album-grid">
       ${i.map((e,t)=>`
         <figure class="photo-card" data-idx="${t}">
-          <img src="./photos/${encodeURIComponent(e.src)}" alt="${r(e.title||e.src)}" loading="lazy">
+          <img src="./photos/${encodeURIComponent(e.src)}" alt="${r(e.title||e.src)}" loading="lazy" onerror="this.closest('figure').classList.add('ph-broken')">
           <figcaption>
             ${e.title?`<div class="pc-title">${r(e.title)}</div>`:``}
             <div class="pc-sub">${[e.place,e.date].filter(Boolean).map(r).join(` · `)}</div>
@@ -17,7 +17,7 @@ import"./base-BJw1lW7I.js";import{n as e,t}from"./sw-register-DJuU55yn.js";var n
     <div class="viewer" data-viewer>
       <button class="vw-close" data-close>✕</button>
       <button class="vw-prev" data-prev ${a===0?`disabled`:``}>‹</button>
-      <img class="vw-img" src="./photos/${encodeURIComponent(e.src)}" alt="${r(e.title||``)}">
+      <img class="vw-img" src="./photos/${encodeURIComponent(e.src)}" alt="${r(e.title||``)}" onerror="this.style.display='none'">
       <button class="vw-next" data-next ${a===i.length-1?`disabled`:``}>›</button>
       <div class="vw-cap">${r(e.title||``)}${e.place||e.date?`<span>${[e.place,e.date].filter(Boolean).map(r).join(` · `)}</span>`:``}</div>
       <div class="vw-count">${a+1} / ${i.length}</div>
