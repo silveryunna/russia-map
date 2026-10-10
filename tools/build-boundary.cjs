@@ -1,8 +1,7 @@
-// 中国边界统一构建脚本 —— 全部版图数据出自 frykit（天地图官方），单一数据源
-// 前置：pip install frykit[data] shapely，先运行下方 python 导出原始数据到 %TEMP%：
-//   python export_frykit.py  → frykit_tdt.json(国界514多边形) + frykit_dash.json(九段线9段)
+// 中国边界统一构建脚本 v2 —— 全部版图数据出自 frykit（天地图官方），单一数据源
+// 边界范围：frykit 国界（陆地+全部岛屿） + 渤海/黄海/东海海域（至日韩朝海岸裁切） + 南海十段线海域
+// 前置：pip install frykit[data] shapely，先运行：python tools/export_frykit.py
 // 然后：node tools/build-boundary.cjs
-// 版图数据流：frykit 天地图国界/九段线(WGS) + 南海/渤海海域(九段线环经邻国NaturalEarth裁切)
 const fs = require('fs'), zlib = require('zlib'), path = require('path'), os = require('os');
 const TMP = os.tmpdir();
 
@@ -14,7 +13,8 @@ const { difference } = require(path.join(NM, '@turf/difference'));
 const { polygon, multiPolygon, featureCollection } = require(path.join(NM, '@turf/helpers'));
 
 const BOUNDARY = path.join(__dirname, '..', 'data', 'china-boundary.json');
-const NEIGHBORS = ['VNM', 'PHL', 'MYS', 'BRN', 'IDN', 'KHM', 'THA']; // 裁切参照（邻国 Natural Earth，仅存于构建期）
+// 裁切参照：邻国陆地（Natural Earth，仅构建期使用）——海域边界沿其真实海岸
+const NEIGHBORS = ['VNM', 'PHL', 'MYS', 'BRN', 'IDN', 'KHM', 'THA', 'KOR', 'PRK', 'JPN'];
 
 // —— 工具 ——
 function segInt(a, b, c, d) {
@@ -62,6 +62,7 @@ function rdp(pts, tol) {
   return pts.filter((_, i) => keep[i]);
 }
 const area = p => { const r = p[0]; let a = 0; for (let k = 0; k < r.length - 1; k++)a += r[k][0] * r[k + 1][1] - r[k + 1][0] * r[k][1]; return Math.abs(a / 2) };
+const inRing = (x, y, r) => { let ins = false; for (let i = 0, k = r.length - 1; i < r.length; k = i++) { const [xi, yi] = r[i], [xj, yj] = r[k]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) ins = !ins; } return ins };
 function renderPNG(rings, file, lon0, lat0, lon1, lat1, W = 936) {
   const s = (lon1 - lon0) / W, H = Math.round((lat1 - lat0) / s);
   const px = new Uint8Array(W * H * 3).fill(238);
@@ -88,11 +89,17 @@ function renderPNG(rings, file, lon0, lat0, lon1, lat1, W = 936) {
   fs.writeFileSync(file, Buffer.concat([Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]), chunk('IHDR', ihdr), chunk('IDAT', zlib.deflateSync(raw)), chunk('IEND', Buffer.alloc(0))]));
   console.log('渲染验证图 →', file);
 }
+function clipSea(seaRing, landRingsAll, minArea) {
+  const diff = difference(featureCollection([polygon([seaRing]), multiPolygon(landRingsAll.map(r => [r]))]));
+  if (!diff) return [];
+  let polys = diff.geometry.type === 'Polygon' ? [diff.geometry.coordinates] : diff.geometry.coordinates;
+  return polys.filter(p => area(p) > minArea).map(p => [cleanRing(p[0]), ...p.slice(1).filter(h => h.length >= 6).map(cleanRing)]);
+}
 
 // —— 1. 载入 frykit 数据（单一版图数据源） ——
 const fry = JSON.parse(fs.readFileSync(path.join(TMP, 'frykit_tdt.json'), 'utf8'));
 const dash = JSON.parse(fs.readFileSync(path.join(TMP, 'frykit_dash.json'), 'utf8'));
-const land = fry.coordinates; // [ [ [ [lon,lat]..ext ] , holes.. ] , ... ] — frykit 导出为 Polygon 数组
+const land = fry.coordinates;
 const landRings = land.map(p => p[0]);
 console.log('frykit 天地图国界:', land.length, '多边形');
 
@@ -108,13 +115,23 @@ const processed = land.map(p => {
   return p;
 });
 
-// —— 3. 九段线 → V 形链（东腿顶→底 + 泰国湾连接 + 西腿底→顶） ——
+// —— 3. 邻国裁切参照环 ——
+const nbr = [];
+for (const c of NEIGHBORS) {
+  const j = JSON.parse(fs.readFileSync(path.join(TMP, `ne_${c}.json`), 'utf8'));
+  for (const f of j.features) {
+    const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
+    for (const p of polys) nbr.push(p[0]);
+  }
+}
+const clipAll = [...landRings, ...nbr];
+
+// —— 4. 十段线 → V 形链（frykit 九段线 + 台湾以东第十段） ——
 const withC = dash.map(d => {
   let b = { minx: 999, maxx: -999, miny: 999, maxy: -999 };
   d.forEach(([x, y]) => { b.minx = Math.min(b.minx, x); b.maxx = Math.max(b.maxx, x); b.miny = Math.min(b.miny, y); b.maxy = Math.max(b.maxy, y) });
   return { d, b, cx: (b.minx + b.maxx) / 2, cy: (b.miny + b.maxy) / 2 };
 });
-// 东腿：经度中心≥114 或最南端（曾母暗沙，南端收尾），按纬度降序；其余为西腿升序
 const east = withC.filter(x => x.cx >= 114 || x.b.maxy < 5).sort((a, b) => b.cy - a.cy);
 const west = withC.filter(x => !(x.cx >= 114 || x.b.maxy < 5)).sort((a, b) => a.cy - b.cy);
 const orient = (d, headHigh) => (headHigh ? (d[0][1] >= d[d.length - 1][1] ? d : [...d].reverse()) : (d[0][1] <= d[d.length - 1][1] ? d : [...d].reverse()));
@@ -124,56 +141,66 @@ const chain = [
   [west[0].d[0][1] <= west[0].d[west[0].d.length - 1][1] ? west[0].d[0] : west[0].d[west[0].d.length - 1]],
   ...west.map(x => orient(x.d, false)),
 ].flat();
-console.log('九段线链:', chain.length, '点 首', chain[0].map(v => +v.toFixed(1)), '尾', chain[chain.length - 1].map(v => +v.toFixed(1)));
+console.log('十段线链:', chain.length, '点 首', chain[0].map(v => +v.toFixed(1)), '尾', chain[chain.length - 1].map(v => +v.toFixed(1)));
 
-// —— 4. 南海海域环（闭合线走陆地内部）+ 邻国裁切 ——
-const closure = [
+// —— 5. 南海海域环（闭合线走陆地内部） ——
+const scsRing = cleanRing([...chain,
   [106.6, 6.9], [105.3, 7.6], [104.9, 8.0],
   [104.6, 9.0], [105.2, 9.5], [106.6, 10.0], [107.6, 11.5], [107.8, 13.5], [107.4, 15.5], [107.0, 17.5], [106.6, 19.5], [106.3, 21.0],
   [107.5, 22.0], [109.5, 22.2], [111.5, 22.8], [113.5, 23.3], [115.5, 23.8], [117.0, 24.6], [118.5, 25.3],
   [120.0, 25.9], [121.4, 25.7],
-  [121.9, 25.3], [121.6, 24.8], [121.2, 24.2], [120.9, 23.4], [120.8, 22.6], [120.85, 21.95], // 台湾岛内陆脊
-  [121.3, 22.3], [121.8, 23.5], [122.2, 24.2], // 台湾以东（沿第十段西侧上行）
-];
-const scsRing = cleanRing([...chain, ...closure, [...chain[0]]]);
+  [121.9, 25.3], [121.6, 24.8], [121.2, 24.2], [120.9, 23.4], [120.8, 22.6], [120.85, 21.95],
+  [121.3, 22.3], [121.8, 23.5], [122.2, 24.2],
+  [...chain[0]]]);
 const sx = selfX(scsRing);
 if (sx) { console.error('南海环自交', sx); process.exit(1); }
-const nbr = [];
-for (const c of NEIGHBORS) {
-  const j = JSON.parse(fs.readFileSync(path.join(TMP, `ne_${c}.json`), 'utf8'));
-  for (const f of j.features) {
-    const polys = f.geometry.type === 'Polygon' ? [f.geometry.coordinates] : f.geometry.coordinates;
-    for (const p of polys) nbr.push(p[0]);
-  }
-}
-const scsDiff = difference(featureCollection([polygon([scsRing]), multiPolygon([...landRings, ...nbr].map(r => [r]))]));
-if (!scsDiff) { console.error('南海裁切为空'); process.exit(1); }
-let scs = scsDiff.geometry.type === 'Polygon' ? [scsDiff.geometry.coordinates] : scsDiff.geometry.coordinates;
-scs = scs.filter(p => area(p) > 20).map(p => [cleanRing(p[0]), ...p.slice(1).filter(h => h.length >= 6).map(cleanRing)]);
+const scs = clipSea(scsRing, clipAll, 20);
 console.log('南海海域:', scs.length, '块');
 
-// —— 5. 渤海（内海）= 粗框 - 陆域 ——
-const box = polygon([[[117.5, 37], [122.6, 37], [122.6, 41.3], [117.5, 41.3], [117.5, 37]]]);
-const bhDiff = difference(featureCollection([box, multiPolygon(processed.map(p => p.map(r => r)))]));
-let bohai = bhDiff.geometry.type === 'Polygon' ? [bhDiff.geometry.coordinates] : bhDiff.geometry.coordinates;
-bohai = bohai.filter(p => area(p) > 0.05).map(p => [cleanRing(p[0]), ...p.slice(1).map(cleanRing)]);
-console.log('渤海海面:', bohai.length, '块');
+// —— 6. 渤海+黄海+东海海域环（与南海共享台湾以东线段；日韩朝海岸裁切） ——
+const ecsRing = cleanRing([
+  [122.83, 24.6],                                // 与南海环共享起点
+  [124.5, 25.8], [126.5, 27.5], [128.5, 29.8], [130.2, 31.5], // 东海大陆架外缘（中日边界方向）
+  [131.2, 32.6], [132.2, 33.8],                  // 对马海峡
+  [130.2, 34.6], [129.6, 36.2], [128.7, 38.2], [127.9, 40.0], [126.2, 41.6], // 朝鲜东岸外（日本海西岸）
+  [124.4, 39.9],                                 // 鸭绿江口
+  [122.5, 40.3], [120.0, 40.5], [118.0, 39.3], [117.3, 38.0], [117.6, 37.2], [119.0, 37.2], [120.5, 37.6], [121.5, 38.5], // 穿中国内陆环抱住渤海（裁切后不可见）
+  [120.0, 35.0], [120.5, 32.5], [121.9, 30.7],   // 黄海/苏北
+  [122.4, 27.5], [122.2, 24.2],                  // 浙闽外海 → 台湾以东（与南海环共享线段）
+  [122.83, 24.6],
+]);
+const ex = selfX(ecsRing);
+if (ex) { console.error('东海环自交', ex); process.exit(1); }
+let ecs = clipSea(ecsRing, clipAll, 1);
+// 去碎屑：外环上均匀取 7 点，多数落在邻国陆域内才剔除（防贴岸顶点误删）
+ecs = ecs.filter(p => {
+  const r = p[0], step = Math.max(1, Math.floor(r.length / 7));
+  let hits = 0, total = 0;
+  for (let i = 0; i < r.length; i += step) { total++; if (nbr.some(nr => inRing(r[i][0], r[i][1], nr))) hits++; }
+  return hits <= total / 2;
+});
+console.log('渤海+黄海+东海海域:', ecs.length, '块');
 
-// —— 6. 组装 + 渲染验证 + 岛屿核查 ——
-const coords = [...processed, ...scs, ...bohai];
+// —— 7. 组装 + 渲染验证 + 断言 ——
+const coords = [...processed, ...scs, ...ecs];
 renderPNG(coords.flatMap(p => p), path.join(TMP, 'mask_check.png'), 70, 0, 142, 62);
-const inRing = (x, y, r) => { let ins = false; for (let i = 0, k = r.length - 1; i < r.length; k = i++) { const [xi, yi] = r[i], [xj, yj] = r[k]; if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) ins = !ins; } return ins };
 const cover = (x, y) => coords.some(p => inRing(x, y, p[0]));
-const checks = [['钓鱼岛', 123.47, 25.74, 1], ['台湾', 121, 23.8, 1], ['海南', 109.7, 19.2, 1], ['渤海', 120.8, 39.0, 1], ['南海中心', 113, 15, 1], ['永兴岛', 112.34, 16.83, 1], ['黄岩岛', 117.75, 15.25, 1], ['黄海(灰)', 122.9, 36.5, 0], ['东海(灰)', 124.5, 30.0, 0], ['菲律宾海(灰)', 126, 21, 0]];
+const checks = [
+  ['钓鱼岛', 123.47, 25.74, 1], ['台湾', 121, 23.8, 1], ['海南', 109.7, 19.2, 1],
+  ['渤海', 120.8, 39.0, 1], ['黄海', 122.5, 36.5, 1], ['东海', 125.5, 30.5, 1],
+  ['南海中心', 113, 15, 1], ['永兴岛', 112.34, 16.83, 1], ['黄岩岛', 117.75, 15.25, 1],
+  ['长江口', 122.4, 31.5, 1],
+  ['日本海(灰)', 129.5, 39, 0], ['对马海峡东口(灰)', 132.5, 34.5, 0], ['菲律宾海(灰)', 126, 21, 0], ['泰国湾(灰)', 101.5, 8, 0],
+];
 let pass = true;
 for (const [n, x, y, expect] of checks) {
   const got = cover(x, y) ? 1 : 0;
   if (got !== expect) { pass = false; console.error('✗', n, '期望', expect ? '内' : '外', '实际', got ? '内' : '外'); }
   else console.log('✓', n);
 }
-if (!pass) { console.error('岛屿核查未通过'); process.exit(1); }
+if (!pass) { console.error('断言未通过'); process.exit(1); }
 
-// —— 7. 写入 ——
+// —— 8. 写入 ——
 const out = { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { name: '中华人民共和国', source: 'tianditu(frykit)', level: 'country' }, geometry: { type: 'MultiPolygon', coordinates: coords } }] };
 fs.writeFileSync(BOUNDARY, JSON.stringify(out));
 console.log('完成:', coords.length, '多边形,', Math.round(fs.statSync(BOUNDARY).size / 1024) + 'KB → data/china-boundary.json');
