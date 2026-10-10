@@ -4,7 +4,7 @@
 //
 // 【更新发布流程】每次部署新版本时，把下面的 VERSION 改一个新值（如 tn-v2、tn-v3…），
 // 用户打开页面时会自动检测并刷新到新版本。
-const VERSION = 'tn-v29';
+const VERSION = 'tn-v30';
 const SHELL_CACHE = 'tn-shell-' + VERSION;
 const RUNTIME_CACHE = 'tn-runtime-' + VERSION;
 
@@ -76,11 +76,11 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // 同源资源：网络优先，离线回退缓存
+  // 同源资源：网络优先（强制回源校验，避免数据 JSON 被浏览器旧缓存顶住），离线回退缓存
   if (new URL(url).origin === self.location.origin) {
     event.respondWith((async () => {
       try {
-        const res = await fetch(req);
+        const res = await fetch(req, { cache: 'no-cache' });
         if (res.ok) {
           const cache = await caches.open(SHELL_CACHE);
           cache.put(req, res.clone());
