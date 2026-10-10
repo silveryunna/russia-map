@@ -161,11 +161,19 @@ print(f"国界内扫描 {scan_n} 点，遮罩漏洞 {bad}")
 if fail or bad:
     raise SystemExit("校验未通过")
 
-# ---------- 7. 写出 ----------
+# ---------- 7. 写出（OGC 规范环方向：外环逆时针(正)、洞顺时针(负)；配合渲染端 nonzero 规则） ----------
+from shapely.geometry.polygon import orient
+
+china = orient(china, sign=1.0)  # 外环 CCW、洞 CW
+if china.geom_type == "MultiPolygon":
+    china = [orient(g, sign=1.0) for g in china.geoms]
+else:
+    china = [orient(china, sign=1.0)]
+
 def coords_of(g: Polygon):
     return [[list(c) for c in g.exterior.coords]] + [[list(c) for c in r.coords] for r in g.interiors]
 
-polys = [coords_of(g) for g in china.geoms] if china.geom_type == "MultiPolygon" else [coords_of(china)]
+polys = [coords_of(g) for g in china]
 out = {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {
     "name": "中华人民共和国", "source": "tianditu(frykit)", "level": "country"},
     "geometry": {"type": "MultiPolygon", "coordinates": polys}}]}
