@@ -1,0 +1,51 @@
+/* 朋友投稿页 + 协作管理页样式（依赖 plan-v1.css 的 card/pl-btn/pl-empty/plan-toast） */
+#friend-app, #account-app { max-width: 640px; margin: 0 auto; padding: 14px 14px 40px; }
+
+.fr-login { max-width: 380px; margin: 40px auto 0; text-align: center; }
+.fr-login h2 { margin: 0 0 6px; font-size: 19px; color: #3A3226; }
+.fr-tip { font-size: 13px; color: #8A8071; margin: 0 0 16px; line-height: 1.6; }
+.fr-login label, .fr-form label { display: block; text-align: left; font-size: 13px; color: #5D5340; margin: 12px 0 4px; }
+.fr-login input, .fr-form input, .fr-form textarea, .ad-new input {
+  width: 100%; box-sizing: border-box; border: 1.5px solid #DDD5C2; border-radius: 10px;
+  padding: 10px 12px; font-size: 14px; background: #FDFCF9; color: #3A3226; outline: none;
+}
+.fr-login input:focus, .fr-form input:focus, .fr-form textarea:focus, .ad-new input:focus { border-color: #B71C1C; }
+.fr-login .pl-btn.big { margin-top: 18px; }
+.fr-err { color: #B13B3B; font-size: 13px; min-height: 20px; margin-top: 10px; }
+
+.fr-top { display: flex; justify-content: space-between; align-items: center; padding: 4px 2px 12px; font-size: 14px; color: #5D5340; }
+
+.fr-tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+.fr-tab { border: 1.5px solid #C9C0AC; background: #fff; color: #5D5340; border-radius: 999px; padding: 7px 14px; font-size: 13px; cursor: pointer; }
+.fr-tab.on { background: #B71C1C; border-color: #B71C1C; color: #fff; font-weight: 600; }
+
+.fr-note { font-size: 12px; color: #99917F; margin-top: 12px; line-height: 1.6; }
+.fr-form .pl-btn.big { margin-top: 16px; }
+#ph-preview img { max-width: 100%; border-radius: 10px; margin-top: 10px; display: block; }
+
+.fr-cklist { margin-top: 10px; max-height: 420px; overflow-y: auto; }
+.fr-ckrow { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 9px 2px; border-bottom: 1px dashed #E8E2D5; font-size: 14px; color: #3A3226; }
+.fr-ckrow:last-child { border-bottom: none; }
+
+.fr-mine { display: flex; flex-direction: column; }
+.fr-mine-row { display: flex; align-items: center; gap: 10px; padding: 10px 2px; border-bottom: 1px dashed #E8E2D5; font-size: 14px; }
+.fr-mine-row:last-child { border-bottom: none; }
+.fr-mine-type { flex: none; }
+.fr-mine-title { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: #3A3226; }
+.fr-mine-st { flex: none; font-size: 12px; color: #8A8071; }
+
+.ad-list { display: flex; flex-direction: column; gap: 12px; }
+.ad-item-top { display: flex; align-items: center; gap: 8px; font-size: 15px; color: #3A3226; }
+.ad-who { font-size: 12px; color: #99917F; background: #F6F4EE; border-radius: 999px; padding: 2px 10px; }
+.ad-photo { margin-top: 10px; color: #99917F; font-size: 13px; }
+.ad-photo img { max-width: 100%; border-radius: 10px; display: block; }
+.ad-body { margin-top: 10px; font-size: 13px; color: #5D5340; background: #FDFCF9; border: 1px solid #EFE9DC; border-radius: 10px; padding: 10px 12px; line-height: 1.7; white-space: pre-wrap; word-break: break-word; }
+.ad-point { margin-top: 8px; font-size: 13px; color: #8A8071; }
+
+.ad-sec-title { font-size: 14px; font-weight: 600; color: #3A3226; margin-bottom: 4px; }
+.ad-new { margin-bottom: 14px; }
+.ad-new-row { display: flex; gap: 8px; margin-top: 8px; }
+.ad-new-row input { flex: 1; }
+.ad-new-row .pl-btn { flex: none; }
+.ad-subcnt { flex: none; font-size: 12px; color: #99917F; }
+.ad-created { margin-left: auto; }
