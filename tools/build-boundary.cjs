@@ -118,7 +118,12 @@ const withC = dash.map(d => {
 const east = withC.filter(x => x.cx >= 114 || x.b.maxy < 5).sort((a, b) => b.cy - a.cy);
 const west = withC.filter(x => !(x.cx >= 114 || x.b.maxy < 5)).sort((a, b) => a.cy - b.cy);
 const orient = (d, headHigh) => (headHigh ? (d[0][1] >= d[d.length - 1][1] ? d : [...d].reverse()) : (d[0][1] <= d[d.length - 1][1] ? d : [...d].reverse()));
-const chain = [...east.map(x => orient(x.d, true)), [west[0].d[0][1] <= west[0].d[west[0].d.length - 1][1] ? west[0].d[0] : west[0].d[west[0].d.length - 1]], ...west.map(x => orient(x.d, false))].flat();
+const chain = [
+  [[122.83, 24.6], [122.72, 23.6]], // 第十段（台湾以东，自然资源部标准地图位置）
+  ...east.map(x => orient(x.d, true)),
+  [west[0].d[0][1] <= west[0].d[west[0].d.length - 1][1] ? west[0].d[0] : west[0].d[west[0].d.length - 1]],
+  ...west.map(x => orient(x.d, false)),
+].flat();
 console.log('九段线链:', chain.length, '点 首', chain[0].map(v => +v.toFixed(1)), '尾', chain[chain.length - 1].map(v => +v.toFixed(1)));
 
 // —— 4. 南海海域环（闭合线走陆地内部）+ 邻国裁切 ——
@@ -127,8 +132,8 @@ const closure = [
   [104.6, 9.0], [105.2, 9.5], [106.6, 10.0], [107.6, 11.5], [107.8, 13.5], [107.4, 15.5], [107.0, 17.5], [106.6, 19.5], [106.3, 21.0],
   [107.5, 22.0], [109.5, 22.2], [111.5, 22.8], [113.5, 23.3], [115.5, 23.8], [117.0, 24.6], [118.5, 25.3],
   [120.0, 25.9], [121.4, 25.7],
-  [121.9, 25.3], [121.6, 24.8], [121.2, 24.2], [120.9, 23.4], [120.8, 22.6], [120.85, 21.95],
-  [121.3, 22.3],
+  [121.9, 25.3], [121.6, 24.8], [121.2, 24.2], [120.9, 23.4], [120.8, 22.6], [120.85, 21.95], // 台湾岛内陆脊
+  [121.3, 22.3], [121.8, 23.5], [122.2, 24.2], // 台湾以东（沿第十段西侧上行）
 ];
 const scsRing = cleanRing([...chain, ...closure, [...chain[0]]]);
 const sx = selfX(scsRing);
