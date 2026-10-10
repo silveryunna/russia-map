@@ -115,7 +115,7 @@ const processed = land.map(p => {
   return p;
 });
 
-// —— 3. 邻国裁切参照环 ——
+// —— 3. 邻国裁切参照环（海域裁切与文件使用同一版主环，杜绝海岸线细缝） ——
 const nbr = [];
 for (const c of NEIGHBORS) {
   const j = JSON.parse(fs.readFileSync(path.join(TMP, `ne_${c}.json`), 'utf8'));
@@ -124,7 +124,7 @@ for (const c of NEIGHBORS) {
     for (const p of polys) nbr.push(p[0]);
   }
 }
-const clipAll = [...landRings, ...nbr];
+const clipAll = [...processed.map(p => p[0]), ...nbr];
 
 // —— 4. 十段线 → V 形链（frykit 九段线 + 台湾以东第十段） ——
 const withC = dash.map(d => {
