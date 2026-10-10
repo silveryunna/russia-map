@@ -94,8 +94,12 @@ switch ($a) {
       $p = (string)($b['pass'] ?? '');
       if (mb_strlen($u) < 2 || mb_strlen($u) > 20) out(['error' => '账号名 2-20 字'], 400);
       if (strlen($p) < 6) out(['error' => '密码至少 6 位'], 400);
-      $db->prepare('INSERT INTO accounts(username,pass_hash,display,created) VALUES(?,?,?,?)')
-        ->execute([$u, password_hash($p, PASSWORD_DEFAULT), (string)($b['display'] ?? ''), time()]);
+      try {
+        $db->prepare('INSERT INTO accounts(username,pass_hash,display,created) VALUES(?,?,?,?)')
+          ->execute([$u, password_hash($p, PASSWORD_DEFAULT), (string)($b['display'] ?? ''), time()]);
+      } catch (PDOException $e) {
+        out(['error' => '账号已存在'], 409);
+      }
       out(['ok' => true, 'user' => $u]);
     }
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {

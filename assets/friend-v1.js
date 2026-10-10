@@ -65,10 +65,15 @@ function renderLogin() {
 /* ---------- 主界面 ---------- */
 async function renderMain() {
   $app.innerHTML = `<div class="pl-empty">加载中…</div>`;
-  [points, myItems] = await Promise.all([
-    fetch('./data/points.json').then(r => r.json()),
-    api('my').catch(() => ({ items: [] })),
-  ]);
+  try {
+    [points, myItems] = await Promise.all([
+      fetch('./data/points.json').then(r => r.json()),
+      api('my', undefined, 'GET').catch(() => ({ items: [] })),
+    ]);
+  } catch (e) {
+    $app.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}<br><button class="pl-btn" onclick="location.reload()">重试</button></div>`;
+    return;
+  }
   myItems = myItems.items || [];
   renderTabs();
 }

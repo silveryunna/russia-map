@@ -66,11 +66,16 @@ function renderLogin() {
 
 async function renderMain() {
   $app.innerHTML = `<div class="pl-empty">加载中…</div>`;
-  [accounts, pending, points] = await Promise.all([
-    api('accounts').then(j => j.accounts),
-    api('pending').then(j => j.items),
-    fetch('./data/points.json').then(r => r.json()),
-  ]);
+  try {
+    [accounts, pending, points] = await Promise.all([
+      api('accounts', undefined, 'GET').then(j => j.accounts),
+      api('pending', undefined, 'GET').then(j => j.items),
+      fetch('./data/points.json').then(r => r.json()),
+    ]);
+  } catch (e) {
+    $app.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}<br><button class="pl-btn" onclick="location.reload()">重试</button></div>`;
+    return;
+  }
   renderTabs();
 }
 function renderTabs() {
@@ -160,7 +165,7 @@ function renderAccounts() {
     try {
       await api('accounts', { user: u, pass: p, display: d });
       lastCreated = `✅ 已创建，把账号密码发给朋友：<br>账号 <b>${esc(u)}</b> · 密码 <b>${esc(p)}</b>`;
-      accounts = (await api('accounts')).accounts;
+      accounts = (await api('accounts', undefined, 'GET')).accounts;
       renderTabs();
       toast('账号已创建 ✓');
     } catch (e) { res.textContent = '失败：' + e.message; }
