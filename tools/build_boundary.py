@@ -98,8 +98,8 @@ ECS_RING = [
     (124.4, 39.9),
     (122.5, 40.3), (120.0, 40.5), (118.0, 39.3), (117.3, 38.0),
     (117.3, 36.2), (118.8, 36.2), (120.3, 36.6), (121.5, 37.5),  # 渤海南：锚线深入山东内陆
-    (118.2, 34.0), (117.8, 31.0), (118.2, 28.0), (118.8, 25.5), (120.0, 24.8),  # 华东：锚线深入内陆
-    (122.2, 24.2),
+    (117.8, 34.5), (117.3, 31.5), (117.0, 28.5), (117.2, 26.0), (118.0, 24.8),
+    (120.5, 24.3), (122.2, 24.2),  # 华东/华南：锚线深入湘桂内陆，闽粤湾水全纳入
     (122.83, 24.6),
 ]
 
@@ -114,9 +114,16 @@ def build_sea(ring, min_area):
 
 scs = build_sea(SCS_RING, 20)
 ecs = build_sea(ECS_RING, 1)
-print(f"南海海域: {len(scs)} 块; 渤海+黄海+东海海域: {len(ecs)} 块")
+# 内水（海湾/湖泊）= 主环内部 − 陆地：主环追踪海岸线时把湾水留在环外，差集取出显式并入
+main_ring = max(land, key=lambda g: g.area)
+bays = Polygon(main_ring.exterior).difference(land_union)
+print(f"南海海域: {len(scs)} 块; 渤海+黄海+东海海域: {len(ecs)} 块; 内水: {bays.geom_type}")
 
-china = unary_union([*land, *scs, *ecs])
+sea_parts = [*scs, *ecs]
+if not bays.is_empty:
+    sea_parts += list(bays.geoms) if bays.geom_type == "MultiPolygon" else [bays]
+
+china = unary_union([*land, *sea_parts])
 print(f"合并后: {china.geom_type}, {len(china.geoms) if hasattr(china,'geoms') else 1} 块")
 # 海陆微缝填充：微外扩（约1km）后简化，消除岸缘微缝并控制文件大小
 china = china.buffer(0.008).simplify(0.0008, preserve_topology=True)
@@ -135,6 +142,8 @@ checks = [
     ("苏北浅滩", 119.7, 35.5, True), ("渤海湾", 118.6, 37.8, True), ("莱州湾", 119.3, 37.2, True),
     ("青岛外海", 120.8, 35.8, True), ("大连外海", 121.5, 38.8, True),
     ("巴士海峡", 121.5, 21.3, True), ("北部湾", 108.5, 20.5, True),
+    ("天津外海", 117.7, 39.0, True), ("胶州湾", 120.25, 36.1, True),
+    ("辽东湾", 121.0, 40.4, True), ("湄洲湾", 118.95, 24.95, True),
     ("日本海", 129.5, 39.0, False), ("对马海峡东口", 132.5, 34.5, False),
     ("菲律宾海", 126.0, 21.0, False), ("泰国湾", 101.5, 8.0, False), ("西太平洋", 128.0, 24.0, False),
 ]
