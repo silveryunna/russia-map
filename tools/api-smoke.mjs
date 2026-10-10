@@ -61,6 +61,24 @@ async function get(action, token) {
   r = await get('pending', friend);
   ok('朋友访问 pending 被拒', r.status !== 200);
 
+  // 幂等键：同 idem 重复提交只入库一次
+  const idem = 'smoke-' + Date.now().toString(36);
+  const p1 = await post('submit', { type: 'note', title: '幂等测试', body: '只应入库一次', idem }, friend);
+  const p2 = await post('submit', { type: 'note', title: '幂等测试', body: '只应入库一次', idem }, friend);
+  ok('幂等：两次同 idem 返回同一 id', p1.j.id === p2.j.id, `${p1.j.id} vs ${p2.j.id}`);
+  ok('幂等：第二次标记 duplicate', p2.j.duplicate === true, JSON.stringify(p2.j));
+  const pendIds = (await get('pending', admin)).j.items.map(i => i.id);
+  ok('幂等：队列只多 1 条', pendIds.filter(id => id === p1.j.id).length === 1);
+
+  // 脚本注入拦截
+  const bad = await post('submit', { type: 'note', title: '注入', body: '<script>alert(1)</script>' }, friend);
+  ok('含 <script> 被拒', bad.status === 400, `status=${bad.status} ${bad.j.error || ''}`);
+  const bad2 = await post('submit', { type: 'note', title: '注入2', body: '正常文本 <img src=x onerror=alert(1)>' }, friend);
+  ok('含 onerror= 被拒', bad2.status === 400, `status=${bad2.status}`);
+
+  // 清理：拒绝幂等测试留下的投稿
+  await post('reject', { id: p1.j.id }, admin);
+
   // 删除测试账号 + 清理投稿
   const dr = await fetch(`${BASE}?a=accounts&user=${uname}`, { method: 'DELETE', headers: { Authorization: `Bearer ${admin}` } });
   ok('删除测试账号', dr.status === 200, 'status=' + dr.status);

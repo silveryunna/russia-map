@@ -212,6 +212,36 @@ admin 后台录入 → 导出 JSON → 分配 id（当前最大 p382，从 p383 
 - Perl 子程序 `my ($x) = @_` 是**拷贝**，内部修改不影响外部变量；要么返回新值，要么内联处理
 - 对象定位用 `rindex($s, "  {", $idpos)` + `index($s, "\r\n  }", $idpos)`，但判断"字段已存在"时要精确到值（`"type": "地铁站"` 会误判含此值的检查），用 `"tags":\s*\[[^\]]*"标签"` 模式
 
+### 7.6 往打包 JS 里插入函数：小心 `var` 链拼接（2025-10-10 真实踩坑）
+
+压缩产物里常见 `var O=...,he=class extends E{...}` 这种一条 var 声明串多个变量。若把 `var O=\`x\`` 整段替换成 `var O=\`x\`;function __f__(){}`，后面残留的 `,he=class...` 就变成 `function __f__(){},he=class{...}` —— **非法语法，浏览器整包拒绝解析，页面卡在"加载中…"**。
+
+- 修法：替换时把尾部的 `,` 改成 `;` 并补回 `var`（例：`__f__()};var he=class extends E{...}`）
+- **`node --check` 对含 `import` 的打包文件不可靠（会返回 0 但语法其实是错的）**，必须用 ESM 严格解析校验：
+  ```bash
+  node --experimental-vm-modules -e "
+  const vm=require('vm'),fs=require('fs');
+  new vm.SourceTextModule(fs.readFileSync('assets/map-D2GUsbT3.js','utf8'));
+  console.log('PARSE-OK');"
+  ```
+- 另一个坑：用 Edit 工具往 CRLF 行插入换行时，`\r` 写法可能落成字面量；在模板字符串里无害（会渲染成 CR），但要注意别破坏结构
+
+### 7.7 静态缓存：js/css/html/json 必须 no-cache（2025-10-10 真实踩坑）
+
+宝塔默认给 `.js/.css` 发 `expires 12h`，浏览器直接用本地缓存**不再回源**（SW 的 network-first 也会拿到陈旧副本）——新版本怎么发都刷不出来，表现是"页面功能没变/数据是旧的"。宝塔默认 vhost 的规则：
+
+```nginx
+location ~* \.(js|css|html|json)$ {
+    expires -1; add_header Cache-Control "no-cache";
+    error_log /dev/null; access_log /dev/null;
+}
+```
+
+- `no-cache` 每次回源校验，未变返回 304（成本可忽略），变了立刻生效
+- 数据文件（`data/*.json`）同理：不加会导致用户看到旧点位/旧动线
+- 改完必须 `nginx -t && nginx -s reload`；配置备份在 `/www/server/panel/vhost/nginx/*.conf.bak*`
+- 兜底手段：HTML 里给资源加版本查询串（如 `map-D2GUsbT3.js?v=31`），发了新版本就手动 +1
+
 ---
 
 ## 8. 常用校验命令（Git Bash）
@@ -244,8 +274,34 @@ tail -c 25 data/points.json | od -c
 2. **~10 个非地铁点位的 name_en 是街道级地址**（如阿尔巴特等），非精确 POI 名，但可在 Yandex 定位；后续可按 §4.2 方法优化。
 3. **p104 主题列车**的英文名是蹲守站名（Ploshchad Alexandra Nevskogo），非列车本身，属合理取舍。
 4. **老动线 m-d2** 有一个无 point 的纯说明步骤（渲染自动跳过），系历史遗留，非 bug。
-5. **server 同步**：腾讯云服务器 `git pull` 偶发网络失败（Failure receiving data），已给过代理/手动覆盖方案；服务器侧与 GitHub Pages 内容可能不同步，以 GitHub Pages 为准。
+5. **server 同步**：腾讯云服务器 `/www/wwwroot/julyyunna.art` 是 git 仓库，cron 定时 `git pull`；正常情况与 GitHub 同步（可用 `git log --oneline -1` 核对）。手工热修后务必让本地与服务器内容一致，否则下次 pull 会因工作区脏而失败。
 6. admin 后台无 name_en 字段（见 §6）。
+
+---
+
+## 10. 协作投稿系统（friend / account / api，2025-10-10）
+
+两条入口，网站首页不放链接，直接把地址发给朋友：
+
+| 页面 | 用途 | 账号 |
+| --- | --- | --- |
+| `/friend.html` | 朋友投稿：传照片（客户端压缩至 1600px）/ 写 Markdown 笔记 / 帮打卡 | 由管理员在 account 页开通 |
+| `/account.html` | 管理员：待审核队列（采纳/拒绝）+ 账号管理 | `admin` / 密码在服务器 `config.php` |
+
+- 后端：`api/index.php`（PHP 8 + SQLite，webroot 外配置 `/www/wwwroot/julyyunna-art-data/config.php`，库文件同目录 `friends.db`，上传图在 `api-uploads/`）
+- nginx 需 `location ^~ /api/` → php-fpm（socket `/run/php-fpm/www.sock`，php-fpm 的 `listen.acl_users` 必须含 `www`）+ `fastcgi_param HTTP_AUTHORIZATION $http_authorization;`
+- 安全：登录限流（5 次错锁 15 分钟）、图片 mime 校验、`<script>`/`onerror=` 等注入拦截、投稿幂等键（同 `idem` 只入库一次）、重复账号名返回 409
+- 采纳后的投稿**不会自动并入** `data/*.json`，需要人工/让 Kimi 协助合并
+- 冒烟测试：`ADMIN_PASS='...' node tools/api-smoke.mjs`（登录/建号/投稿/审核/幂等/注入 共 19 项）
+
+## 11. tn-v28 新功能速查
+
+- **一键导航**：点位弹窗顶部红色按钮，按平台分流（境内城市→高德唤起 App；iOS→Apple 地图；安卓→`geo:` 深链；其他→Google）
+- **动线播放**：每日动线详情页 `▶ 播放动线（镜头跟随）`，按落点顺序自动飞行 + 弹窗 + 高亮；拖动/缩放地图即停止；相关函数 `__playRoute__ / __stopPlay__`
+- **打卡升级 v2**：`localStorage['travel-checkin-v2'] = { id: { n: 次数, last: 日期, note: 感想 } }`，旧 `travel-checkin-v1`（id 数组）首次读取自动迁移；共享模块 `assets/checkin-v2.js`（map/list 页是压缩产物，内联了等价实现）
+- **笔记页打卡编辑器**：已打卡行右侧 ✎ → 日期 / 第几次 / 一句话感想
+- **图片优雅降级**：相册与笔记图片加载失败隐藏并显示占位，不露破图
+- **数据校验增强**：`tools/check-data.mjs` 增加 name_en 覆盖率提示 + `url` 必须 http(s)
 
 ---
 
