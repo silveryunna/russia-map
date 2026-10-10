@@ -6,7 +6,7 @@ import{r as e,t}from"./leaflet-default-icon-z5NjA5XR.js";import"./base-BJw1lW7I.
       ${e.tags&&e.tags.length?`<div style="margin-bottom:6px">${e.tags.map(e=>`<span style="display:inline-block;background:#EFEBE0;color:#5D4A1F;border-radius:4px;padding:1px 6px;margin:0 4px 3px 0;font-size:10px">#${k(e)}</span>`).join(``)}</div>`:``}
       <div style="font-size:12px;line-height:1.5;margin-bottom:6px">${k(e.highlight)}</div>
       ${e.note?`<div style="font-size:11px;color:#555;margin-bottom:6px">📌 ${k(e.note)}</div>`:``}
-      <div style="font-size:11px;color:#999;margin-bottom:6px">${e.lat.toFixed(5)}, ${e.lon.toFixed(5)} · ${be(e)}${n==null?``:` · 📏 距我 ${A(n)}`}</div>${e.url?`<div style="margin-bottom:6px"><a href="${k(e.url)}" target="_blank" rel="noopener" style="color:#00695C;font-size:12px">🌐 官方网站</a></div>`:``}
+      <div style="font-size:11px;color:#999;margin-bottom:6px">${e.lat.toFixed(5)}, ${e.lon.toFixed(5)} · ${be(e)}${n==null?``:` · 📏 距我 ${A(n)}`}</div>${e.hours||e.ticket||e.mustOrder?`<div style="font-size:11px;color:#666;margin-bottom:6px;line-height:1.7">${e.hours?`🕐 ${k(e.hours)}&nbsp; `:``}${e.ticket?`🎫 ${k(e.ticket)}&nbsp; `:``}${e.mustOrder?`🍽 ${k(e.mustOrder)}`:``}</div>`:``}${e.url?`<div style="margin-bottom:6px"><a href="${k(e.url)}" target="_blank" rel="noopener" style="color:#00695C;font-size:12px">🌐 官方网站</a></div>`:``}
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;font-size:12px">
         ${t.amapPin?`<a href="${t.amapPin}" target="_blank" rel="noopener" style="color:#2E7D32">📍 高德落点</a>
         <a href="${t.amapNav}" target="_blank" rel="noopener" style="color:#2E7D32">🧭 高德公交导航</a>`:`<a href="${t.yandexPin}" target="_blank" rel="noopener" style="color:#B71C1C">📍 Yandex 落点</a>

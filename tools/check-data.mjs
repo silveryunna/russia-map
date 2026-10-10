@@ -44,6 +44,12 @@ for (const [i, p] of points.entries()) {
       err(`${where} tags 必须是字符串数组`);
     }
   }
+  // 扩展展示字段（可选，均字符串；rating=大众点评分/携程星级，url=官网）
+  for (const f of ['hours', 'ticket', 'mustOrder', 'rating', 'url']) {
+    if (p[f] !== undefined && typeof p[f] !== 'string') {
+      err(`${where} ${f} 必须是字符串`);
+    }
+  }
 }
 const pend = points.filter(p => p.pending).length;
 ok(`点位 ${points.length} 个（待核 ${pend}），id/name 无重复`);
