@@ -96,7 +96,7 @@ ECS_RING = [
     (131.2, 32.6), (132.2, 33.8),
     (130.2, 34.6), (129.6, 36.2), (128.7, 38.2), (127.9, 40.0), (126.2, 41.6),
     (124.4, 39.9),
-    (122.5, 40.3), (120.0, 40.5), (118.0, 39.3), (117.3, 38.0),
+    (122.6, 41.3), (120.2, 41.4), (118.0, 39.3), (117.3, 38.0),  # 辽东湾：锚线北移到辽宁/河北内陆，锦州-盘锦-营口外海全纳入
     (117.3, 36.2), (118.8, 36.2), (120.3, 36.6), (121.5, 37.5),  # 渤海南：锚线深入山东内陆
     (117.8, 34.5), (117.3, 31.5), (117.0, 28.5), (117.2, 26.0), (118.0, 24.8),
     (120.5, 24.3), (122.2, 24.2),  # 华东/华南：锚线深入湘桂内陆，闽粤湾水全纳入
@@ -144,6 +144,12 @@ checks = [
     ("巴士海峡", 121.5, 21.3, True), ("北部湾", 108.5, 20.5, True),
     ("天津外海", 117.7, 39.0, True), ("胶州湾", 120.25, 36.1, True),
     ("辽东湾", 121.0, 40.4, True), ("湄洲湾", 118.95, 24.95, True),
+    # 辽东湾北部（2026-10-10 用户截图报的灰楔子：锦州/盘锦/营口外海）
+    ("锦州外海", 121.3, 40.75, True), ("盘锦外海", 121.9, 40.7, True),
+    ("营口外海", 122.1, 40.5, True), ("辽东湾北", 121.5, 41.0, True),
+    ("葫芦岛外海", 120.9, 40.35, True), ("绥中外海", 120.3, 40.15, True),
+    # 反向断言：没有把邻国陆地吞进来
+    ("新义州(朝)", 124.4, 40.1, False), ("平壤(朝)", 125.75, 39.03, False),
     ("日本海", 129.5, 39.0, False), ("对马海峡东口", 132.5, 34.5, False),
     ("菲律宾海", 126.0, 21.0, False), ("泰国湾", 101.5, 8.0, False), ("西太平洋", 128.0, 24.0, False),
 ]
@@ -193,47 +199,3 @@ out = {"type": "FeatureCollection", "features": [{"type": "Feature", "properties
 with open(OUT, "w", encoding="utf-8") as f:
     json.dump(out, f)
 print(f"完成: {len(polys)} 多边形, {os.path.getsize(OUT)//1024}KB → {OUT}")
-
-# ---------- 8. 陆地版（世界模式遮罩专用） ----------
-# 世界模式"中国区域灰白"若直接用上面的合并区域，会把主张海域一起盖住（视觉上海被遮）。
-# 这里额外输出一份"纯陆地"国界，供世界模式遮罩只盖陆地、不动海域。
-OUT_LAND = os.path.join(ROOT, "data", "china-land.json")
-
-land_only = unary_union(land)
-if land_only.geom_type == "GeometryCollection":
-    land_only = unary_union([g for g in land_only.geoms if g.geom_type in ("Polygon", "MultiPolygon")])
-# 遮罩只做灰白底色，不需要小岛：按面积过滤（>0.05°²，约 500km² 以上）再简化，控制体积
-_land_parts = list(land_only.geoms) if land_only.geom_type == "MultiPolygon" else [land_only]
-_kept = [g for g in _land_parts if g.area > 0.05]
-print(f"陆地版：{len(_land_parts)} 块 → 保留 {len(_kept)} 块（面积 >0.05°²）")
-land_only = unary_union(_kept).buffer(0.008).simplify(0.01, preserve_topology=True)
-if land_only.geom_type == "GeometryCollection":
-    land_only = unary_union([g for g in land_only.geoms if g.geom_type in ("Polygon", "MultiPolygon")])
-
-# 陆地版断言：陆地必须在，海域必须在外面
-pl = prep(land_only)
-land_checks = [
-    ("台湾", 121.0, 23.8, True), ("海南", 109.7, 19.2, True),
-    ("北京", 116.4, 39.9, True), ("乌鲁木齐", 87.6, 43.8, True), ("拉萨", 91.1, 29.65, True),
-    ("南海中心", 113.0, 15.0, False), ("黄岩岛", 117.75, 15.25, False),
-    ("渤海", 120.8, 39.0, False), ("黄海", 122.5, 36.5, False), ("东海", 125.5, 30.5, False),
-    ("胶州湾", 120.25, 36.1, False), ("湄洲湾", 118.95, 24.95, False), ("杭州湾", 121.2, 30.55, False),
-    ("台湾海峡", 119.5, 24.5, False), ("北部湾", 108.5, 20.5, False),
-]
-lfail = 0
-for name, x, y, expect in land_checks:
-    got = pl.covers(Point(x, y))
-    good = (got == expect)
-    lfail += (not good)
-    print(("✓" if good else "✗"), "陆地版", name, "" if good else f"期望{'内' if expect else '外'}实际{'内' if got else '外'}")
-if lfail:
-    raise SystemExit("陆地版校验未通过")
-
-land_geoms = list(land_only.geoms) if land_only.geom_type == "MultiPolygon" else [land_only]
-land_geoms = [orient(g, sign=1.0) for g in land_geoms]  # 外环 CCW、洞 CW
-out_land = {"type": "FeatureCollection", "features": [{"type": "Feature", "properties": {
-    "name": "中华人民共和国（陆地）", "source": "tianditu(frykit)", "level": "country-land"},
-    "geometry": {"type": "MultiPolygon", "coordinates": [coords_of(g) for g in land_geoms]}}]}
-with open(OUT_LAND, "w", encoding="utf-8") as f:
-    json.dump(out_land, f)
-print(f"完成: 陆地版 {len(land_geoms)} 多边形, {os.path.getsize(OUT_LAND)//1024}KB → {OUT_LAND}")
