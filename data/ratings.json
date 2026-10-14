@@ -2,31 +2,6 @@
  "updated": "2026-10-14",
  "source": "携程/大众点评",
  "items": {
-  "p531": {
-   "ratings": [
-    {
-     "src": "携程",
-     "score": 2.8,
-     "count": 1566,
-     "url": "https://you.ctrip.com/traffic/sanya61/j13100713-dianping58637716.html",
-     "poiId": "j13100713",
-     "checked": "2026-10-14",
-     "page": true
-    }
-   ]
-  },
-  "p532": {
-   "ratings": [
-    {
-     "src": "携程",
-     "score": 4.5,
-     "count": 87,
-     "url": "https://you.ctrip.com/traffic/sanya61/j22851902-dianping164114432.html",
-     "poiId": "15139070",
-     "matched": "三亚站"
-    }
-   ]
-  },
   "p533": {
    "ratings": [
     {
@@ -259,19 +234,6 @@
      "poiId": "1601597",
      "matched": "三亚太阳湾柏悦酒店",
      "checked": "2026-10-14"
-    }
-   ]
-  },
-  "p562": {
-   "ratings": [
-    {
-     "src": "携程",
-     "score": 4.4,
-     "count": 23,
-     "url": "https://you.ctrip.com/traffic/sanya61/h52513248-dianping160283515.html",
-     "poiId": "52513248",
-     "checked": "2026-10-14",
-     "page": true
     }
    ]
   },

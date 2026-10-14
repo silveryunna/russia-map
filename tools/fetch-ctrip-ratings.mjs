@@ -26,6 +26,9 @@ const pool = [...TOKENS];
 const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124 Safari/537.36';
 
 const CN_CITIES = new Set(['哈尔滨', '伊宁', '三亚']);
+// 交通类点位不需要评分（机场/火车站/地铁站/交通枢纽/水上巴士）——用户 2026-10-14 要求
+const TRANS = new Set(['机场', '火车站', '地铁站', '交通枢纽', '水上巴士']);
+const isTrans = p => TRANS.has(p.type) || (p.tags || []).some(t => TRANS.has(t));
 const args = process.argv.slice(2);
 const has = k => args.some(a => a === `--${k}` || a.startsWith(`--${k}=`));
 const val = k => { const a = args.find(a => a.startsWith(`--${k}=`)); return a ? a.slice(k.length + 3) : ''; };
@@ -36,7 +39,7 @@ const LIMIT = Number(val('limit') || 25 * Math.max(1, TOKENS.length));
 if (!TOKENS.length && !PAGES_ONLY) { console.error('缺少 WENDAO_API_KEY（多令牌用逗号分隔）。用法：WENDAO_API_KEY=tok1,tok2 node tools/fetch-ctrip-ratings.mjs'); process.exit(1); }
 
 const points = JSON.parse(readFileSync(resolve(DATA, 'points.json'), 'utf8'));
-const targets = points.filter(p => !p.pending && CN_CITIES.has(p.city))
+const targets = points.filter(p => !p.pending && CN_CITIES.has(p.city) && !isTrans(p))
   .filter(p => !CITY || p.city === CITY)
   .filter(p => !ONLY.size || ONLY.has(p.id));
 

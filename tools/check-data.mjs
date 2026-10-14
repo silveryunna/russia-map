@@ -154,6 +154,14 @@ if (existsSync(resolve(dir, 'ratings.json'))) {
     }
   }
   if (low.length) console.warn(`⚠️ ${low.length} 条点评数过少（疑似匹配到同名小店，前端不展示，建议人工复核）：` + low.slice(0, 10).join('、'));
+  // 交通类点位不应该有评分（用户要求），留个哨兵
+  const TRANS = new Set(['机场', '火车站', '地铁站', '交通枢纽', '水上巴士']);
+  const byId = new Map(points.map(p => [p.id, p]));
+  const transBad = Object.keys(r.items || {}).filter(id => {
+    const pt = byId.get(id);
+    return pt && (TRANS.has(pt.type) || (pt.tags || []).some(t => TRANS.has(t)));
+  });
+  if (transBad.length) err(`交通类点位不应带评分：${transBad.join('、')}`);
   ok(`评分快照 ${Object.keys(r.items || {}).length} 个点位 / ${nRatings} 条评分（仅链接 ${Object.keys(r.resolved || {}).length}，未找到 ${(r.nodata || []).length}），采集于 ${r.updated}`);
 }
 
