@@ -4,7 +4,7 @@
 //
 // 【更新发布流程】每次部署新版本时，把下面的 VERSION 改一个新值（如 tn-v2、tn-v3…），
 // 用户打开页面时会自动检测并刷新到新版本。
-const VERSION = 'tn-v34';
+const VERSION = 'tn-v35';
 const SHELL_CACHE = 'tn-shell-' + VERSION;
 const RUNTIME_CACHE = 'tn-runtime-' + VERSION;
 
@@ -62,7 +62,7 @@ self.addEventListener('fetch', (event) => {
   if (req.mode === 'navigate') {
     event.respondWith((async () => {
       try {
-        const res = await fetch(req);
+        const res = await fetch(req, { cache: 'no-cache' });
         const cache = await caches.open(SHELL_CACHE);
         cache.put(req.url, res.clone());
         return res;

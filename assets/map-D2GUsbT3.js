@@ -62,8 +62,8 @@ function Z(e,t,i,b){let n=M.checked.has(e.id),r=t?A(R.distance(t,[e.lat,e.lon]))
     <div class="point-row${M.selected===e.id?` selected`:``}" data-pid="${k(e.id)}">
       <input type="checkbox" data-check="${k(e.id)}" style="accent-color:${F.cityColors[e.city]||`#546E7A`}" ${n?`checked`:``} title="标记已打卡">
       <div class="pr-main">
-        <div class="pr-name${n?` done`:``}">${i||``}${__hlRaw__(k(e.name),M.query)}</div>
-        <div class="pr-sub">${e.confidence!=null&&e.confidence<100?`⚠ `:``}${k(e.type)} · ${k(e.highlight)}${r?` · 📏 ${r}`:``}${b?__ratingBadges__(e.id):``}</div>
+        <div class="pr-name${n?` done`:``}">${i||``}${__hlRaw__(k(e.name),M.query)}${b?__ratingBadges__(e.id):``}</div>
+        <div class="pr-sub">${e.confidence!=null&&e.confidence<100?`⚠ `:``}${k(e.type)} · ${k(e.highlight)}${r?` · 📏 ${r}`:``}</div>
       </div>
     </div>`}function Ee(){let e=M.city===`全部`?P:P.filter(e=>e.city===M.city);if(!e.length)return `<div style="padding:20px 16px;font-size:12px;color:#999">该城市暂无动线</div>`;let byCity=new Map;for(let t of e)byCity.has(t.city)||byCity.set(t.city,[]),byCity.get(t.city).push(t);let html=``;for(let c of __sortCities__([...byCity.keys()])){let rs=byCity.get(c),cn=__countryOf__(c),cf={"俄罗斯":`🇷🇺`,"哈萨克斯坦":`🇰🇿`,"中国":`🇨🇳`,"其他":`🌍`}[cn]||`🌍`,col=F.cityColors[c]||`#546E7A`,key=`rg:`+c,coll=M.collapsed.has(key);html+=`
     <div class="city-head" data-toggle="${k(key)}">
