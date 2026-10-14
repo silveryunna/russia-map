@@ -129,6 +129,29 @@ if (existsSync(resolve(dir, 'overlays.json'))) {
   }
 }
 
+// --- 携程评分快照（data/ratings.json，可选文件）---
+if (existsSync(resolve(dir, 'ratings.json'))) {
+  const r = read('ratings.json');
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(r.updated || '')) err(`ratings.json updated 非法：${r.updated}`);
+  const ids = new Set(points.map(p => p.id));
+  const HOST = /(^|\.)(ctrip\.com|trip\.com|trip\.cn)$/i;
+  for (const [id, v] of Object.entries(r.items || {})) {
+    const where = `ratings[${id}]`;
+    if (!ids.has(id)) err(`${where} 引用了不存在的点位`);
+    if (v.src !== '携程') err(`${where} src 非法：${v.src}`);
+    if (!(typeof v.score === 'number' && v.score > 0 && v.score <= 5)) err(`${where} score 非法：${v.score}`);
+    if (!(Number.isInteger(v.count) && v.count >= 0)) err(`${where} count 非法：${v.count}`);
+    let u;
+    try { u = new URL(v.url); } catch { err(`${where} url 非法：${v.url}`); continue; }
+    if (!/^https?:$/.test(u.protocol) || !HOST.test(u.hostname)) err(`${where} url 域名不在白名单：${v.url}`);
+  }
+  const n = Object.keys(r.items || {}).length;
+  const low = Object.entries(r.items || {}).filter(([, v]) => v.count < 10);
+  if (low.length) console.warn(`⚠️ ${low.length} 条点评数 <10（疑似匹配到同名小店，前端已不展示，建议人工复核）：` +
+    low.slice(0, 10).map(([id, v]) => `${id} ${v.matched || ''} ${v.score}/${v.count}`).join('、'));
+  ok(`携程评分快照 ${n} 条（仅链接 ${Object.keys(r.resolved || {}).length}，未找到 ${(r.nodata || []).length}），采集于 ${r.updated}`);
+}
+
 if (fail) {
   console.error(`\n${fail} 个问题，请修复后再发布`);
   process.exit(1);

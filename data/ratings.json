@@ -1,0 +1,250 @@
+{
+ "updated": "2026-10-14",
+ "source": "携程（问道 API 快照）",
+ "items": {
+  "p531": {
+   "src": "携程",
+   "score": 2.8,
+   "count": 1566,
+   "url": "https://you.ctrip.com/traffic/sanya61/j13100713-dianping58637716.html",
+   "poiId": "j13100713",
+   "matched": "三亚凤凰国际机场",
+   "checked": "2026-10-10",
+   "page": true
+  },
+  "p532": {
+   "src": "携程",
+   "score": 4.5,
+   "count": 87,
+   "url": "https://you.ctrip.com/traffic/sanya61/j22851902-dianping164114432.html",
+   "poiId": "15139070",
+   "matched": "三亚站"
+  },
+  "p533": {
+   "src": "携程",
+   "score": 4.6,
+   "count": 927,
+   "url": "https://you.ctrip.com/sight/sanya61/3225.html",
+   "poiId": "3225",
+   "matched": "椰梦长廊",
+   "checked": "2026-10-10",
+   "page": true
+  },
+  "p534": {
+   "src": "携程",
+   "score": 4.6,
+   "count": 2093,
+   "url": "https://you.ctrip.com/sight/sanya61/51680.html",
+   "poiId": "51680",
+   "matched": "三亚湾",
+   "checked": "2026-10-10",
+   "page": true
+  },
+  "p535": {
+   "src": "携程",
+   "score": 4.2,
+   "count": 1,
+   "url": "https://you.ctrip.com/sight/ctripyouyoustar61/151659129.html",
+   "poiId": "151659129",
+   "matched": "第1市场夜市"
+  },
+  "p536": {
+   "src": "携程",
+   "score": 2,
+   "count": 13,
+   "url": "https://you.ctrip.com/food/61/118838220.html",
+   "poiId": "118838220",
+   "matched": "回新村海鲜大排档"
+  },
+  "p537": {
+   "src": "携程",
+   "score": 3.5,
+   "count": 32,
+   "url": "https://you.ctrip.com/shopping/sanya61/1659053.html",
+   "poiId": "1659053",
+   "matched": "吉阳区新鸿港水果批发市场"
+  },
+  "p538": {
+   "src": "携程",
+   "score": 3.2,
+   "count": 15,
+   "url": "https://gs.ctrip.com/html5/you/shops/43/4383639.html",
+   "poiId": "4383639",
+   "matched": "三亚海旅免税城",
+   "checked": "2026-10-10"
+  },
+  "p539": {
+   "src": "携程",
+   "score": 4,
+   "count": 2,
+   "url": "https://www.trip.com/restaurant/china/sanya/detail/yelin-bobo-coconut-chicken-zao-po-cu-seafood-hot-pot-140851464/",
+   "poiId": "140851464",
+   "matched": "椰林伯伯椰子鸡·糟粕醋·海鲜火锅(天涯镇店)",
+   "checked": "2026-10-14"
+  },
+  "p541": {
+   "src": "携程",
+   "score": 4.8,
+   "count": 4,
+   "url": "https://you.ctrip.com/food/sanya61/131895214-dianping176233907.html",
+   "poiId": "131895214",
+   "matched": "太琼糟粕醋·海南酸汤火锅(亚龙湾店)",
+   "checked": "2026-10-14"
+  },
+  "p542": {
+   "src": "携程",
+   "score": 5,
+   "count": 520,
+   "url": "https://gs.ctrip.com/html5/you/comment/61/25012298-food.html",
+   "poiId": "25012298",
+   "matched": "嗲嗲的椰子鸡(海棠湾店)",
+   "checked": "2026-10-14"
+  },
+  "p543": {
+   "src": "携程",
+   "score": 4.5,
+   "count": 2,
+   "url": "https://you.ctrip.com/food/sanya61/142042751.html",
+   "poiId": "142042751",
+   "matched": "虎婆香草鸭·海南大排档(椰梦长廊店)",
+   "checked": "2026-10-14"
+  },
+  "p544": {
+   "src": "携程",
+   "score": 5,
+   "count": 1,
+   "url": "https://hk.trip.com/restaurant/china/sanya/detail/restaurant-148807145/",
+   "poiId": "148807145",
+   "matched": "87号渔船·海鲜大排档(椰梦长廊店)",
+   "checked": "2026-10-14"
+  },
+  "p552": {
+   "src": "携程",
+   "score": 4.7,
+   "count": 33684,
+   "url": "http://m.ctrip.com/webapp/you/sight/sanya61/3227.html",
+   "poiId": "3227",
+   "matched": "三亚南山文化旅游区",
+   "checked": "2026-10-14"
+  },
+  "p554": {
+   "src": "携程",
+   "score": 2.4,
+   "count": 0,
+   "url": "https://gs.ctrip.com/html5/you/sight/sanya61/150395847.html",
+   "poiId": "150395847",
+   "matched": "南海观音航拍点(鸭仔塘店)",
+   "checked": "2026-10-14"
+  },
+  "p561": {
+   "src": "携程",
+   "score": 4.8,
+   "count": 11952,
+   "url": "https://hotels.ctrip.com/hotels/1601597.html",
+   "poiId": "1601597",
+   "matched": "三亚太阳湾柏悦酒店",
+   "checked": "2026-10-14"
+  },
+  "p562": {
+   "src": "携程",
+   "score": 4.4,
+   "count": 23,
+   "url": "https://you.ctrip.com/traffic/sanya61/h52513248-dianping160283515.html",
+   "poiId": "52513248",
+   "matched": "亚龙湾站",
+   "checked": "2026-10-14",
+   "page": true
+  },
+  "p563": {
+   "src": "携程",
+   "score": 4,
+   "count": 2,
+   "url": "http://m.ctrip.com/webapp/you/sight/sanya61/5710206.html",
+   "poiId": "5710206",
+   "matched": "博后村",
+   "checked": "2026-10-14"
+  },
+  "p564": {
+   "src": "携程",
+   "score": 4.6,
+   "count": 957,
+   "url": "https://gs.ctrip.com/html5/you/comment/2792/65650-sight.html",
+   "poiId": "88071",
+   "matched": "海棠湾",
+   "checked": "2026-10-14"
+  },
+  "p565": {
+   "src": "携程",
+   "score": 4.5,
+   "count": 4974,
+   "url": "https://gs.ctrip.com/html5/you/shops/detail/7833.html",
+   "poiId": "7833",
+   "matched": "cdf三亚国际免税城",
+   "checked": "2026-10-14"
+  },
+  "p550": {
+   "src": "携程",
+   "score": 4.5,
+   "count": 37164,
+   "url": "https://you.ctrip.com/sight/sanya61/3222.html",
+   "poiId": "",
+   "matched": "",
+   "checked": "2026-10-14",
+   "page": true
+  },
+  "p551": {
+   "src": "携程",
+   "score": 4.2,
+   "count": 59,
+   "url": "https://you.ctrip.com/sight/sanya61/5068588.html",
+   "poiId": "",
+   "matched": "",
+   "checked": "2026-10-14",
+   "page": true
+  }
+ },
+ "nodata": [
+  "p545",
+  "p546",
+  "p548",
+  "p549",
+  "p553",
+  "p555",
+  "p556",
+  "p557",
+  "p558",
+  "p559",
+  "p560",
+  "p566",
+  "p567",
+  "p568",
+  "p569",
+  "p570",
+  "p571",
+  "p572",
+  "p573",
+  "p574",
+  "p575",
+  "p576",
+  "p577",
+  "p578",
+  "p579",
+  "p580",
+  "p581",
+  "p582",
+  "p583",
+  "p584"
+ ],
+ "resolved": {
+  "p540": {
+   "url": "https://you.ctrip.com/food/sanya61/148520997.html",
+   "poiId": "148520997",
+   "matched": "琼嗲香草鸭·海南大排档(椰梦长廊店)"
+  },
+  "p547": {
+   "url": "https://you.ctrip.com/food/sanya61/5612531-dianping175962097.html",
+   "poiId": "",
+   "matched": ""
+  }
+ }
+}
