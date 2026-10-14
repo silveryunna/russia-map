@@ -22,7 +22,7 @@ function __navHref__(e,t){let ua=navigator.userAgent||``,iOS=/iPad|iPhone|iPod/.
       <span class="head-arrow">${coll?`▶`:`▼`}</span>
       <span class="head-dot" style="background:${F.cityColors[c]||`#546E7A`}"></span>${cf[cn]||`🌍`} 【${k(cn)}-${k(c)}】
       <span class="head-count">（${list.length}）</span>
-    </div>`;if(!coll)for(let p of list)e+=Z(p,M.myLoc,r[__lifeCat__(p)])}return n.length||(e+=`<div style="padding:16px;font-size:12px;color:#999;text-align:center">无匹配条目</div>`),e}
+    </div>`;if(!coll)for(let p of list)e+=Z(p,M.myLoc,r[__lifeCat__(p)],!0)}return n.length||(e+=`<div style="padding:16px;font-size:12px;color:#999;text-align:center">无匹配条目</div>`),e}
 function X(){let e=Y();e.innerHTML=M.tab===`routes`?K()?De(K()):Ee():M.tab===`life`?Le():Te()}function Te(){let e=``,t=new Map;for(let e of W())for(let n of e.tags||[])t.set(n,(t.get(n)||0)+1);if(t.size){let n=[...t.entries()].sort((e,t)=>t[1]-e[1]).slice(0,12);e+=`<div class="sb-tags${M.tagsExpanded?` expanded`:``}">${n.map(([e,t])=>`<button class="tag-chip${M.tagFilter.has(e)?` active`:``}" data-tag="${k(e)}" title="筛选标签（可叠加）">#${k(e)} ${t}</button>`).join(``)}</div>${n.length>5?`<button class="tags-toggle" data-tags-toggle title="展开/收起标签">${M.tagsExpanded?`▴ 收起标签`:`▾ 展开全部标签`}</button>`:``}`}e+=`
     <div class="sb-tools">
       <input class="sb-search" type="text" placeholder="搜索打卡点 / 类别 / 区域..." value="${k(M.query)}">
@@ -57,12 +57,13 @@ function X(){let e=Y();e.innerHTML=M.tab===`routes`?K()?De(K()):Ee():M.tab===`li
             <div class="pr-name">${k(t.name)}</div>
             <div class="pr-sub">${k(t.city)} · ${k(t.type)} · ${k(t.highlight)}</div>
           </div>
-        </div>`}}e+=`</div>`}return e}function Z(e,t,i){let n=M.checked.has(e.id),r=t?A(R.distance(t,[e.lat,e.lon])):null;return`
+        </div>`}}e+=`</div>`}return e}function __ratingBadges__(id){let e=window.__ratings__&&window.__ratings__.items?window.__ratings__.items[id]:null;if(!e)return``;let l=(e.ratings||[e]).filter(r=>r&&r.score>0&&(r.count>=10||(r.src===`大众点评`&&r.count>=5)));return l.map(r=>` <span style="color:${r.src===`大众点评`?`#FF6633`:`#E8A33D`};font-weight:700">★${r.score}${r.src===`大众点评`?`点评`:`携程`}</span>`).join(``)}
+function Z(e,t,i,b){let n=M.checked.has(e.id),r=t?A(R.distance(t,[e.lat,e.lon])):null;return`
     <div class="point-row${M.selected===e.id?` selected`:``}" data-pid="${k(e.id)}">
       <input type="checkbox" data-check="${k(e.id)}" style="accent-color:${F.cityColors[e.city]||`#546E7A`}" ${n?`checked`:``} title="标记已打卡">
       <div class="pr-main">
         <div class="pr-name${n?` done`:``}">${i||``}${__hlRaw__(k(e.name),M.query)}</div>
-        <div class="pr-sub">${e.confidence!=null&&e.confidence<100?`⚠ `:``}${k(e.type)} · ${k(e.highlight)}${r?` · 📏 ${r}`:``}</div>
+        <div class="pr-sub">${e.confidence!=null&&e.confidence<100?`⚠ `:``}${k(e.type)} · ${k(e.highlight)}${r?` · 📏 ${r}`:``}${b?__ratingBadges__(e.id):``}</div>
       </div>
     </div>`}function Ee(){let e=M.city===`全部`?P:P.filter(e=>e.city===M.city);if(!e.length)return `<div style="padding:20px 16px;font-size:12px;color:#999">该城市暂无动线</div>`;let byCity=new Map;for(let t of e)byCity.has(t.city)||byCity.set(t.city,[]),byCity.get(t.city).push(t);let html=``;for(let c of __sortCities__([...byCity.keys()])){let rs=byCity.get(c),cn=__countryOf__(c),cf={"俄罗斯":`🇷🇺`,"哈萨克斯坦":`🇰🇿`,"中国":`🇨🇳`,"其他":`🌍`}[cn]||`🌍`,col=F.cityColors[c]||`#546E7A`,key=`rg:`+c,coll=M.collapsed.has(key);html+=`
     <div class="city-head" data-toggle="${k(key)}">
