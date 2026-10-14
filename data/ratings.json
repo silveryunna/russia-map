@@ -1,6 +1,6 @@
 {
  "updated": "2026-10-14",
- "source": "携程（问道 API 快照）",
+ "source": "携程/大众点评",
  "items": {
   "p531": {
    "ratings": [
@@ -62,6 +62,14 @@
      "url": "https://you.ctrip.com/sight/ctripyouyoustar61/151659129.html",
      "poiId": "151659129",
      "matched": "第1市场夜市"
+    },
+    {
+     "src": "大众点评",
+     "score": 4.8,
+     "count": 1878,
+     "url": "https://www.dianping.com/shop/l78QfenE3WKHcoJe",
+     "dpName": "第一市场夜市",
+     "checked": "2026-10-14"
     }
    ]
   },
@@ -74,6 +82,14 @@
      "url": "https://you.ctrip.com/food/61/118838220.html",
      "poiId": "118838220",
      "matched": "回新村海鲜大排档"
+    },
+    {
+     "src": "大众点评",
+     "score": 3.7,
+     "count": 89,
+     "url": "https://www.dianping.com/shop/l2NeKJc48xQVnmqv",
+     "dpName": "小龙宫回新村海鲜大排档",
+     "checked": "2026-10-14"
     }
    ]
   },
@@ -112,6 +128,14 @@
      "poiId": "140851464",
      "matched": "椰林伯伯椰子鸡·糟粕醋·海鲜火锅(天涯镇店)",
      "checked": "2026-10-14"
+    },
+    {
+     "src": "大众点评",
+     "score": 4.4,
+     "count": 9548,
+     "url": "https://www.dianping.com/shop/la30976SD2tqKsD9",
+     "dpName": "椰林伯伯椰子鸡·糟粕醋·海鲜火锅(椰梦长廊店)",
+     "checked": "2026-10-14"
     }
    ]
   },
@@ -124,6 +148,14 @@
      "url": "https://you.ctrip.com/food/sanya61/131895214-dianping176233907.html",
      "poiId": "131895214",
      "matched": "太琼糟粕醋·海南酸汤火锅(亚龙湾店)",
+     "checked": "2026-10-14"
+    },
+    {
+     "src": "大众点评",
+     "score": 4.8,
+     "count": 19262,
+     "url": "https://www.dianping.com/shop/k34ZIV9MLRBaKTrW",
+     "dpName": "太琼糟粕醋火锅·海南老爸茶(海棠湾臻选店)",
      "checked": "2026-10-14"
     }
    ]
@@ -138,6 +170,14 @@
      "poiId": "25012298",
      "matched": "嗲嗲的椰子鸡(海棠湾店)",
      "checked": "2026-10-14"
+    },
+    {
+     "src": "大众点评",
+     "score": 4.8,
+     "count": 22957,
+     "url": "https://www.dianping.com/shop/H52HdFDdmGdYSVa7",
+     "dpName": "嗲嗲的椰子鸡(椰梦长廊店)",
+     "checked": "2026-10-14"
     }
    ]
   },
@@ -151,6 +191,14 @@
      "poiId": "142042751",
      "matched": "虎婆香草鸭·海南大排档(椰梦长廊店)",
      "checked": "2026-10-14"
+    },
+    {
+     "src": "大众点评",
+     "score": 4.7,
+     "count": 24037,
+     "url": "https://www.dianping.com/shop/H2JI2rBuVl3JCD4m",
+     "dpName": "虎婆香草鸭·海南大排档(椰梦长廊店)",
+     "checked": "2026-10-14"
     }
    ]
   },
@@ -163,6 +211,14 @@
      "url": "https://hk.trip.com/restaurant/china/sanya/detail/restaurant-148807145/",
      "poiId": "148807145",
      "matched": "87号渔船·海鲜大排档(椰梦长廊店)",
+     "checked": "2026-10-14"
+    },
+    {
+     "src": "大众点评",
+     "score": 4.7,
+     "count": 6680,
+     "url": "https://www.dianping.com/shop/G8TkPbb00tZGrogy",
+     "dpName": "87号渔船·海鲜大排档(椰梦长廊店)",
      "checked": "2026-10-14"
     }
    ]
@@ -378,6 +434,14 @@
      "matched": "",
      "checked": "2026-10-14",
      "unverified": true
+    },
+    {
+     "src": "大众点评",
+     "score": 4.6,
+     "count": 5553,
+     "url": "https://www.dianping.com/shop/H4fbltZj6IqX9a5A",
+     "dpName": "鹿鱼咖啡甜品店(中央大街店)",
+     "checked": "2026-10-14"
     }
    ]
   },
@@ -490,6 +554,186 @@
      "matched": "",
      "checked": "2026-10-14",
      "unverified": true
+    }
+   ]
+  },
+  "p540": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.4,
+     "count": 6727,
+     "url": "https://www.dianping.com/shop/H56cHseb47opPKF2",
+     "dpName": "琼嗲香草鸭·风味海南菜(椰梦长廊店)",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p545": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.8,
+     "count": 2364,
+     "url": "https://www.dianping.com/shop/E7rXyexAyvNpoHQL",
+     "dpName": "琼禧小馆•海南菜(椰梦长廊店)",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p546": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.1,
+     "count": 4958,
+     "url": "https://www.dianping.com/shop/k4ZzSnoBu5HYD9IM",
+     "dpName": "西鲨海鲜自助餐厅(第一市场店)",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p547": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.9,
+     "count": 1277,
+     "url": "https://www.dianping.com/shop/GauZJusSjZE7ZTBO",
+     "dpName": "阿龙海鲜农家乐(三亚湾椰梦长廊店)",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p548": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.8,
+     "count": 13739,
+     "url": "https://www.dianping.com/shop/G4netWxvmPFanEFu",
+     "dpName": "文昌小老弟糟粕醋·海南椰子鸡椰奶鸡(三亚湾外贸路店)",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p549": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.8,
+     "count": 8103,
+     "url": "https://www.dianping.com/shop/G7pLEt09E1RW4msz",
+     "dpName": "老阿侬·糟粕醋椰子鸡(三亚湾外贸路店)",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p553": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 3.7,
+     "count": 219,
+     "url": "https://www.dianping.com/shop/k53oy7cqnzIA3UU6",
+     "dpName": "琼爷清补凉炒冰(椰梦长廊店)",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p571": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.7,
+     "count": 2697,
+     "url": "https://www.dianping.com/shop/jSd9r7GsVcSuOcTx",
+     "dpName": "瑰丽酒店·海吧·天际下午茶·天台酒吧",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p572": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.8,
+     "count": 9955,
+     "url": "https://www.dianping.com/shop/k5N8BlDqXeuHh2YK",
+     "dpName": "三亚艾迪逊酒店·星空吧 SKY BAR",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p573": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.7,
+     "count": 788,
+     "url": "https://www.dianping.com/shop/l3bolFXIPgbzAijy",
+     "dpName": "潮汐沙滩俱乐部SEA LA VIE",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p574": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.7,
+     "count": 1737,
+     "url": "https://www.dianping.com/shop/H8RuyEQpPU08aGru",
+     "dpName": "大堂酒廊•主题下午茶•海棠湾君悦酒店",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p575": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.2,
+     "count": 952,
+     "url": "https://www.dianping.com/shop/G6zzETKpo5WXOTzC",
+     "dpName": "MAYAN 沙滩餐酒吧(三亚保利瑰丽酒店)",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p576": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.1,
+     "count": 3859,
+     "url": "https://www.dianping.com/shop/H4Pvm3QIy3spk2zf",
+     "dpName": "麦芽·洞穴海景咖啡西餐吧(天涯小镇店)",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p473": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.2,
+     "count": 777,
+     "url": "https://www.dianping.com/shop/G3LCAAQf65Ix3VZf",
+     "dpName": "老鼎丰(哈尔滨中央大街店)",
+     "checked": "2026-10-14"
+    }
+   ]
+  },
+  "p474": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.4,
+     "count": 3,
+     "url": "https://www.dianping.com/shop/G4g7FPXJHfoDVznt",
+     "dpName": "东和昶1917文化复合体",
+     "checked": "2026-10-14"
     }
    ]
   }
