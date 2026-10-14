@@ -41,8 +41,31 @@ const targets = points.filter(p => !p.pending && CN_CITIES.has(p.city))
   .filter(p => !ONLY.size || ONLY.has(p.id));
 
 const state = existsSync(OUT) ? JSON.parse(readFileSync(OUT, 'utf8'))
-  : { updated: '', source: '携程', items: {}, resolved: {}, nodata: [] };
+  : { updated: '', source: '携程/大众点评', items: {}, resolved: {}, nodata: [] };
 state.items ||= {}; state.resolved ||= {}; state.nodata ||= [];
+state.source ||= '携程/大众点评';
+// 旧版扁平结构 → 多来源结构 { ratings: [ {src,...} ] }
+for (const [id, v] of Object.entries(state.items)) {
+  if (!v.ratings) state.items[id] = { ratings: [{ src: v.src || '携程', score: v.score, count: v.count, url: v.url, poiId: v.poiId, matched: v.matched, checked: v.checked, page: v.page, unverified: v.unverified }] };
+}
+// 人工录入的大众点评分数（data/dianping-manual.json）：{ "p470": {score,count?,url?} }
+const MANUAL = resolve(DATA, 'dianping-manual.json');
+if (existsSync(MANUAL)) {
+  try {
+    const man = JSON.parse(readFileSync(MANUAL, 'utf8'));
+    let n = 0;
+    for (const [id, m] of Object.entries(man)) {
+      if (!m || !(m.score > 0)) continue;
+      const entry = { src: '大众点评', score: +Number(m.score).toFixed(1), count: Number(m.count) || 0, url: String(m.url || `https://www.dianping.com/search/keyword/0/0_${encodeURIComponent(m.name || '')}`), checked: m.checked || 'manual' };
+      const rec = state.items[id] || (state.items[id] = { ratings: [] });
+      rec.ratings = rec.ratings.filter(r => r.src !== '大众点评');
+      rec.ratings.push(entry);
+      state.nodata = state.nodata.filter(x => x !== id);
+      n++;
+    }
+    if (n) console.log(`已并入人工录入的大众点评分数 ${n} 条`);
+  } catch (e) { console.warn('dianping-manual.json 解析失败：' + e.message); }
+}
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const today = () => new Date().toISOString().slice(0, 10);
 
@@ -140,6 +163,13 @@ async function readPage(url) {
   } catch { return null; }
 }
 
+function setRating(id, entry) {          // 按来源 upsert，保持多来源结构
+  const rec = state.items[id] || (state.items[id] = { ratings: [] });
+  rec.ratings = (rec.ratings || []).filter(r => r.src !== entry.src);
+  rec.ratings.push(entry);
+  delete state.resolved[id];
+}
+
 function save() {
   state.updated = today();
   state.nodata = [...new Set(state.nodata)];
@@ -152,9 +182,10 @@ if (PAGES_ONLY) {
   let ok = 0, miss = 0;
   for (const id of ids) {
     const rec = state.items[id] || state.resolved[id];
-    const page = await readPage(rec.url);
+    const recUrl = (rec.ratings && rec.ratings[0] && rec.ratings[0].url) || rec.url;
+    const page = await readPage(recUrl);
     if (page) {
-      state.items[id] = { src: '携程', score: page.score, count: page.count, url: rec.url, poiId: rec.poiId || '', matched: (state.items[id] || {}).matched || '', checked: today(), page: true };
+      setRating(id, { src: '携程', score: page.score, count: page.count, url: recUrl, poiId: (rec.poiId || (rec.ratings && rec.ratings[0] && rec.ratings[0].poiId) || ''), checked: today(), page: true });
       delete state.resolved[id]; ok++;
       console.log(`  ✓ ${id} → 页面 ${page.score} 分 / ${page.count} 条`);
     } else { miss++; }
@@ -186,7 +217,7 @@ if (PAGES_ONLY) {
         if (ans.url) {
           const page = await readPage(ans.url);
           if (page) {
-            state.items[p.id] = { src: '携程', score: page.score, count: page.count, url: ans.url, poiId: ans.poiId, matched: ans.matched, checked: today(), page: true };
+            setRating(p.id, { src: '携程', score: page.score, count: page.count, url: ans.url, poiId: ans.poiId, matched: ans.matched, checked: today(), page: true });
             console.log(`  ✓ ${p.id} ${p.name} → 页面 ${page.score} 分 / ${page.count} 条`);
             got++;
           } else {
@@ -207,9 +238,9 @@ if (PAGES_ONLY) {
         }
       } else {
         const page = await readPage(ans.url);
-        state.items[p.id] = page
+        setRating(p.id, page
           ? { src: '携程', score: page.score, count: page.count, url: ans.url, poiId: ans.poiId, matched: ans.matched, checked: today(), page: true }
-          : { src: '携程', score: +ans.score.toFixed(1), count: Math.round(ans.count), url: ans.url, poiId: ans.poiId, matched: ans.matched, checked: today(), unverified: true };
+          : { src: '携程', score: +ans.score.toFixed(1), count: Math.round(ans.count), url: ans.url, poiId: ans.poiId, matched: ans.matched, checked: today(), unverified: true });
         state.nodata = state.nodata.filter(x => x !== p.id);
         console.log(`  ✓ ${p.id} ${p.name} → ${ans.score} 分 / ${ans.count} 条${page ? '（页面核对）' : ans.url ? '' : '（无链接）'}`);
         got++;

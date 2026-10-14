@@ -129,27 +129,32 @@ if (existsSync(resolve(dir, 'overlays.json'))) {
   }
 }
 
-// --- 携程评分快照（data/ratings.json，可选文件）---
+// --- 评分快照（data/ratings.json，可选文件；多来源结构 items[id].ratings[]）---
 if (existsSync(resolve(dir, 'ratings.json'))) {
   const r = read('ratings.json');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(r.updated || '')) err(`ratings.json updated 非法：${r.updated}`);
   const ids = new Set(points.map(p => p.id));
-  const HOST = /(^|\.)(ctrip\.com|trip\.com|trip\.cn)$/i;
+  const SRC = { '携程': /(^|\.)(ctrip\.com|trip\.com|trip\.cn)$/i, '大众点评': /(^|\.)dianping\.com$/i };
+  let nRatings = 0, low = [];
   for (const [id, v] of Object.entries(r.items || {})) {
     const where = `ratings[${id}]`;
     if (!ids.has(id)) err(`${where} 引用了不存在的点位`);
-    if (v.src !== '携程') err(`${where} src 非法：${v.src}`);
-    if (!(typeof v.score === 'number' && v.score > 0 && v.score <= 5)) err(`${where} score 非法：${v.score}`);
-    if (!(Number.isInteger(v.count) && v.count >= 0)) err(`${where} count 非法：${v.count}`);
-    let u;
-    try { u = new URL(v.url); } catch { err(`${where} url 非法：${v.url}`); continue; }
-    if (!/^https?:$/.test(u.protocol) || !HOST.test(u.hostname)) err(`${where} url 域名不在白名单：${v.url}`);
+    const list = Array.isArray(v.ratings) ? v.ratings : [];
+    if (!list.length) err(`${where} 缺少 ratings 数组`);
+    for (const rr of list) {
+      const w = `${where}(${rr.src})`;
+      if (!SRC[rr.src]) { err(`${w} src 非法：${rr.src}`); continue; }
+      if (!(typeof rr.score === 'number' && rr.score > 0 && rr.score <= 5)) err(`${w} score 非法：${rr.score}`);
+      if (!(Number.isInteger(rr.count) && rr.count >= 0)) err(`${w} count 非法：${rr.count}`);
+      let u;
+      try { u = new URL(rr.url); } catch { err(`${w} url 非法：${rr.url}`); continue; }
+      if (!/^https?:$/.test(u.protocol) || !SRC[rr.src].test(u.hostname)) err(`${w} url 域名不在白名单：${rr.url}`);
+      nRatings++;
+      if (rr.count < 10 && !(rr.src === '大众点评' && rr.count >= 5)) low.push(`${id} ${rr.src} ${rr.score}/${rr.count}`);
+    }
   }
-  const n = Object.keys(r.items || {}).length;
-  const low = Object.entries(r.items || {}).filter(([, v]) => v.count < 10);
-  if (low.length) console.warn(`⚠️ ${low.length} 条点评数 <10（疑似匹配到同名小店，前端已不展示，建议人工复核）：` +
-    low.slice(0, 10).map(([id, v]) => `${id} ${v.matched || ''} ${v.score}/${v.count}`).join('、'));
-  ok(`携程评分快照 ${n} 条（仅链接 ${Object.keys(r.resolved || {}).length}，未找到 ${(r.nodata || []).length}），采集于 ${r.updated}`);
+  if (low.length) console.warn(`⚠️ ${low.length} 条点评数过少（疑似匹配到同名小店，前端不展示，建议人工复核）：` + low.slice(0, 10).join('、'));
+  ok(`评分快照 ${Object.keys(r.items || {}).length} 个点位 / ${nRatings} 条评分（仅链接 ${Object.keys(r.resolved || {}).length}，未找到 ${(r.nodata || []).length}），采集于 ${r.updated}`);
 }
 
 if (fail) {
