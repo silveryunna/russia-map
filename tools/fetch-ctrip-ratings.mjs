@@ -99,14 +99,23 @@ async function askOnce(tk, p, retry) {
   return String(j.result ?? '');
 }
 async function askAny(p, retry = false) {
+  // 令牌轮询：成功即放回队尾；报"配额用尽"的直接剔除；网络类错误换下一个令牌重试
+  if (!pool.length) throw new QuotaExhausted('所有令牌配额均用尽');
+  let lastErr = null;
+  const errored = [];
   while (pool.length) {
-    const tk = pool[0];
-    try { return await askOnce(tk, p, retry); }
-    catch (e) {
-      if (e instanceof QuotaExhausted) { pool.shift(); console.log(`  ⚠️ 令牌 …${tk.slice(-4)} 配额用尽，切下一个（剩 ${pool.length}）`); continue; }
-      throw e;
+    const tk = pool.shift();
+    try {
+      const r = await askOnce(tk, p, retry);
+      pool.push(tk);
+      return r;
+    } catch (e) {
+      if (e instanceof QuotaExhausted) { console.log(`  ⚠️ 令牌 …${tk.slice(-4)} 配额用尽，剔除（剩 ${pool.length}）`); continue; }
+      lastErr = e; errored.push(tk);
     }
   }
+  pool.push(...errored);
+  if (lastErr) throw lastErr;
   throw new QuotaExhausted('所有令牌配额均用尽');
 }
 function readAnswer(text) {                       // 一次回答 → {score,count,url,matched}
@@ -159,7 +168,7 @@ if (PAGES_ONLY) {
 /* ---------- 模式 B：逐点抓取 ---------- */
 (async () => {
   console.log(`目标 ${targets.length} 点位 | 令牌 ${TOKENS.length} 个 | 本次调用上限 ${LIMIT}`);
-  let got = 0, urlOnly = 0, noData = 0, skipped = 0, failed = 0, calls = 0;
+  let got = 0, urlOnly = 0, noData = 0, skipped = 0, failed = 0, calls = 0, streakNoData = 0;
   for (const p of targets) {
     const known = state.items[p.id] || state.resolved[p.id];
     if (known && !has('force')) { skipped++; continue; }
@@ -190,6 +199,11 @@ if (PAGES_ONLY) {
           state.nodata.push(p.id); delete state.items[p.id];
           console.log(`  ○ ${p.id} ${p.name} → 未找到`);
           noData++;
+          // 熔断：连续多点是"未找到"多半是配额被静默耗尽（接口此时答"查不到"而不报错），停止本轮以免空烧
+          if (++streakNoData >= 6) {
+            console.log(`\n⚠️ 连续 ${streakNoData} 个点位都"未找到"，疑似配额已静默耗尽（接口不再真检索）。本轮提前结束，进度已保存。`);
+            save(); process.exit(0);
+          }
         }
       } else {
         const page = await readPage(ans.url);
@@ -199,6 +213,7 @@ if (PAGES_ONLY) {
         state.nodata = state.nodata.filter(x => x !== p.id);
         console.log(`  ✓ ${p.id} ${p.name} → ${ans.score} 分 / ${ans.count} 条${page ? '（页面核对）' : ans.url ? '' : '（无链接）'}`);
         got++;
+      streakNoData = 0;
       }
       save();
     } catch (e) {
