@@ -146,7 +146,8 @@ if (existsSync(resolve(dir, 'ratings.json'))) {
   const r = read('ratings.json');
   if (!/^\d{4}-\d{2}-\d{2}$/.test(r.updated || '')) err(`ratings.json updated 非法：${r.updated}`);
   const ids = new Set(points.map(p => p.id));
-  const SRC = { '携程': /(^|\.)(ctrip\.com|trip\.com|trip\.cn)$/i, '大众点评': /(^|\.)dianping\.com$/i };
+  const SRC = { '携程': /(^|\.)(ctrip\.com|trip\.com|trip\.cn)$/i, '大众点评': /(^|\.)dianping\.com$/i, '小红书': /(^|\.)xiaohongshu\.com$/i };
+  const XHS_VERDICTS = new Set(['好', '一般', '避雷']);
   let nRatings = 0, low = [];
   for (const [id, v] of Object.entries(r.items || {})) {
     const where = `ratings[${id}]`;
@@ -156,13 +157,18 @@ if (existsSync(resolve(dir, 'ratings.json'))) {
     for (const rr of list) {
       const w = `${where}(${rr.src})`;
       if (!SRC[rr.src]) { err(`${w} src 非法：${rr.src}`); continue; }
-      if (!(typeof rr.score === 'number' && rr.score > 0 && rr.score <= 5)) err(`${w} score 非法：${rr.score}`);
-      if (!(Number.isInteger(rr.count) && rr.count >= 0)) err(`${w} count 非法：${rr.count}`);
+      if (rr.src === '小红书') {                       // 定性口碑：无 score/count，verdict 必填
+        if (!XHS_VERDICTS.has(rr.verdict)) err(`${w} verdict 非法：${rr.verdict}（须为 好/一般/避雷）`);
+        if (rr.note != null && typeof rr.note !== 'string') err(`${w} note 类型非法`);
+      } else {
+        if (!(typeof rr.score === 'number' && rr.score > 0 && rr.score <= 5)) err(`${w} score 非法：${rr.score}`);
+        if (!(Number.isInteger(rr.count) && rr.count >= 0)) err(`${w} count 非法：${rr.count}`);
+        if (rr.count < 10 && !(rr.src === '大众点评' && rr.count >= 5)) low.push(`${id} ${rr.src} ${rr.score}/${rr.count}`);
+      }
       let u;
       try { u = new URL(rr.url); } catch { err(`${w} url 非法：${rr.url}`); continue; }
       if (!/^https?:$/.test(u.protocol) || !SRC[rr.src].test(u.hostname)) err(`${w} url 域名不在白名单：${rr.url}`);
       nRatings++;
-      if (rr.count < 10 && !(rr.src === '大众点评' && rr.count >= 5)) low.push(`${id} ${rr.src} ${rr.score}/${rr.count}`);
     }
   }
   if (low.length) console.warn(`⚠️ ${low.length} 条点评数过少（疑似匹配到同名小店，前端不展示，建议人工复核）：` + low.slice(0, 10).join('、'));

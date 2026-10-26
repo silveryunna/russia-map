@@ -29,6 +29,25 @@ const CN_CITIES = new Set(['哈尔滨', '伊宁', '三亚']);
 // 交通类点位不需要评分（机场/火车站/地铁站/交通枢纽/水上巴士）——用户 2026-10-14 要求
 const TRANS = new Set(['机场', '火车站', '地铁站', '交通枢纽', '水上巴士']);
 const isTrans = p => TRANS.has(p.type) || (p.tags || []).some(t => TRANS.has(t));
+
+/* ---------- 评分路由策略（站长决议 2026-10-26）：酒店优先携程，餐饮优先点评+小红书，景点随缘 ---------- */
+const FOOD_TAG = '餐厅/咖啡', HOTEL_TAG = '酒店/旅馆';
+const HOTEL_TYPE = /酒店|民宿|宾馆|住宿/;   // type 自由文本兜底（tags 为主路由）
+const ratingCategory = p => (p.tags || []).includes(FOOD_TAG) ? 'food'
+  : (p.tags || []).includes(HOTEL_TAG) || HOTEL_TYPE.test(p.type || '') ? 'hotel' : 'sight';
+const PREF = { hotel: ['携程', '大众点评', '小红书'], food: ['大众点评', '小红书', '携程'], sight: [] };
+
+/* ---------- 匹配门（策略5：非精准对应宁可空置）：LLM 自称的 POI 名与点名相似度不足 → 人工队列 ---------- */
+const normName = s => String(s || '').toLowerCase().replace(/[\s（）()·\-—「」《》]/g, '');
+function nameOk(a, b) {
+  a = normName(a); b = normName(b);
+  if (!a || !b) return true;                 // 没自称名字时不拦（靠页面复核兜底）
+  if (a.includes(b) || b.includes(a)) return true;
+  const bs = new Set([...b]);
+  let common = 0;
+  for (const ch of a) if (bs.has(ch)) common++;
+  return common / Math.max(a.length, b.length) >= 0.6;
+}
 const args = process.argv.slice(2);
 const has = k => args.some(a => a === `--${k}` || a.startsWith(`--${k}=`));
 const val = k => { const a = args.find(a => a.startsWith(`--${k}=`)); return a ? a.slice(k.length + 3) : ''; };
@@ -51,22 +70,34 @@ state.source ||= '携程/大众点评';
 for (const [id, v] of Object.entries(state.items)) {
   if (!v.ratings) state.items[id] = { ratings: [{ src: v.src || '携程', score: v.score, count: v.count, url: v.url, poiId: v.poiId, matched: v.matched, checked: v.checked, page: v.page, unverified: v.unverified }] };
 }
-// 人工录入的大众点评分数（data/dianping-manual.json）：{ "p470": {score,count?,url?} }
+// 人工录入（data/dianping-manual.json）：{ "p470": {score,count?,url?, xhs:{verdict:好|一般|避雷, note?, url?}} }
+// score>0 → 大众点评分；xhs.verdict → 小红书素人口碑（定性，不量化）。两者可只给其一
 const MANUAL = resolve(DATA, 'dianping-manual.json');
 if (existsSync(MANUAL)) {
   try {
     const man = JSON.parse(readFileSync(MANUAL, 'utf8'));
-    let n = 0;
+    const pointsById = new Map(points.map(p => [p.id, p]));
+    let n = 0, nx = 0;
     for (const [id, m] of Object.entries(man)) {
-      if (!m || !(m.score > 0)) continue;
-      const entry = { src: '大众点评', score: +Number(m.score).toFixed(1), count: Number(m.count) || 0, url: String(m.url || `https://www.dianping.com/search/keyword/0/0_${encodeURIComponent(m.name || '')}`), checked: m.checked || 'manual' };
+      if (!m) continue;
       const rec = state.items[id] || (state.items[id] = { ratings: [] });
-      rec.ratings = rec.ratings.filter(r => r.src !== '大众点评');
-      rec.ratings.push(entry);
-      state.nodata = state.nodata.filter(x => x !== id);
-      n++;
+      if (m.score > 0) {
+        const entry = { src: '大众点评', score: +Number(m.score).toFixed(1), count: Number(m.count) || 0, url: String(m.url || `https://www.dianping.com/search/keyword/0/0_${encodeURIComponent(m.name || '')}`), checked: m.checked || 'manual' };
+        rec.ratings = rec.ratings.filter(r => r.src !== '大众点评');
+        rec.ratings.push(entry);
+        state.nodata = state.nodata.filter(x => x !== id);
+        n++;
+      }
+      if (m.xhs && ['好', '一般', '避雷'].includes(m.xhs.verdict)) {
+        const pname = pointsById.get(id)?.name || m.name || id;
+        const entry = { src: '小红书', verdict: m.xhs.verdict, note: String(m.xhs.note || '').replace(/[<>]/g, '').slice(0, 80), url: String(m.xhs.url || `https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(pname)}`), checked: m.xhs.checked || 'manual' };
+        rec.ratings = rec.ratings.filter(r => r.src !== '小红书');
+        rec.ratings.push(entry);
+        nx++;
+      }
     }
     if (n) console.log(`已并入人工录入的大众点评分数 ${n} 条`);
+    if (nx) console.log(`已并入人工录入的小红书口碑 ${nx} 条`);
   } catch (e) { console.warn('dianping-manual.json 解析失败：' + e.message); }
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
@@ -152,17 +183,30 @@ function readAnswer(text) {                       // 一次回答 → {score,cou
   return { ...pr, url: cleanUrl(pr.url), matched: (m ? m[1] : '').trim(), poiId: '' };
 }
 
-/* ---------- 来源 2：官方 POI 页面（复核数值） ---------- */
+/* ---------- 来源 2：官方 POI 页面（复核数值） ----------
+   返回三种结果：
+   - {score, count}      页面核实成功
+   - {noScore: true, count}  页面可解析，但携程对该 POI 只展示热度分、无用户评分（LLM 给的分不可信）
+   - null                页面无法解析（gspoi/trip.com 客户端渲染壳等） */
 async function readPage(url) {
   if (!url) return null;
   try {
     const r = await fetch(url, { headers: { 'User-Agent': UA }, signal: AbortSignal.timeout(30000) });
     if (!r.ok) return null;
     const html = await r.text();
-    const score = Number((html.match(/class="averageScore">([\d.]+)</) || [])[1]);
-    const count = Number((html.match(/用户点评<!-- -->\((\d+)\)/) || [])[1]);
-    if (!(score > 0 && score <= 5)) return null;
-    return { score, count: Number.isFinite(count) ? count : 0 };
+    // 桌面端 SSR 标记
+    let score = Number((html.match(/class="averageScore">([\d.]+)</) || [])[1]);
+    let count = Number((html.match(/用户点评<!-- -->\((\d+)\)/) || [])[1]);
+    // 内嵌 JSON（m.ctrip 原始 JSON / you.ctrip __NEXT_DATA__ 转义 JSON 两种写法）
+    if (!(score > 0)) score = Number((html.match(/commentScore\\?":\s*([\d.]+)/) || [])[1]);
+    if (!(count > 0)) count = Number((html.match(/commentCount\\?":\s*(\d+)/) || [])[1]);
+    if (!(count > 0)) count = Number((html.match(/用户点评\s*\((\d+)\)/) || [])[1]);
+    if (!(count > 0)) count = Number((html.match(/(\d+)条点评/) || [])[1]);
+    if (score > 0 && score <= 5) return { score, count: Number.isFinite(count) ? count : 0 };
+    // 页面正常但无用户评分：有热度分区块或明确 commentScore:null
+    if (/commentScore\\?":\s*null/.test(html) || html.includes('heatScoreViewNew') || html.includes('XReviewScoreV2'))
+      return { noScore: true, count: Number.isFinite(count) ? count : 0 };
+    return null;
   } catch { return null; }
 }
 
@@ -176,26 +220,44 @@ function setRating(id, entry) {          // 按来源 upsert，保持多来源�
 function save() {
   state.updated = today();
   state.nodata = [...new Set(state.nodata)];
+  // 按路由策略排序：前端按数组顺序展示，优先来源排最前（酒店→携程 / 餐饮→点评、小红书）
+  const byId = new Map(points.map(p => [p.id, p]));
+  for (const [id, rec] of Object.entries(state.items)) {
+    const p = byId.get(id);
+    const pref = p ? PREF[ratingCategory(p)] : [];
+    if (pref.length && rec.ratings) rec.ratings.sort((a, b) => (pref.indexOf(a.src) + 9) - (pref.indexOf(b.src) + 9));
+  }
   if (!DRY) writeFileSync(OUT, JSON.stringify(state, null, 1) + '\n');
 }
 
 /* ---------- 模式 A：只用页面刷新数值（零配额） ---------- */
 if (PAGES_ONLY) {
   const ids = [...new Set([...Object.keys(state.items), ...Object.keys(state.resolved)])].filter(id => !ONLY.size || ONLY.has(id));
-  let ok = 0, miss = 0;
+  let ok = 0, miss = 0, noScoreN = 0;
   for (const id of ids) {
     const rec = state.items[id] || state.resolved[id];
-    const recUrl = (rec.ratings && rec.ratings[0] && rec.ratings[0].url) || rec.url;
+    const ct = ((rec.ratings || []).find(r => r.src === '携程')) || null;   // 排序后 ratings[0] 可能是点评，必须显式取携程条
+    const recUrl = (ct && ct.url) || rec.url;
+    if (!recUrl) { miss++; continue; }
     const page = await readPage(recUrl);
-    if (page) {
-      setRating(id, { src: '携程', score: page.score, count: page.count, url: recUrl, poiId: (rec.poiId || (rec.ratings && rec.ratings[0] && rec.ratings[0].poiId) || ''), checked: today(), page: true });
+    if (page && page.noScore) {
+      // 携程对该 POI 只有热度分、无用户评分：撤销 LLM 声称的分数（景点随缘/宁空置勿错配）
+      if (state.items[id]) {
+        state.items[id].ratings = (state.items[id].ratings || []).filter(r => r.src !== '携程');
+        if (!state.items[id].ratings.length) delete state.items[id];
+      }
+      state.resolved[id] = { url: recUrl, reason: 'no-ctrip-score', count: page.count, checked: today() };
+      noScoreN++;
+      console.log(`  ⊘ ${id} → 携程无用户评分（热度分不算），撤销未核实分数`);
+    } else if (page) {
+      setRating(id, { src: '携程', score: page.score, count: page.count, url: recUrl, poiId: (ct && ct.poiId) || rec.poiId || '', checked: today(), page: true });
       delete state.resolved[id]; ok++;
       console.log(`  ✓ ${id} → 页面 ${page.score} 分 / ${page.count} 条`);
     } else { miss++; }
     await sleep(300);
   }
   save();
-  console.log(`页面刷新：命中 ${ok} / 未命中 ${miss}（共 ${ids.length}）→ ${OUT}`);
+  console.log(`页面刷新：命中 ${ok} / 未命中 ${miss} / 携程无评分 ${noScoreN}（共 ${ids.length}）→ ${OUT}`);
   process.exit(0);
 }
 
@@ -216,10 +278,22 @@ if (PAGES_ONLY) {
         const alt = readAnswer(await askAny(p, true));
         if (alt.score > 0 && alt.score <= 5) ans = alt;
       }
+      // 匹配门：LLM 自称的 POI 名与点名对不上 → 不入库，入人工队列（策略5：宁空置勿错配）
+      if (ans.url && ans.matched && !nameOk(p.name, ans.matched)) {
+        state.resolved[p.id] = { url: ans.url, poiId: ans.poiId, matched: ans.matched, reason: 'name-mismatch' };
+        console.log(`  ⚠ ${p.id} ${p.name} → 匹配存疑（携程自称「${ans.matched}」），入人工队列`);
+        save();
+        await sleep(4000);
+        continue;
+      }
       if (!(ans.score > 0 && ans.score <= 5)) {
         if (ans.url) {
           const page = await readPage(ans.url);
-          if (page) {
+          if (page && page.noScore) {
+            state.resolved[p.id] = { url: ans.url, poiId: ans.poiId, matched: ans.matched, reason: 'no-ctrip-score', count: page.count };
+            console.log(`  ⊘ ${p.id} ${p.name} → 携程无用户评分（热度分不算）`);
+            urlOnly++;
+          } else if (page) {
             setRating(p.id, { src: '携程', score: page.score, count: page.count, url: ans.url, poiId: ans.poiId, matched: ans.matched, checked: today(), page: true });
             console.log(`  ✓ ${p.id} ${p.name} → 页面 ${page.score} 分 / ${page.count} 条`);
             got++;
@@ -241,13 +315,21 @@ if (PAGES_ONLY) {
         }
       } else {
         const page = await readPage(ans.url);
-        setRating(p.id, page
-          ? { src: '携程', score: page.score, count: page.count, url: ans.url, poiId: ans.poiId, matched: ans.matched, checked: today(), page: true }
-          : { src: '携程', score: +ans.score.toFixed(1), count: Math.round(ans.count), url: ans.url, poiId: ans.poiId, matched: ans.matched, checked: today(), unverified: true });
-        state.nodata = state.nodata.filter(x => x !== p.id);
-        console.log(`  ✓ ${p.id} ${p.name} → ${ans.score} 分 / ${ans.count} 条${page ? '（页面核对）' : ans.url ? '' : '（无链接）'}`);
-        got++;
-      streakNoData = 0;
+        if (page && page.noScore) {
+          state.resolved[p.id] = { url: ans.url, poiId: ans.poiId, matched: ans.matched, reason: 'no-ctrip-score', count: page.count };
+          console.log(`  ⊘ ${p.id} ${p.name} → 携程无用户评分（热度分不算），LLM 声称的 ${ans.score} 分不采用`);
+        } else if (page) {
+          setRating(p.id, { src: '携程', score: page.score, count: page.count, url: ans.url, poiId: ans.poiId, matched: ans.matched, checked: today(), page: true });
+          state.nodata = state.nodata.filter(x => x !== p.id);
+          console.log(`  ✓ ${p.id} ${p.name} → ${page.score} 分 / ${page.count} 条（页面核对）`);
+          got++;
+        } else {
+          // 门禁：页面复核不通过的不直接入库（防 LLM 幻觉分数），数值暂存人工队列
+          state.resolved[p.id] = { url: ans.url, poiId: ans.poiId, matched: ans.matched, reason: 'unverified', llmScore: +ans.score.toFixed(1), llmCount: Math.round(ans.count) };
+          console.log(`  ▷ ${p.id} ${p.name} → 页面未核实，入人工队列（LLM 声称 ${ans.score} 分）`);
+          urlOnly++;
+        }
+        streakNoData = 0;
       }
       save();
     } catch (e) {
