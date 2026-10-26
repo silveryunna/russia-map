@@ -1,6 +1,7 @@
 // 朋友投稿页：传照片 / 写笔记 / 打卡（需管理员在 account.html 开的账号）
 import './base-BJw1lW7I.js';
 import { loadCheckins, hasCheckin } from './checkin-v2.js';
+import { AI_MODELS, modelInfo } from './ai-models-v1.js';
 
 const $app = document.getElementById('friend-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -70,25 +71,60 @@ async function renderAISettings(body) {
   body.innerHTML = `<div class="pl-empty">加载中…</div>`;
   let cfg = { endpoint: '', model: '', has_key: false };
   try { cfg = await api('ai_settings', undefined, 'GET'); } catch (e) { body.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}</div>`; return; }
+  const custom = cfg.model && !modelInfo(cfg.model);
   body.innerHTML = `
     <div class="card fr-form">
       <h3 style="margin:0">🤖 我的 AI 接入</h3>
-      <label>Endpoint（https）<input id="fa-endpoint" value="${esc(cfg.endpoint || '')}" placeholder="留空 = 使用站内通道"></label>
-      <label>模型名（可选）<input id="fa-model" value="${esc(cfg.model || '')}" placeholder="deepseek-v4-pro ..."></label>
-      <label>API Key <input id="fa-key" type="password" autocomplete="off" placeholder="${cfg.has_key ? '已保存（留空保持不变）' : 'sk-...'}"></label>
+      <label>Endpoint（https）<input id="fa-endpoint" name="ai-cfg-ep" autocomplete="off" value="${esc(cfg.endpoint || '')}" placeholder="留空 = 使用站内通道"></label>
+      <label>模型
+        <select id="fa-model-sel">
+          <option value="">默认（站内配置）</option>
+          ${AI_MODELS.map(m => `<option value="${m.id}" ${m.id === cfg.model ? 'selected' : ''}>${esc(m.name)}（${m.tier} · ¥${m.pin}/¥${m.pout}）</option>`).join('')}
+          <option value="__custom" ${custom ? 'selected' : ''}>自定义…</option>
+        </select>
+      </label>
+      <input id="fa-model-custom" autocomplete="off" name="ai-cfg-model" style="display:${custom ? '' : 'none'}" value="${custom ? esc(cfg.model) : ''}" placeholder="自定义模型 ID">
+      <label>API Key <input id="fa-key" name="ai-cfg-key" type="password" autocomplete="new-password" placeholder="${cfg.has_key ? '已保存（留空保持不变）' : 'sk-...'}"></label>
       <button class="pl-btn primary big" id="fa-save">保存</button>
-      <button class="pl-btn small danger" id="fa-clear">清除（回到站内通道）</button>
-      <div class="fr-note">配置后，日程计划页的 AI 生成将走你自己的接口（OpenAI 兼容格式），不占用本站次数；密钥随账号保存在服务器，任何接口都不会回显明文。</div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="pl-btn small" id="fa-test">⚡ 测试连接</button>
+        <button class="pl-btn small danger" id="fa-clear">清除（回到站内通道）</button>
+      </div>
+      <div class="fr-note" id="fa-result"></div>
+      <div class="fr-note">配置后，日程计划页的 AI 生成将走你自己的接口（OpenAI 兼容格式），不占用本站次数；密钥随账号保存在服务器，任何接口都不会回显明文。模型名旁的价格为 TokenHub 刊例快照（2026-10-27）。</div>
     </div>`;
+  const selVal = () => {
+    const s = document.getElementById('fa-model-sel');
+    return s.value === '__custom' ? document.getElementById('fa-model-custom').value.trim() : s.value;
+  };
+  document.getElementById('fa-model-sel').onchange = e => {
+    document.getElementById('fa-model-custom').style.display = e.target.value === '__custom' ? '' : 'none';
+  };
   document.getElementById('fa-save').onclick = async () => {
     try {
       await api('ai_settings', {
         endpoint: document.getElementById('fa-endpoint').value.trim(),
-        model: document.getElementById('fa-model').value.trim(),
+        model: selVal(),
         key: document.getElementById('fa-key').value,
       });
       toast('已保存 ✓'); renderAISettings(body);
     } catch (e) { toast('失败：' + e.message); }
+  };
+  document.getElementById('fa-test').onclick = async () => {
+    const res = document.getElementById('fa-result');
+    const btn = document.getElementById('fa-test');
+    btn.disabled = true; res.textContent = '测试中（真实调一次模型，约几秒）…';
+    try {
+      const j = await api('ai_test', {
+        endpoint: document.getElementById('fa-endpoint').value.trim(),
+        model: selVal(),
+        key: document.getElementById('fa-key').value,
+      });
+      res.textContent = j.ok
+        ? `✓ 连通正常 · 延迟 ${(j.latency_ms / 1000).toFixed(1)}s · 模型 ${j.model} 回复：${j.preview || '（空）'}`
+        : `✗ ${j.error || '测试失败'}`;
+    } catch (e) { res.textContent = '✗ ' + e.message; }
+    btn.disabled = false;
   };
   document.getElementById('fa-clear').onclick = async () => {
     try { await api('ai_settings', { endpoint: '' }); toast('已清除'); renderAISettings(body); }

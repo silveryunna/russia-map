@@ -1,7 +1,7 @@
 <?php
 // 协作投稿 API —— 密钥/配置在 webroot 外（julyyunna-art-data/config.php）
 // 端点：?a=login|logout|me|submit|my|photo|pending|approve|reject|accounts
-//       |plan|ai_settings|ai_policy|ai_usage
+//       |plan|ai_settings|ai_policy|ai_usage|ai_test
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
@@ -325,13 +325,13 @@ switch ($a) {
       $channel = 'site';
     }
     // 日配额（按成功调用计）
-    $q = $db->prepare('SELECT COUNT(*) FROM ai_calls WHERE username=? AND created>=? AND ok=1');
+    $q = $db->prepare("SELECT COUNT(*) FROM ai_calls WHERE username=? AND created>=? AND ok=1 AND model NOT LIKE 'test:%'");
     $q->execute([$who, strtotime('today')]);
     $used = (int)$q->fetchColumn();
     if ($used >= $quota) out(['error' => "今日 AI 生成已达上限（{$quota} 次），明天再来"], 429);
     // 月 token 熔断：只算站内通道（烧站点账单的那条）
     if ($channel === 'site') {
-      $q = $db->query("SELECT COALESCE(SUM(prompt_tokens+completion_tokens),0) FROM ai_calls WHERE channel='site' AND ok=1 AND created>=" . strtotime('first day of this month'));
+      $q = $db->query("SELECT COALESCE(SUM(prompt_tokens+completion_tokens),0) FROM ai_calls WHERE channel='site' AND ok=1 AND model NOT LIKE 'test:%' AND created>=" . strtotime('first day of this month'));
       if ((int)$q->fetchColumn() >= $pol['month_token_cap']) out(['error' => '本月站内 AI 用量已达熔断阈值，请联系管理员'], 503);
     }
 
@@ -439,7 +439,7 @@ switch ($a) {
       $st->execute([$s['who']]);
       $hasCustom = (bool)$st->fetchColumn();
       $quota = $hasCustom ? $pol['custom_quota'] : ($isAdmin ? $pol['admin_quota'] : $pol['friend_quota']);
-      $q = $db->prepare('SELECT COUNT(*) FROM ai_calls WHERE username=? AND created>=? AND ok=1');
+      $q = $db->prepare("SELECT COUNT(*) FROM ai_calls WHERE username=? AND created>=? AND ok=1 AND model NOT LIKE 'test:%'");
       $q->execute([$s['who'], strtotime('today')]);
       out([
         'quota' => $quota,
@@ -472,10 +472,61 @@ switch ($a) {
   }
   case 'ai_usage': {
     session_ok($db, bearer(), true);
-    $rows = $db->prepare("SELECT username, channel, date(created,'unixepoch','localtime') d, COUNT(*) calls, SUM(prompt_tokens) pt, SUM(completion_tokens) ct FROM ai_calls WHERE created>=? AND ok=1 GROUP BY username, channel, d ORDER BY d DESC LIMIT 200");
-    $rows->execute([strtotime('-30 days')]);
-    $m = $db->query("SELECT COALESCE(SUM(prompt_tokens+completion_tokens),0) FROM ai_calls WHERE channel='site' AND ok=1 AND created>=" . strtotime('first day of this month'))->fetchColumn();
-    out(['items' => $rows->fetchAll(PDO::FETCH_ASSOC), 'month_site_tokens' => (int)$m]);
+    $noTest = "model NOT LIKE 'test:%'";
+    $daily = $db->prepare("SELECT date(created,'unixepoch','localtime') d, SUM(ok=1) calls, SUM(ok=0) fails, COALESCE(SUM(prompt_tokens+completion_tokens),0) tok FROM ai_calls WHERE created>=? AND $noTest GROUP BY d ORDER BY d");
+    $daily->execute([strtotime('-13 days')]); // 含今天共 14 天
+    $byModel = $db->query("SELECT model, COUNT(*) calls, SUM(prompt_tokens) pt, SUM(completion_tokens) ct FROM ai_calls WHERE ok=1 AND $noTest AND created>=" . strtotime('-30 days') . " GROUP BY model ORDER BY (SUM(prompt_tokens)+SUM(completion_tokens)) DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
+    $byUser = $db->query("SELECT username, channel, COUNT(*) calls, COALESCE(SUM(prompt_tokens+completion_tokens),0) tok FROM ai_calls WHERE ok=1 AND $noTest AND created>=" . strtotime('-30 days') . " GROUP BY username, channel ORDER BY tok DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
+    // 本月站内通道按模型拆（前端折算 ¥）
+    $monthByModel = $db->query("SELECT model, SUM(prompt_tokens) pt, SUM(completion_tokens) ct FROM ai_calls WHERE channel='site' AND ok=1 AND $noTest AND created>=" . strtotime('first day of this month') . " GROUP BY model")->fetchAll(PDO::FETCH_ASSOC);
+    $items = $db->query("SELECT username, channel, model, prompt_tokens pt, completion_tokens ct, ok, created FROM ai_calls ORDER BY id DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
+    $m = $db->query("SELECT COALESCE(SUM(prompt_tokens+completion_tokens),0) FROM ai_calls WHERE channel='site' AND ok=1 AND $noTest AND created>=" . strtotime('first day of this month'))->fetchColumn();
+    out(['daily' => $daily->fetchAll(PDO::FETCH_ASSOC), 'by_model' => $byModel, 'by_user' => $byUser, 'month_by_model' => $monthByModel, 'items' => $items, 'month_site_tokens' => (int)$m]);
+  }
+  case 'ai_test': {
+    $s = session_ok($db, bearer());
+    $who = $s['who'];
+    // 防重入（与 plan 共用 10s 窗口，测试也走真实模型、有微小费用）
+    $q = $db->prepare('SELECT MAX(created) FROM ai_calls WHERE username=?');
+    $q->execute([$who]);
+    if ((int)$q->fetchColumn() > time() - 10) out(['error' => '操作太频繁，请稍候再试'], 429);
+    $b = body();
+    $endpoint = mb_substr(trim((string)($b['endpoint'] ?? '')), 0, 200);
+    if ($endpoint === '') {
+      if (empty($CONF['tokenhub_key'])) out(['error' => '站内 AI 未配置'], 503);
+      $url = 'https://tokenhub.tencentmaas.com/v1/chat/completions';
+      $key = $CONF['tokenhub_key'];
+      $model = preg_replace('/[^\w.\/-]/', '', (string)($b['model'] ?? '')) ?: ($CONF['tokenhub_model'] ?? 'deepseek-v4-pro');
+      $channel = 'site';
+    } else {
+      if ($err = ssrf_check($endpoint)) out(['error' => $err], 400);
+      $url = $endpoint;
+      $key = mb_substr((string)($b['key'] ?? ''), 0, 200);
+      if ($key === '') { // 留空用已存的个人 key
+        $st = $db->prepare('SELECT api_key FROM ai_settings WHERE username=?');
+        $st->execute([$who]);
+        $key = (string)($st->fetchColumn() ?: '');
+      }
+      $model = preg_replace('/[^\w.\/-]/', '', (string)($b['model'] ?? '')) ?: 'deepseek-v4-pro';
+      $channel = 'custom';
+    }
+    $t0 = microtime(true);
+    $r = ai_http($url, $key, ['model' => $model, 'messages' => [['role' => 'user', 'content' => '回复一个字：好']]]);
+    $ms = (int)round((microtime(true) - $t0) * 1000);
+    $pt = 0; $ct = 0; $ok = 0; $preview = ''; $errMsg = '';
+    if (isset($r['error'])) $errMsg = $r['error'];
+    elseif ($r['code'] !== 200 || !is_array($r['json'])) $errMsg = 'HTTP ' . $r['code'] . '（接口地址/Key/模型名可能有误）';
+    else {
+      $pt = (int)($r['json']['usage']['prompt_tokens'] ?? 0);
+      $ct = (int)($r['json']['usage']['completion_tokens'] ?? 0);
+      $preview = mb_substr(trim((string)($r['json']['choices'][0]['message']['content'] ?? '')), 0, 30);
+      $ok = 1;
+    }
+    // 台账记录但 model 加 test: 前缀——不占配额、不进熔断、可视化里可区分
+    $db->prepare('INSERT INTO ai_calls(username,channel,model,prompt_tokens,completion_tokens,ok,created) VALUES(?,?,?,?,?,?,?)')
+      ->execute([$who, $channel, 'test:' . $model, $pt, $ct, $ok, time()]);
+    if (!$ok) out(['ok' => false, 'error' => $errMsg, 'latency_ms' => $ms, 'model' => $model]);
+    out(['ok' => true, 'latency_ms' => $ms, 'preview' => $preview, 'model' => $model]);
   }
   default:
     out(['error' => 'unknown action'], 404);

@@ -296,15 +296,17 @@ tail -c 25 data/points.json | od -c
 - nginx 需 `location ^~ /api/` → php-fpm（socket `/run/php-fpm/www.sock`，php-fpm 的 `listen.acl_users` 必须含 `www`）+ `fastcgi_param HTTP_AUTHORIZATION $http_authorization;`
 - 安全：登录限流（5 次错锁 15 分钟）、图片 mime 校验、`<script>`/`onerror=` 等注入拦截、投稿幂等键（同 `idem` 只入库一次）、重复账号名返回 409
 - 采纳后的投稿**不会自动并入** `data/*.json`，需要人工/让 Kimi 协助合并
-- 冒烟测试：`ADMIN_PASS='...' node tools/api-smoke.mjs`（登录/建号/投稿/审核/幂等/注入/AI 端点 共 32 项）
+- 冒烟测试：`ADMIN_PASS='...' node tools/api-smoke.mjs`（登录/建号/投稿/审核/幂等/注入/AI 端点 共 35 项）
 
 ### 10.1 AI 日程生成（plan.html + TokenHub，2026-10-27）
 
 - **链路**：plan.html → `api/index.php?a=plan`（服务器代理，Key 不出服务器）→ TokenHub `https://tokenhub.tencentmaas.com/v1/chat/completions`（OpenAI 兼容）
 - **双通道**：用户在 friend/account 页「我的 AI 接入」存了自定义 endpoint → 个人通道（用户自己的 key，不占站内配额）；否则站内通道（`config.php` 的 `tokenhub_key` / `tokenhub_model`）
 - **config.php 新增键**：`tokenhub_key`（网站专用 sk-，腾讯云 TokenHub 控制台/`thcli key create` 建）、`tokenhub_model`（默认 deepseek-v4-pro）
-- **策略与台账**（同 friends.db）：`ai_policy`（friend_quota=3 / admin_quota=30 / custom_quota=20 / month_token_cap=2000000 / site_enabled / models_friend / models_admin，admin 在 account 页「AI 设置」改）；`ai_calls`（每次调用记 user/通道/模型/token 数）；`ai_settings`（个人自定义接入，key 明文永不出接口）
-- **安全**：SSRF 校验（自定义 endpoint 仅 https + 拒私网/回环/CGNAT + 禁跟随重定向）、站点 Key 只发往硬编码 TokenHub 域名、日配额 + 月 token 熔断、同用户 10s 防重入、AI 返回点位名做幻觉过滤（不在点位库的剔除进 plan.note）
+- **策略与台账**（同 friends.db）：`ai_policy`（friend_quota=3 / admin_quota=30 / custom_quota=20 / month_token_cap=2000000 / site_enabled / models_friend / models_admin，admin 在 account 页「AI 设置」改）；`ai_calls`（每次调用记 user/通道/模型/token 数；`ai_test` 测试连接以 `test:` 前缀记 model，不占配额/熔断）；`ai_settings`（个人自定义接入，key 明文永不出接口）
+- **端点**：`?a=plan`（生成）/ `ai_settings`（个人接入读写）/ `ai_policy`（GET 调用者视图，admin 附完整策略；POST 仅 admin）/ `ai_usage`（admin：daily/by_model/by_user/month_by_model/items，供可视化）/ `ai_test`（连通性测试，返回延迟+应答预览）
+- **预设模型表**：`assets/ai-models-v1.js`（刊例价快照 2026-10-27；用 `thcli models get --id <id>` 更新价格，注意 glm-5.3-flashx 比 glm-5.3-flash 贵 2.5 倍这类同名陷阱）
+- **安全**：SSRF 校验（自定义 endpoint 仅 https + 拒私网/回环/CGNAT + 禁跟随重定向）、站点 Key 只发往硬编码 TokenHub 域名、日配额 + 月 token 熔断、同用户 10s 防重入、AI 返回点位名做幻觉过滤（不在点位库的剔除进 plan.note）、AI 接入表单已做 autocomplete 隔离（防浏览器把登录密码填进 Key 框）
 - 模型范围改了立即生效；换默认模型改 `config.php` 的 `tokenhub_model` 即可，不用动代码
 
 ## 11. 地图区域遮罩（单一中国区域，两个模式互为补集）

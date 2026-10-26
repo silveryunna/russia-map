@@ -49,3 +49,34 @@
 .ad-new-row .pl-btn { flex: none; }
 .ad-subcnt { flex: none; font-size: 12px; color: #99917F; }
 .ad-created { margin-left: auto; }
+
+/* AI 设置可视化（account/friend 页，2026-10-27） */
+.fr-form select, .ad-new select {
+  width: 100%; box-sizing: border-box; border: 1.5px solid #DDD5C2; border-radius: 10px;
+  padding: 10px 12px; font-size: 14px; background: #FDFCF9; color: #3A3226; outline: none;
+}
+.ai-stats { display: flex; gap: 24px; flex-wrap: wrap; margin: 4px 0 10px; }
+.ai-big { font-size: 26px; font-weight: 700; color: #3A3226; }
+.ai-progress { height: 10px; background: #F0EADB; border-radius: 999px; overflow: hidden; }
+.ai-progress i { display: block; height: 100%; background: #B71C1C; border-radius: 999px; transition: width .3s; }
+.ai-progress.warn i { background: #D32F2F; animation: ai-pulse 1.2s infinite alternate; }
+@keyframes ai-pulse { from { opacity: 1; } to { opacity: .55; } }
+.ai-bars { display: flex; align-items: flex-end; gap: 4px; height: 120px; padding-top: 8px; border-bottom: 1px solid #DDD5C2; }
+.ai-bar { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; min-width: 6px; }
+.ai-bar i { display: block; background: #B71C1C; border-radius: 3px 3px 0 0; min-height: 2px; opacity: .85; }
+.ai-bar i.fail { background: #FF8A80; }
+.ai-bar-x { display: flex; gap: 4px; padding-top: 4px; }
+.ai-bar-x span { flex: 1; text-align: center; font-size: 10px; color: #8A8071; }
+.ai-2col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (width <= 560px) { .ai-2col { grid-template-columns: 1fr; } }
+.ai-hbar .row { display: flex; align-items: center; gap: 8px; font-size: 12px; color: #5D5340; margin: 5px 0; }
+.ai-hbar .lbl { width: 110px; flex-shrink: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ai-hbar .track { flex: 1; height: 8px; background: #F0EADB; border-radius: 999px; overflow: hidden; }
+.ai-hbar .track i { display: block; height: 100%; background: #B71C1C; opacity: .7; border-radius: 999px; }
+.ai-hbar .val { width: 76px; text-align: right; color: #8A8071; flex-shrink: 0; }
+.ai-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.ai-chips .chip { display: inline-flex; align-items: center; }
+.ai-tier { font-size: 10px; border-radius: 4px; padding: 1px 5px; margin-left: 5px; background: #F0EADB; color: #8A8071; }
+.ai-tier.t-cheap { background: #E8F5E9; color: #2E7D32; }
+.ai-tier.t-mid { background: #FFF8E1; color: #B26A00; }
+.ai-tier.t-pro { background: #FFEBEE; color: #C62828; }

@@ -110,8 +110,15 @@ async function get(action, token) {
   // ai_usage：admin 可见台账，朋友被拒
   r = await get('ai_usage', admin);
   ok('admin 读 ai_usage', r.status === 200 && Array.isArray(r.j.items), `status=${r.status}`);
+  ok('ai_usage 含可视化字段', Array.isArray(r.j.daily) && Array.isArray(r.j.by_model) && Array.isArray(r.j.by_user) && Array.isArray(r.j.month_by_model), Object.keys(r.j).join(','));
   r = await get('ai_usage', friend);
   ok('朋友读 ai_usage 被拒', r.status !== 200, `status=${r.status}`);
+
+  // ai_test：无 token 401；内网 endpoint SSRF 拦截（不触发真实调用）
+  r = await post('ai_test', {});
+  ok('ai_test 无 token 401', r.status === 401, `status=${r.status}`);
+  r = await post('ai_test', { endpoint: 'http://192.168.1.5:5000/' }, friend);
+  ok('ai_test 内网 endpoint 被拒', r.status === 400, `status=${r.status} ${r.j.error || ''}`);
 
   // 清理：拒绝幂等测试留下的投稿
   await post('reject', { id: p1.j.id }, admin);

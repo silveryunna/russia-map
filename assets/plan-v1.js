@@ -112,7 +112,7 @@ function mkDay(n, slots, tip) {
 const siteToken = () => localStorage.getItem('friend-token') || localStorage.getItem('admin-token') || '';
 let aiSession = {};  // 高级设置：仅本次会话生效，不落盘（密钥不进 localStorage）
 let aiInfo = null;   // ?a=ai_policy：配额 / 可选模型 / 是否有个人接入
-let aiModel = '';    // 当前选中的模型
+let aiModel = localStorage.getItem('planner-ai-model') || '';  // 记住上次选择的模型
 let generating = false;
 // 旧版 localStorage AI 配置迁移为会话级（密钥不再落盘）
 try {
@@ -236,7 +236,7 @@ function renderCreate() {
   document.getElementById('pl-date').onchange = e => f.date = e.target.value;
   document.getElementById('pl-days').onchange = e => f.days = Math.max(1, Math.min(14, +e.target.value || 3));
   const modelSel = document.getElementById('pl-model');
-  if (modelSel) modelSel.onchange = e => aiModel = e.target.value;
+  if (modelSel) modelSel.onchange = e => { aiModel = e.target.value; localStorage.setItem('planner-ai-model', aiModel); };
   $app.querySelectorAll('[data-int]').forEach(b => b.onclick = () => {
     const k = b.dataset.int;
     f.interests = f.interests.includes(k) ? f.interests.filter(x => x !== k) : [...f.interests, k];
