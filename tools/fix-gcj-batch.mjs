@@ -1,7 +1,7 @@
 // 一次性修复：HEAD 提交中飞猪校准写入的 GCJ-02 坐标 → WGS84
 // 判定：与腾讯地图建议坐标比对，≈GCJ 则转换，≈WGS 则保留，其余人工复核
 import { readFileSync, writeFileSync } from 'node:fs';
-const KEY = '4VQBZ-ZGO3G-VGSQE-ILN4G-LWFUK-5WB7H';
+const KEY = process.env.QQ_LBS_KEY; if (!KEY) { console.error('缺少环境变量 QQ_LBS_KEY（腾讯地图Key，只存本机/NAS，不入库）'); process.exit(1); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 
 // 标准 GCJ-02 → WGS-84 迭代逆变换

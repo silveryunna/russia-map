@@ -10,7 +10,7 @@ const ROOT = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const P = resolve(ROOT, 'data/points.json');
 const DP = resolve(ROOT, 'data/dianping-manual.json');
 const OUT = resolve(ROOT, 'tools/sanya-recalibrate-plan.json');
-const KEY = '4VQBZ-ZGO3G-VGSQE-ILN4G-LWFUK-5WB7H';
+const KEY = process.env.QQ_LBS_KEY; if (!KEY) { console.error('缺少环境变量 QQ_LBS_KEY（腾讯地图Key，只存本机/NAS，不入库）'); process.exit(1); }
 const APPLY = process.argv.includes('--apply');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 

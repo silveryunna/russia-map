@@ -1,5 +1,5 @@
 // 核对三亚沿海点位：与腾讯 suggestion 比对，输出偏差>250m的清单（GCJ->WGS后再算距离）
-const KEY='4VQBZ-ZGO3G-VGSQE-ILN4G-LWFUK-5WB7H';
+const KEY=process.env.QQ_LBS_KEY;if(!KEY){console.error('缺少环境变量 QQ_LBS_KEY（腾讯地图Key，只存本机/NAS，不入库）');process.exit(1);}
 const PI=Math.PI,AXIS=6378245.0,EE=0.00669342162296594323;
 const tL=(x,y)=>{let r=-100+2*x+3*y+0.2*y*y+0.1*x*y+0.2*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*PI)+20*Math.sin(2*x*PI))*2/3;r+=(20*Math.sin(y*PI)+40*Math.sin(y/3*PI))*2/3;r+=(160*Math.sin(y/12*PI)+320*Math.sin(y*PI/30))*2/3;return r};
 const tN=(x,y)=>{let r=300+x+2*y+0.1*x*x+0.1*x*y+0.1*Math.sqrt(Math.abs(x));r+=(20*Math.sin(6*x*PI)+20*Math.sin(2*x*PI))*2/3;r+=(20*Math.sin(x*PI)+40*Math.sin(x/3*PI))*2/3;r+=(150*Math.sin(x/12*PI)+300*Math.sin(x/30*PI))*2/3;return r};

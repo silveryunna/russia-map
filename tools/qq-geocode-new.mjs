@@ -1,6 +1,6 @@
 // 一次性：腾讯地图 suggestion 批量取坐标（GCJ-02，输出供人工审核后转 WGS）
 import { writeFileSync } from 'node:fs';
-const KEY = '4VQBZ-ZGO3G-VGSQE-ILN4G-LWFUK-5WB7H';
+const KEY = process.env.QQ_LBS_KEY; if (!KEY) { console.error('缺少环境变量 QQ_LBS_KEY（腾讯地图Key，只存本机/NAS，不入库）'); process.exit(1); }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 // [key, region, keyword]
 const LIST = [
