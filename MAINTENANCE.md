@@ -1,16 +1,17 @@
 # 俄罗斯打卡地图 · 维护手册
 
 > 本文档梳理 2025-09 批次（会话：地铁巡礼/文学巡礼专项）的全部改动、数据结构与维护要点，供后续维护者快速接手。
-> 最近更新：2025-09-22 · 对应提交 `c864492`
+> 起始：2025-09-22 · 对应提交 `c864492` ｜ 勘误更新：2026-10-26（数字/工具链对齐现状，§7 踩坑记录保持原样——全部经 2026-10 实测仍有效）
 
 ---
 
 ## 1. 项目现状
 
 - **架构**：多页面 PWA（Vite 构建），数据与视图分离
-- **点位数据**：`data/points.json`（**382 个点位**）
-- **动线数据**：`data/routes.json`（**21 条动线**）
-- **部署**：GitHub Pages（`silveryunna.github.io/russia-map`）+ 腾讯云服务器（`124.221.104.242`）
+- **点位数据**：`data/points.json`（**626+ 个点位**，2026-10；本手册 §2 统计为 382 时代历史快照）
+- **动线数据**：`data/routes.json`（**28 条动线**）
+- **评分快照**：`data/ratings.json`（92 点位多来源评分，携程问道 API 构建期抓取 + 大众点评人工采集，规则见 check-data.mjs）
+- **部署**：GitHub Pages（`silveryunna.github.io/russia-map`）+ 腾讯云服务器（`124.221.104.242`，**scp 直传为主**，cron 自动 pull 已失效；双节点流程见 HANDOFF.md 第四节）
 - **源码**：本仓库仅含构建产物；源码在另一处维护。改数据直接编辑 `data/*.json`，**无需重新构建**；改 UI 逻辑需改 `assets/*.js` 构建产物（会被下次构建覆盖，需同步改源码）
 
 ### 页面结构
@@ -73,12 +74,14 @@
   "note": "…",               // 实用信息（票价/开放时间/地址）
   "lat": 55.776451,
   "lon": 37.655221,
-  "confidence": 100,          // 坐标置信度，95~100
+  "confidence": 100,          // 坐标置信度：100=名称精确匹配核实；75=模糊匹配待复核；无坐标时置 pending:true
   "tags": ["地铁站"]          // 可选；出现在标签筛选器
 }
 ```
 
-**文件格式**：UTF-8 + **CRLF 行尾**。编辑时务必保留 CRLF，否则 diff 会全文件标红。
+**坐标系（2026-10 重要）**：全部坐标统一 **WGS84**。腾讯/飞猪等国内图商返回 GCJ-02（火星坐标），直接用会整体偏移 100~500m（三亚曾因此"掉海里"）。转换用 tools/recalibrate-sanya.mjs 的 gcj2wgs()；腾讯 Key 走环境变量 QQ_LBS_KEY。
+
+**文件格式**：UTF-8 + **LF 行尾**（历史为 CRLF，已统一 LF；diff 全文件标红先查行尾）。
 
 ### 3.2 routes.json 动线
 
@@ -173,7 +176,7 @@ tags 含 "地堡"           → __bunkerIconFn__    灰底 ☢ 方块
 ### 新点位入库流程
 
 ```
-admin 后台录入 → 导出 JSON → 分配 id（当前最大 p382，从 p383 起）
+admin 后台录入 → 导出 JSON → 分配 id（从当前最大 id+1 起，可用 tools/check-data.mjs 或 node 查最大 id）
 → 补 name_en（Yandex 反查/正查，§4）→ 补 confidence/tags
 → 追加到 points.json（保持 CRLF）→ 校验 JSON（见 §8）
 → commit → push → GitHub Pages 1-2 分钟自动部署
@@ -264,7 +267,7 @@ perl -ne '$m=$1 if /"id":\s*"p(\d+)"/ && $1>$m; END{print "p$m\n"}' data/points.
 tail -c 25 data/points.json | od -c
 ```
 
-> 环境无 node/python，perl 是唯一脚本工具（JSON::PP 为核心模块可直接用）。
+> 本机有 node 24 与 python3（服务器上也有 python3）。首选 `node tools/check-data.mjs ./data`（覆盖 JSON 合法性/动线 name 匹配/评分规则/边界断言）；下面 perl 命令为无 node 环境的兜底。
 
 ---
 
@@ -274,7 +277,7 @@ tail -c 25 data/points.json | od -c
 2. **~10 个非地铁点位的 name_en 是街道级地址**（如阿尔巴特等），非精确 POI 名，但可在 Yandex 定位；后续可按 §4.2 方法优化。
 3. **p104 主题列车**的英文名是蹲守站名（Ploshchad Alexandra Nevskogo），非列车本身，属合理取舍。
 4. **老动线 m-d2** 有一个无 point 的纯说明步骤（渲染自动跳过），系历史遗留，非 bug。
-5. **server 同步**：腾讯云服务器 `/www/wwwroot/julyyunna.art` 是 git 仓库，cron 定时 `git pull`；正常情况与 GitHub 同步（可用 `git log --oneline -1` 核对）。手工热修后务必让本地与服务器内容一致，否则下次 pull 会因工作区脏而失败。
+5. **server 同步（2026-10 勘误）**：cron 自动 `git pull` 已失效，线上更新靠 **scp 直传**（`scp -i ~/.ssh/julyyunna_ed25519 … root@124.221.104.242:/www/wwwroot/julyyunna.art/…` 后 `chown www:www`）。若未来修复 cron，注意 pull 会覆盖 scp 热修内容，二者只留一套。
 6. admin 后台无 name_en 字段（见 §6）。
 
 ---
@@ -321,7 +324,7 @@ tail -c 25 data/points.json | od -c
 
 1. **nginx**：`js|css|html|json` 必须 `Cache-Control: no-cache`（宝塔默认给 js/css 12h 强缓存，已改；配置备份 `/www/server/panel/vhost/nginx/*.conf.bak*`）。
 2. **Service Worker**（`sw.js`）：同源请求用 `fetch(req, { cache: 'no-cache' })` 强制回源校验（tn-v30 起）——否则 `data/*.json` 会被浏览器旧的启发式保质期顶住，SW 拿到的是陈旧副本，页面怎么刷都不变。
-3. **版本号**：`sw.js` 的 `VERSION` 每发布一次 +1（激活时清旧缓存）；HTML 里引用带内容变化的资源加查询串（如 `map-D2GUsbT3.js?v=35`）作兜底。
+3. **版本号**：`sw.js` 的 `VERSION` 每发布一次 +1（当前 tn-v38；激活时清旧缓存）；HTML 里引用带内容变化的资源加查询串（当前 `map-D2GUsbT3.js?v=43`）作兜底。
 
 ## 13. tn-v28 新功能速查
 
