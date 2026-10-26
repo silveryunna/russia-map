@@ -189,7 +189,8 @@ switch ($a) {
     out(['items' => $rows->fetchAll(PDO::FETCH_ASSOC)]);
   }
   case 'photo': {
-    session_ok($db, bearer());
+    // 仅管理员可取投稿照片（friend 页承诺"仅管理员可见"；id 自增可被任意登录用户遍历）
+    session_ok($db, bearer(), true);
     $id = (int)($_GET['id'] ?? 0);
     $r = $db->prepare('SELECT file,type FROM submissions WHERE id=?');
     $r->execute([$id]);

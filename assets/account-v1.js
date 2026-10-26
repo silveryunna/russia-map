@@ -73,7 +73,8 @@ async function renderMain() {
       fetch('./data/points.json').then(r => r.json()),
     ]);
   } catch (e) {
-    $app.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}<br><button class="pl-btn" onclick="location.reload()">重试</button></div>`;
+    $app.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}<br><button class="pl-btn" id="ad-retry">重试</button></div>`;
+    document.getElementById('ad-retry').onclick = () => location.reload();
     return;
   }
   renderTabs();

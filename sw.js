@@ -4,7 +4,7 @@
 //
 // 【更新发布流程】每次部署新版本时，把下面的 VERSION 改一个新值（如 tn-v2、tn-v3…），
 // 用户打开页面时会自动检测并刷新到新版本。
-const VERSION = 'tn-v39';
+const VERSION = 'tn-v40';
 const SHELL_CACHE = 'tn-shell-' + VERSION;
 const RUNTIME_CACHE = 'tn-runtime-' + VERSION;
 
@@ -63,8 +63,10 @@ self.addEventListener('fetch', (event) => {
     event.respondWith((async () => {
       try {
         const res = await fetch(req, { cache: 'no-cache' });
-        const cache = await caches.open(SHELL_CACHE);
-        cache.put(req.url, res.clone());
+        if (res.ok) {
+          const cache = await caches.open(SHELL_CACHE);
+          cache.put(req.url, res.clone());
+        }
         return res;
       } catch (e) {
         return (await caches.match(req)) ||
@@ -77,16 +79,19 @@ self.addEventListener('fetch', (event) => {
   }
 
   // 同源资源：网络优先（强制回源校验，避免数据 JSON 被浏览器旧缓存顶住），离线回退缓存
+  // API 响应（含鉴权数据/投稿照片）永不落缓存，防共享设备上登出后仍可脱机读取
   if (new URL(url).origin === self.location.origin) {
+    const isApi = new URL(url).pathname.startsWith('/api/');
     event.respondWith((async () => {
       try {
         const res = await fetch(req, { cache: 'no-cache' });
-        if (res.ok) {
+        if (res.ok && !isApi) {
           const cache = await caches.open(SHELL_CACHE);
           cache.put(req, res.clone());
         }
         return res;
       } catch (e) {
+        if (isApi) return Response.error();
         return (await caches.match(req)) ||
           (await caches.match(req, { ignoreSearch: true })) ||
           Response.error();

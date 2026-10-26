@@ -74,7 +74,8 @@ async function renderMain() {
       api('my', undefined, 'GET').catch(() => ({ items: [] })),
     ]);
   } catch (e) {
-    $app.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}<br><button class="pl-btn" onclick="location.reload()">重试</button></div>`;
+    $app.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}<br><button class="pl-btn" id="fr-retry">重试</button></div>`;
+    document.getElementById('fr-retry').onclick = () => location.reload();
     return;
   }
   myItems = myItems.items || [];
