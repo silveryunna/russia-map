@@ -12,6 +12,7 @@
 - **动线数据**：`data/routes.json`（**28 条动线**）
 - **评分快照**：`data/ratings.json`（92 点位多来源评分，携程问道 API 构建期抓取 + 大众点评人工采集，规则见 check-data.mjs）
 - **部署**：GitHub Pages（`silveryunna.github.io/russia-map`）+ 腾讯云服务器（`124.221.104.242`，**scp 直传为主**，cron 自动 pull 已失效；双节点流程见 HANDOFF.md 第四节）
+- **部署密钥**：两台电脑两把 key 并存于服务器 `authorized_keys`——①原机 `~/.ssh/julyyunna_ed25519`（控制台绑定名 julyyunna / lhkp-dx1mnoy4）；②2026-10-26 新增本机 `~/.ssh/julyyunna_thispc_ed25519`，指纹 `SHA256:MzwpKhOa7IVVHC/E/SdRXYY5fo8wW7fj6gfg3HquJDQ`（注释 thispc-2026-10）。轮换/吊销时按指纹区分，勿解绑错 key
 - **源码**：本仓库仅含构建产物；源码在另一处维护。改数据直接编辑 `data/*.json`，**无需重新构建**；改 UI 逻辑需改 `assets/*.js` 构建产物（会被下次构建覆盖，需同步改源码）
 
 ### 页面结构
