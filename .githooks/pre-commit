@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+# pre-commit：数据校验 + 冲突标记检查（双机并发防护之二）
+# 安装（每台机器一次）：git config core.hooksPath .githooks
+set -e
+cd "$(git rev-parse --show-toplevel)"
+if git diff --cached --name-only | grep -q '^data/'; then
+  node tools/check-data.mjs ./data
+fi
+if git diff --cached --name-only | grep -qE '\.(json|md|mjs)$'; then
+  # 只扫数据/文档类文件（钩子自身含模式字符串，排除自匹配）
+  if git diff --cached -- '*.json' '*.md' '*.mjs' | grep -qE '^\+.*(<<<<<<<|>>>>>>>)'; then
+    echo "❌ 存在冲突标记（<<<<<<<），禁止提交" >&2
+    exit 1
+  fi
+fi

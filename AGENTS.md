@@ -28,6 +28,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 - 密钥绝不写进仓库/聊天记录；权威备份在 NAS 密钥归档包
 - 服务器 `/tools/` 已被 nginx 封禁（404），属安全策略，勿解除
 - 两台电脑都会打开本仓库：同一时刻只一个会话改数据，改完 commit+部署再换边
+- 部署/提交前必跑：`node tools/deploy-check.mjs data/`（防未提交覆盖、防落后远端）；每台机器一次 `git config core.hooksPath .githooks` 启用提交前校验
 
 ## 数据结构速查
 

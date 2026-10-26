@@ -120,9 +120,19 @@ switch ($a) {
   }
   case 'submit': {
     $s = session_ok($db, bearer());
+    // 日配额（2026-10 审计项）：防认证用户无限投稿耗尽磁盘
+    $today = strtotime('today');
+    $q = $db->prepare('SELECT COUNT(*) FROM submissions WHERE username=? AND created>=?');
+    $q->execute([$s['who'], $today]);
+    if ($q->fetchColumn() >= 50) out(['error' => '今日投稿已达上限（50 条），明天再来'], 429);
     $b = body();
     $type = (string)($b['type'] ?? '');
     if (!in_array($type, ['photo', 'note', 'checkin'], true)) out(['error' => '类型非法'], 400);
+    if ($type === 'photo') {
+      $qp = $db->prepare('SELECT COUNT(*) FROM submissions WHERE username=? AND created>=? AND type="photo"');
+      $qp->execute([$s['who'], $today]);
+      if ($qp->fetchColumn() >= 20) out(['error' => '今日照片投稿已达上限（20 张），明天再来'], 429);
+    }
     // 幂等：同一 idem 已提交过则直接返回原记录，不重复入库
     $idem = preg_replace('/[^\w-]/', '', (string)($b['idem'] ?? ''));
     if ($idem) {
@@ -134,6 +144,10 @@ switch ($a) {
     $title = mb_substr((string)($b['title'] ?? ''), 0, 120);
     $text = mb_substr((string)($b['body'] ?? ''), 0, 5000);
     if (unsafe_html($title) || unsafe_html($text)) out(['error' => '内容含不允许的脚本代码'], 400);
+    // 存储侧转义全部尖括号（2026-10 审计项）：markdown 语法不受影响，任何 HTML 注入在源头失活；
+    // 选择源头转义而非给压缩产物加 DOMPurify——三份 bundle 手术风险大于收益
+    $title = str_replace(['<', '>'], ['&lt;', '&gt;'], $title);
+    $text = str_replace(['<', '>'], ['&lt;', '&gt;'], $text);
     $point = preg_replace('/[^p\d]/', '', (string)($b['pointId'] ?? ''));
     $file = null;
     if ($type === 'photo') {

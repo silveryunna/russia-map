@@ -45,7 +45,7 @@ for (const [i, p] of points.entries()) {
     }
   }
   // 扩展展示字段（可选，均字符串；rating=大众点评分/携程星级，url=官网）
-  for (const f of ['hours', 'ticket', 'mustOrder', 'rating', 'url']) {
+  for (const f of ['hours', 'ticket', 'mustOrder', 'rating', 'url', 'name_en']) {
     if (p[f] !== undefined && typeof p[f] !== 'string') {
       err(`${where} ${f} 必须是字符串`);
     }
@@ -92,15 +92,27 @@ ok(`点位 ${points.length} 个（待核 ${pend}），id/name 无重复`);
   ok(`离群坐标检查完成（${outliers} 个警告，仅提示不阻断）`);
 }
 
-// --- 动线引用 ---
+// --- 动线 ---
 let badRefs = 0;
-for (const r of routes) {
+for (const [i, r] of routes.entries()) {
+  const rwhere = `routes[${i}]（${r?.name ?? '?'}）`;
   if (!r.id || !r.name) err(`动线缺少 id/name：${JSON.stringify(r).slice(0, 60)}`);
-  for (const s of r.steps || []) {
+  if (!r.city) err(`${rwhere} 缺少 city`);
+  if (r.steps !== undefined && !Array.isArray(r.steps)) err(`${rwhere} steps 必须是数组`);
+  for (const s of (Array.isArray(r.steps) ? r.steps : [])) {
     if (s.point && !names.has(s.point)) { err(`动线「${r.name}」引用了不存在的点位「${s.point}」`); badRefs++; }
   }
 }
 if (!badRefs) ok(`动线 ${routes.length} 条，步骤引用全部有效`);
+
+// --- 中国点位来源门（防 GCJ 手工坐标再次入库：datum 级偏移离群校验拦不住，必须走校准来源）---
+{
+  const CN = new Set(['哈尔滨', '伊宁', '三亚']);
+  const bad = points.filter(p => CN.has(p.city) && typeof p.lat === 'number'
+    && p.confidence !== 75 && p.confidence !== 100);
+  for (const p of bad) err(`中国点位 ${p.id}（${p.name}）缺 confidence（75/100）：疑似未经校准的手工坐标，GCJ/84 混淆风险`);
+  if (!bad.length) ok('中国点位来源门通过（均有校准置信度）');
+}
 
 // --- 城市配色 ---
 const cities = new Set(points.map(p => p.city));
