@@ -20,6 +20,12 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 - 改打包产物后用 ESM 严格解析验证（`node --check` 对含 import 的文件不可靠）：
   `node --experimental-vm-modules -e "new (require('vm').SourceTextModule)(require('fs').readFileSync('assets/xxx.js','utf8'))"`
 
+## CI / 监控（GitHub Actions）
+
+- `check.yml`（push 触发）：check-data + 变异测试（21 变异须全捕获）+ assets ESM 严格解析 + 版本同步检查（改 assets/*.js 必须同提交改 map.html 与 sw.js）+ Playwright 冒烟（桌面/手机截图 artifact）
+- `monitor.yml`（每 6 小时）：探测双节点首页/数据/API/TLS 证书（剩 <14 天告警），故障自动开 issue、恢复自动关闭；仓库 60 天无活动 GitHub 会停定时任务，手动跑一次即可恢复
+- 探针脚本 `tools/site-monitor.mjs` 可本地直接跑（Pages 检查需网络可达 GitHub）
+
 ## 硬约束
 
 - 坐标一律 **WGS84**：腾讯/飞猪返回的 GCJ-02 必须经 `tools/recalibrate-sanya.mjs` 的 `gcj2wgs()` 转换；腾讯 Key 从环境变量 `QQ_LBS_KEY` 读

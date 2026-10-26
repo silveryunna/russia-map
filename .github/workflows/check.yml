@@ -1,5 +1,5 @@
-# 推送即校验：点位/动线数据完整性（防止脏数据上线）
-name: data-check
+# 推送即质量门禁：数据完整性 + 校验器变异测试 + 打包产物 ESM 解析 + 版本同步 + 页面冒烟
+name: quality-gate
 on: [push]
 
 jobs:
@@ -7,8 +7,64 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # 版本同步检查需要比对推送区间
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      # 部署仓库根目录的 data/ 即线上数据（dist 原样拷贝）
-      - run: node tools/check-data.mjs ./data
+
+      # 1) 点位/动线数据完整性（部署仓库根目录的 data/ 即线上数据）
+      - name: 数据校验
+        run: node tools/check-data.mjs ./data
+
+      # 2) 校验器本身不能退化：21 个变异必须全部捕获
+      - name: 变异测试
+        run: |
+          node tools/mutation-test.mjs . mut-report.tsv | tee mut.log
+          if grep -q '❌' mut.log; then echo '校验器漏检变异'; exit 1; fi
+
+      # 3) 打包产物必须能通过严格 ESM 解析（node --check 不可靠，白屏事故防线）
+      - name: ESM 严格解析
+        run: node --experimental-vm-modules tools/check-esm.mjs
+
+      # 4) 改了 assets/*.js 必须同提交同步 map.html ?v= 与 sw.js VERSION
+      - name: 版本同步检查
+        env:
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$BEFORE" = "0000000000000000000000000000000000000000" ]; then
+            echo '新分支首个推送，跳过'; exit 0
+          fi
+          changed=$(git diff --name-only "$BEFORE" "$GITHUB_SHA")
+          if echo "$changed" | grep -q '^assets/.*\.js$'; then
+            echo "$changed" | grep -q '^map\.html$' && echo "$changed" | grep -q '^sw\.js$' || {
+              echo "❌ 改了 assets/*.js 但未同步 map.html 的 ?v= 和 sw.js 的 VERSION"; echo "$changed"; exit 1; }
+          fi
+          echo '✅ 版本同步检查通过'
+
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: 安装 Playwright（仓库外）
+        run: |
+          mkdir -p /tmp/smoke && cd /tmp/smoke
+          npm init -y >/dev/null 2>&1
+          npm i playwright@1.49.1 --no-fund --no-audit
+          npx playwright install --with-deps chromium
+      - name: 启动静态服务并冒烟
+        env:
+          SMOKE_DEPS: /tmp/smoke
+        run: |
+          python3 -m http.server 8080 >/dev/null 2>&1 &
+          sleep 2
+          node tools/smoke-test.mjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: smoke-screenshots
+          path: smoke-*.png
+          retention-days: 14
