@@ -65,6 +65,37 @@ function renderLogin() {
   };
 }
 
+/* ---------- 我的 AI 接入（自定义 endpoint，随账号存服务器，key 不回显） ---------- */
+async function renderAISettings(body) {
+  body.innerHTML = `<div class="pl-empty">加载中…</div>`;
+  let cfg = { endpoint: '', model: '', has_key: false };
+  try { cfg = await api('ai_settings', undefined, 'GET'); } catch (e) { body.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}</div>`; return; }
+  body.innerHTML = `
+    <div class="card fr-form">
+      <h3 style="margin:0">🤖 我的 AI 接入</h3>
+      <label>Endpoint（https）<input id="fa-endpoint" value="${esc(cfg.endpoint || '')}" placeholder="留空 = 使用站内通道"></label>
+      <label>模型名（可选）<input id="fa-model" value="${esc(cfg.model || '')}" placeholder="deepseek-v4-pro ..."></label>
+      <label>API Key <input id="fa-key" type="password" autocomplete="off" placeholder="${cfg.has_key ? '已保存（留空保持不变）' : 'sk-...'}"></label>
+      <button class="pl-btn primary big" id="fa-save">保存</button>
+      <button class="pl-btn small danger" id="fa-clear">清除（回到站内通道）</button>
+      <div class="fr-note">配置后，日程计划页的 AI 生成将走你自己的接口（OpenAI 兼容格式），不占用本站次数；密钥随账号保存在服务器，任何接口都不会回显明文。</div>
+    </div>`;
+  document.getElementById('fa-save').onclick = async () => {
+    try {
+      await api('ai_settings', {
+        endpoint: document.getElementById('fa-endpoint').value.trim(),
+        model: document.getElementById('fa-model').value.trim(),
+        key: document.getElementById('fa-key').value,
+      });
+      toast('已保存 ✓'); renderAISettings(body);
+    } catch (e) { toast('失败：' + e.message); }
+  };
+  document.getElementById('fa-clear').onclick = async () => {
+    try { await api('ai_settings', { endpoint: '' }); toast('已清除'); renderAISettings(body); }
+    catch (e) { toast('失败：' + e.message); }
+  };
+}
+
 /* ---------- 主界面 ---------- */
 async function renderMain() {
   $app.innerHTML = `<div class="pl-empty">加载中…</div>`;
@@ -88,7 +119,7 @@ function renderTabs() {
       <button class="pl-btn small" id="fr-out">退出</button>
     </div>
     <div class="fr-tabs">
-      ${[['photo', '📷 传照片'], ['note', '📝 写笔记'], ['checkin', '📍 打卡'], ['mine', `我的投稿 (${myItems.length})`]].map(([k, n]) =>
+      ${[['photo', '📷 传照片'], ['note', '📝 写笔记'], ['checkin', '📍 打卡'], ['mine', `我的投稿 (${myItems.length})`], ['ai', '🤖 AI 接入']].map(([k, n]) =>
         `<button class="fr-tab ${tab === k ? 'on' : ''}" data-tab="${k}">${n}</button>`).join('')}
     </div>
     <div id="fr-body"></div>`;
@@ -98,6 +129,7 @@ function renderTabs() {
   if (tab === 'photo') renderPhoto(body);
   else if (tab === 'note') renderNote(body);
   else if (tab === 'checkin') renderCheckin(body);
+  else if (tab === 'ai') renderAISettings(body);
   else renderMine(body);
 }
 

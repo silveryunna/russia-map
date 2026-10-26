@@ -76,6 +76,43 @@ async function get(action, token) {
   const bad2 = await post('submit', { type: 'note', title: '注入2', body: '正常文本 <img src=x onerror=alert(1)>' }, friend);
   ok('含 onerror= 被拒', bad2.status === 400, `status=${bad2.status}`);
 
+  /* ---------- AI 日程生成端点（零费用用例：不调真实 LLM） ---------- */
+  r = await post('plan', { params: { city: '莫斯科', days: 1 } });
+  ok('plan 无 token 401', r.status === 401, `status=${r.status}`);
+  r = await post('plan', { params: { days: 1 } }, friend);
+  ok('plan 缺 city 400', r.status === 400, `status=${r.status} ${r.j.error || ''}`);
+
+  // ai_settings 读写往返 + key 不回明文
+  r = await post('ai_settings', { endpoint: 'https://example.com/v1/chat/completions', model: 'test-model', key: 'sk-smoke-test' }, friend);
+  ok('ai_settings 保存自定义接入', r.status === 200 && r.j.ok, r.j.error || '');
+  r = await get('ai_settings', friend);
+  ok('ai_settings 读回 endpoint', r.j.endpoint === 'https://example.com/v1/chat/completions' && r.j.has_key === true, JSON.stringify(r.j));
+  ok('ai_settings 不回 key 明文', !('api_key' in r.j) && !JSON.stringify(r.j).includes('sk-smoke-test'));
+  r = await post('ai_settings', { endpoint: '' }, friend);
+  r = await get('ai_settings', friend);
+  ok('ai_settings 清除自定义接入', r.j.endpoint === '' && r.j.has_key === false, JSON.stringify(r.j));
+
+  // SSRF 拦截：http 协议 + 内网地址
+  r = await post('ai_settings', { endpoint: 'http://127.0.0.1:7000/x' }, friend);
+  ok('SSRF http+回环被拒', r.status === 400, `status=${r.status} ${r.j.error || ''}`);
+  r = await post('ai_settings', { endpoint: 'https://192.168.1.5/' }, friend);
+  ok('SSRF 内网 IP 被拒', r.status === 400, `status=${r.status} ${r.j.error || ''}`);
+
+  // ai_policy：朋友只读 + 无完整策略字段；admin 可写（写回原值，幂等）
+  r = await get('ai_policy', friend);
+  ok('朋友读 ai_policy', r.status === 200 && Array.isArray(r.j.models) && !('policy' in r.j), JSON.stringify(r.j).slice(0, 120));
+  r = await post('ai_policy', { friend_quota: 99 }, friend);
+  ok('朋友写 ai_policy 被拒', r.status === 401, `status=${r.status}`);
+  const before = (await get('ai_policy', admin)).j.policy || {};
+  r = await post('ai_policy', { friend_quota: before.friend_quota ?? 3, admin_quota: before.admin_quota ?? 30, custom_quota: before.custom_quota ?? 20, month_token_cap: before.month_token_cap ?? 2000000, site_enabled: before.site_enabled ?? 1, models_friend: before.models_friend || ['deepseek-v4-pro'], models_admin: before.models_admin || ['deepseek-v4-pro'] }, admin);
+  ok('admin 写 ai_policy（原值回写）', r.status === 200 && r.j.ok, r.j.error || '');
+
+  // ai_usage：admin 可见台账，朋友被拒
+  r = await get('ai_usage', admin);
+  ok('admin 读 ai_usage', r.status === 200 && Array.isArray(r.j.items), `status=${r.status}`);
+  r = await get('ai_usage', friend);
+  ok('朋友读 ai_usage 被拒', r.status !== 200, `status=${r.status}`);
+
   // 清理：拒绝幂等测试留下的投稿
   await post('reject', { id: p1.j.id }, admin);
 

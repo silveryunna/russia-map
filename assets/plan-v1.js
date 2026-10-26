@@ -1,7 +1,8 @@
-// 日程计划 v1：规则引擎离线生成 + PlannerAI 接口预留
-// AI 配置：页面内"AI 设置"填写 endpoint/key/model（存 localStorage planner-ai-config）
-// 自定义接口协议：POST {endpoint, headers:{Authorization:Bearer key}, body:{params:{city,date,days,interests}, context:{points,routes}}}
-// 期望返回：{plan:{name,days:[{day,slots:{morning:[{name,type}],afternoon:[],evening:[]},tip}]}}
+// 日程计划 v2：规则引擎离线生成 + TokenHub AI（站内通道，api/index.php?a=plan 代理）
+// 默认走站内接口，Bearer 用本站登录 token（friend-token / admin-token）；Key 只在服务器侧
+// 高级设置可会话级覆盖 endpoint/key（不落盘）；长期自定义接入在 friend.html「我的 AI 接入」保存
+// 协议：POST {endpoint, headers:{Authorization:Bearer key}, body:{model?, params:{city,date,days,interests}, context:{points,routes}}}
+// 期望返回：{plan:{name,days:[{day,slots:{morning:[],afternoon:[],evening:[]},tip}]}, remaining?, model?}
 import './base-BJw1lW7I.js';
 
 const $app = document.getElementById('plan-app');
@@ -107,25 +108,57 @@ function mkDay(n, slots, tip) {
   return { day: n, slots, tip };
 }
 
-/* ---------- PlannerAI（接口预留） ---------- */
+/* ---------- PlannerAI（站内通道 + 会话级自定义覆盖） ---------- */
+const siteToken = () => localStorage.getItem('friend-token') || localStorage.getItem('admin-token') || '';
+let aiSession = {};  // 高级设置：仅本次会话生效，不落盘（密钥不进 localStorage）
+let aiInfo = null;   // ?a=ai_policy：配额 / 可选模型 / 是否有个人接入
+let aiModel = '';    // 当前选中的模型
+let generating = false;
+// 旧版 localStorage AI 配置迁移为会话级（密钥不再落盘）
+try {
+  const old = JSON.parse(localStorage.getItem(LS_AI) || 'null');
+  if (old && (old.endpoint || old.key || old.model)) {
+    aiSession = old;
+    localStorage.removeItem(LS_AI);
+    setTimeout(() => toast('旧版 AI 配置已改为本次会话有效；长期接入请在朋友页「我的 AI 接入」保存'), 800);
+  }
+} catch { /* 忽略损坏的旧配置 */ }
+async function loadAiInfo() {
+  if (!siteToken()) { aiInfo = null; return; }
+  try {
+    const r = await fetch('./api/index.php?a=ai_policy', { headers: { Authorization: `Bearer ${siteToken()}` } });
+    const j = await r.json().catch(() => ({}));
+    aiInfo = r.ok && !j.error ? j : null;
+    if (aiInfo && Array.isArray(aiInfo.models) && aiInfo.models.length && !aiInfo.models.includes(aiModel)) aiModel = aiInfo.models[0];
+  } catch { aiInfo = null; }
+}
 const PlannerAI = {
-  get config() { try { return JSON.parse(localStorage.getItem(LS_AI) || '{}'); } catch { return {}; } },
-  set config(v) { localStorage.setItem(LS_AI, JSON.stringify(v)); },
-  get ready() { return !!this.config.endpoint; },
+  get ready() { return !!siteToken() || !!aiSession.endpoint; },
   async generate(params, context) {
-    const c = this.config;
-    const resp = await fetch(c.endpoint, {
+    const endpoint = aiSession.endpoint || './api/index.php?a=plan';
+    const key = aiSession.key || siteToken();
+    const body = { params, context };
+    const m = aiSession.model || aiModel;
+    if (m) body.model = m;
+    const resp = await fetch(endpoint, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(c.key ? { Authorization: `Bearer ${c.key}` } : {}) },
-      body: JSON.stringify({ model: c.model || undefined, params, context }),
+      headers: { 'Content-Type': 'application/json', ...(key ? { Authorization: `Bearer ${key}` } : {}) },
+      body: JSON.stringify(body),
     });
-    if (!resp.ok) throw new Error('AI 接口 ' + resp.status);
-    const data = await resp.json();
+    const data = await resp.json().catch(() => ({}));
+    if (!resp.ok) throw new Error(data.error || 'AI 接口 ' + resp.status);
     const plan = data.plan || data;
     if (!plan || !Array.isArray(plan.days)) throw new Error('AI 返回格式不符');
+    if (typeof data.remaining === 'number' && aiInfo) aiInfo.remaining_today = data.remaining;
     return { ...plan, id: 'p' + Date.now().toString(36), city: params.city, date: params.date, source: 'ai', createdAt: Date.now() };
   },
 };
+function aiBtnLabel() {
+  if (aiSession.endpoint) return '✨ AI 生成（自定义接口）';
+  if (!siteToken()) return '✨ AI 生成（需登录）';
+  if (aiInfo && !aiInfo.has_custom && !aiInfo.site_enabled) return '✨ AI 生成（站内通道停用）';
+  return '✨ AI 生成';
+}
 
 /* ---------- 视图 ---------- */
 function toast(msg) {
@@ -162,7 +195,7 @@ function renderList() {
         </div>
       </div>`).join('')
       : `<div class="pl-empty">还没有计划<br><span>点右上角"新建计划"生成第一份行程草案</span></div>`}
-    <div class="pl-foot">规则引擎离线可用 · AI 生成需在"新建计划"里配置接口</div>`;
+    <div class="pl-foot">规则引擎离线可用 · AI 生成需登录账号（朋友页 / 管理页）</div>`;
   document.getElementById('pl-new').onclick = () => { view.mode = 'create'; view.form = { city: meta.cities[0] || '', date: '', days: 3, interests: [] }; render(); };
 }
 
@@ -180,22 +213,30 @@ function renderCreate() {
       <div class="pl-chips">${Object.keys(INTERESTS).map(k => `<button class="chip ${f.interests.includes(k) ? 'on' : ''}" data-int="${k}">${k}</button>`).join('')}</div>
       <div class="pl-gen">
         <button class="pl-btn primary big" id="pl-gen-rule">⚙️ 规则引擎生成（离线）</button>
-        <button class="pl-btn big" id="pl-gen-ai">✨ AI 生成${PlannerAI.ready ? '' : '（未配置）'}</button>
+        <button class="pl-btn big" id="pl-gen-ai">${aiBtnLabel()}</button>
       </div>
-      <button class="pl-ai-toggle" id="pl-ai-cfg">AI 接口设置${PlannerAI.ready ? '（已配置 ✓）' : ''}</button>
+      ${aiInfo ? `<div class="pl-label">${aiInfo.has_custom ? '已接入你自己的 AI（不占用本站次数）' : `今日剩余 ${aiInfo.remaining_today}/${aiInfo.quota} 次`}</div>` : ''}
+      ${aiInfo && !aiInfo.has_custom && aiInfo.models && aiInfo.models.length ? `
+      <label>AI 模型
+        <select id="pl-model">${aiInfo.models.map(m => `<option ${m === aiModel ? 'selected' : ''}>${esc(m)}</option>`).join('')}</select>
+      </label>` : ''}
+      <button class="pl-ai-toggle" id="pl-ai-cfg">高级：自定义接口${aiSession.endpoint ? '（本次会话已启用 ✓）' : ''}</button>
       ${view.showAI ? `
       <div class="pl-ai-box">
-        <label>Endpoint（你的模型接口地址）<input id="ai-endpoint" placeholder="https://api.example.com/v1/chat" value="${esc(PlannerAI.config.endpoint || '')}"></label>
-        <label>API Key（可选）<input id="ai-key" type="password" placeholder="sk-..." value="${esc(PlannerAI.config.key || '')}"></label>
-        <label>模型名（可选）<input id="ai-model" placeholder="gpt-4o-mini / qwen..." value="${esc(PlannerAI.config.model || '')}"></label>
-        <div class="pl-ai-note">请求协议：POST {endpoint}，body={params, context}，返回 {plan:{days:[...]}}。密钥仅存在本机浏览器。</div>
-        <button class="pl-btn small" id="ai-save">保存配置</button>
+        <label>Endpoint（https）<input id="ai-endpoint" placeholder="https://api.example.com/v1/chat/completions" value="${esc(aiSession.endpoint || '')}"></label>
+        <label>API Key（可选）<input id="ai-key" type="password" placeholder="sk-..." value="${esc(aiSession.key || '')}"></label>
+        <label>模型名（可选）<input id="ai-model" placeholder="deepseek-v4-pro ..." value="${esc(aiSession.model || '')}"></label>
+        <div class="pl-ai-note">仅本次会话有效，密钥不再存入浏览器。长期接入请到 <a href="./friend.html">朋友页</a> 登录后在「我的 AI 接入」保存（随账号存放于服务器）。</div>
+        <button class="pl-btn small" id="ai-save">本次会话生效</button>
+        <button class="pl-btn small" id="ai-clear">清除覆盖</button>
       </div>` : ''}
     </div>`;
   document.getElementById('pl-back').onclick = () => { view.mode = 'list'; render(); };
   document.getElementById('pl-city').onchange = e => f.city = e.target.value;
   document.getElementById('pl-date').onchange = e => f.date = e.target.value;
   document.getElementById('pl-days').onchange = e => f.days = Math.max(1, Math.min(14, +e.target.value || 3));
+  const modelSel = document.getElementById('pl-model');
+  if (modelSel) modelSel.onchange = e => aiModel = e.target.value;
   $app.querySelectorAll('[data-int]').forEach(b => b.onclick = () => {
     const k = b.dataset.int;
     f.interests = f.interests.includes(k) ? f.interests.filter(x => x !== k) : [...f.interests, k];
@@ -204,9 +245,11 @@ function renderCreate() {
   document.getElementById('pl-ai-cfg').onclick = () => { view.showAI = !view.showAI; render(); };
   const saveAI = document.getElementById('ai-save');
   if (saveAI) saveAI.onclick = () => {
-    PlannerAI.config = { endpoint: document.getElementById('ai-endpoint').value.trim(), key: document.getElementById('ai-key').value.trim(), model: document.getElementById('ai-model').value.trim() };
-    toast('AI 配置已保存'); render();
+    aiSession = { endpoint: document.getElementById('ai-endpoint').value.trim(), key: document.getElementById('ai-key').value.trim(), model: document.getElementById('ai-model').value.trim() };
+    toast(aiSession.endpoint ? '自定义接口已启用（本次会话）' : '已保存'); render();
   };
+  const clearAI = document.getElementById('ai-clear');
+  if (clearAI) clearAI.onclick = () => { aiSession = {}; toast('已清除自定义覆盖'); render(); };
   document.getElementById('pl-gen-rule').onclick = () => doGenerate('rule');
   document.getElementById('pl-gen-ai').onclick = () => doGenerate('ai');
 }
@@ -214,17 +257,31 @@ function renderCreate() {
 async function doGenerate(src) {
   const f = view.form;
   if (!f.city) return toast('请选择目的地');
-  toast(src === 'ai' && !PlannerAI.ready ? '未配置 AI 接口，已用规则引擎' : '生成中…');
+  if (generating) return;
+  if (src === 'ai' && !PlannerAI.ready) {
+    toast('未登录，已用规则引擎离线生成（登录后可用 AI）');
+    src = 'rule';
+  }
+  generating = true;
+  const btn = document.getElementById('pl-gen-ai');
+  if (btn && src === 'ai') { btn.disabled = true; btn.textContent = '✨ 生成中（约 30-60 秒）…'; }
+  toast('生成中…');
   try {
-    const plan = src === 'ai' && PlannerAI.ready
-      ? await PlannerAI.generate(f, { points: cache.pts, routes: cache.rts })
+    const plan = src === 'ai'
+      ? await PlannerAI.generate(f, {
+          points: cache.pts.filter(p => p.city === f.city),
+          routes: cache.rts.filter(r => r.city === f.city),
+        })
       : ruleEngine(f);
     plans.unshift(plan);
     localStorage.setItem(LS_PLANS, JSON.stringify(plans));
     view.mode = 'detail'; view.planId = plan.id;
+    generating = false;
     render();
     toast('计划已生成 ✓');
+    if (plan.note) setTimeout(() => toast(plan.note), 600);
   } catch (err) {
+    generating = false;
     toast('AI 生成失败：' + err.message + '，已回退规则引擎');
     const plan = ruleEngine(f);
     plans.unshift(plan);
@@ -246,6 +303,7 @@ function renderDetail() {
       <button class="pl-btn" id="pl-back">← 返回</button>
     </div>
     <div class="pl-meta" style="margin:0 0 12px">${esc(p.city)} · ${esc(p.date || '日期待定')} · ${p.days.length} 天 · 来源：${p.source === 'ai' ? 'AI' : '规则引擎'}</div>
+    ${p.note ? `<div class="pl-tip" style="margin-bottom:12px">⚠️ ${esc(p.note)}</div>` : ''}
     ${p.days.map(d => `
       <div class="pl-day card" style="border-left:4px solid ${col}">
         <div class="pl-day-head">Day ${d.day} <span>${d.slots.morning.length + d.slots.afternoon.length + d.slots.evening.length} 个点位</span></div>
@@ -306,6 +364,7 @@ $app.addEventListener('click', e => {
     fetch('./data/points.json').then(r => r.json()),
     fetch('./data/routes.json').then(r => r.json()),
     fetch('./data/meta.json').then(r => r.json()),
+    loadAiInfo(),
   ]);
   cache.pts = pts; cache.rts = rts; points = pts; routes = rts; meta = mt;
   render();

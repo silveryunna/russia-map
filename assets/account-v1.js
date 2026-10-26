@@ -88,11 +88,12 @@ function renderTabs() {
     <div class="fr-tabs">
       <button class="fr-tab ${tab === 'pending' ? 'on' : ''}" data-tab="pending">待审核 (${pending.length})</button>
       <button class="fr-tab ${tab === 'accounts' ? 'on' : ''}" data-tab="accounts">账号 (${accounts.length})</button>
+      <button class="fr-tab ${tab === 'ai' ? 'on' : ''}" data-tab="ai">AI 设置</button>
     </div>
     <div id="ad-body"></div>`;
   document.getElementById('ad-out').onclick = async () => { try { await api('logout', {}, 'POST'); } catch {} localStorage.removeItem(LS); token = ''; renderLogin(); };
   $app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; renderTabs(); });
-  tab === 'pending' ? renderPending() : renderAccounts();
+  tab === 'pending' ? renderPending() : tab === 'accounts' ? renderAccounts() : renderAI();
 }
 
 async function renderPending() {
@@ -182,6 +183,95 @@ function renderAccounts() {
       toast('已删除');
     } catch (e) { toast('失败：' + e.message); }
   });
+}
+
+/* ---------- AI 设置（策略 + 用量台账 + 我的自定义接入） ---------- */
+async function renderAI() {
+  const body = document.getElementById('ad-body');
+  body.innerHTML = `<div class="pl-empty">加载中…</div>`;
+  let pol, usage, mine;
+  try {
+    [pol, usage, mine] = await Promise.all([
+      api('ai_policy', undefined, 'GET'),
+      api('ai_usage', undefined, 'GET'),
+      api('ai_settings', undefined, 'GET'),
+    ]);
+  } catch (e) { body.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}</div>`; return; }
+  const P = pol.policy || {};
+  body.innerHTML = `
+    <div class="card ad-new">
+      <div class="ad-sec-title">每日生成次数上限</div>
+      <div class="ad-new-row">
+        <label style="flex:1">朋友 <input id="aiq-friend" type="number" min="0" max="100" value="${P.friend_quota ?? 3}"></label>
+        <label style="flex:1">管理员 <input id="aiq-admin" type="number" min="0" max="100" value="${P.admin_quota ?? 30}"></label>
+        <label style="flex:1">自定义接入 <input id="aiq-custom" type="number" min="0" max="100" value="${P.custom_quota ?? 20}"></label>
+      </div>
+    </div>
+    <div class="card ad-new">
+      <div class="ad-sec-title">可切换模型范围（逗号分隔的模型 ID）</div>
+      <label>朋友可用 <input id="aim-friend" value="${esc((P.models_friend || []).join(','))}"></label>
+      <label style="margin-top:8px">管理员可用 <input id="aim-admin" value="${esc((P.models_admin || []).join(','))}"></label>
+      <div class="fr-note">模型 ID 见腾讯云 TokenHub 控制台；朋友端只能在其范围内切换</div>
+    </div>
+    <div class="card ad-new">
+      <div class="ad-sec-title">成本控制</div>
+      <div class="ad-new-row">
+        <label style="flex:1">月 token 熔断 <input id="aiq-cap" type="number" min="0" max="50000000" value="${P.month_token_cap ?? 2000000}"></label>
+        <label style="flex:1">站内通道 <select id="aiq-enabled"><option value="1" ${P.site_enabled ? 'selected' : ''}>开启</option><option value="0" ${!P.site_enabled ? 'selected' : ''}>停用</option></select></label>
+      </div>
+      <div class="fr-note">本月站内通道已消耗 ${(usage.month_site_tokens || 0).toLocaleString()} tokens</div>
+      <button class="pl-btn primary" id="aiq-save" style="margin-top:10px">保存 AI 设置</button>
+    </div>
+    <div class="card ad-new">
+      <div class="ad-sec-title">我的 AI 接入（配置后我生成计划走自己的接口，不占站内次数）</div>
+      <label>Endpoint（https）<input id="aie-endpoint" value="${esc(mine.endpoint || '')}" placeholder="留空 = 使用站内通道"></label>
+      <label style="margin-top:8px">模型名（可选）<input id="aie-model" value="${esc(mine.model || '')}" placeholder="deepseek-v4-pro ..."></label>
+      <label style="margin-top:8px">API Key <input id="aie-key" type="password" placeholder="${mine.has_key ? '已保存（留空保持不变）' : 'sk-...'}"></label>
+      <div style="margin-top:10px;display:flex;gap:10px">
+        <button class="pl-btn primary" id="aie-save">保存我的接入</button>
+        <button class="pl-btn small danger" id="aie-clear">清除（回到站内通道）</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ad-sec-title">近 30 天调用台账</div>
+      ${usage.items && usage.items.length ? usage.items.map(it => `
+        <div class="fr-ckrow">
+          <span>${esc(it.d)} · <b>${esc(it.username)}</b> <span class="ad-who">${it.channel === 'custom' ? '自定义' : '站内'}</span></span>
+          <span class="ad-subcnt">${it.calls} 次 · ${((+it.pt || 0) + (+it.ct || 0)).toLocaleString()} tok</span>
+        </div>`).join('') : '<div class="fr-note">还没有 AI 调用记录</div>'}
+    </div>`;
+  document.getElementById('aiq-save').onclick = async () => {
+    const csv = id => document.getElementById(id).value.split(',').map(s => s.trim()).filter(Boolean);
+    try {
+      await api('ai_policy', {
+        friend_quota: +document.getElementById('aiq-friend').value,
+        admin_quota: +document.getElementById('aiq-admin').value,
+        custom_quota: +document.getElementById('aiq-custom').value,
+        month_token_cap: +document.getElementById('aiq-cap').value,
+        site_enabled: document.getElementById('aiq-enabled').value === '1',
+        models_friend: csv('aim-friend'),
+        models_admin: csv('aim-admin'),
+      });
+      toast('AI 设置已保存 ✓');
+      renderAI();
+    } catch (e) { toast('失败：' + e.message); }
+  };
+  document.getElementById('aie-save').onclick = async () => {
+    try {
+      await api('ai_settings', {
+        endpoint: document.getElementById('aie-endpoint').value.trim(),
+        model: document.getElementById('aie-model').value.trim(),
+        key: document.getElementById('aie-key').value,
+      });
+      toast('我的 AI 接入已保存 ✓');
+      renderAI();
+    } catch (e) { toast('失败：' + e.message); }
+  };
+  document.getElementById('aie-clear').onclick = async () => {
+    if (!confirm('清除自定义接入，回到站内通道？')) return;
+    try { await api('ai_settings', { endpoint: '' }); toast('已清除'); renderAI(); }
+    catch (e) { toast('失败：' + e.message); }
+  };
 }
 
 (async () => {
