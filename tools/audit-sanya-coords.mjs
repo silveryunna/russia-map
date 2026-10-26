@@ -18,7 +18,7 @@ for(const id of IDS){
   const region=/文昌|陵水|万宁|琼海|海口/.exec(p.name)?.[0]||p.city;
   const u=`https://apis.map.qq.com/ws/place/v1/suggestion?keyword=${encodeURIComponent(core)}&region=${encodeURIComponent(region)}&page_size=5&key=${KEY}`;
   let rows=[];
-  try{const r=await fetch(u,{headers:{Referer:'https://map.qq.com/'},signal:AbortSignal.timeout(15000)});const j=await r.json();rows=j.data||[];}catch(e){console.log(id,p.name,'查询失败');continue;}
+  try{const r=await fetch(u,{headers:{Referer: 'https://julyyunna.art/'},signal:AbortSignal.timeout(15000)});const j=await r.json();rows=j.data||[];}catch(e){console.log(id,p.name,'查询失败');continue;}
   await sleep(250);
   if(!rows.length){console.log(id,p.name,'→ 腾讯无结果');continue;}
   // 对每个候选转WGS后算距离，取最近

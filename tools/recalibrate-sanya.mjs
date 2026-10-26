@@ -37,7 +37,7 @@ function similarity(kw, title) {
 
 async function search(kw, region) {
   const u = `https://apis.map.qq.com/ws/place/v1/suggestion?keyword=${encodeURIComponent(kw)}&region=${encodeURIComponent(region)}&page_size=10&key=${KEY}`;
-  const r = await fetch(u, { headers: { Referer: 'https://map.qq.com/' }, signal: AbortSignal.timeout(15000) });
+  const r = await fetch(u, { headers: { Referer: 'https://julyyunna.art/' }, signal: AbortSignal.timeout(15000) });
   const j = await r.json();
   return j.data || [];
 }

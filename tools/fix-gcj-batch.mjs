@@ -42,7 +42,7 @@ const byId = Object.fromEntries(data.map(p => [p.id, p]));
 
 async function qq(name, city) {
   const u = `https://apis.map.qq.com/ws/place/v1/suggestion?keyword=${encodeURIComponent(name)}&region=${encodeURIComponent(city)}&page_size=5&key=${KEY}`;
-  const r = await fetch(u, { headers: { Referer: 'https://map.qq.com/' }, signal: AbortSignal.timeout(15000) });
+  const r = await fetch(u, { headers: { Referer: 'https://julyyunna.art/' }, signal: AbortSignal.timeout(15000) });
   const j = await r.json();
   return (j.data || []).map(x => ({ t: x.title, loc: [x.location.lat, x.location.lng] }));
 }

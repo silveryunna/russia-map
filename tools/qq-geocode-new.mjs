@@ -34,7 +34,7 @@ const out = {};
 for (const [k, region, kw] of LIST) {
   const u = `https://apis.map.qq.com/ws/place/v1/suggestion?keyword=${encodeURIComponent(kw)}&region=${encodeURIComponent(region)}&page_size=6&key=${KEY}`;
   try {
-    const r = await fetch(u, { headers: { Referer: 'https://map.qq.com/' }, signal: AbortSignal.timeout(15000) });
+    const r = await fetch(u, { headers: { Referer: 'https://julyyunna.art/' }, signal: AbortSignal.timeout(15000) });
     const j = await r.json();
     out[k] = (j.data || []).map(x => ({ t: x.title, a: x.address, cat: x.category, lat: x.location.lat, lng: x.location.lng }));
   } catch (e) { out[k] = { err: e.message }; }
