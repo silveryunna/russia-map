@@ -82,8 +82,14 @@ if (existsSync(MANUAL)) {
     let n = 0, nx = 0;
     for (const [id, m] of Object.entries(man)) {
       if (!m) continue;
+      // 先判断这条人工数据是否真的有内容：score<=0 且无小红书口碑的条目是空占位
+      // （如 p570 的 {score:0,count:0,url:""}）。若仍为它建壳，会留下 ratings:[] 的空条目，
+      // 被 check-data 判为「缺少 ratings 数组」。空占位直接跳过，不建条目。
+      const hasScore = m.score > 0;
+      const hasXhs = !!(m.xhs && ['好', '一般', '避雷'].includes(m.xhs.verdict));
+      if (!hasScore && !hasXhs) continue;
       const rec = state.items[id] || (state.items[id] = { ratings: [] });
-      if (m.score > 0) {
+      if (hasScore) {
         const entry = { src: '大众点评', score: +Number(m.score).toFixed(1), count: Number(m.count) || 0, url: String(m.url || `https://www.dianping.com/search/keyword/0/0_${encodeURIComponent(m.name || '')}`), checked: m.checked || 'manual' };
         rec.ratings = rec.ratings.filter(r => r.src !== '大众点评');
         rec.ratings.push(entry);
