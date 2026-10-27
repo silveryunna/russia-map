@@ -17,14 +17,15 @@ async function probe(name, viewport, shot) {
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
   page.on('console', m => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   await page.goto(`${BASE}/map.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  // 手动轮询而非 waitForFunction：首次加载 SW 注册后页面可能自动刷新，
+  // waitForFunction 会因执行上下文销毁直接抛错（桌面首探必现的测试 bug，非产品 bug）
   let stats = '';
-  try {
-    await page.waitForFunction(
-      () => /\d+\s*点位/.test(document.getElementById('sb-stats')?.textContent || ''),
-      { timeout: 45000 }
-    );
-    stats = await page.textContent('#sb-stats');
-  } catch { /* stats 未出现即白屏类故障 */ }
+  const t0 = Date.now();
+  while (Date.now() - t0 < 45000) {
+    stats = await page.textContent('#sb-stats').catch(() => '');
+    if (/\d+\s*点位/.test(stats || '')) break;
+    await page.waitForTimeout(500);
+  }
   ok(`${name} 点位统计渲染`, /\d+\s*点位/.test(stats), stats.trim());
   const markers = await page.locator('.leaflet-marker-icon').count();
   ok(`${name} 地图标记渲染`, markers > 0, `${markers} 个`);
