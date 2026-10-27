@@ -350,3 +350,20 @@ tail -c 25 data/points.json | od -c
 ---
 
 *维护者：如遇数据问题，先跑 §8 校验命令定位，再对照 §7 踩坑记录排查。*
+
+## 14. 前端源码现状与找回决策（2026-10-28 审计结论）
+
+**事实**：本仓库只有 Vite 构建产物，无 `package.json` / `vite.config.*` / `src/` / sourcemap。
+已排查位置均无源码：本机工作区、GitHub 全部历史、NAS（`/volume1/dev/projects` 与 `/volume1/dev/repos` 镜像同为产物）。
+唯一未排查点：另一台电脑的 `D:\KIMI\MAP`（移交目录，见 AGENTS.md 顶部）。
+
+**决策**：
+1. 另一台电脑可用后**第一件事**检查 `D:\KIMI\MAP` 是否有 `src/`+`vite.config.*`——有则整体取回入库（源码仓与部署仓合并，产物加 .gitignore），这是成本最低的正解。
+2. 若确认丢失：不做一次性反压缩重建（84 个文件回归风险大），改为**增量源码化**——
+   `plan-v1.js / account-v1.js / friend-v1.js / ai-models-v1.js / notes-v2.js / checkin-v2.js` 本来就是可读手写源，
+   只有 `map-/main-/list-/admin-/album-/base-` 等 6 个 Vite 压缩包是"手术区"；需要结构性改某个页面时，
+   才把那个 bundle 反压缩为 `src/` 模块并建立该页的独立构建。
+3. 在此之前继续现行规则：压缩产物手术 + ESM 严格解析 + CI 版本同步门禁（已扩展到全部页面）。
+
+**已知产物级债务**（源码找回后一并处理，勿在压缩包上修）：打卡逻辑三份副本（checkin-v2 正版 + map/list 各内联一份）、
+HTML 转义函数 7 份、境内城市列表重复 4 处、约 20 个 `window.__xxx__` 隐式跨页契约。
