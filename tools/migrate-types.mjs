@@ -1,21 +1,9 @@
 // type 受控词表迁移：447 个自由文本 type → 受控分类
 // 用法: node tools/migrate-types.mjs --dry   （只看映射，不改文件）
 //       node tools/migrate-types.mjs --apply （写回 data/points.json）
-// 词表与 check-data.mjs 的 TYPE_VOCAB 必须保持一致（改一边同步另一边）
+// 词表单一来源：tools/type-vocab.mjs（check-data.mjs import 同一份，改词表只改那里）
 import { readFileSync, writeFileSync } from 'node:fs';
-
-export const TYPE_VOCAB = [
-  // 交通（与 check-data TRANS 集合保持一致）
-  '地铁站', '火车站', '机场', '交通枢纽', '水上巴士',
-  // 文化
-  '博物馆', '宗教场所', '宫殿庄园', '建筑', '纪念地', '图书馆书店',
-  // 城市考古主题
-  '科技遗迹', '工业遗产', '城市记忆',
-  // 自然休闲
-  '公园自然', '海滩', '街区', '观景',
-  // 生活
-  '演出', '餐饮', '购物', '酒店住宿', '地标', '其他',
-];
+import { TYPE_VOCAB } from './type-vocab.mjs';
 
 // 关键词规则，按优先级从上到下匹配（命中即停）
 const RULES = [
@@ -67,6 +55,14 @@ Object.entries(byCat).sort((a, b) => b[1] - a[1]).forEach(([c, n]) => console.lo
 console.log('\n=== 归入「其他」的点位（需人工过目） ===');
 for (const p of pts) if (mapType(p.type, p.name) === '其他') console.log(' ', p.type, '→', p.name);
 console.log(`\n总点位 ${pts.length}，将改写 ${changes.length} 个 type`);
+
+// 归类结果必须全部落在受控词表内：RULES 若写出越界值，check-data 会对全量点位报错
+const unknown = Object.keys(byCat).filter((c) => !TYPE_VOCAB.includes(c));
+if (unknown.length) {
+  console.error('❌ 归类结果不在受控词表：' + unknown.join('、'));
+  process.exit(1);
+}
+console.log('✅ 归类结果全部在受控词表内');
 
 if (process.argv.includes('--apply')) {
   for (const p of pts) p.type = mapType(p.type, p.name);
