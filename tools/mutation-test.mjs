@@ -1,6 +1,7 @@
 // 校验器变异测试：对 data/ 施加单点变异，检测 check-data.mjs 能否捕获
 // 用法: node mutation-test.mjs <repo根> <输出.tsv>
-import { readFileSync, writeFileSync, cpSync, rmSync, mkdirSync } from 'node:fs';
+import { readFileSync, writeFileSync, rmSync, mkdirSync, readdirSync, statSync, copyFileSync } from 'node:fs';
+import { join } from 'node:path';
 import { execFileSync } from 'node:child_process';
 import { resolve, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,6 +14,15 @@ const TMP = resolve(dirname(fileURLToPath(import.meta.url)), '__mutdata__');
 // 可复现随机（mulberry32）
 let seed = 20261026;
 const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0, seed / 2 ** 32);
+
+// 手写递归拷贝替代 fs.cpSync：Windows + Node 22 下 cpSync 递归有段错误报告（exit 139）
+const cpDir = (src, dst) => {
+  mkdirSync(dst, { recursive: true });
+  for (const name of readdirSync(src)) {
+    const s = join(src, name), d = join(dst, name);
+    statSync(s).isDirectory() ? cpDir(s, d) : copyFileSync(s, d);
+  }
+};
 
 const M = []; // {name, apply(obj)}
 const load = () => JSON.parse(JSON.stringify(JSON.parse(readFileSync(resolve(SRC,'points.json'),'utf8'))));
@@ -51,7 +61,7 @@ const results = [];
 for (const m of M) {
   rmSync(TMP, {recursive:true, force:true});
   mkdirSync(TMP);
-  cpSync(SRC, TMP, {recursive:true});
+  cpDir(SRC, TMP);
   let pts = load(), rts = loadR(), rt = loadRt();
   const ret = m.apply(pts, rts, rt);
   if (ret !== undefined) pts = ret;
