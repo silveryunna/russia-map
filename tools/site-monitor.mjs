@@ -39,6 +39,8 @@ await probeHttp('腾讯云 点位数据', 'https://julyyunna.art/data/points.jso
 await probeHttp('腾讯云 API 存活', 'https://julyyunna.art/api/index.php?a=my', r => r.status >= 400 && r.status < 500);
 await probeHttp('Pages 首页', 'https://silveryunna.github.io/russia-map/', r => r.status === 200);
 await probeHttp('Pages 点位数据', 'https://silveryunna.github.io/russia-map/data/points.json', checkPoints);
+// NAS（DSM 经 VPS frp 隧道）：登录页 200 即链路活着；502/504/超时 = 隧道或 NAS 挂了
+await probeHttp('NAS DSM', 'https://nas.julyyunna.art/', r => r.status === 200);
 
 // TLS 证书剩余天数（Let's Encrypt 90 天，<14 天视为告警——自动续签可能已失效）
 await new Promise((resolve) => {
