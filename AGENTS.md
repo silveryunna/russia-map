@@ -33,7 +33,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 ## 硬约束
 
 - 坐标一律 **WGS84**：腾讯/飞猪返回的 GCJ-02 必须经 `tools/recalibrate-sanya.mjs` 的 `gcj2wgs()` 转换；腾讯 Key 从环境变量 `QQ_LBS_KEY` 读
-- 底图只用 OSM 系（高德无俄罗斯数据）；遮罩边界只改 `tools/build_boundary.py` 生成，勿手改 JSON
+- 底图：境外用 OSM 系（高德无俄罗斯数据）；中国用天地图（WGS，走同源 `/tdt/` 反代）或 OSM。**高德/腾讯瓦片属 GCJ-02，前端未做坐标转换，切过去点位会整体偏移 500–700m**——看到点位「画到海里」先查底图，别改数据（详见 `MAINTENANCE.md` §7.9）；遮罩边界只改 `tools/build_boundary.py` 生成，勿手改 JSON
 - 打卡数据只写 localStorage（`travel-checkin-v2`）
 - 密钥绝不写进仓库/聊天记录；权威备份在 NAS 密钥归档包
 - 服务器 `/tools/` 已被 nginx 封禁（404），属安全策略，勿解除
