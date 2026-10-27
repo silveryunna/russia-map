@@ -306,6 +306,40 @@ wgs2gcj 转换并触发全量重绘。在压缩产物上做这手术风险高，
 例：p539「椰林伯伯」被匹配到迎宾路的另一家分店（1392m），但同一批搜索结果里
 p553 琼爷清补凉的地址写着「椰林伯伯百年糟粕醋旁边」——反证它就在原位置。
 
+### 7.10 /tdt/ 反代 403：不要把浏览器 UA 转发给天地图（2026-10-28）
+
+**现象**：切到天地图底图，瓦片全白，Network 里 `/tdt/DataServer` 全部 403。
+
+**根因**：nginx `proxy_pass` **默认转发客户端请求头**，浏览器 UA（`Mozilla/5.0 ... Chrome/...`）
+一路传到天地图，其 WAF 判定为异常访问并拒绝。对照组实测（同一 URL、仅换 UA）：
+
+| 测试 | 结果 |
+|---|---|
+| 源站·UA 清空 / `curl/8.5.0` / 仅带 Referer | 200 ✓ |
+| 源站·`Mozilla/5.0`（哪怕只写简写） | **403** ✗ |
+| 反代·浏览器 UA + Referer | **403** ← 浏览器实际场景 |
+| 反代·curl UA + Referer | 200 ✓ |
+| 反代·无 Referer | 403（防盗链，属预期） |
+
+**修法**：`/www/server/panel/vhost/nginx/julyyunna.art.conf` 的 `/tdt/` 块内补一行
+
+```nginx
+proxy_set_header User-Agent "";      # 清空 UA，天地图 WAF 才放行
+```
+
+改完 `nginx -t && nginx -s reload`。配置备份：`julyyunna.art.conf.bak.tdtfix.20261028-025147`。
+
+**注意两层机制互相独立，别混为一谈**：
+1. `valid_referers server_names` + `if ($invalid_referer) return 403` —— 本站防盗链，
+   目的是防外站盗刷配额，**无 Referer 请求一律 403，这是对的**
+2. 源站 WAF 的 UA 拦截 —— 才是本次 403 的真凶
+
+**排查法**：`curl -A` 切换 UA 做对照，能立刻区分是防盗链还是源站 WAF。
+浏览器端则看 Network 里 `/tdt/` 的状态码：403 且带 Referer → 多半是 UA 问题。
+
+**残留风险**：天地图侧是按 IP 的，若瓦片请求量突增仍可能触发其 WAF（返回 418/403）。
+届时先确认不是我们自己的 UA 问题，再考虑加缓存层。
+
 ---
 
 ## 8. 常用校验命令（Git Bash）
