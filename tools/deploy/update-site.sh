@@ -27,6 +27,11 @@ log() { echo "[$(date '+%F %T')] $*"; }
 
 cd "$WEBROOT" || { log "❌ cd $WEBROOT 失败"; exit 1; }
 
+# 本脚本以 root 运行，而 webroot 属主是 www —— git 会触发 dubious ownership 保护拒绝执行，
+# 表现为「不是 git 工作区」而 silent 停摆。每次运行都确保该目录在白名单里。
+git config --global --get-all safe.directory 2>/dev/null | grep -qx "$WEBROOT" \
+  || git config --global --add safe.directory "$WEBROOT" 2>/dev/null
+
 PREV=$(git rev-parse HEAD 2>/dev/null)
 [ -n "$PREV" ] || { log "❌ $WEBROOT 不是 git 工作区"; exit 1; }
 
@@ -43,7 +48,7 @@ if [ -f "$MARK" ] && [ "$(cat "$MARK" 2>/dev/null)" = "$TARGET" ]; then
 fi
 
 git reset --hard "$TARGET" >/dev/null 2>&1 || { log "❌ reset --hard $TARGET 失败"; exit 1; }
-chown -R www:www "$WEBROOT" 2>/dev/null   # nginx 运行用户，reset 新建的文件默认是 root
+find "$WEBROOT" -mindepth 1 -maxdepth 1 ! -name '.git' -exec chown -R www:www {} + 2>/dev/null   # nginx 用户 www；须排除 .git，否则 root 运行的 git 触发 dubious ownership 拒绝执行
 
 check_url() {
   curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$1" 2>/dev/null || echo 000
@@ -54,7 +59,7 @@ for u in "${CHECKS[@]}"; do
   [ "$code" = "200" ] || { sleep 2; code=$(check_url "$SITE/$u"); }   # 抖动重试一次
   if [ "$code" != "200" ]; then
     git reset --hard "$PREV" >/dev/null 2>&1
-    chown -R www:www "$WEBROOT" 2>/dev/null
+    find "$WEBROOT" -mindepth 1 -maxdepth 1 ! -name '.git' -exec chown -R www:www {} + 2>/dev/null
     echo "$TARGET" > "$MARK"
     log "❌ 自检失败：$u 返回 $code → 已回滚至 $PREV；该版本暂停同步（rm -f $MARK 恢复）"
     exit 1
