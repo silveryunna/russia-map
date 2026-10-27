@@ -278,7 +278,13 @@ tail -c 25 data/points.json | od -c
 2. **~10 个非地铁点位的 name_en 是街道级地址**（如阿尔巴特等），非精确 POI 名，但可在 Yandex 定位；后续可按 §4.2 方法优化。
 3. **p104 主题列车**的英文名是蹲守站名（Ploshchad Alexandra Nevskogo），非列车本身，属合理取舍。
 4. **老动线 m-d2** 有一个无 point 的纯说明步骤（渲染自动跳过），系历史遗留，非 bug。
-5. **server 同步（2026-10 勘误）**：cron 自动 `git pull` 已失效，线上更新靠 **scp 直传**（`scp -i ~/.ssh/julyyunna_ed25519 … root@124.221.104.242:/www/wwwroot/julyyunna.art/…` 后 `chown www:www`）。若未来修复 cron，注意 pull 会覆盖 scp 热修内容，二者只留一套。
+5. **server 同步（2026-10-28 二次勘误，推翻 2026-10 的说法）**：cron **并未失效，一直在跑**
+   ——`/var/spool/cron/root` 第 3 行 `*/2 * * * * /root/update-russia-map.sh >> /var/log/update-russia-map.log 2>&1`，
+   脚本内容是 `cd /www/wwwroot/julyyunna.art && git fetch origin main && git reset --hard origin/main`。
+   **结论：push 到 main 即部署，≤2 分钟生效**；反之 scp 或手改线上文件会在 2 分钟内被覆盖（实测：scp 传上去后
+   下一轮 reset 就把文件还原成旧版本，md5 可验证）。详细部署纪律见 AGENTS.md「部署」节。
+   ⚠️ 附带影响：`git reset --hard` 会丢弃服务器上已跟踪文件的任何未提交改动（未跟踪文件不会被删），
+   所以不要再在服务器上改数据指望它生效。
 6. admin 后台无 name_en 字段（见 §6）。
 
 ---
@@ -367,3 +373,56 @@ tail -c 25 data/points.json | od -c
 
 **已知产物级债务**（源码找回后一并处理，勿在压缩包上修）：打卡逻辑三份副本（checkin-v2 正版 + map/list 各内联一份）、
 HTML 转义函数 7 份、境内城市列表重复 4 处、约 20 个 `window.__xxx__` 隐式跨页契约。
+
+---
+
+## 15. 天地图 Key：浏览器端 → 服务端（2026-10-28 改造）
+
+**背景**：旧方案把浏览器端 Key 放在 `assets/tdt-key.js`（虽然 gitignore，但**线上可直接下载**），
+且实测任意 Referer 都能取到瓦片 → 任何人可白嫖配额。故改为服务端 Key 由 nginx 注入。
+
+**改造后链路**：浏览器请求 `/tdt/DataServer?T=vec_w&x={x}&y={y}&l={z}`（**不带 tk**）
+→ nginx `/tdt/` 段重建查询串、追加服务端 `tk=` → 回代 `https://t0.tianditu.gov.cn`。
+
+**服务器侧（唯一改动点）**：`/www/server/panel/vhost/nginx/julyyunna.art.conf` 的 `location ^~ /tdt/`，
+
+```nginx
+location ^~ /tdt/ {
+    # Key 为【服务端】类型，只存在于本配置（root 600），不下发浏览器
+    valid_referers server_names;          # 防盗链：裸 curl / 外站引用一律 403
+    if ($invalid_referer) { return 403; }
+    # 重建查询串：丢弃客户端带来的任何 tk，只保留必要参数 + 服务端 Key
+    rewrite ^/tdt/(.*)$ /$1?T=$arg_T&x=$arg_x&y=$arg_y&l=$arg_l&tk=<服务端Key> break;
+    proxy_pass https://t0.tianditu.gov.cn;
+    proxy_set_header Host t0.tianditu.gov.cn;
+    proxy_ssl_server_name on;
+    proxy_set_header Referer "";
+    proxy_connect_timeout 5s;
+    proxy_read_timeout 15s;
+}
+```
+
+**前端侧**：`map-D2GUsbT3.js` 两条瓦片 URL 去掉 `&tk=${window.__TDT_KEY__}` 并删掉
+`window.__TDT_KEY__=window.__TDT_KEY__||''` 兜底；`map.html` 移除 `<script src="./assets/tdt-key.js">`；
+`sw.js` VERSION → `tn-v46`，`map.html ?v=50`。服务器上旧的 `assets/tdt-key.js` 已删除（否则旧 Key 仍可下载）。
+
+**验证四件事**（改完必跑，前 3 条决定了是否真锁住了）：
+
+```bash
+U='https://julyyunna.art/tdt/DataServer?T=vec_w&x=26&y=12&l=5'
+curl -o /dev/null -w '%{http_code} %{content_type}\n' -e https://julyyunna.art/map.html "$U"  # 期望 200 image/png
+curl -o /dev/null -w '%{http_code}\n' "$U"                                                    # 期望 403（无 Referer）
+curl -o /dev/null -w '%{http_code}\n' -e https://evil.example.com/ "$U"                       # 期望 403（外站）
+grep -c '__TDT_KEY__' assets/map-D2GUsbT3.js                                                   # 期望 0
+```
+
+**轮换 Key**：只改上述 nginx 配置的 `tk=`，`nginx -t` 后 `nginx -s reload`，前端无需改动、不用重新构建。
+
+**回滚**：`cp /www/server/panel/vhost/nginx/julyyunna.art.conf.bak.<时间戳> <原名>` + `nginx -s reload`，
+同时把前端改回浏览器端方案（见 `assets/tdt-key.example.js` 顶部说明）。本轮备份后缀见服务器同目录。
+
+**遗留提醒**：
+1. 天地图控制台建议给该服务端 Key 配 **IP 白名单**（服务器公网 IP），双重保险。
+2. `valid_referers` 依赖浏览器发送 Referer；若将来发现**独立 PWA（standalone）取不到瓦片**，
+   多半是它没发 Referer，届时把规则放宽为 `valid_referers none server_names;`（代价：裸 curl 可盗刷）。
+3. 全站 CSP 的 `img-src` 已移除 `https://*.tianditu.gov.cn`（瓦片走同源，不再需要该域）。

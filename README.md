@@ -52,7 +52,8 @@ node tools/deploy-check.mjs data/          # 提交/部署前防覆盖检查
 
 - 坐标一律 WGS84；国内图商 GCJ-02 必须转换
 - 改 `assets/*.js` 必须同提交 bump `map.html ?v=` 与 `sw.js VERSION`（CI 强制）
-- 密钥绝不入库（天地图 Key 用 `assets/tdt-key.example.js` 模板生成本地 `tdt-key.js`）
+- 密钥绝不入库：天地图 Key 为服务端类型，只写在服务器 nginx 的 `/www/server/panel/vhost/nginx/julyyunna.art.conf`（`/tdt/` 段），由 nginx 追加到上游请求；前端代码里不允许出现任何 Key 明文
+- 注意：本地 `python -m http.server` 预览**看不到天地图底图**（`/tdt/` 是服务器上的 nginx 反代，本地没有），这是预期行为，不是 bug
 - 打开 PR / 提交前跑一遍 `node tools/mutation-test.mjs`（CI 也会跑）
 
 ## 文档地图

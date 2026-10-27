@@ -14,9 +14,12 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 
 ## 部署（单主站，2026-10-26 起）
 
-- 腾讯云（唯一线上节点，scp 直传）：`scp -i ~/.ssh/julyyunna_ed25519 <file> root@124.221.104.242:/www/wwwroot/julyyunna.art/<path>`，传后 `chown www:www`
-- GitHub：只作 git 备份 + CI/监控载体，**Pages 备节点已放弃维护**（push 仍会触发 Pages 自动构建，但坏了不用修）
-- `assets/tdt-key.js`（天地图 Key 运行时注入）**不入 git**，部署/换机时须单独 scp 上传；模板见 `assets/tdt-key.example.js`，轮换只改服务器上这个文件
+- 腾讯云（唯一线上节点）：webroot 是 git 工作区，root crontab 每 2 分钟跑 `/root/update-russia-map.sh`（`git fetch` + `git reset --hard origin/main`）→ **push 到 main 即自动上线，≤2 分钟生效**（2026-10-28 实测 reflog：00:44/46/48/50… 每 2 分钟一次 reset）
+- ⚠️ 因此**不要再用 scp 热修**：手改 webroot 里的文件会在 2 分钟内被 reset 覆盖，已跟踪文件的未提交改动同样会丢（未跟踪文件不会被删）。确需临时改线上文件，先 `crontab -e` 注释掉那一行，改完再恢复
+- GitHub：既是 git 备份 + CI/监控载体，也是**实际部署源**；Pages 备节点已放弃维护（push 仍会触发 Pages 自动构建，但坏了不用修）
+- 每次部署后必验：`git rev-parse HEAD` 与服务端 `cd /www/wwwroot/julyyunna.art && git rev-parse HEAD` 一致（≤2 分钟会追平）
+- 天地图 Key 已改为**服务端类型（2026-10-28 起）**：Key 只存在于服务器 nginx 配置 `/www/server/panel/vhost/nginx/julyyunna.art.conf` 的 `location ^~ /tdt/` 段（root 600），由 nginx 追加 `tk=` 后回代上游；**前端不再持有、也不再下发任何 Key**（`map.html` 已移除 tdt-key.js 引入，map 产物里已无 `__TDT_KEY__` 字样）。轮换 Key 只改服务器配置，`nginx -t` 后 `nginx -s reload`，无需动前端
+- Key 轮换/commit 前确认：仓库任何文件中不得出现 tk 明文（含历史再引入）；`.gitignore` 仍保留 `assets/tdt-key.js` 以防误传
 - 改 `assets/*.js` 必须同步：`map.html` 的 `?v=` +1、`sw.js` 的 `VERSION` +1
 - 改打包产物后用 ESM 严格解析验证（`node --check` 对含 import 的文件不可靠）：
   `node --experimental-vm-modules -e "new (require('vm').SourceTextModule)(require('fs').readFileSync('assets/xxx.js','utf8'))"`
