@@ -1,14 +1,22 @@
 {
   "name": "牛马打工人的旅行笔记",
   "short_name": "旅行笔记",
-  "description": "个人旅行笔记 · 相册 · 打卡清单 · 地图（俄罗斯篇）",
+  "description": "个人旅行笔记 · 相册 · 打卡清单 · 互动地图",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#FAFAF7",
   "theme_color": "#B71C1C",
   "icons": [
-    { "src": "./icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "./icon-512.png", "sizes": "512x512", "type": "image/png" }
+    {
+      "src": "./icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "./icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
   ]
 }
