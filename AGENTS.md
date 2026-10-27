@@ -12,10 +12,10 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 2. `git add -A && git commit`
 3. 部署（见下）
 
-## 部署双节点
+## 部署（单主站，2026-10-26 起）
 
-- 腾讯云（主，scp 直传）：`scp -i ~/.ssh/julyyunna_ed25519 <file> root@124.221.104.242:/www/wwwroot/julyyunna.art/<path>`，传后 `chown www:www`
-- GitHub Pages（备）：`git push origin main`（需代理 127.0.0.1:7897，Token 在 Windows 凭据管理器）
+- 腾讯云（唯一线上节点，scp 直传）：`scp -i ~/.ssh/julyyunna_ed25519 <file> root@124.221.104.242:/www/wwwroot/julyyunna.art/<path>`，传后 `chown www:www`
+- GitHub：只作 git 备份 + CI/监控载体，**Pages 备节点已放弃维护**（push 仍会触发 Pages 自动构建，但坏了不用修）
 - 改 `assets/*.js` 必须同步：`map.html` 的 `?v=` +1、`sw.js` 的 `VERSION` +1
 - 改打包产物后用 ESM 严格解析验证（`node --check` 对含 import 的文件不可靠）：
   `node --experimental-vm-modules -e "new (require('vm').SourceTextModule)(require('fs').readFileSync('assets/xxx.js','utf8'))"`
@@ -23,7 +23,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 ## CI / 监控（GitHub Actions）
 
 - `check.yml`（push 触发）：check-data + 变异测试（21 变异须全捕获）+ assets ESM 严格解析 + 版本同步检查（改 assets/*.js 必须同提交改 map.html 与 sw.js）+ Playwright 冒烟（桌面/手机截图 artifact）
-- `monitor.yml`（每 6 小时）：探测双节点首页/数据/API/TLS 证书（剩 <14 天告警），故障自动开 issue、恢复自动关闭；仓库 60 天无活动 GitHub 会停定时任务，手动跑一次即可恢复
+- `monitor.yml`（每 6 小时）：探测腾讯云主站/API/NAS/TLS 证书（剩 <14 天告警），故障自动开 issue、恢复自动关闭；仓库 60 天无活动 GitHub 会停定时任务，手动跑一次即可恢复
 - 探针脚本 `tools/site-monitor.mjs` 可本地直接跑（Pages 检查需网络可达 GitHub）
 
 ## 硬约束

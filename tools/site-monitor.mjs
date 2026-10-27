@@ -37,8 +37,7 @@ await probeHttp('腾讯云 地图页', 'https://julyyunna.art/map.html', r => r.
 await probeHttp('腾讯云 点位数据', 'https://julyyunna.art/data/points.json', checkPoints);
 // API 无 ping 端点：未授权访问应返回 4xx（证明 PHP/SQLite 链路活着），5xx/超时才算故障
 await probeHttp('腾讯云 API 存活', 'https://julyyunna.art/api/index.php?a=my', r => r.status >= 400 && r.status < 500);
-await probeHttp('Pages 首页', 'https://silveryunna.github.io/russia-map/', r => r.status === 200);
-await probeHttp('Pages 点位数据', 'https://silveryunna.github.io/russia-map/data/points.json', checkPoints);
+// Pages 备节点已放弃维护（2026-10-26 站长决议），不再探测
 // NAS（DSM 经 VPS frp 隧道）：登录页 200 即链路活着；502/504/超时 = 隧道或 NAS 挂了
 await probeHttp('NAS DSM', 'https://nas.julyyunna.art/', r => r.status === 200);
 
