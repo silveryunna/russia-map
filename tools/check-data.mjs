@@ -18,6 +18,15 @@ const meta = read('meta.json');
 // --- 点位 ---
 if (!Array.isArray(points) || !points.length) err('points.json 不是非空数组');
 
+// type 受控词表（2026-10-28 起强制；迁移工具见 tools/migrate-types.mjs，改词表两边同步）
+const TYPE_VOCAB = new Set([
+  '地铁站', '火车站', '机场', '交通枢纽', '水上巴士',
+  '博物馆', '宗教场所', '宫殿庄园', '建筑', '纪念地', '图书馆书店',
+  '科技遗迹', '工业遗产', '城市记忆',
+  '公园自然', '海滩', '街区', '观景',
+  '演出', '餐饮', '购物', '酒店住宿', '地标', '其他',
+]);
+
 const ids = new Map(), names = new Map();
 for (const [i, p] of points.entries()) {
   const where = `points[${i}]（${p?.name ?? '?'}）`;
@@ -29,6 +38,8 @@ for (const [i, p] of points.entries()) {
   names.set(p.name, i);
   if (!p.city) err(`${where} 缺少 city`);
   if (!p.cluster) err(`${where} 缺少 cluster`);
+  // type 受控词表（与 tools/migrate-types.mjs 的 TYPE_VOCAB 保持同步）
+  if (!TYPE_VOCAB.has(p.type)) err(`${where} type 不在受控词表：${p.type}`);
   const hasCoord = typeof p.lat === 'number' && typeof p.lon === 'number';
   if (hasCoord) {
     if (p.lat < -90 || p.lat > 90 || p.lon < -180 || p.lon > 180) err(`${where} 坐标越界 ${p.lat},${p.lon}`);

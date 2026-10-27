@@ -44,6 +44,7 @@ M.push({name:'id格式错误p12', apply(p){p[0].id='p12';}});
 M.push({name:'id非字符串', apply(p){p[0].id=123;}});
 M.push({name:'lat为字符串', apply(p){const x=first(p);x.lat='55.7';}});
 M.push({name:'tags变成字符串', apply(p){p[0].tags='免费';}});
+M.push({name:'type不在受控词表', apply(p){p[0].type='随便什么类型';}});
 M.push({name:'tags含非字符串元素', apply(p){p[0].tags=['免费',42];}});
 M.push({name:'name_en为数字', apply(p){p[0].name_en=42;}});
 M.push({name:'动线引用不存在点位', apply(p,r){r[0].steps[0].point='不存在的点位XYZ';}});
