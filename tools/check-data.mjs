@@ -78,7 +78,9 @@ ok(`点位 ${points.length} 个（待核 ${pend}），id/name 无重复`);
 }
 
 // --- 离群坐标校验（防"坐标写错城市/经纬度写反"，源自 travel-plan-viz validate.js 的思路）---
-// 按城市分组取坐标中位数，与中位点偏差 >3° 即警告（仅警告不阻断）
+// 规则（2026-10-28 修订）：同城市内找最近邻（切比雪夫距离），3° 内没有任何邻居才警告——
+// 真正的错误（写错城市/经纬度写反）一定孤立无邻；而扎尔肯特、乌鲁木齐这类合法远郊点
+// 彼此互为邻居，不再误报。「其他城市」是地理无关的杂项桶，直接跳过。
 {
   const byCity = new Map();
   for (const p of points) {
@@ -89,13 +91,16 @@ ok(`点位 ${points.length} 个（待核 ${pend}），id/name 无重复`);
   }
   let outliers = 0;
   for (const [city, ps] of byCity) {
-    if (ps.length < 5) continue; // 样本太少不做离群判断
-    const lats = ps.map(p => p.lat).sort((a, b) => a - b);
-    const lons = ps.map(p => p.lon).sort((a, b) => a - b);
-    const mlat = lats[Math.floor(lats.length / 2)], mlon = lons[Math.floor(lons.length / 2)];
+    if (city === '其他城市' || ps.length < 5) continue; // 杂项桶/样本太少不做离群判断
     for (const p of ps) {
-      if (Math.abs(p.lat - mlat) > 3 || Math.abs(p.lon - mlon) > 3) {
-        console.warn(`⚠️ 离群坐标：${p.id}（${p.name}）${p.lat},${p.lon} 偏离 ${city} 中位点 ${mlat},${mlon} 超 3°`);
+      let nearest = Infinity;
+      for (const q of ps) {
+        if (q === p) continue;
+        const d = Math.max(Math.abs(p.lat - q.lat), Math.abs(p.lon - q.lon));
+        if (d < nearest) nearest = d;
+      }
+      if (nearest > 3) {
+        console.warn(`⚠️ 离群坐标：${p.id}（${p.name}）${p.lat},${p.lon} 在 ${city} 内 3° 无邻居`);
         outliers++;
       }
     }
