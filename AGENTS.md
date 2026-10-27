@@ -1,6 +1,6 @@
 # AGENTS.md · 俄罗斯打卡地图（牛马打工人的旅行笔记）
 
-AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（踩坑记录 §7 必看）；交接背景见 `D:\KIMI\MAP\HANDOFF.md`。
+AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（踩坑记录 §7 必看）；远程开发/NAS/隧道接入见 `REMOTE-DEV.md`；交接背景见 `D:\KIMI\MAP\HANDOFF.md`。
 
 ## 项目
 
