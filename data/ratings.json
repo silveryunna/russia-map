@@ -771,6 +771,20 @@
      "page": true
     }
    ]
+  },
+  "p493": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.3,
+     "count": 167,
+     "url": "https://hotels.ctrip.com/hotels/1531379.html",
+     "poiId": "1531379",
+     "matched": "哈尔滨龙门贵宾楼酒店(火车站店)",
+     "checked": "2026-10-28",
+     "page": true
+    }
+   ]
   }
  },
  "nodata": [
@@ -1058,14 +1072,6 @@
    "llmScore": 4.6,
    "llmCount": 82,
    "checked": "2026-10-26"
-  },
-  "p493": {
-   "url": "https://hotels.ctrip.com/hotels/1531379.html",
-   "poiId": "",
-   "matched": "",
-   "reason": "unverified",
-   "llmScore": 4.4,
-   "llmCount": 146
   },
   "p596": {
    "url": "https://m.ctrip.com/webapp/you/gspoi/sight/61/0.html?poiId=75994&seo=0&isHideNavBar=YES&poiType=3",
