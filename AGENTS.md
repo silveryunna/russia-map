@@ -16,6 +16,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 
 - 腾讯云（唯一线上节点，scp 直传）：`scp -i ~/.ssh/julyyunna_ed25519 <file> root@124.221.104.242:/www/wwwroot/julyyunna.art/<path>`，传后 `chown www:www`
 - GitHub：只作 git 备份 + CI/监控载体，**Pages 备节点已放弃维护**（push 仍会触发 Pages 自动构建，但坏了不用修）
+- `assets/tdt-key.js`（天地图 Key 运行时注入）**不入 git**，部署/换机时须单独 scp 上传；模板见 `assets/tdt-key.example.js`，轮换只改服务器上这个文件
 - 改 `assets/*.js` 必须同步：`map.html` 的 `?v=` +1、`sw.js` 的 `VERSION` +1
 - 改打包产物后用 ESM 严格解析验证（`node --check` 对含 import 的文件不可靠）：
   `node --experimental-vm-modules -e "new (require('vm').SourceTextModule)(require('fs').readFileSync('assets/xxx.js','utf8'))"`
