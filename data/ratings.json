@@ -745,6 +745,19 @@
      "page": true
     }
    ]
+  },
+  "p584": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.7,
+     "count": 90053,
+     "url": "https://m.ctrip.com/webapp/hotels/detail?source_from_tag=bdai_datamining_wendao&hotelid=14249344&atime=20261015&days=1&pricemode=80%7C0",
+     "poiId": "14249344",
+     "matched": "三亚亚特兰蒂斯酒店",
+     "checked": "2026-10-28"
+    }
+   ]
   }
  },
  "nodata": [
