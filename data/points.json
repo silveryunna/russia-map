@@ -8101,7 +8101,8 @@
       "海鲜",
       "市集",
       "本地体验"
-    ]
+    ],
+    "name_en": "Yazhou Central Fishing Port"
   },
   {
     "id": "p596",
@@ -8118,7 +8119,8 @@
       "海景",
       "礁石",
       "婚纱摄影"
-    ]
+    ],
+    "name_en": "Daxiaodongtian Scenic Area"
   },
   {
     "id": "p597",
@@ -8134,7 +8136,8 @@
     "tags": [
       "市集",
       "夜宵"
-    ]
+    ],
+    "name_en": "Yiheng Night Market"
   },
   {
     "id": "p598",
@@ -8150,7 +8153,8 @@
     "tags": [
       "演出",
       "夜游"
-    ]
+    ],
+    "name_en": "Sanya Romance Park"
   },
   {
     "id": "p599",
@@ -8168,7 +8172,8 @@
       "网红打卡",
       "游艇",
       "网红机位"
-    ]
+    ],
+    "name_en": "Xiaodonghai Photo Base (Serenity Marina)"
   },
   {
     "id": "p600",
@@ -8185,7 +8190,8 @@
       "玻璃船",
       "网红打卡",
       "航拍"
-    ]
+    ],
+    "name_en": "Baifu Bay (Baifu Island)"
   },
   {
     "id": "p601",
@@ -8201,7 +8207,8 @@
     "tags": [
       "潜水",
       "玻璃海"
-    ]
+    ],
+    "name_en": "Jiajing Island (Shimei Bay)"
   },
   {
     "id": "p602",
@@ -8218,7 +8225,8 @@
       "小众",
       "海岛",
       "亲子"
-    ]
+    ],
+    "name_en": "Daidai Island (Nanwan Monkey Island)"
   },
   {
     "id": "p603",
@@ -8235,7 +8243,8 @@
       "亲子",
       "稻田",
       "备用"
-    ]
+    ],
+    "name_en": "Sanya Rice National Park"
   },
   {
     "id": "p604",
@@ -8251,7 +8260,8 @@
     "tags": [
       "市集",
       "本地烟火"
-    ]
+    ],
+    "name_en": "Linwang Night Market"
   },
   {
     "id": "p605",
@@ -8268,7 +8278,8 @@
     "lat": 18.239084,
     "lon": 109.504447,
     "confidence": 100,
-    "mustOrder": "香辣蟹、椒盐皮皮虾"
+    "mustOrder": "香辣蟹、椒盐皮皮虾",
+    "name_en": "Linjie Xiangwei Seafood (First Market)"
   },
   {
     "id": "p606",
@@ -8282,7 +8293,8 @@
       "餐厅/咖啡"
     ],
     "mustOrder": "香辣秘制和乐蟹",
-    "pending": true
+    "pending": true,
+    "name_en": "Hailuohao Seafood Restaurant"
   },
   {
     "id": "p607",
@@ -8297,7 +8309,8 @@
     ],
     "lat": 18.35937,
     "lon": 109.72656,
-    "confidence": 75
+    "confidence": 75,
+    "name_en": "Sichuan Xiaohuzi Seafood (Haitang Bay)"
   },
   {
     "id": "p608",
@@ -8312,7 +8325,8 @@
     ],
     "lat": 18.270641,
     "lon": 109.483483,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Qiongxiangge Hainan Cuisine (Sanya Bay)"
   },
   {
     "id": "p609",
@@ -8327,7 +8341,8 @@
     ],
     "lat": 18.239466,
     "lon": 109.503467,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Zheng Apo Qingbuliang (First Market)"
   },
   {
     "id": "p610",
@@ -8343,7 +8358,8 @@
     ],
     "lat": 18.24046,
     "lon": 109.505318,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Sanya Baoluofen Noodle Shop"
   },
   {
     "id": "p611",
@@ -8359,7 +8375,8 @@
     ],
     "lat": 18.223597,
     "lon": 109.50615,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Yucun Fried Chicken (Chunji)"
   },
   {
     "id": "p612",
@@ -8373,7 +8390,8 @@
       "餐厅/咖啡",
       "本地体验"
     ],
-    "pending": true
+    "pending": true,
+    "name_en": "Agong BBQ"
   },
   {
     "id": "p613",
@@ -8388,7 +8406,8 @@
     ],
     "lat": 18.238805,
     "lon": 109.5045,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Aju Cold Drinks (First Market)"
   },
   {
     "id": "p614",
@@ -8404,7 +8423,8 @@
     ],
     "lat": 18.236939,
     "lon": 109.501537,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Apo Dongshan Mutton (Laohonggang Market)"
   },
   {
     "id": "p615",
@@ -8419,7 +8439,8 @@
     ],
     "lat": 18.301489,
     "lon": 109.44354,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Dazhong Beef Bone Soup (Fenghuang Road)"
   },
   {
     "id": "p616",
@@ -8434,7 +8455,8 @@
     ],
     "lat": 18.255755,
     "lon": 109.517447,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Liguo Restaurant (Shoudi Plaza)"
   },
   {
     "id": "p617",
@@ -8450,7 +8472,8 @@
     ],
     "lat": 18.255638,
     "lon": 109.498776,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Wenma Hou-an Rice Noodles"
   },
   {
     "id": "p618",
@@ -8466,7 +8489,8 @@
     ],
     "lat": 18.209099,
     "lon": 109.504971,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Guijing Cape (Pink Broken Bridge, Xiaodonghai)"
   },
   {
     "id": "p619",
@@ -8484,7 +8508,8 @@
     ],
     "lat": 18.289048,
     "lon": 109.439937,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Sanya Haiyun Resort (Coconut Dream Corridor Lawn Spot)"
   },
   {
     "id": "p620",
@@ -8501,7 +8526,8 @@
     ],
     "lat": 18.278947,
     "lon": 109.466671,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Sanya Bay Wedding Photo Base"
   },
   {
     "id": "p621",
@@ -8517,7 +8543,8 @@
     ],
     "lat": 18.212739,
     "lon": 109.533498,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Mandarin Oriental Coral Bay Sanya (Seaside Stone Gate Spot)"
   },
   {
     "id": "p622",
@@ -8533,7 +8560,8 @@
     ],
     "lat": 18.376957,
     "lon": 110.000792,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Jianling Hill (Lingshui)"
   },
   {
     "id": "p623",
@@ -8549,7 +8577,8 @@
     ],
     "lat": 18.680462,
     "lon": 110.319624,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Qiaohai Ranch (Wanning)"
   },
   {
     "id": "p624",
@@ -8563,7 +8592,8 @@
       "拍照",
       "餐厅/咖啡"
     ],
-    "pending": true
+    "pending": true,
+    "name_en": "Shanhai Langren (Wanning)"
   },
   {
     "id": "p625",
@@ -8579,7 +8609,8 @@
     ],
     "lat": 19.04698,
     "lon": 110.561552,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Shanqin Bay Swallow Cave (Wanning)"
   },
   {
     "id": "p626",
@@ -8596,7 +8627,8 @@
     ],
     "lat": 20.154907,
     "lon": 110.686586,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Mulan Bay (Wenchang)"
   },
   {
     "id": "p627",
@@ -8612,7 +8644,8 @@
     ],
     "lat": 19.640006,
     "lon": 111.032012,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Stone Park (Wenchang)"
   },
   {
     "id": "p628",
@@ -8628,7 +8661,8 @@
     ],
     "lat": 19.277373,
     "lon": 110.639497,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Mengcaiyuan Milk Sea (Qionghai)"
   },
   {
     "id": "p629",
@@ -8645,6 +8679,7 @@
     ],
     "lat": 20.048788,
     "lon": 110.31203,
-    "confidence": 100
+    "confidence": 100,
+    "name_en": "Haikou Cloudscape Library"
   }
 ]
