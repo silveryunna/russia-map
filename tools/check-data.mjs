@@ -148,14 +148,39 @@ if (existsSync(resolve(dir, 'ratings.json'))) {
   const ids = new Set(points.map(p => p.id));
   const SRC = { '携程': /(^|\.)(ctrip\.com|trip\.com|trip\.cn)$/i, '大众点评': /(^|\.)dianping\.com$/i, '小红书': /(^|\.)xiaohongshu\.com$/i };
   const XHS_VERDICTS = new Set(['好', '一般', '避雷']);
+  // 第一方评分（私人米其林）：维度集按点位类型路由，与 tools/fetch-ctrip-ratings.mjs 保持一致
+  const DIMS = { food: ['口味', '性价比', '等位', '环境'], hotel: ['位置', '景观', '服务', '性价比'], sight: ['出片', '清净', '可达', '票价'] };
+  const ptsById = new Map(points.map(p => [p.id, p]));
+  const HOTEL_TYPE = /酒店|民宿|宾馆|住宿/;
+  const catOf = p => (p.tags || []).includes('餐厅/咖啡') ? 'food' : (p.tags || []).includes('酒店/旅馆') || HOTEL_TYPE.test(p.type || '') ? 'hotel' : 'sight';
   let nRatings = 0, low = [];
   for (const [id, v] of Object.entries(r.items || {})) {
     const where = `ratings[${id}]`;
     if (!ids.has(id)) err(`${where} 引用了不存在的点位`);
     const list = Array.isArray(v.ratings) ? v.ratings : [];
     if (!list.length) err(`${where} 缺少 ratings 数组`);
+    const seenSrc = new Set();
     for (const rr of list) {
       const w = `${where}(${rr.src})`;
+      if (seenSrc.has(rr.src)) err(`${w} 同点位来源重复（upsert 语义被破坏）`);
+      seenSrc.add(rr.src);
+      // 第一方条目：站长 / 朋友:xxx —— 无 score/count/url，走维度校验
+      if (/^站长$/.test(rr.src || '') || /^朋友:.{1,12}$/.test(rr.src || '')) {
+        if (!(Number.isInteger(rr.overall) && rr.overall >= 1 && rr.overall <= 5)) err(`${w} overall 非法：${rr.overall}（须整数 1-5）`);
+        const p = ptsById.get(id);
+        const allow = p ? DIMS[catOf(p)] : [];
+        if (rr.dims != null) {
+          if (typeof rr.dims !== 'object' || Array.isArray(rr.dims)) err(`${w} dims 必须是对象`);
+          else for (const [d, val] of Object.entries(rr.dims)) {
+            if (!allow.includes(d)) err(`${w} 维度「${d}」不属于该点位类型（可用：${allow.join('/')}）`);
+            if (!(Number.isInteger(val) && val >= 1 && val <= 5)) err(`${w} 维度「${d}」分值非法：${val}`);
+          }
+        }
+        if (rr.visited != null && rr.visited !== '' && !/^\d{4}-\d{2}$/.test(rr.visited)) err(`${w} visited 格式非法：${rr.visited}（须 YYYY-MM）`);
+        if (rr.note != null && (typeof rr.note !== 'string' || rr.note.length > 80 || /[<>]/.test(rr.note))) err(`${w} note 非法（≤80 字，不含尖括号）`);
+        nRatings++;
+        continue;
+      }
       if (!SRC[rr.src]) { err(`${w} src 非法：${rr.src}`); continue; }
       if (rr.src === '小红书') {                       // 定性口碑：无 score/count，verdict 必填
         if (!XHS_VERDICTS.has(rr.verdict)) err(`${w} verdict 非法：${rr.verdict}（须为 好/一般/避雷）`);

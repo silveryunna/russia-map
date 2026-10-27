@@ -17,6 +17,7 @@ const rnd = () => (seed = (seed * 1664525 + 1013904223) >>> 0, seed / 2 ** 32);
 const M = []; // {name, apply(obj)}
 const load = () => JSON.parse(JSON.stringify(JSON.parse(readFileSync(resolve(SRC,'points.json'),'utf8'))));
 const loadR = () => JSON.parse(JSON.stringify(JSON.parse(readFileSync(resolve(SRC,'routes.json'),'utf8'))));
+const loadRt = () => JSON.parse(JSON.stringify(JSON.parse(readFileSync(resolve(SRC,'ratings.json'),'utf8'))));
 const first = (p) => p.find(x => x.lat != null);
 
 M.push({name:'重复id', apply(p){p[1].id=p[0].id;}});
@@ -39,17 +40,24 @@ M.push({name:'动线引用不存在点位', apply(p,r){r[0].steps[0].point='不�
 M.push({name:'动线steps非数组', apply(p,r){r[0].steps='x';}});
 M.push({name:'动线city缺失', apply(p,r){delete r[0].city;}});
 M.push({name:'points顶层变对象', apply(p){p = {a:1}; return p;}});
+// 第一方评分（私人米其林）变异：先种一条合法评分再破坏它
+const seedFP = (rt, p) => { const f = p.find(x => (x.tags||[]).includes('餐厅/咖啡')); rt.items = rt.items || {}; rt.items[f.id] = { ratings: [{ src:'站长', dims:{'口味':5}, overall:5, visited:'2026-09' }] }; return f.id; };
+M.push({name:'评分-维度键不属于该类型', apply(p,r,rt){const id=seedFP(rt,p);rt.items[id].ratings[0].dims={'海拔':5};}});
+M.push({name:'评分-overall越界', apply(p,r,rt){const id=seedFP(rt,p);rt.items[id].ratings[0].overall=9;}});
+M.push({name:'评分-visited格式错', apply(p,r,rt){const id=seedFP(rt,p);rt.items[id].ratings[0].visited='去年';}});
+M.push({name:'评分-同点位来源重复', apply(p,r,rt){const id=seedFP(rt,p);rt.items[id].ratings.push({src:'站长',overall:4});}});
 
 const results = [];
 for (const m of M) {
   rmSync(TMP, {recursive:true, force:true});
   mkdirSync(TMP);
   cpSync(SRC, TMP, {recursive:true});
-  let pts = load(), rts = loadR();
-  const ret = m.apply(pts, rts);
+  let pts = load(), rts = loadR(), rt = loadRt();
+  const ret = m.apply(pts, rts, rt);
   if (ret !== undefined) pts = ret;
   writeFileSync(resolve(TMP,'points.json'), JSON.stringify(pts));
   writeFileSync(resolve(TMP,'routes.json'), JSON.stringify(rts));
+  writeFileSync(resolve(TMP,'ratings.json'), JSON.stringify(rt));
   let caught = false, output = '';
   try {
     output = execFileSync(process.execPath, [resolve(ROOT,'tools/check-data.mjs'), TMP], {encoding:'utf8', stdio:['ignore','pipe','pipe']});

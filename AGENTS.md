@@ -41,3 +41,4 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 - `data/points.json` 点位：id/name/city/cluster/type/highlight/note/lat/lon/confidence(100精确/75待核)/tags；无坐标用 `pending: true`
 - `data/routes.json` 动线：steps[].point 按 name 精确索引，写错静默跳过
 - `data/ratings.json` 评分：多来源 `{items:{id:{ratings:[...]}}}`；携程来源=问道API环境变量 `WENDAO_API_KEY`（每日30次/令牌）；交通类点位不显示评分
+- 第一方评分（私人米其林）：站长录入写 `data/michelin-manual.json`（`{id:{dims,overall,note,visited}}`），跑 fetch 脚本合并入 ratings.json；维度集按类型：餐饮 口味/性价比/等位/环境，酒店 位置/景观/服务/性价比，景点 出片/清净/可达/票价（全部正向，5=最好）

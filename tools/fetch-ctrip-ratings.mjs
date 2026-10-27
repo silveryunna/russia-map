@@ -36,6 +36,8 @@ const HOTEL_TYPE = /酒店|民宿|宾馆|住宿/;   // type 自由文本兜底�
 const ratingCategory = p => (p.tags || []).includes(FOOD_TAG) ? 'food'
   : (p.tags || []).includes(HOTEL_TAG) || HOTEL_TYPE.test(p.type || '') ? 'hotel' : 'sight';
 const PREF = { hotel: ['携程', '大众点评', '小红书'], food: ['大众点评', '小红书', '携程'], sight: [] };
+// 第一方评分维度集（DESIGN-第一方评分卡.md）：全部正向计分，5=最好
+const DIMS = { food: ['口味', '性价比', '等位', '环境'], hotel: ['位置', '景观', '服务', '性价比'], sight: ['出片', '清净', '可达', '票价'] };
 
 /* ---------- 匹配门（策略5：非精准对应宁可空置）：LLM 自称的 POI 名与点名相似度不足 → 人工队列 ---------- */
 const normName = s => String(s || '').toLowerCase().replace(/[\s（）()·\-—「」《》]/g, '');
@@ -99,6 +101,37 @@ if (existsSync(MANUAL)) {
     if (n) console.log(`已并入人工录入的大众点评分数 ${n} 条`);
     if (nx) console.log(`已并入人工录入的小红书口碑 ${nx} 条`);
   } catch (e) { console.warn('dianping-manual.json 解析失败：' + e.message); }
+}
+// 站长第一方评分（data/michelin-manual.json）：{ "p535": {dims:{口味:5,...}, overall:5, note?, visited:"YYYY-MM"} }
+// 私人米其林体系的站长录入通道（朋友评分走 API 投稿，见 UNIFIED-内容体系统一.md）
+const MICHELIN = resolve(DATA, 'michelin-manual.json');
+if (existsSync(MICHELIN)) {
+  try {
+    const mm = JSON.parse(readFileSync(MICHELIN, 'utf8'));
+    const byId = new Map(points.map(p => [p.id, p]));
+    let n = 0;
+    for (const [id, m] of Object.entries(mm)) {
+      if (!m || !(Number.isInteger(m.overall) && m.overall >= 1 && m.overall <= 5)) { if (m) console.warn(`michelin-manual: ${id} overall 缺失或非法（须整数 1-5），跳过`); continue; }
+      const p = byId.get(id);
+      if (!p) { console.warn(`michelin-manual: ${id} 不存在于 points.json，跳过`); continue; }
+      const allow = DIMS[ratingCategory(p)];
+      const dims = {};
+      for (const [d, v] of Object.entries(m.dims || {})) {
+        if (!allow.includes(d)) { console.warn(`michelin-manual: ${id} 维度「${d}」不属于该点位类型（可用：${allow.join('/')}），跳过`); continue; }
+        if (!(Number.isInteger(v) && v >= 1 && v <= 5)) { console.warn(`michelin-manual: ${id} 维度「${d}」分值非法（须整数 1-5），跳过`); continue; }
+        dims[d] = v;
+      }
+      const visited = String(m.visited || '');
+      if (visited && !/^\d{4}-\d{2}$/.test(visited)) { console.warn(`michelin-manual: ${id} visited 格式须为 YYYY-MM，跳过`); continue; }
+      const entry = { src: '站长', dims, overall: m.overall, note: String(m.note || '').replace(/[<>]/g, '').slice(0, 80), visited, checked: today() };
+      const rec = state.items[id] || (state.items[id] = { ratings: [] });
+      rec.ratings = rec.ratings.filter(r => r.src !== '站长');
+      rec.ratings.push(entry);
+      state.nodata = state.nodata.filter(x => x !== id);
+      n++;
+    }
+    if (n) console.log(`已并入站长评分 ${n} 条`);
+  } catch (e) { console.warn('michelin-manual.json 解析失败：' + e.message); }
 }
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 const today = () => new Date().toISOString().slice(0, 10);
