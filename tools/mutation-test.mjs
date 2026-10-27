@@ -57,6 +57,7 @@ M.push({name:'评分-维度键不属于该类型', apply(p,r,rt){const id=seedFP
 M.push({name:'评分-overall越界', apply(p,r,rt){const id=seedFP(rt,p);rt.items[id].ratings[0].overall=9;}});
 M.push({name:'评分-visited格式错', apply(p,r,rt){const id=seedFP(rt,p);rt.items[id].ratings[0].visited='去年';}});
 M.push({name:'评分-同点位来源重复', apply(p,r,rt){const id=seedFP(rt,p);rt.items[id].ratings.push({src:'站长',overall:4});}});
+M.push({name:'评分-unverified条目入库', apply(p,r,rt){const id=seedFP(rt,p);rt.items[id].ratings[0].unverified=true;}});
 
 const results = [];
 for (const m of M) {

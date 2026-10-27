@@ -175,6 +175,9 @@ if (existsSync(resolve(dir, 'ratings.json'))) {
       const w = `${where}(${rr.src})`;
       if (seenSrc.has(rr.src)) err(`${w} 同点位来源重复（upsert 语义被破坏）`);
       seenSrc.add(rr.src);
+      // 既定策略（2026-10）：未核实条目禁入库 —— 宁空置勿错配
+      // 典型形态：url 是 searchsite 搜索页、poiId/matched 为空，评分可能来自错误的搜索命中
+      if (rr.unverified === true) { err(`${w} unverified 条目不得入库（宁空置勿错配；核实后再入库）`); continue; }
       // 第一方条目：站长 / 朋友:xxx —— 无 score/count/url，走维度校验
       if (/^站长$/.test(rr.src || '') || /^朋友:.{1,12}$/.test(rr.src || '')) {
         if (!(Number.isInteger(rr.overall) && rr.overall >= 1 && rr.overall <= 5)) err(`${w} overall 非法：${rr.overall}（须整数 1-5）`);
