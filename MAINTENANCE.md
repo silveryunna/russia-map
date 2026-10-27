@@ -246,6 +246,35 @@ location ~* \.(js|css|html|json)$ {
 - 改完必须 `nginx -t && nginx -s reload`；配置备份在 `/www/server/panel/vhost/nginx/*.conf.bak*`
 - 兜底手段：HTML 里给资源加版本查询串（如 `map-D2GUsbT3.js?v=31`），发了新版本就手动 +1
 
+### 7.8 自动同步脚本：chown 绝不能碰 .git（2026-10-28 真实事故）
+
+服务器脚本现版本已纳入仓库：`tools/deploy/update-site.sh`（部署到 `/root/update-russia-map.sh`）。
+机制见 §9.5：cron 每 2 分钟 `git fetch` + `git reset --hard origin/main`，**push 即部署**。
+
+- **现象**：给脚本加 `chown -R www:www $WEBROOT` 后，下一轮起同步**静默停摆**——日志只有一行
+  `❌ /www/wwwroot/julyyunna.art 不是 git 工作区`，站点内容停在旧版本不再更新。
+- **根因**：cron 以 **root** 运行，而 chown 把 `.git` 属主改成了 `www`；git ≥ 2.35 的
+  `dubious ownership` 保护会拒绝在属主不同的仓库执行任何命令
+  （`fatal: detected dubious ownership in repository`）。脚本里 git 调用都带 `2>/dev/null`，
+  真错误被吞掉，退化成"不是 git 工作区"的误判。
+- **修法**（三件套，缺一不可）：
+  1. 止血：`git config --global --add safe.directory /www/wwwroot/julyyunna.art`
+  2. 根因：chown 排除 .git
+     `find "$WEBROOT" -mindepth 1 -maxdepth 1 ! -name '.git' -exec chown -R www:www {} +`
+  3. 脚本每次运行前自查 safe.directory 白名单（防环境重置后再犯）
+- **教训**：服务器上凡是 root 跑 git 的自动化脚本，只要动过 webroot 属主就必须同步处理
+  safe.directory；这类故障是**静默停摆**而非报错刷屏，可能几天后才发现线上没更新。
+
+体检命令（应看到 `✅ 同步 xxxxxxx → xxxxxxx（自检 5/5 通过）`）：
+
+```bash
+ssh -i ~/.ssh/julyyunna_thispc_ed25519 root@124.221.104.242 'tail -3 /var/log/update-russia-map.log'
+```
+
+> 附带设计：cron **不等 CI**，坏提交会先上线 2 分钟才被 `check.yml` 报红。故脚本在 reset 后
+> 对 `index.html / map.html / sw.js / assets/map-D2GUsbT3.js / data/points.json` 做 200 自检，
+> 任一失败（含一次抖动重试）立即回滚上一 commit，并记住失败版本暂停重试（避免反复回滚刷日志）。
+
 ---
 
 ## 8. 常用校验命令（Git Bash）
