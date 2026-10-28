@@ -1,0 +1,58 @@
+/* 日程计划 v1 样式 */
+#plan-app { max-width: 720px; margin: 0 auto; padding: 14px 14px 40px; font-family: system-ui, -apple-system, sans-serif; display: flex; flex-direction: column; gap: 12px; }
+
+.pl-head { display: flex; align-items: center; justify-content: space-between; margin: 6px 0 4px; }
+.pl-head h2 { font-size: 17px; margin: 0; color: #3E3526; }
+
+.pl-btn { border: 1.5px solid #C9C0AC; background: #fff; color: #5D5340; border-radius: 10px; padding: 8px 14px; font-size: 13px; cursor: pointer; min-height: 40px; transition: background .15s; }
+.pl-btn:active { background: #F6F4EE; }
+.pl-btn.primary { background: #B71C1C; border-color: #B71C1C; color: #fff; font-weight: 600; }
+.pl-btn.primary:active { background: #8E1414; }
+.pl-btn.big { width: 100%; padding: 12px; font-size: 14px; }
+.pl-btn.small { padding: 5px 10px; font-size: 12px; min-height: 32px; }
+.pl-btn.danger { border-color: #D7A1A1; color: #B13B3B; }
+
+.card { background: #fff; border: 1px solid #E8E2D5; border-radius: 14px; padding: 16px; box-shadow: 0 1px 4px rgba(60, 50, 30, .05); }
+
+/* 列表 */
+.pl-card { background: #fff; border: 1px solid #E8E2D5; border-radius: 14px; padding: 14px 16px; cursor: pointer; box-shadow: 0 1px 4px rgba(60, 50, 30, .05); }
+.pl-card:active { background: #FAF8F2; }
+.pl-card-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.pl-name { font-size: 15px; font-weight: 700; color: #3E3526; }
+.pl-src { font-size: 10px; border-radius: 6px; padding: 2px 7px; background: #EFEBE0; color: #8A8272; flex-shrink: 0; }
+.pl-src.ai { background: #E3F0E5; color: #2E7D32; }
+.pl-meta { font-size: 12px; color: #999; margin-top: 6px; }
+.pl-ops { display: flex; gap: 8px; margin-top: 10px; }
+.pl-empty { text-align: center; padding: 60px 20px; color: #5D5340; font-size: 15px; line-height: 2; }
+.pl-empty span { font-size: 12px; color: #999; }
+.pl-foot { text-align: center; font-size: 11px; color: #B0A897; margin-top: 8px; }
+
+/* 表单 */
+.pl-form { display: flex; flex-direction: column; gap: 12px; }
+.pl-form label { display: flex; flex-direction: column; gap: 5px; font-size: 12px; color: #8A8272; }
+.pl-form select, .pl-form input { border: 1.5px solid #E8E2D5; border-radius: 9px; padding: 10px 12px; font-size: 14px; color: #3E3526; outline: none; background: #fff; }
+.pl-form select:focus, .pl-form input:focus { border-color: #B71C1C; }
+.pl-label { font-size: 12px; color: #8A8272; }
+.pl-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1.5px solid #E8E2D5; background: #fff; border-radius: 999px; padding: 7px 14px; font-size: 13px; color: #5D5340; cursor: pointer; min-height: 36px; }
+.chip.on { background: #B71C1C; border-color: #B71C1C; color: #fff; }
+.pl-gen { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+.pl-ai-toggle { background: none; border: none; color: #1E5A8A; font-size: 12px; cursor: pointer; text-align: left; padding: 4px 0; min-height: 32px; }
+.pl-ai-box { background: #F6F8FB; border: 1px solid #D9E4F0; border-radius: 12px; padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+.pl-ai-box label { font-size: 11px; color: #5D7391; }
+.pl-ai-box input { border-color: #D9E4F0; }
+.pl-ai-note { font-size: 11px; color: #8FA3B8; line-height: 1.6; }
+
+/* 详情 */
+.pl-day { display: flex; flex-direction: column; gap: 10px; }
+.pl-day-head { font-size: 15px; font-weight: 800; color: #3E3526; display: flex; justify-content: space-between; align-items: baseline; }
+.pl-day-head span { font-size: 11px; color: #999; font-weight: 400; }
+.pl-slot { display: flex; flex-direction: column; gap: 4px; }
+.pl-slot-name { font-size: 11px; color: #B0A897; margin-bottom: 2px; }
+.pl-point { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #454034; padding: 6px 8px; background: #FAF8F2; border-radius: 8px; min-height: 36px; }
+.pl-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.pl-ptype { margin-left: auto; font-size: 10px; color: #B0A897; max-width: 42%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pl-tip { font-size: 12px; color: #7A6A3F; background: #FFF8E1; border-radius: 8px; padding: 8px 10px; line-height: 1.6; }
+
+.plan-toast { position: fixed; left: 50%; bottom: 40px; transform: translateX(-50%) translateY(20px); background: rgba(40, 34, 24, .92); color: #fff; border-radius: 999px; padding: 10px 20px; font-size: 13px; opacity: 0; transition: all .25s; z-index: 999; max-width: 86vw; text-align: center; }
+.plan-toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }

@@ -1,3 +1,8 @@
 index-beautified.js
 tools/node_modules/
 assets/tdt-key.js
+
+node_modules/
+dist/
+site-out/
+smoke-*.png

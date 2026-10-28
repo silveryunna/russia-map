@@ -1,0 +1,100 @@
+/* 旅行相册页 */
+#album-app {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 16px 14px 40px;
+}
+
+.album-empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 60px 20px;
+}
+.album-empty p { margin: 8px 0; }
+.ae-tip { font-size: 12px; line-height: 1.8; }
+.ae-tip code {
+  background: var(--accent-soft);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.album-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.photo-card {
+  margin: 0;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--card);
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.photo-card:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.1); }
+.photo-card img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+}
+.photo-card figcaption { padding: 10px 12px; }
+.pc-title { font-size: 13px; font-weight: 600; }
+.pc-sub { font-size: 11px; color: var(--muted); margin-top: 3px; }
+
+/* 查看器 */
+.viewer {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vw-img {
+  max-width: 92vw;
+  max-height: 86vh;
+  border-radius: 4px;
+}
+.vw-close, .vw-prev, .vw-next {
+  position: absolute;
+  border: none;
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+  cursor: pointer;
+  border-radius: 50%;
+  width: 44px;
+  height: 44px;
+  font-size: 22px;
+  line-height: 1;
+}
+.vw-close { top: 14px; right: 14px; }
+.vw-prev { left: 10px; top: 50%; transform: translateY(-50%); }
+.vw-next { right: 10px; top: 50%; transform: translateY(-50%); }
+.vw-prev:disabled, .vw-next:disabled { opacity: 0.3; cursor: default; }
+.vw-cap {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  color: #fff;
+  font-size: 14px;
+}
+.vw-cap span {
+  display: block;
+  font-size: 12px;
+  opacity: 0.7;
+  margin-top: 4px;
+}
+.vw-count {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 12px;
+}

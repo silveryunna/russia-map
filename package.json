@@ -1,0 +1,24 @@
+{
+  "name": "niuma-travel",
+  "version": "2.0.0",
+  "description": "牛马打工人的旅行笔记 —— 单仓源码 + 构建 + 部署",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check-data": "node tools/check-data.mjs ./data"
+  },
+  "author": "",
+  "type": "module",
+  "dependencies": {
+    "leaflet": "^1.9.4",
+    "leaflet-geosearch": "^4.2.0",
+    "leaflet.fullscreen": "^5.3.3",
+    "leaflet.locatecontrol": "^0.85.1",
+    "leaflet.markercluster": "^1.5.3",
+    "marked": "^18.0.12"
+  },
+  "devDependencies": {
+    "vite": "^8.2.2"
+  }
+}

@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://tile.openstreetmap.de https://server.arcgisonline.com https://*.is.autonavi.com https://*.map.gtimg.com; connect-src 'self' https://nominatim.openstreetmap.org; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#B71C1C" />
+    <meta name="description" content="旅行地图：打卡点位、每日动线、待核实坐标。" />
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="manifest" href="./manifest.json" />
+    <title>旅行地图 · 牛马打工人的旅行笔记</title>
+  </head>
+  <body>
+    <div class="map-layout">
+      <aside id="sidebar">
+        <div class="sb-inner">
+          <div class="sb-header">
+            <div class="sb-title-row">
+              <div class="sb-title">🗺️ 旅行地图</div>
+              <a class="sb-home" href="./index.html" title="返回首页">🏠 首页</a>
+            </div>
+            <div class="sb-sub" id="sb-stats">加载中…</div>
+            <div class="sb-tabs">
+              <button id="tab-points" class="active">📍 打卡清单</button>
+              <button id="tab-routes">🧭 每日动线</button>
+              <button id="tab-life">🍜 美食住行</button>
+            </div>
+            <div class="sb-cities" id="city-pills"></div>
+            <button class="cities-toggle" id="cities-toggle" style="display:none">▾ 展开全部城市</button>
+          </div>
+          <div class="sb-body" id="sb-body"></div>
+          <a id="icp-link" class="icp-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" style="display:none"></a>
+        </div>
+      </aside>
+      <div class="map-wrap">
+        <div id="map"></div>
+        <button id="sidebar-toggle" class="sidebar-pill">◀ 收起</button>
+        <div class="legend" id="legend" style="display:none"></div>
+      </div>
+    </div>
+    <script type="module" src="./pages/map.js"></script>
+  </body>
+</html>

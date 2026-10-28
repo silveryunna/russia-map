@@ -1,0 +1,182 @@
+/* 管理后台 */
+#admin-app {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 14px 14px 80px;
+}
+
+.admin-badge {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--muted);
+  border: 1px dashed var(--line);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.at-tab {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 999px;
+  padding: 7px 16px;
+  font-size: 13px;
+  cursor: pointer;
+}
+.at-tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fff;
+}
+
+.ae-layout {
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: 14px;
+  align-items: start;
+}
+@media (max-width: 760px) {
+  .ae-layout { grid-template-columns: 1fr; }
+}
+
+.ae-left {
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  overflow: hidden;
+}
+.ae-toolbar {
+  display: flex;
+  gap: 8px;
+  padding: 10px;
+  border-bottom: 1px solid var(--line);
+  align-items: center;
+}
+.ae-search {
+  flex: 1;
+  min-width: 0;
+  padding: 7px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+  outline: none;
+}
+.ae-search:focus { border-color: var(--accent); }
+
+.ae-list {
+  max-height: 560px;
+  overflow-y: auto;
+}
+.ae-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 9px 12px;
+  border-bottom: 1px solid var(--line);
+  cursor: pointer;
+}
+.ae-item:hover { background: var(--accent-soft); }
+.ae-item.active { background: var(--accent-soft); box-shadow: inset 3px 0 0 var(--accent); }
+.ae-item-name { font-size: 13px; font-weight: 600; }
+.ae-item-sub { font-size: 11px; color: var(--muted); }
+.ae-count { padding: 8px 12px; font-size: 11px; color: var(--muted); }
+.ae-hint { padding: 24px 16px; color: var(--muted); font-size: 13px; text-align: center; }
+
+.ae-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  padding: 16px;
+}
+.ae-form label {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 12px;
+  color: var(--muted);
+  flex: 1;
+}
+.ae-form input, .ae-form textarea {
+  padding: 9px 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: inherit;
+  outline: none;
+  color: var(--text);
+}
+.ae-form input:focus, .ae-form textarea:focus { border-color: var(--accent); }
+.ae-form textarea { resize: vertical; line-height: 1.7; }
+.ae-row { display: flex; gap: 12px; }
+.ae-check { flex-direction: row !important; align-items: center; gap: 8px !important; font-size: 13px !important; }
+.ae-check input { width: auto; }
+.ae-btns { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.ae-tip { font-size: 11px; color: var(--muted); }
+
+.btn {
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 13px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { opacity: 0.9; color: #fff; }
+.btn.danger { color: #c62828; }
+.btn.danger:hover { border-color: #c62828; color: #c62828; }
+.btn.small { padding: 5px 12px; font-size: 12px; }
+
+/* 点位编辑小地图 */
+#pt-map {
+  height: 240px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: crosshair;
+}
+
+/* 笔记 Markdown 预览 */
+.nt-preview {
+  border: 1px dashed var(--line);
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-height: 80px;
+  font-size: 13px;
+  line-height: 1.7;
+  color: var(--text);
+  background: var(--bg);
+  max-height: 320px;
+  overflow-y: auto;
+}
+.nt-preview h1, .nt-preview h2, .nt-preview h3 { margin: 0.8em 0 0.4em; }
+.nt-preview h1 { font-size: 17px; } .nt-preview h2 { font-size: 15px; }
+.nt-preview p { margin: 0.5em 0; }
+.nt-preview img { max-width: 100%; }
+.nt-preview code { background: var(--accent-soft); padding: 1px 5px; border-radius: 4px; }
+
+.export-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 50;
+  background: #212121;
+  color: #fff;
+  padding: 12px 16px;
+  box-shadow: 0 -4px 16px rgba(0, 0, 0, 0.2);
+}
+.export-bar > div { max-width: 1080px; margin: 0 auto; }
+.eb-title { font-size: 13px; margin-bottom: 8px; }
+.eb-files { display: flex; gap: 8px; flex-wrap: wrap; }
+.export-bar .btn { background: rgba(255, 255, 255, 0.12); border-color: rgba(255, 255, 255, 0.2); color: #fff; }
+.export-bar .btn.primary { background: var(--accent); border-color: var(--accent); }

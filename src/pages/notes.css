@@ -1,0 +1,80 @@
+/* 旅行笔记页 */
+#notes-app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 16px 14px 40px;
+}
+
+.notes-empty {
+  text-align: center;
+  color: var(--muted);
+  font-size: 14px;
+  padding: 60px 20px;
+}
+.notes-empty p { margin: 8px 0; }
+.ne-tip { font-size: 12px; line-height: 1.8; }
+.ne-tip code {
+  background: var(--accent-soft);
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 11px;
+}
+
+.notes-list { display: flex; flex-direction: column; gap: 12px; }
+.note-card {
+  display: block;
+  padding: 16px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: var(--card);
+  cursor: pointer;
+  transition: box-shadow 0.15s;
+}
+.note-card:hover { box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08); }
+.nc-title { font-size: 16px; font-weight: 700; }
+.nc-summary {
+  font-size: 13px;
+  color: var(--muted);
+  margin-top: 6px;
+  line-height: 1.6;
+}
+.nc-date { font-size: 12px; color: var(--muted); margin-top: 8px; }
+
+.na-back {
+  display: inline-block;
+  font-size: 12px;
+  color: var(--accent);
+  cursor: pointer;
+  margin-bottom: 14px;
+}
+.na-title { font-size: 22px; font-weight: 800; line-height: 1.4; }
+.na-date { font-size: 12px; color: var(--muted); margin: 8px 0 18px; }
+.na-body { font-size: 15px; line-height: 1.9; }
+.na-body h1, .na-body h2, .na-body h3 { margin: 1.4em 0 0.6em; line-height: 1.5; }
+.na-body h1 { font-size: 20px; }
+.na-body h2 { font-size: 18px; border-bottom: 1px solid var(--line); padding-bottom: 6px; }
+.na-body p { margin: 0.8em 0; }
+.na-body img { max-width: 100%; border-radius: 10px; }
+.na-body code {
+  background: var(--accent-soft);
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 13px;
+}
+.na-body pre {
+  background: #2d2d2d;
+  color: #f0f0f0;
+  padding: 14px;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+.na-body pre code { background: none; padding: 0; }
+.na-body blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 12px;
+  color: var(--muted);
+  margin: 1em 0;
+}
+.na-body ul, .na-body ol { padding-left: 1.6em; margin: 0.8em 0; }
+.na-body a { color: var(--accent); text-decoration: underline; }
+.na-body hr { border: none; border-top: 1px solid var(--line); margin: 1.6em 0; }

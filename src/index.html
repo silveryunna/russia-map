@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org https://tile.openstreetmap.de https://server.arcgisonline.com https://*.is.autonavi.com https://*.map.gtimg.com; connect-src 'self' https://nominatim.openstreetmap.org; font-src 'self' data:; object-src 'none'; base-uri 'self'; form-action 'self'" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#B71C1C" />
+    <meta name="description" content="牛马打工人的旅行笔记：个人旅行记录，含旅行笔记、相册、打卡清单与地图。" />
+    <link rel="icon" type="image/png" href="./favicon.png" />
+    <link rel="manifest" href="./manifest.json" />
+    <title>牛马打工人的旅行笔记</title>
+  </head>
+  <body>
+    <header class="site-header">
+      <h1>🐂 牛马打工人的旅行笔记</h1>
+      <div class="sub" id="site-sub">搬砖之余，看看世界 · 个人旅行记录</div>
+    </header>
+
+    <main class="home-grid">
+      <a class="entry-card" href="./notes.html">
+        <div class="icon">📝</div>
+        <div class="name">旅行笔记</div>
+        <div class="desc" id="stat-notes">游记随笔，慢慢写</div>
+      </a>
+      <a class="entry-card" href="./album.html">
+        <div class="icon">📷</div>
+        <div class="name">旅行相册</div>
+        <div class="desc" id="stat-album">照片记录，边走边拍</div>
+      </a>
+      <a class="entry-card" href="./list.html">
+        <div class="icon">✅</div>
+        <div class="name">旅行打卡清单</div>
+        <div class="desc" id="stat-list">想去的地方，一个个勾掉</div>
+      </a>
+      <a class="entry-card" href="./map.html">
+        <div class="icon">🗺️</div>
+        <div class="name">旅行地图</div>
+        <div class="desc" id="stat-map">点位落在地图上，一目了然</div>
+      </a>
+      <a class="entry-card" href="./plan.html">
+        <div class="icon">🧭</div>
+        <div class="name">日程计划</div>
+        <div class="desc" id="stat-plan">选目的地+天数，生成逐日行程草案</div>
+      </a>
+    </main>
+
+    <footer class="site-footer">
+      <div>个人静态网站 · 内容由站长本人维护更新 · 无交互功能</div>
+      <a id="icp-link" href="https://beian.miit.gov.cn/" target="_blank" rel="noopener" style="display:none"></a>
+    </footer>
+
+    <script type="module" src="./pages/home.js"></script>
+  </body>
+</html>

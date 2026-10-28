@@ -1,0 +1,131 @@
+/* 打卡清单页 */
+#list-app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 14px 14px 40px;
+}
+
+.list-summary {
+  font-size: 13px;
+  color: var(--muted);
+  padding: 10px 4px 12px;
+}
+.list-summary b { color: var(--accent); }
+.ls-bar {
+  display: block;
+  margin-top: 8px;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+  overflow: hidden;
+}
+.ls-fill {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--accent);
+  transition: width 0.3s;
+}
+
+.list-search {
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  font-size: 14px;
+  background: var(--card);
+  outline: none;
+}
+.list-search:focus { border-color: var(--accent); }
+
+/* 标签筛选 chips */
+.l-tags {
+  display: flex; gap: 6px; margin-bottom: 12px;
+  overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+}
+.l-tags::-webkit-scrollbar { display: none; }
+.tag-chip {
+  flex: none;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--card);
+  color: #5D4A1F;
+  padding: 4px 11px;
+  font-size: 12px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.tag-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
+
+.l-city {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 8px 8px;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  user-select: none;
+}
+.l-city.pending { color: var(--muted); }
+.head-arrow { font-size: 11px; color: var(--muted); width: 14px; }
+.head-dot {
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  background: var(--muted);
+  flex: none;
+}
+.head-count { font-size: 12px; color: var(--muted); font-weight: 400; }
+
+.l-cluster {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 6px 26px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  user-select: none;
+}
+
+.l-point {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  margin: 2px 8px 2px 34px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  cursor: pointer;
+}
+.l-point input { margin-top: 3px; accent-color: var(--accent); flex: none; }
+.l-point.done .lp-name { color: var(--muted); text-decoration: line-through; }
+.l-point.pending { cursor: default; }
+.lp-main { flex: 1; min-width: 0; }
+.lp-name { display: block; font-size: 14px; font-weight: 600; }
+.lp-sub {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-top: 2px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.lp-map { flex: none; font-size: 14px; padding: 2px; }
+.pr-badge {
+  flex: none;
+  font-size: 11px;
+  color: #fff;
+  background: var(--muted);
+  border-radius: 4px;
+  padding: 2px 6px;
+  margin-top: 2px;
+}
+
+@media (max-width: 480px) {
+  .l-point { margin-left: 20px; }
+}
