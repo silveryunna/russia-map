@@ -6,7 +6,11 @@ declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
 
-$CONF = require '/www/wwwroot/julyyunna-art-data/config.php';
+$CONF_FILE = '/www/wwwroot/julyyunna-art-data/config.php';
+$CONF = require $CONF_FILE;
+// 自定义 AI Key 的加密密钥：默认与 config.php 同目录（webroot 之外），可用 AI_KEY_FILE 覆盖。
+// 不依赖 php-fpm 的 env[]：面板改池配置、clear_env 等都会让它悄悄失效，而失效时是明文落库。
+define('AI_AT_REST_KEY_FILE', (string)($CONF['ai_key_file'] ?? dirname($CONF_FILE) . '/ai-at-rest.key'));
 $db = new PDO('sqlite:' . $CONF['db_path']);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 $db->exec('PRAGMA journal_mode=WAL');
@@ -116,7 +120,7 @@ function ssrf_check(string $url): ?string {
 function ai_key_master(): ?string {
   static $k = null;
   if ($k !== null) return $k ?: null;
-  $f = (string)(getenv('AI_KEY_FILE') ?: '');
+  $f = (string)(getenv('AI_KEY_FILE') ?: (defined('AI_AT_REST_KEY_FILE') ? AI_AT_REST_KEY_FILE : ''));
   if ($f === '' || !is_file($f) || !is_readable($f) || !function_exists('sodium_crypto_secretbox')) return null;
   $raw = trim((string)file_get_contents($f));
   if (preg_match('/^[0-9a-f]{64}$/i', $raw)) $k = hex2bin($raw);
