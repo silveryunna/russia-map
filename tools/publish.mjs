@@ -24,7 +24,7 @@ const HTML_FILES = ['index.html', 'map.html', 'list.html', 'album.html', 'notes.
 const ASSETS_KEEP = new Set(['tdt-key.js', 'tdt-key.example.js']); // 豁免：非构建产物，不入 git/不上线
 
 const run = (cmd, cmdArgs, opt = {}) =>
-  execFileSync(cmd, cmdArgs, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], ...opt }).trim();
+  (execFileSync(cmd, cmdArgs, { cwd: ROOT, encoding: 'utf8', stdio: ['ignore', 'pipe', 'inherit'], ...opt }) || '').trim();
 const step = (n, s) => console.log(`\n[${n}] ${s}`);
 
 // git 走代理：沿用会话约定的 clash 端口；env 里有 HTTP_PROXY 时优先用
