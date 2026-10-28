@@ -98,3 +98,14 @@
   color: rgba(255, 255, 255, 0.7);
   font-size: 12px;
 }
+
+/* 图片优雅降级：加载失败显示占位色块，不露破图 */
+.photo-card { position: relative; }
+.photo-card img { object-fit: cover; width: 100%; display: block; }
+.ph-broken img { visibility: hidden; }
+.ph-broken::after {
+  content: "🖼 图片暂不可用";
+  position: absolute; inset: 0 0 42px 0;
+  display: flex; align-items: center; justify-content: center;
+  color: #9E9789; font-size: 12px; background: #F1EDE2;
+}

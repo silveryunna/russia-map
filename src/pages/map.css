@@ -163,9 +163,14 @@
 /* 标签筛选 chips */
 .sb-tags {
   display: flex; gap: 5px; padding: 0 8px 8px;
-  overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  flex-wrap: wrap; max-height: 25px; overflow: hidden;
 }
-.sb-tags::-webkit-scrollbar { display: none; }
+.sb-tags.expanded { max-height: none; }
+.tags-toggle {
+  margin: 0 8px 6px; width: calc(100% - 16px);
+  background: #F6F4EE; border: 1px solid #E3E0D8; border-radius: 12px;
+  color: #5D4A1F; font-size: 11px; padding: 3px 0; cursor: pointer; text-align: center;
+}
 /* 侧栏底部备案号链接 */
 .sb-inner > .icp-link {
   flex: none;
@@ -217,3 +222,161 @@
   /* 搜索条右移，避开左上角悬浮按钮 */
   .leaflet-geosearch-bar { max-width: calc(100% - 185px); margin: 10px 55px 0 130px; }
 }
+
+/* ===== 以下从线上产物回译（2026-10 重构 P2） ===== */
+b.hl { color: #B71C1C; font-weight: 700; }
+
+/* 城市胶囊：默认一行折叠，可展开 */
+.sb-cities { max-height: 29px; overflow: hidden; }
+.sb-cities.expanded { max-height: none; }
+.cities-toggle {
+  margin: 2px 0 0; width: 100%;
+  background: #F6F4EE; border: 1px solid #E3E0D8; border-radius: 12px;
+  color: #5D4A1F; font-size: 11px; padding: 3px 0; cursor: pointer; text-align: center;
+}
+
+/* 图层方案 / 刷新 / 城市快跳控件 */
+.region-ctl { display: flex; gap: 4px; background: #fff; border-radius: 8px; padding: 3px; box-shadow: 0 1px 4px #0003; }
+.region-btn {
+  border: 1px solid #ddd; background: #fff; border-radius: 6px;
+  padding: 3px 8px; font-size: 11px; cursor: pointer; color: #333; white-space: nowrap;
+}
+.region-btn.active { background: #1E5A8A; color: #fff; border-color: #1E5A8A; font-weight: 700; }
+.region-ctl:not(.open) .region-btn { display: none; }
+.region-ico {
+  border: 1px solid #ddd; background: #fff; border-radius: 6px;
+  padding: 3px 8px; font-size: 13px; cursor: pointer; white-space: nowrap;
+}
+#sidebar:not(.closed) ~ .map-wrap .sidebar-pill {
+  left: 0; top: 50%; transform: translateY(-50%);
+  width: 22px; height: 56px; padding: 0;
+  border-radius: 0 8px 8px 0; border-left: none;
+  box-shadow: 2px 0 6px #0002;
+  display: flex; align-items: center; justify-content: center; font-size: 14px;
+}
+#sidebar.closed ~ .map-wrap .leaflet-top.leaflet-left { top: 56px; }
+#sidebar:not(.closed) ~ .map-wrap .leaflet-top.leaflet-left { top: 10px; }
+
+/* 图层切换中 loading */
+#region-loading {
+  position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+  z-index: 3000; background: #ffffffee; border: 1px solid #ddd; border-radius: 10px;
+  padding: 10px 18px; font-size: 13px; color: #333; box-shadow: 0 2px 10px #0003;
+  display: none; align-items: center; gap: 8px;
+}
+#region-loading.show { display: flex; }
+.rl-spin {
+  width: 14px; height: 14px; border: 2px solid #bbb; border-top-color: #1E5A8A;
+  border-radius: 50%; animation: rlspin .8s linear infinite; display: inline-block;
+}
+@keyframes rlspin { to { transform: rotate(360deg); } }
+
+@media (width<=768px) {
+  #sidebar:not(.closed) ~ .map-wrap .sidebar-pill { left: min(380px, 88vw); z-index: 1201; }
+  #sidebar:not(.closed) ~ .map-wrap .leaflet-top.leaflet-left { left: calc(min(380px, 88vw) + 8px); top: 10px; }
+  #sidebar.closed ~ .map-wrap .leaflet-top.leaflet-left { left: 10px; top: 56px; }
+}
+
+/* 刷新控件红点（SW 有更新时） */
+.refresh-ctl, .cityjump-ctl { position: relative; }
+.refresh-badge {
+  position: absolute; top: -2px; right: -2px; width: 9px; height: 9px;
+  background: #D32F2F; border-radius: 50%; border: 1.5px solid #fff; display: none;
+}
+.refresh-badge.show { display: block; }
+
+/* 城市快跳面板 */
+.cityjump-panel {
+  display: none; position: absolute; top: 38px; left: 0;
+  background: #fff; border: 1px solid #ddd; border-radius: 10px; padding: 6px;
+  box-shadow: 0 2px 10px #0002; min-width: 150px; max-height: 60vh; overflow-y: auto; z-index: 1500;
+}
+.cityjump-panel.open { display: block; }
+.cj-item {
+  display: flex; align-items: center; gap: 6px; width: 100%;
+  border: none; background: #fff; padding: 6px 8px; border-radius: 6px;
+  font-size: 12px; color: #333; cursor: pointer; text-align: left; white-space: nowrap;
+}
+.cj-item:hover { background: #F3F0E9; }
+.cj-dot { width: 8px; height: 8px; border-radius: 50%; flex: none; }
+.cj-count { color: #999; font-size: 10px; margin-left: auto; }
+.cj-list { max-height: 230px; overflow-y: auto; scrollbar-width: none; }
+.cj-list::-webkit-scrollbar { display: none; }
+.cj-arrow {
+  display: block; width: 100%; border: none; background: #F6F4EE;
+  padding: 2px 0; font-size: 10px; color: #999; cursor: pointer; border-radius: 6px;
+}
+.cj-arrow:hover { background: #ECEAE4; color: #555; }
+
+/* 国家分组头（四级侧栏第一级） */
+.country-head {
+  display: flex; align-items: center; gap: 9px;
+  margin: 12px 10px 4px; padding: 11px 13px; border-radius: 12px;
+  background: color-mix(in srgb, var(--cc) 7%, transparent);
+  border: 1px solid color-mix(in srgb, var(--cc) 14%, transparent);
+  cursor: pointer; font-size: 15px; font-weight: 800; letter-spacing: 1px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.04);
+}
+.country-head .ch-flag { font-size: 19px; line-height: 1; filter: drop-shadow(0 1px 1px rgba(0,0,0,.15)); }
+.country-head .ch-name {
+  flex: 1;
+  background: linear-gradient(90deg, var(--cc), color-mix(in srgb, var(--cc) 55%, #000));
+  -webkit-background-clip: text; background-clip: text;
+  -webkit-text-fill-color: transparent; color: var(--cc);
+}
+.country-head .ch-arrow { color: var(--cc); font-size: 11px; opacity: .75; }
+.head-pill {
+  font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 99px;
+  background: color-mix(in srgb, var(--cc) 14%, transparent); color: var(--cc);
+  letter-spacing: 0; flex: none;
+}
+.country-children {
+  margin: 2px 0 8px 24px; padding-left: 11px;
+  border-left: 2px solid color-mix(in srgb, var(--cc) 26%, transparent);
+}
+
+/* ===== UX 优化（移动端触摸目标 44px / 触控反馈 / 过渡动效 / 消灭 300ms 延迟） ===== */
+@media (width<=768px) {
+  .region-ico { min-width: 44px; min-height: 44px; padding: 8px; font-size: 16px; }
+  .region-btn { min-height: 44px; padding: 6px 14px; font-size: 13px; }
+  .sb-tabs button { padding: 10px 0; min-height: 44px; }
+  .sb-cities button { min-height: 44px; padding: 8px 14px; font-size: 13px; }
+  .tag-chip { min-height: 44px; padding: 8px 14px; font-size: 12px; }
+  .city-head, .cluster-head { min-height: 44px; padding: 10px 16px; }
+  .country-head { min-height: 44px; padding: 12px 13px; }
+  .point-row { padding: 10px 12px 10px 42px; min-height: 44px; }
+  .cj-item { min-height: 44px; padding: 10px 10px; }
+  .route-card { padding: 12px 14px; }
+  .cities-toggle, .tags-toggle { min-height: 44px; padding: 8px 0; }
+  .sidebar-pill { min-height: 44px; }
+  .leaflet-popup-close-button { width: 32px; height: 32px; font-size: 18px; line-height: 32px; }
+  .leaflet-control-layers-list label { padding: 8px 4px; }
+}
+@media (hover: none) {
+  .point-row:active, .cj-item:active, .city-head:active, .cluster-head:active,
+  .tag-chip:active, .sb-cities button:active, .region-btn:active, .region-ico:active,
+  .cities-toggle:active, .tags-toggle:active { background: #F3F0E9; }
+  .route-card:active { border-color: #1E5A8A; }
+}
+@media (hover: hover) {
+  .point-row:hover, .cj-item:hover { background: #F3F0E9; }
+}
+.point-row, .cj-item, .city-head, .cluster-head, .country-head, .tag-chip,
+.sb-cities button, .region-btn, .region-ico, .cities-toggle, .tags-toggle {
+  transition: background-color .2s ease, border-color .2s ease;
+}
+.sb-cities button, .tag-chip, .point-row, .cj-item, .city-head, .cluster-head,
+.country-head, .region-btn, .region-ico, .cities-toggle, .tags-toggle, .sidebar-pill,
+.star-btn, .sb-tabs button, .leaflet-control-layers-list label { touch-action: manipulation; }
+
+/* 动线播放按钮 + 当前落点高亮 */
+.route-play {
+  display: block; width: calc(100% - 24px); margin: 10px 12px 0;
+  border: 1.5px solid #B71C1C; background: #B71C1C; color: #fff;
+  border-radius: 9px; padding: 11px; font-size: 13px; font-weight: 600;
+  cursor: pointer; touch-action: manipulation;
+}
+.route-play:active { background: #8E1414; }
+.leaflet-marker-icon.mp > div { outline: 3px solid #FFB300; outline-offset: 2px; }
+/* 弹窗内一键导航按钮点击态 */
+.popup-nav:active { background: #8E1414 !important; }

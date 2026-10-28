@@ -1,10 +1,9 @@
 import '../shared/base.css';
 import './list.css';
 import { renderIcpFooter } from '../shared/icp-footer.js';
+import { loadCheckins, toggleCheckin } from '../modules/checkin.js';
 
-// ===== 打卡清单页：与地图页共享同一份数据与打卡状态（travel-checkin-v1）=====
-
-const CHECK_KEY = 'travel-checkin-v1';
+// ===== 打卡清单页：与地图页共享同一份数据与打卡状态（travel-checkin-v2）=====
 
 const app = document.getElementById('list-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -14,7 +13,7 @@ const state = {
   query: '',
   collapsed: new Set(),
   tagFilter: new Set(),   // 标签筛选（多选 = 并集）
-  checked: new Set(JSON.parse(localStorage.getItem(CHECK_KEY) || '[]')),
+  checked: new Set(Object.keys(loadCheckins())),
 };
 
 const geoPoints = () => points.filter(p => !p.pending);
@@ -152,9 +151,9 @@ app.addEventListener('input', (e) => {
 app.addEventListener('change', (e) => {
   const name = e.target.dataset?.check;
   if (!name) return;
-  if (state.checked.has(name)) state.checked.delete(name);
-  else state.checked.add(name);
-  localStorage.setItem(CHECK_KEY, JSON.stringify([...state.checked]));
+  const o = loadCheckins();
+  toggleCheckin(o, name);
+  state.checked = new Set(Object.keys(o));
   render();
 });
 

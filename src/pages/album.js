@@ -24,7 +24,7 @@ function render() {
     <div class="album-grid">
       ${photos.map((p, i) => `
         <figure class="photo-card" data-idx="${i}">
-          <img src="./photos/${encodeURIComponent(p.src)}" alt="${esc(p.title || p.src)}" loading="lazy">
+          <img src="./photos/${encodeURIComponent(p.src)}" alt="${esc(p.title || p.src)}" loading="lazy" onerror="this.closest('figure').classList.add('ph-broken')">
           <figcaption>
             ${p.title ? `<div class="pc-title">${esc(p.title)}</div>` : ''}
             <div class="pc-sub">${[p.place, p.date].filter(Boolean).map(esc).join(' · ')}</div>
@@ -40,7 +40,7 @@ function viewerHtml() {
     <div class="viewer" data-viewer>
       <button class="vw-close" data-close>✕</button>
       <button class="vw-prev" data-prev ${viewerIdx === 0 ? 'disabled' : ''}>‹</button>
-      <img class="vw-img" src="./photos/${encodeURIComponent(p.src)}" alt="${esc(p.title || '')}">
+      <img class="vw-img" src="./photos/${encodeURIComponent(p.src)}" alt="${esc(p.title || '')}" onerror="this.style.display='none'">
       <button class="vw-next" data-next ${viewerIdx === photos.length - 1 ? 'disabled' : ''}>›</button>
       <div class="vw-cap">${esc(p.title || '')}${p.place || p.date ? `<span>${[p.place, p.date].filter(Boolean).map(esc).join(' · ')}</span>` : ''}</div>
       <div class="vw-count">${viewerIdx + 1} / ${photos.length}</div>
