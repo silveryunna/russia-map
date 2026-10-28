@@ -380,3 +380,7 @@ b.hl { color: #B71C1C; font-weight: 700; }
 .leaflet-marker-icon.mp > div { outline: 3px solid #FFB300; outline-offset: 2px; }
 /* 弹窗内一键导航按钮点击态 */
 .popup-nav:active { background: #8E1414 !important; }
+
+/* 定位按钮（自绘控件，替代 leaflet.locatecontrol） */
+.locate-btn { display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; color: #555; }
+.locate-btn:hover { color: #111; }

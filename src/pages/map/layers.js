@@ -1,9 +1,11 @@
 // 图层方案：非中国（OSM/Esri）与中国（天地图/高德/腾讯/OSM）双区域自动/手动切换
-// - 中国区域 bbox 内自动切中国图层（可手动锁定）
+// - 中国区域判定用国界多边形（china-boundary.json，point-in-polygon），兜底矩形 bbox
 // - 高德/腾讯为 GCJ 坐标系：激活时 window.__amapActive__=true，所有点位经 coords.xy() 偏移
+// - 视野锚定：GCJ 补偿翻转时平移视野中心，地面原地不动、只换「皮肤」，消除跳变观感
+// - 图层选择与区域模式持久化到 localStorage（nm-layer-v1）
 // - 天地图走 /tdt/ 反向代理（key 在服务器侧，前端不持 key）
 // 附带：🔄 刷新控件（SW 有更新时亮红点）、🏙️ 城市快跳、中国以外区域灰化遮罩
-import { xy } from './coords.js';
+import { xy, wgs2gcj, gcj2wgs } from './coords.js';
 import { rebuildOverlays } from './overlays.js';
 
 let ctx = null; // { L, map, toast, refreshMarkers, meta, geoPoints }
@@ -15,6 +17,60 @@ const REGION_CONF = [
 
 let activeReg = 'world';
 let regionMode = 'auto';
+
+// ===== 图层选择持久化（nm-layer-v1） =====
+function saveSel() {
+  try {
+    localStorage.setItem('nm-layer-v1', JSON.stringify({ cn: window.__cnSel__, world: window.__worldSelName__, mode: regionMode }));
+  } catch { /* 隐私模式等场景忽略 */ }
+}
+function loadSel() {
+  try { return JSON.parse(localStorage.getItem('nm-layer-v1') || '{}'); } catch { return {}; }
+}
+
+// ===== 视野锚定 =====
+// GCJ 底图上数字坐标 N 处显示的是 gcj2wgs(N) 的地面。补偿翻转时平移视野中心，
+// 让地面原地不动、只换底图「皮肤」，消除切换时整图跳 ~500m 的观感
+function anchorView(toGcj) {
+  const wasGcj = !!window.__amapActive__;
+  window.__amapActive__ = toGcj;
+  if (wasGcj === toGcj) return;
+  const c = ctx.map.getCenter();
+  const [lat, lon] = toGcj ? wgs2gcj(c.lat, c.lng) : gcj2wgs(c.lat, c.lng);
+  ctx.map.setView([lat, lon], ctx.map.getZoom(), { animate: false });
+}
+
+// 点是否在中国国界内：优先国界多边形（ray casting，GeoJSON 坐标为 [lon,lat]），兜底矩形 bbox
+// 解决矩形 bbox 把阿拉木图（76.9E）误判为中国的盲区
+function pointInChina(lat, lng) {
+  const b = window.__chinaBoundary__;
+  if (!b || !b.features || !b.features.length) {
+    const bb = (REGION_CONF.find((r) => r.bbox) || {}).bbox;
+    return bb ? lng >= bb[0] && lng <= bb[2] && lat >= bb[1] && lat <= bb[3] : false;
+  }
+  let inside = false;
+  for (const f of b.features) {
+    const g = f.geometry || {};
+    const polys = g.type === 'Polygon' ? [g.coordinates] : g.type === 'MultiPolygon' ? g.coordinates : [];
+    for (const poly of polys) {
+      const ring = poly[0]; // 简化边界只测外环
+      let j = ring.length - 1;
+      for (let i = 0; i < ring.length; i++) {
+        const xi = ring[i][0], yi = ring[i][1];
+        const xj = ring[j][0], yj = ring[j][1];
+        if (yi > lat !== yj > lat && lng < ((xj - xi) * (lat - yi)) / (yj - yi) + xi) inside = !inside;
+        j = i;
+      }
+    }
+  }
+  return inside;
+}
+
+// 切换底图/区域时清掉 geosearch 的结果标记（它不过 xy()，残留会落在错误位置）
+function clearGeoMarkers() {
+  const g = window.__geoControl__;
+  if (g && g.markers) g.markers.clearLayers();
+}
 
 function cnLayers(reg) {
   const { L } = ctx;
@@ -77,19 +133,23 @@ function rebuildLayersCtl(reg) {
     setTimeout(() => {
       const inp = cc.querySelector('.leaflet-control-layers-base input:checked');
       if (!inp) return;
-      const nm = (inp.parentElement.querySelector('span') || {}).textContent;
+      // Leaflet 图层控件的 label 文本带前导空格（<span> 高德</span>），必须 trim——
+      // 否则 ' 高德' !== '高德'，GCJ 标志永不置位，手动切换后点位偏 ~500m（历史 bug）
+      const nm = ((inp.parentElement.querySelector('span') || {}).textContent || '').trim();
       if (!nm) return;
       const rg = window.__layersCtl__.__reg;
       const cur = rg === 'cn' ? window.__cnSel__ || '高德' : window.__worldSelName__ || '当地原文 (OSM)';
       if (nm === cur) return;
       showRegionLoading();
-      window.__amapActive__ = rg === 'cn' && (nm === '高德' || nm === '腾讯');
+      anchorView(rg === 'cn' && (nm === '高德' || nm === '腾讯'));
       if (rg === 'cn') {
         window.__cnSel__ = nm;
       } else {
         window.__worldSelName__ = nm;
         window.__worldBase__ = window.__baseEntries__[nm];
       }
+      saveSel();
+      clearGeoMarkers();
       refreshMarkers();
       rebuildOverlays(ctx.L, ctx.map);
       renderMask();
@@ -111,24 +171,27 @@ function setRegion(reg) {
     else ctx.map.removeLayer(ly);
   });
   activeReg = reg;
-  if (reg === 'world') window.__worldSelName__ = '当地原文 (OSM)';
-  else window.__cnSel__ = '高德';
-  window.__amapActive__ = reg === 'cn';
+  // 保留用户上次的图层选择（不再重置为默认），GCJ 标志以实际选中的底图为准
+  const sel = reg === 'cn' ? window.__cnSel__ || '高德' : window.__worldSelName__ || '当地原文 (OSM)';
+  const gcj = reg === 'cn' && (sel === '高德' || sel === '腾讯');
+  anchorView(gcj);
   rebuildLayersCtl(reg);
+  clearGeoMarkers();
   ctx.refreshMarkers();
   rebuildOverlays(ctx.L, ctx.map);
   renderMask();
-  ctx.toast(reg === 'world' ? '已切换到非中国图层' : `已切换到中国图层（${window.__cnSel__ || '高德'}）`);
+  saveSel();
+  ctx.toast(reg === 'world'
+    ? '已切换到非中国图层'
+    : `已切换到中国图层（${sel}${gcj ? '，点位已按 GCJ-02 补偿' : ''}）`);
 }
 
 function autoRegion() {
   if (regionMode !== 'auto') return;
   const c = ctx.map.getCenter();
-  let reg = 'world';
-  for (const rc of REGION_CONF) {
-    if (rc.bbox && c.lng >= rc.bbox[0] && c.lng <= rc.bbox[2] && c.lat >= rc.bbox[1] && c.lat <= rc.bbox[3]) reg = rc.id;
-  }
-  setRegion(reg);
+  // GCJ 底图激活时视野数字在 GCJ 空间，先换回 WGS 再判定，避免国界附近误判
+  const [lat, lng] = window.__amapActive__ ? gcj2wgs(c.lat, c.lng) : [c.lat, c.lng];
+  setRegion(pointInChina(lat, lng) ? 'cn' : 'world');
 }
 
 // 中国以外区域灰化遮罩（world 模式灰化中国，cn 模式灰化中国以外）
@@ -284,10 +347,12 @@ export const COUNTRY_STYLE = {
 
 export function initLayers(deps) {
   ctx = deps;
+  const saved = loadSel();
   window.__regionConf__ = REGION_CONF;
   window.__amapActive__ = false;
-  window.__cnSel__ = '高德';
-  window.__worldSelName__ = '当地原文 (OSM)';
+  window.__cnSel__ = (saved.cn || '').trim() || '高德';
+  window.__worldSelName__ = (saved.world || '').trim() || '当地原文 (OSM)';
+  regionMode = saved.mode === 'world' || saved.mode === 'cn' ? saved.mode : 'auto';
 
   const { L, map } = ctx;
   map.on('moveend', autoRegion);
@@ -299,13 +364,14 @@ export function initLayers(deps) {
     const mk = (id, label) => {
       const b = document.createElement('button');
       b.textContent = label;
-      b.className = `region-btn${id === 'auto' ? ' active' : ''}`;
+      b.className = `region-btn${id === regionMode ? ' active' : ''}`;
       b.dataset.reg = id;
       b.onclick = () => {
         regionMode = id;
         [...d.querySelectorAll('.region-btn[data-reg]')].forEach((x) => x.classList.toggle('active', x.dataset.reg === id));
         if (id === 'auto') autoRegion();
         else setRegion(id);
+        saveSel();
       };
       d.appendChild(b);
     };
@@ -322,6 +388,7 @@ export function initLayers(deps) {
   };
   regCtl.addTo(map);
   rebuildLayersCtl('world');
+  if (regionMode === 'cn') setRegion('cn'); // 持久化恢复了手动锁定「中国」
 
   addRefreshControl();
   addCityJumpControl();

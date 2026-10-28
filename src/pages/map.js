@@ -3,11 +3,9 @@
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
-import 'leaflet.locatecontrol/dist/L.Control.Locate.min.css';
 import 'leaflet-geosearch/dist/geosearch.css';
 import 'leaflet.fullscreen/dist/Control.FullScreen.css';
 import { GeoSearchControl } from 'leaflet-geosearch';
-import { LocateControl } from 'leaflet.locatecontrol';
 import { FullScreen } from 'leaflet.fullscreen';
 import '../shared/base.css';
 import './map.css';
@@ -199,7 +197,8 @@ const state = {
   highlight: null,        // { type:'city'|'cluster', value, city? }
   routeId: null,
   sortBy: 'default',      // default | distance（定位后可用）
-  myLoc: null,            // 定位到的当前位置 L.LatLng
+  myLoc: null,            // 定位到的当前位置 L.LatLng（WGS 原始值，绘制时过 xy()）
+  myAcc: null,            // 定位精度（米）
   checked: new Set(),     // 打卡 v2：id 集合（见下初始化）
 };
 
@@ -585,6 +584,27 @@ function refreshMarkers() {
     lastFitKey = key;
   }
   suppressFit = false;
+  drawMyLoc(); // GCJ 补偿翻转后蓝点随点位一起重画
+}
+
+// 自绘「我的位置」：state.myLoc 存 WGS 原始值，绘制时过 xy() 做 GCJ 补偿
+// 切换底图/区域时随 refreshMarkers 重画，保证蓝点始终贴地
+function drawMyLoc() {
+  (window.__myLocLayers__ || []).forEach((l) => map.removeLayer(l));
+  window.__myLocLayers__ = [];
+  if (!state.myLoc || !map) return;
+  const c = xy(state.myLoc.lat, state.myLoc.lng);
+  const layers = [];
+  if (state.myAcc) {
+    layers.push(L.circle(c, {
+      radius: state.myAcc, color: '#2A7AE2', weight: 1, opacity: 0.5,
+      fillColor: '#2A7AE2', fillOpacity: 0.12, interactive: false,
+    }));
+  }
+  layers.push(L.circleMarker(c, { radius: 7, color: '#fff', weight: 2.5, fillColor: '#2A7AE2', fillOpacity: 1 })
+    .bindPopup(`你在这里${state.myAcc ? `（误差 ±${Math.round(state.myAcc)} 米）` : ''}`));
+  layers.forEach((l) => l.addTo(map));
+  window.__myLocLayers__ = layers;
 }
 
 // 飞到点位并弹窗（手机端自动收起侧栏，让地图露出来）
@@ -648,6 +668,7 @@ function renderChrome() {
 // ===== 地图初始化 =====
 async function initMap() {
   map = L.map('map', { zoomControl: false, attributionControl: false }).setView([56.5, 37.6], 5);
+  window.__map__ = map; // 调试/自动化测试入口
   L.control.attribution({ prefix: false, position: 'bottomright' })
     .addAttribution('© OpenStreetMap contributors · Esri · 天地图 · 高德 · 腾讯')
     .addTo(map);
@@ -699,23 +720,23 @@ async function initMap() {
   // 数据驱动覆盖层（水上巴士航线等，来自 data/overlays.json）
   drawOverlays(L, map);
 
-  // 定位到我
-  new LocateControl({
-    position: 'bottomright',
-    flyTo: true,
-    keepCurrentZoomLevel: false,
-    drawCircle: true,
-    drawMarker: true,
-    metric: true,
-    strings: {
-      title: '定位到我的位置',
-      popup: '你在这里（误差 ±{distance}{unit}）',
-      outsideMapBoundsMsg: '你似乎不在当前地图区域内',
-      metersUnit: '米',
-      feetUnit: '英尺',
-    },
-    locateOptions: { enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 },
-  }).addTo(map);
+  // 定位到我（自绘控件：leaflet.locatecontrol 不支持坐标变换，GCJ 底图上蓝点会偏 ~500m，故弃用）
+  const locateCtl = L.control({ position: 'bottomright' });
+  locateCtl.onAdd = () => {
+    const btn = L.DomUtil.create('a', 'leaflet-bar locate-btn');
+    btn.href = '#';
+    btn.title = '定位到我的位置';
+    btn.setAttribute('role', 'button');
+    btn.setAttribute('aria-label', '定位到我的位置');
+    btn.innerHTML = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="6.5"/><circle cx="12" cy="12" r="1.8" fill="currentColor" stroke="none"/><path d="M12 1.5v3.5M12 19v3.5M1.5 12H5M19 12h3.5"/></svg>';
+    L.DomEvent.disableClickPropagation(btn);
+    L.DomEvent.on(btn, 'click', (e) => {
+      L.DomEvent.preventDefault(e);
+      map.locate({ enableHighAccuracy: true, timeout: 10000, maximumAge: 30000 });
+    });
+    return btn;
+  };
+  locateCtl.addTo(map);
 
   // 全屏（原生失败自动降级伪全屏）
   new SafeFullScreen({ position: 'bottomright', title: '全屏显示', titleCancel: '退出全屏' }).addTo(map);
@@ -782,13 +803,17 @@ async function initMap() {
     }
   })();
 
-  // 定位成功：记住位置，侧栏显示"距我 X"并提供按距离排序
+  // 定位成功：记住位置（WGS 原始值），自绘标记过 xy() 补偿，侧栏显示"距我 X"并可按距离排序
   map.on('locationfound', (e) => {
-    if (state.myLoc) return; // 首次定位即可，不持续追踪
+    const first = !state.myLoc;
     state.myLoc = e.latlng;
+    state.myAcc = e.accuracy;
+    drawMyLoc();
+    map.flyTo(xy(e.latlng.lat, e.latlng.lng), Math.max(map.getZoom(), 15), { duration: 0.8 });
     renderSidebar();
-    mapToast('定位成功：清单已显示各点位距离，可按距离排序');
+    mapToast(first ? '定位成功：清单已显示各点位距离，可按距离排序' : '已更新到我的位置');
   });
+  map.on('locationerror', () => mapToast('定位失败：请检查浏览器定位权限'));
 }
 
 // 地图底部提示条

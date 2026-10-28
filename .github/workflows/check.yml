@@ -23,6 +23,10 @@ jobs:
           node tools/mutation-test.mjs . mut-report.tsv | tee mut.log
           if grep -q '❌' mut.log; then echo '校验器漏检变异'; exit 1; fi
 
+      # 2.5) 坐标变换质量门：往返一致性 + coordtransform 基准 + §7.9 实测交叉核对
+      - name: 坐标变换测试
+        run: node tools/coords-test.mjs
+
       # 3) 打包产物必须能通过严格 ESM 解析（node --check 不可靠，白屏事故防线）
       - name: ESM 严格解析
         run: node --experimental-vm-modules tools/check-esm.mjs
