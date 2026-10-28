@@ -510,7 +510,7 @@ P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协
 | 4 | ✅ | `src/pages/plan/store.js`（信封 + 损坏备份 + 迁移）；`tools/test-plan-store.mjs`；页面显示恢复告警 |
 | 5 | ✅ | `sw.js` 瓦片白名单改为 OSM/OSM-DE/Esri，明确不缓存高德/腾讯；外壳补齐 9 页；`tools/sw-policy-test.mjs` |
 | 6 | ✅ | AI 失败弹「重试 / 用离线规则 / 取消」，不再静默降级；计划详情与导出标注「站内通道/自定义接口 · 模型」 |
-| 7 | ✅（加密未启用） | `CURLOPT_RESOLVE` 固定校验阶段解析的 IP；限制 443/禁 userinfo；`AI_KEY_FILE` 可选 sodium 静态加密（读旧明文兼容）。服务器已 `php -l` 通过、PHP 8.3.31，但**未装 sodium**，故 Key 仍为明文存储 |
+| 7 | ✅ | `CURLOPT_RESOLVE` 固定校验阶段解析的 IP；限制 443/禁 userinfo；Key 静态加密已启用（服务器装 php-sodium 8.3.36 + libsodium，密钥在 webroot 外，`enc:v1:` 往返自检通过，旧明文兼容）；HTML 冒烟与 CLI 实测均已通过 |
 | 8 | ✅ | `tools/check-doc-facts.mjs` 把变异数/点位数/动线数/页面数/测试覆盖钉进 CI；AGENTS/README 同步 |
 
 剩余验收项（飞行模式离线清单）未做：需要在真机/浏览器 DevTools offline 下逐页确认，属发布前人工复核项。
