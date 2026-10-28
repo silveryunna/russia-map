@@ -27,6 +27,12 @@ jobs:
       - name: ESM 严格解析
         run: node --experimental-vm-modules tools/check-esm.mjs
 
+      # 3.5) 源码可复现构建（P2 起 src/ 是源码事实来源，防"本地能建 CI 建不了"）
+      - name: 源码构建验证
+        run: |
+          npm ci
+          npm run build
+
       # 4) 改了 assets/*.js 必须同提交同步对应页面的 ?v= 与 sw.js VERSION
       #    页面专属资产 → 对应 HTML；共享/核心资产 → map.html；任何 JS 变更都要 bump sw.js
       - name: 版本同步检查
