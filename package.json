@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "check-data": "node tools/check-data.mjs ./data"
+    "check-data": "node tools/check-data.mjs ./data",
+    "publish": "node tools/publish.mjs"
   },
   "author": "",
   "type": "module",

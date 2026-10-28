@@ -105,7 +105,7 @@ scp -i ~/.ssh/nas_ed25519 \
 
 1. 改代码 → `node tools/check-data.mjs ./data` + `node tools/deploy-check.mjs data/`
 2. commit（启用 `.githooks`：`git config core.hooksPath .githooks`）
-3. 部署：腾讯云 scp 直传 + GitHub Pages push（push 需代理 `127.0.0.1:7897`）
-4. 改了 `assets/*.js` 必同步 bump：`map.html ?v=` 与 `sw.js VERSION`
+3. 部署：改数据 → commit + push 即上线（push 需代理 `127.0.0.1:7897`）；改 `src/` 源码 → `npm run publish`
+4. 根目录 HTML 与 `assets/` 是构建产物，不要手改；sw.js VERSION 由构建自动注入 git sha
 
 NAS 侧职责：密钥归档、照片管线（immich/photo-*）、实验容器。网站代码的**唯一事实来源是 GitHub main 分支**，不要把 NAS 当代码仓库用。

@@ -9,6 +9,7 @@
 #
 # 安全网（2026-10-28 加）：cron 不等 CI，坏提交会先上线。故 reset 后对关键资源做 200 自检，
 #   任一失败立即回滚到上一个 commit；并记住失败版本暂停重试，避免每 2 分钟反复回滚刷日志。
+# 2026-10-28 P4 起：assets 哈希每次构建都变，地图 JS 不再硬编码，改为从 map.html 动态提取。
 #
 # 部署：scp 到服务器后务必确认行尾是 LF（CRLF 会报 bad interpreter）：
 #   dos2unix /root/update-russia-map.sh   或   sed -i 's/\r$//' /root/update-russia-map.sh
@@ -18,10 +19,6 @@ set -uo pipefail
 WEBROOT=/www/wwwroot/julyyunna.art
 SITE=https://julyyunna.art
 MARK=/tmp/update-site-failed-target
-
-# 自检清单：两个 HTML 入口 + SW + 核心地图 JS + 点位数据
-# 覆盖两类致命故障：白屏（JS 挂了）与数据损坏（points.json 解析不了）
-CHECKS=(index.html map.html sw.js assets/map-D2GUsbT3.js data/points.json)
 
 log() { echo "[$(date '+%F %T')] $*"; }
 
@@ -49,6 +46,14 @@ fi
 
 git reset --hard "$TARGET" >/dev/null 2>&1 || { log "❌ reset --hard $TARGET 失败"; exit 1; }
 find "$WEBROOT" -mindepth 1 -maxdepth 1 ! -name '.git' -exec chown -R www:www {} + 2>/dev/null   # nginx 用户 www；须排除 .git，否则 root 运行的 git 触发 dubious ownership 拒绝执行
+
+# 自检清单：两个 HTML 入口 + SW + 核心地图 JS + 点位数据
+# 覆盖两类致命故障：白屏（JS 挂了）与数据损坏（points.json 解析不了）
+# 地图 JS 的文件名哈希每次构建都变，从 reset 后的 map.html 动态提取
+MAPJS=$(grep -o 'assets/map-[A-Za-z0-9_-]*\.js' map.html | head -1)
+[ -n "$MAPJS" ] || { log "⚠️ map.html 未找到地图 JS 引用，跳过 JS 自检"; }
+CHECKS=(index.html map.html sw.js data/points.json)
+[ -n "$MAPJS" ] && CHECKS+=( "$MAPJS" )
 
 check_url() {
   curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$1" 2>/dev/null || echo 000

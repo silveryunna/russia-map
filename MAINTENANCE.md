@@ -244,7 +244,7 @@ location ~* \.(js|css|html|json)$ {
 - `no-cache` 每次回源校验，未变返回 304（成本可忽略），变了立刻生效
 - 数据文件（`data/*.json`）同理：不加会导致用户看到旧点位/旧动线
 - 改完必须 `nginx -t && nginx -s reload`；配置备份在 `/www/server/panel/vhost/nginx/*.conf.bak*`
-- 兜底手段：HTML 里给资源加版本查询串（如 `map-D2GUsbT3.js?v=31`），发了新版本就手动 +1
+- 兜底手段（2026-10-28 P4 前）：HTML 里给资源加版本查询串手动 +1。**P4 起已废除**：HTML 引用全部是构建期哈希文件名，`sw.js` VERSION 自动注入 git sha
 
 ### 7.8 自动同步脚本：chown 绝不能碰 .git（2026-10-28 真实事故）
 
@@ -487,7 +487,7 @@ tail -c 25 data/points.json | od -c
 
 1. **nginx**：`js|css|html|json` 必须 `Cache-Control: no-cache`（宝塔默认给 js/css 12h 强缓存，已改；配置备份 `/www/server/panel/vhost/nginx/*.conf.bak*`）。
 2. **Service Worker**（`sw.js`）：同源请求用 `fetch(req, { cache: 'no-cache' })` 强制回源校验（tn-v30 起）——否则 `data/*.json` 会被浏览器旧的启发式保质期顶住，SW 拿到的是陈旧副本，页面怎么刷都不变。
-3. **版本号**：`sw.js` 的 `VERSION` 每发布一次 +1（当前 tn-v38；激活时清旧缓存）；HTML 里引用带内容变化的资源加查询串（当前 `map-D2GUsbT3.js?v=43`）作兜底。
+3. **版本号**（2026-10-28 P4 起）：`sw.js` 的 `VERSION` 由 `tools/assemble.mjs` 构建期注入 `tn-v<git sha>`，发布走 `npm run publish`，不再手动 +1；HTML 引用均为哈希文件名，`?v=` 兜底已废除。
 
 ## 13. tn-v28 新功能速查
 

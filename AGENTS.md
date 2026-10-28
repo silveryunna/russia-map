@@ -12,17 +12,19 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 2. `git add -A && git commit`
 3. 部署（见下）
 
-## 部署（单主站，2026-10-26 起）
+## 部署（2026-10-28 P4 起：单仓构建发布）
 
-- 腾讯云（唯一线上节点）：webroot 是 git 工作区，root crontab 每 2 分钟跑 `/root/update-russia-map.sh`（`git fetch` + `git reset --hard origin/main`）→ **push 到 main 即自动上线，≤2 分钟生效**（2026-10-28 实测 reflog：00:44/46/48/50… 每 2 分钟一次 reset）
-- ⚠️ 因此**不要再用 scp 热修**：手改 webroot 里的文件会在 2 分钟内被 reset 覆盖，已跟踪文件的未提交改动同样会丢（未跟踪文件不会被删）。确需临时改线上文件，先 `crontab -e` 注释掉那一行，改完再恢复
+- **源码唯一事实来源：`src/`（vite 构建入口）+ `data/`（数据）。根目录 9 个 HTML 与 `assets/` 是构建产物，禁止手改**（手改会在下一次 publish 时被覆盖）
+- 改数据（`data/*.json`）：check-data → commit → push 即上线（服务器 cron ≤2 分钟拉取），无需构建
+- 改源码（`src/`、`tools/`、`sw.js` 模板等）：`npm run publish`（= `tools/publish.mjs`：体检 → check-data → vite build → assemble → 产物回写仓库根 → commit → push；加 `--wait` 可等服务器追平）
+- 腾讯云（唯一线上节点）：webroot 是 git 工作区，root crontab 每 2 分钟跑 `/root/update-russia-map.sh`（`git fetch` + `git reset --hard origin/main` + 关键资源 200 自检，失败自动回滚上一版并暂停）。**push 到 main 即自动上线，≤2 分钟生效**
+- ⚠️ 因此**不要再用 scp 热修**：手改 webroot 里的文件会在 2 分钟内被 reset 覆盖。确需临时改线上文件，先 `crontab -e` 注释掉那一行，改完再恢复
 - GitHub：既是 git 备份 + CI/监控载体，也是**实际部署源**；Pages 备节点已放弃维护（push 仍会触发 Pages 自动构建，但坏了不用修）
 - 每次部署后必验：`git rev-parse HEAD` 与服务端 `cd /www/wwwroot/julyyunna.art && git rev-parse HEAD` 一致（≤2 分钟会追平）
-- 天地图 Key 已改为**服务端类型（2026-10-28 起）**：Key 只存在于服务器 nginx 配置 `/www/server/panel/vhost/nginx/julyyunna.art.conf` 的 `location ^~ /tdt/` 段（root 600），由 nginx 追加 `tk=` 后回代上游；**前端不再持有、也不再下发任何 Key**（`map.html` 已移除 tdt-key.js 引入，map 产物里已无 `__TDT_KEY__` 字样）。轮换 Key 只改服务器配置，`nginx -t` 后 `nginx -s reload`，无需动前端
+- 天地图 Key 为**服务端类型**：只存在于服务器 nginx 配置 `/www/server/panel/vhost/nginx/julyyunna.art.conf` 的 `location ^~ /tdt/` 段（root 600），由 nginx 追加 `tk=` 后回代上游；**前端不持有、不下发任何 Key**。轮换 Key 只改服务器配置，`nginx -t` 后 `nginx -s reload`，无需动前端
 - Key 轮换/commit 前确认：仓库任何文件中不得出现 tk 明文（含历史再引入）；`.gitignore` 仍保留 `assets/tdt-key.js` 以防误传
-- 改 `assets/*.js` 必须同步：`map.html` 的 `?v=` +1、`sw.js` 的 `VERSION` +1
-- 改打包产物后用 ESM 严格解析验证（`node --check` 对含 import 的文件不可靠）：
-  `node --experimental-vm-modules -e "new (require('vm').SourceTextModule)(require('fs').readFileSync('assets/xxx.js','utf8'))"`
+- sw.js 的 VERSION 由 assemble 构建期自动注入 git short sha（`tn-v<sha>`），不再手改；HTML 引用均为哈希文件名，**`?v=` 手工仪式已废除**
+- 打包产物 ESM 严格解析由 publish 第 5 步自动执行（防白屏）；手动跑：`node --experimental-vm-modules tools/check-esm.mjs`
 
 ## CI / 监控（GitHub Actions）
 
