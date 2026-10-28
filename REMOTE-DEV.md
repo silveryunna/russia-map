@@ -30,7 +30,7 @@
 |---|---|---|
 | `julyyunna_thispc_ed25519` | VPS root 登录私钥 | `~/.ssh/`，权威备份在 NAS 密钥归档包 |
 | `nas_ed25519` | NAS `mcp-bot` 账号私钥 | 同上 |
-| GitHub 推送 Token | Pages 部署用 | Windows 凭据管理器 |
+| GitHub 推送 Token | push 到 main（main 即部署源，服务器 cron 拉取） | Windows 凭据管理器 |
 
 红线：**私钥、frp token、各类 API Key 永不写入仓库、文档、聊天记录**。
 
@@ -42,7 +42,7 @@
 | SSH 进 NAS 宿主机 | `ssh -i ~/.ssh/nas_ed25519 mcp-bot@192.168.1.5` | `bash ~/bin/nas-remote.sh ssh`（见 §4） |
 | scp/rsync 传文件到 NAS | 直接对 192.168.1.5 | 加同款跳板 ProxyCommand |
 | AI 助手操作 NAS（MCP） | mcp.json 直连 `http://192.168.1.5:8765/mcp` | §5 转发 + 改 mcp.json |
-| 网站部署 | 见 AGENTS.md「部署双节点」，与是否在內网无关 | 同左 |
+| 网站部署 | 见 AGENTS.md「部署」节（push 即上线），与是否在内网无关 | 同左 |
 
 ## 4. 一键脚本 `~/bin/nas-remote.sh`
 

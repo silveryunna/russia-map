@@ -27,7 +27,7 @@ if (fetched === null) {
   const ahead = +(run('git', ['rev-list', '--count', 'origin/main..HEAD']) ?? 0);
   if (behind > 0) die(`本地落后 origin/main ${behind} 个提交——先 git pull --rebase，否则你的部署会回滚另一台机器的提交`);
   else ok('本地不落后远端');
-  if (ahead > 0) console.warn(`⚠️ 本地领先 origin/main ${ahead} 个提交：scp 后记得 push，否则 GitHub Pages 与腾讯云内容不一致`);
+  if (ahead > 0) console.warn(`⚠️ 本地领先 origin/main ${ahead} 个提交：先 push 再部署（服务器只认 origin/main，不 push 的提交永不上线）`);
 }
 
 // 3) 数据可解析（防手改半截 JSON 直接上服务器）

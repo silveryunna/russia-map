@@ -31,14 +31,15 @@ jobs:
       - name: ESM 严格解析
         run: node --experimental-vm-modules tools/check-esm.mjs
 
-      # 3.5) 源码可复现构建（P2 起 src/ 是源码事实来源，防"本地能建 CI 建不了"）
-      - name: 源码构建验证
+      # 3.5) src 与已提交产物一致性（多会话纪律：改 src 必须经 publish 一起带产物；
+      #      顺带验证了源码可复现构建——npm ci + vite build 在 CI 能跑通）
+      - name: src/产物一致性 + 可复现构建
         run: |
           npm ci
-          npm run build
+          node tools/check-build-sync.mjs
 
-      # 4) 改了 assets/*.js 必须同提交同步对应页面的 ?v= 与 sw.js VERSION
-      #    页面专属资产 → 对应 HTML；共享/核心资产 → map.html；任何 JS 变更都要 bump sw.js
+      # 4) assets/*.js 变更必须同提交改 sw.js（VERSION 随 publish 自动注入新 sha，
+      #    保证 SW 激活清旧缓存）。P4 起产物为哈希文件名，旧的 ?v= 具名规则已废除。
       - name: 版本同步检查
         env:
           BEFORE: ${{ github.event.before }}
@@ -49,28 +50,8 @@ jobs:
           changed=$(git diff --name-only "$BEFORE" "$GITHUB_SHA")
           assets_js=$(echo "$changed" | grep '^assets/.*\.js$' | grep -v 'tdt-key' || true)
           if [ -z "$assets_js" ]; then echo '✅ 无受控 JS 变更'; exit 0; fi
-          fail=0
-          need() {
-            # $1=资产正则  $2=需要的文件(空格分隔)  $3=说明
-            if echo "$assets_js" | grep -qE "$1"; then
-              for f in $2; do
-                echo "$changed" | grep -q "^${f}\$" || { echo "❌ $3（缺 $f）"; fail=1; }
-              done
-            fi
-          }
-          need 'account-v1\.js$'   'account.html'                'account-v1.js 变更须同步 account.html ?v='
-          need 'friend-v1\.js$'    'friend.html'                 'friend-v1.js 变更须同步 friend.html ?v='
-          need 'plan-v1\.js$'      'plan.html'                   'plan-v1.js 变更须同步 plan.html ?v='
-          need 'notes-v2\.js$'     'notes.html'                  'notes-v2.js 变更须同步 notes.html ?v='
-          need 'album-[^/]*\.js$'  'album.html'                  'album 资产变更须同步 album.html ?v='
-          need 'list-[^/]*\.js$'   'list.html'                   'list 资产变更须同步 list.html ?v='
-          need 'ai-models-v1\.js$' 'account.html friend.html' 'ai-models-v1.js 是 friend/account 的共享依赖（plan-v1.js 无 import，不消费）'
-          core=$(echo "$assets_js" | grep -vE '(account-v1|friend-v1|plan-v1|notes-v2|ai-models-v1)\.js$|album-[^/]*\.js$|list-[^/]*\.js$' || true)
-          if [ -n "$core" ]; then
-            echo "$changed" | grep -q '^map\.html$' || { echo "❌ 核心/地图资产变更须同步 map.html ?v=：$core"; fail=1; }
-          fi
-          echo "$changed" | grep -q '^sw\.js$' || { echo '❌ 任何 JS 变更都须 bump sw.js VERSION'; fail=1; }
-          [ "$fail" = 0 ] && echo '✅ 版本同步检查通过' || exit 1
+          echo "$changed" | grep -q '^sw\.js$' || { echo '❌ assets/*.js 变更须同提交改 sw.js（应通过 npm run publish 发布，它会自动处理）'; exit 1; }
+          echo '✅ 版本同步检查通过'
 
   smoke:
     runs-on: ubuntu-latest

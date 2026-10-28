@@ -95,8 +95,20 @@ if (DRY) {
 step(6, 'commit + push');
 git(['add', '-A', '--', ...HTML_FILES, 'sw.js', 'assets']);
 const sha = run('git', ['rev-parse', '--short', 'HEAD']);
-git(['commit', '-m', MSG || `publish: 构建产物同步（基于 ${sha}）`]);
-git(['push', 'origin', 'main'], { stdio: 'inherit' });
+try {
+  git(['commit', '-m', MSG || `publish: 构建产物同步（基于 ${sha}）`]);
+} catch {
+  console.error('❌ commit 失败（pre-commit 钩子拦截？可手动 git commit 查看原因）');
+  process.exit(1);
+}
+try {
+  git(['push', 'origin', 'main'], { stdio: 'inherit' });
+} catch {
+  console.error('\n❌ push 被拒：远端有新提交（另一台机器/另一个会话刚 push 过？）');
+  console.error('   处理：git pull --rebase 后重跑 npm run publish');
+  console.error('   注意：rebase 会改变提交 sha，必须重跑 publish 重新生成产物（sw.js VERSION 与哈希引用）');
+  process.exit(1);
+}
 const newSha = run('git', ['rev-parse', '--short', 'HEAD']);
 console.log(`✅ 已推送 ${newSha}，服务器 cron 每 2 分钟拉取，稍后自动上线`);
 
