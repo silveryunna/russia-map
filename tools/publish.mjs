@@ -115,10 +115,13 @@ console.log(`✅ 已推送 ${newSha}，服务器 cron 每 2 分钟拉取，稍�
 // ── 7) 可选：等服务器追平 ──
 if (WAIT) {
   step(7, '等服务器追平（最多 ~4 分钟）');
-  const key = process.env.HOME + '/.ssh/julyyunna_ed25519';
+  const key = process.env.SSH_KEY || ['julyyunna_ed25519', 'julyyunna_thispc_ed25519']
+    .map((n) => process.env.HOME + '/.ssh/' + n)
+    .find((p) => existsSync(p));
+  if (!key) console.warn('⚠️ 未找到 SSH 私钥（可设 SSH_KEY 指定），跳过追平检查');
   const deadline = Date.now() + 4 * 60 * 1000;
   let synced = false;
-  while (Date.now() < deadline) {
+  while (key && Date.now() < deadline) {
     try {
       const remote = execFileSync('ssh', [
         '-i', key, '-o', 'StrictHostKeyChecking=accept-new', '-o', 'ConnectTimeout=8',

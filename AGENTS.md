@@ -12,7 +12,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 - `npm test`：规则引擎 + 计划存储 + SW 缓存策略 + 坐标变换 + 文档事实（CI 同样跑）
 - 计划模块：`src/pages/plan/engine.js`（纯函数，勿引入 DOM/storage）、`src/pages/plan/store.js`（`travel-plans-v1` 信封 + 损坏备份）。改规则逻辑必须同步 `tools/test-plan-engine.mjs`
 - SW 瓦片缓存白名单只有 OSM/OSM-DE/Esri；高德、腾讯（GCJ-02）与天地图（同源反代）都不进运行时缓存——`tools/sw-policy-test.mjs` 守护，别为了"多缓存"放宽
-- 自定义 AI Key 的静态加密：服务器设 `AI_KEY_FILE`（webroot 之外的 32 字节文件）后新保存的 key 以 `enc:v1:` 落库；未设置则与旧版一样明文存储
+- 自定义 AI Key 的静态加密：服务器设 `AI_KEY_FILE`（webroot 之外的 32 字节文件）后新保存的 key 以 `enc:v1:` 落库；未设置则与旧版一样明文存储。加密依赖 sodium，2026-10-29 核查服务器 PHP 8.3 **未装 sodium**（`function_exists('sodium_crypto_secretbox')=false`），所以当前仍是明文——要启用需先装扩展并给 php-fpm 传 `AI_KEY_FILE`，再改一次 Key 触发重存
 
 ## 每次改数据的固定动作
 
