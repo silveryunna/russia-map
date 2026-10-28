@@ -1,5 +1,5 @@
 // Service Worker - 牛马打工人的旅行笔记
-// 策略：页面与同源资源网络优先（离线回退缓存）+ OSM 瓦片缓存优先（运行时缓存，上限 4000 块）
+// 策略：页面与同源资源网络优先（离线回退缓存）+ 白名单底图瓦片缓存优先（运行时缓存，上限 TILE_CACHE_MAX 块）
 // 新版本激活后通知页面自动刷新
 //
 // 【更新发布流程】每次部署新版本时，把下面的 VERSION 改一个新值（如 tn-v2、tn-v3…），
@@ -16,14 +16,31 @@ const SHELL_ASSETS = [
   './list.html',
   './notes.html',
   './album.html',
+  './plan.html',
+  './friend.html',
+  './account.html',
+  './admin.html',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
   './favicon.png',
 ];
 
+// 瓦片缓存白名单：只缓存 WGS84 的 OSM 系与 Esri（实际在用的两张世界底图）。
+// - 天地图走同源 /tdt/ 反代，由上面的同源分支处理（网络优先 + 离线回退）
+// - 高德(autonavi)/腾讯(gtimg) 是 GCJ-02 瓦片且为跨域 opaque 响应：按服务条款不落盘，
+//   且它们在境内本就要求在线，离线时用天地图缓存代替
+const TILE_HOSTS = [
+  'tile.openstreetmap.org',
+  'tile.openstreetmap.de',
+  'server.arcgisonline.com',
+];
+const TILE_CACHE_MAX = 4000;
+
 function isTileUrl(url) {
-  return /tile\.openstreetmap\.org/.test(url);
+  let host;
+  try { host = new URL(url).hostname; } catch { return false; }
+  return TILE_HOSTS.includes(host);
 }
 
 async function postToClients(msg) {
@@ -100,7 +117,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // OSM 瓦片：缓存优先，浏览过的区域离线可用（运行时缓存，上限 4000 块）
+  // 白名单瓦片（OSM 系 / Esri）：缓存优先，浏览过的区域离线可用（运行时缓存，上限 TILE_CACHE_MAX）
   if (isTileUrl(url)) {
     event.respondWith((async () => {
       const hit = await caches.match(url, { cacheName: RUNTIME_CACHE });
@@ -109,7 +126,7 @@ self.addEventListener('fetch', (event) => {
         const res = await fetch(url, { mode: 'no-cors' });
         if (res && (res.ok || res.type === 'opaque')) {
           const cache = await caches.open(RUNTIME_CACHE);
-          cache.put(url, res.clone()).then(() => trimCache(RUNTIME_CACHE, 4000));
+          cache.put(url, res.clone()).then(() => trimCache(RUNTIME_CACHE, TILE_CACHE_MAX));
         }
         return res;
       } catch (e) {
@@ -132,3 +149,6 @@ async function trimCache(name, max) {
     }
   } catch (e) {}
 }
+
+// SW 是 classic script（不能 import），把策略挂到 self 上供 tools/sw-policy-test.mjs 在 VM 中校验
+self.__SW_POLICY__ = { VERSION, SHELL_ASSETS, TILE_HOSTS, TILE_CACHE_MAX, isTileUrl };

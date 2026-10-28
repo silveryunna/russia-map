@@ -6,6 +6,14 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 
 静态旅行站（Leaflet 地图 PWA + PHP/SQLite 小 API）。本仓库是唯一事实来源（main 分支），同时是部署源：GitHub Pages + 腾讯云双节点。
 
+## 本地开发 / 质量门
+
+- `npm run dev`：Vite（root=`src/`）。`vite.config.js` 的 `devRepoAssets` 插件把仓库根 `data/ content/ photos/` 与白名单根文件映射到站点根，`/api/*` 默认返回 JSON 错误（页面降级规则引擎）；要连真后端用 `DEV_API=http://127.0.0.1:8080 npm run dev`
+- `npm test`：规则引擎 + 计划存储 + SW 缓存策略 + 坐标变换 + 文档事实（CI 同样跑）
+- 计划模块：`src/pages/plan/engine.js`（纯函数，勿引入 DOM/storage）、`src/pages/plan/store.js`（`travel-plans-v1` 信封 + 损坏备份）。改规则逻辑必须同步 `tools/test-plan-engine.mjs`
+- SW 瓦片缓存白名单只有 OSM/OSM-DE/Esri；高德、腾讯（GCJ-02）与天地图（同源反代）都不进运行时缓存——`tools/sw-policy-test.mjs` 守护，别为了"多缓存"放宽
+- 自定义 AI Key 的静态加密：服务器设 `AI_KEY_FILE`（webroot 之外的 32 字节文件）后新保存的 key 以 `enc:v1:` 落库；未设置则与旧版一样明文存储
+
 ## 每次改数据的固定动作
 
 1. 改 `data/*.json` → `node tools/check-data.mjs ./data`（必须通过）
@@ -28,7 +36,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 
 ## CI / 监控（GitHub Actions）
 
-- `check.yml`（push 触发）：check-data + 变异测试（21 变异须全捕获）+ assets ESM 严格解析 + 版本同步检查（改 assets/*.js 必须同提交改 map.html 与 sw.js）+ Playwright 冒烟（桌面/手机截图 artifact）
+- `check.yml`（push 触发）：check-data + 变异测试（26 变异须全捕获）+ 坐标变换 + 计划模块单测 + SW 缓存策略 + 文档事实 + assets ESM 严格解析 + 版本同步检查（改 assets/*.js 必须同提交改 map.html 与 sw.js）+ Playwright 冒烟（地图桌面/手机 + 计划页全流程截图 artifact）
 - `monitor.yml`（每 6 小时）：探测腾讯云主站/API/NAS/TLS 证书（剩 <14 天告警），故障自动开 issue、恢复自动关闭；仓库 60 天无活动 GitHub 会停定时任务，手动跑一次即可恢复
 - 探针脚本 `tools/site-monitor.mjs` 可本地直接跑（Pages 检查需网络可达 GitHub）
 

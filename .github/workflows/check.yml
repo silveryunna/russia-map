@@ -27,6 +27,20 @@ jobs:
       - name: 坐标变换测试
         run: node tools/coords-test.mjs
 
+      # 2.6) 计划模块：规则引擎（跨动线去重/单日上限/天数一致）+ localStorage 容错
+      - name: 计划模块测试
+        run: |
+          node tools/test-plan-engine.mjs
+          node tools/test-plan-store.mjs
+
+      # 2.7) SW 缓存策略：外壳覆盖全部页面 + 瓦片白名单与实际底图一致
+      - name: SW 策略测试
+        run: node tools/sw-policy-test.mjs
+
+      # 2.8) 文档事实：README/AGENTS 里的数量与代码、数据一致（防"21 变异"这类过期数字）
+      - name: 文档事实检查
+        run: node tools/check-doc-facts.mjs
+
       # 3) 打包产物必须能通过严格 ESM 解析（node --check 不可靠，白屏事故防线）
       - name: ESM 严格解析
         run: node --experimental-vm-modules tools/check-esm.mjs

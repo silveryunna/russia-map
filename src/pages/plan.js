@@ -1,5 +1,7 @@
 import '../shared/base.css';
 import './plan.css';
+import { INTERESTS, PLAN_DAYS_MAX, clampDays, ruleEngine } from './plan/engine.js';
+import { loadPlans, savePlans } from './plan/store.js';
 // 日程计划 v2：规则引擎离线生成 + TokenHub AI（站内通道，api/index.php?a=plan 代理）
 // 默认走站内接口，Bearer 用本站登录 token（friend-token / admin-token）；Key 只在服务器侧
 // 高级设置可会话级覆盖 endpoint/key（不落盘）；长期自定义接入在 friend.html「我的 AI 接入」保存
@@ -9,105 +11,23 @@ import './plan.css';
 
 const $app = document.getElementById('plan-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const LS_PLANS = 'travel-plans-v1';
 const LS_AI = 'planner-ai-config';
 
-let points = [], routes = [], meta = { cities: [], cityColors: {} };
-let plans = JSON.parse(localStorage.getItem(LS_PLANS) || '[]');
-let view = { mode: 'list', planId: null, form: null, showAI: false };
+let meta = { cities: [], cityColors: {} };
+const planLoad = loadPlans(localStorage);
+let plans = planLoad.plans;
+let view = { mode: 'list', planId: null, form: null, showAI: false, aiError: '' };
 let cache = { pts: null, rts: null };
 
-/* ---------- 数据 ---------- */
-async function loadData(force) {
-  if (!cache.pts || force) {
-    [cache.pts, cache.rts] = await Promise.all([
-      fetch('./data/points.json').then(r => r.json()),
-      fetch('./data/routes.json').then(r => r.json()),
-    ]);
+function persistPlans() {
+  try {
+    savePlans(localStorage, plans);
+    planLoad.recovered = false;
+    return true;
+  } catch (err) {
+    toast('本地存储写入失败：' + err.message + '（可先导出 Markdown）');
+    return false;
   }
-  return cache;
-}
-
-/* ---------- 兴趣标签 ---------- */
-const INTERESTS = {
-  '建筑': /建筑|构成主义|斯大林|现代主义|粗野|先锋派|新艺术|折衷|古典主义|摩天|工业遗产/,
-  '美食': /餐厅|咖啡|食堂|小吃|甜品|酒吧|美食|饮品|冰淇淋|下午茶|大排档|自助|火锅/,
-  '博物馆': /博物馆|美术馆|展览|画廊/,
-  '自然': /海湾|公园|湖泊|雨林|峡谷|海岛|沙滩|森林|冰川|温泉|湿地|草原/,
-  '摄影': /拍照|摄影|观景|登顶|全景|机位|出片|扫街/,
-  '地铁': /地铁站|火车站|交通|口岸|机场/,
-  '文学': /文学|故居|书店|诗人|作家|纪念雕像/,
-  '购物': /商场|市场|免税|巴扎|市集|步行街/,
-};
-function interestHits(p) {
-  const t = `${p.type} ${p.cluster} ${p.highlight || ''} ${(p.tags || []).join(' ')}`;
-  return Object.keys(INTERESTS).filter(k => INTERESTS[k].test(t));
-}
-
-/* ---------- 规则引擎 ---------- */
-function ruleEngine(params) {
-  const cityPts = cache.pts.filter(p => !p.pending && p.city === params.city);
-  let pool = cityPts;
-  if (params.interests.length) {
-    const hit = cityPts.filter(p => interestHits(p).some(i => params.interests.includes(i)));
-    if (hit.length >= 4) pool = hit; // 兴趣过滤后点位太少则回退全城
-  }
-  // 优先使用已有动线做骨架
-  const cityRoutes = cache.rts.filter(r => r.city === params.city);
-  const byName = new Map(cache.pts.map(p => [p.name, p]));
-  const used = new Set();
-  const days = [];
-  const pick = list => list.filter(p => !used.has(p.id));
-
-  // 动线映射为日
-  for (const r of cityRoutes.slice(0, params.days)) {
-    const ids = r.steps.map(s => s.point).filter(Boolean).map(n => byName.get(n)).filter(Boolean);
-    ids.forEach(p => used.add(p.id));
-    days.push(mkDay(days.length + 1, distribute(ids), `参考动线：${r.name} · ${r.tip || r.summary || ''}`));
-  }
-  // 剩余点位按点位群聚类补齐
-  const rest = pick(pool);
-  const byCluster = new Map();
-  for (const p of rest) {
-    const key = p.cluster;
-    if (!byCluster.has(key)) byCluster.set(key, []);
-    byCluster.get(key).push(p);
-  }
-  const clusters = [...byCluster.values()].sort((a, b) => b.length - a.length);
-  const PER_DAY = 6;
-  let ci = 0;
-  while (days.length < params.days && ci < clusters.length) {
-    const dayPts = [];
-    while (dayPts.length < PER_DAY && ci < clusters.length) dayPts.push(...clusters[ci++]);
-    dayPts.forEach(p => used.add(p.id));
-    days.push(mkDay(days.length + 1, distribute(dayPts), ''));
-  }
-  // 若动线+聚类仍不足天数，重复轮换补充（小城市）
-  while (days.length < params.days && rest.length) {
-    const c = clusters[(days.length * 7) % clusters.length] || rest;
-    days.push(mkDay(days.length + 1, distribute(c.slice(0, PER_DAY)), '该城市点位有限，建议放慢节奏或搭配周边城市'));
-  }
-  return {
-    id: 'p' + Date.now().toString(36),
-    name: `${params.city}${params.days}日游草案`,
-    city: params.city, date: params.date, daysN: days.length,
-    source: 'rule', createdAt: Date.now(),
-    interests: params.interests, days,
-  };
-}
-function distribute(list) {
-  const slots = { morning: [], afternoon: [], evening: [] };
-  const food = list.filter(p => /餐厅|咖啡|甜品|酒吧|下午茶|大排档|自助|火锅|食堂|小吃|粥铺/.test(p.type));
-  const rest = list.filter(p => !food.includes(p));
-  slots.morning = rest.filter((_, i) => i % 2 === 0).slice(0, 3).map(p => p.name);
-  slots.afternoon = rest.filter((_, i) => i % 2 === 1).slice(0, 3).map(p => p.name);
-  slots.evening = food.slice(0, 2).map(p => p.name);
-  const leftover = rest.filter(p => ![...slots.morning, ...slots.afternoon].includes(p.name));
-  slots.afternoon.push(...leftover.map(p => p.name));
-  return slots;
-}
-function mkDay(n, slots, tip) {
-  return { day: n, slots, tip };
 }
 
 /* ---------- PlannerAI（站内通道 + 会话级自定义覆盖） ---------- */
@@ -152,9 +72,23 @@ const PlannerAI = {
     const plan = data.plan || data;
     if (!plan || !Array.isArray(plan.days)) throw new Error('AI 返回格式不符');
     if (typeof data.remaining === 'number' && aiInfo) aiInfo.remaining_today = data.remaining;
-    return { ...plan, id: 'p' + Date.now().toString(36), city: params.city, date: params.date, source: 'ai', createdAt: Date.now() };
+    return {
+      ...plan,
+      id: 'p' + Date.now().toString(36),
+      city: params.city,
+      date: params.date,
+      source: 'ai',
+      channel: aiSession.endpoint ? 'custom' : 'site',
+      model: data.model || m || '',
+      createdAt: Date.now(),
+    };
   },
 };
+function sourceLabel(p) {
+  if (p.source !== 'ai') return '规则引擎（离线）';
+  const ch = p.channel === 'custom' ? '自定义接口' : '站内通道';
+  return `AI（${ch}${p.model ? ' · ' + p.model : ''}）`;
+}
 function aiBtnLabel() {
   if (aiSession.endpoint) return '✨ AI 生成（自定义接口）';
   if (!siteToken()) return '✨ AI 生成（需登录）';
@@ -184,6 +118,7 @@ function renderList() {
       <h2>🧭 我的计划</h2>
       <button class="pl-btn primary" id="pl-new">＋ 新建计划</button>
     </div>
+    ${planLoad.recovered ? `<div class="pl-tip">⚠️ 检测到损坏的本地计划，已备份为 ${esc(planLoad.backupKey)} 并重建空列表</div>` : ''}
     ${plans.length ? plans.map(p => `
       <div class="pl-card" data-open="${p.id}">
         <div class="pl-card-top">
@@ -198,7 +133,11 @@ function renderList() {
       </div>`).join('')
       : `<div class="pl-empty">还没有计划<br><span>点右上角"新建计划"生成第一份行程草案</span></div>`}
     <div class="pl-foot">规则引擎离线可用 · AI 生成需登录账号（朋友页 / 管理页）</div>`;
-  document.getElementById('pl-new').onclick = () => { view.mode = 'create'; view.form = { city: meta.cities[0] || '', date: '', days: 3, interests: [] }; render(); };
+  document.getElementById('pl-new').onclick = () => {
+    view.mode = 'create'; view.aiError = ''; view.showAI = false;
+    view.form = { city: meta.cities[0] || '', date: '', days: 3, interests: [] };
+    render();
+  };
 }
 
 function renderCreate() {
@@ -210,13 +149,22 @@ function renderCreate() {
         <select id="pl-city">${[...meta.cities].sort().map(c => `<option ${c === f.city ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>
       </label>
       <label>出发日期 <input id="pl-date" type="date" value="${esc(f.date)}"></label>
-      <label>天数 <input id="pl-days" type="number" min="1" max="14" value="${f.days}"></label>
+      <label>天数 <input id="pl-days" type="number" min="1" max="${PLAN_DAYS_MAX}" value="${f.days}"></label>
       <div class="pl-label">兴趣标签（可多选，不选=全城点位）</div>
       <div class="pl-chips">${Object.keys(INTERESTS).map(k => `<button class="chip ${f.interests.includes(k) ? 'on' : ''}" data-int="${k}">${k}</button>`).join('')}</div>
       <div class="pl-gen">
         <button class="pl-btn primary big" id="pl-gen-rule">⚙️ 规则引擎生成（离线）</button>
         <button class="pl-btn big" id="pl-gen-ai">${aiBtnLabel()}</button>
       </div>
+      ${view.aiError ? `
+      <div class="pl-ai-error">
+        <div>AI 生成失败：${esc(view.aiError)}</div>
+        <div class="pl-ai-error-ops">
+          <button class="pl-btn small primary" id="ai-retry">重试 AI</button>
+          <button class="pl-btn small" id="ai-fallback">使用离线规则</button>
+          <button class="pl-btn small" id="ai-cancel">取消</button>
+        </div>
+      </div>` : ''}
       ${aiInfo ? `<div class="pl-label">${aiInfo.has_custom ? '已接入你自己的 AI（不占用本站次数）' : `今日剩余 ${aiInfo.remaining_today}/${aiInfo.quota} 次`}</div>` : ''}
       ${aiInfo && !aiInfo.has_custom && aiInfo.models && aiInfo.models.length ? `
       <label>AI 模型
@@ -236,7 +184,7 @@ function renderCreate() {
   document.getElementById('pl-back').onclick = () => { view.mode = 'list'; render(); };
   document.getElementById('pl-city').onchange = e => f.city = e.target.value;
   document.getElementById('pl-date').onchange = e => f.date = e.target.value;
-  document.getElementById('pl-days').onchange = e => f.days = Math.max(1, Math.min(14, +e.target.value || 3));
+  document.getElementById('pl-days').onchange = e => { f.days = clampDays(e.target.value); e.target.value = f.days; };
   const modelSel = document.getElementById('pl-model');
   if (modelSel) modelSel.onchange = e => { aiModel = e.target.value; localStorage.setItem('planner-ai-model', aiModel); };
   $app.querySelectorAll('[data-int]').forEach(b => b.onclick = () => {
@@ -254,15 +202,23 @@ function renderCreate() {
   if (clearAI) clearAI.onclick = () => { aiSession = {}; toast('已清除自定义覆盖'); render(); };
   document.getElementById('pl-gen-rule').onclick = () => doGenerate('rule');
   document.getElementById('pl-gen-ai').onclick = () => doGenerate('ai');
+  const retry = document.getElementById('ai-retry');
+  if (retry) retry.onclick = () => { view.aiError = ''; render(); doGenerate('ai'); };
+  const fallback = document.getElementById('ai-fallback');
+  if (fallback) fallback.onclick = () => { view.aiError = ''; render(); doGenerate('rule'); };
+  const cancel = document.getElementById('ai-cancel');
+  if (cancel) cancel.onclick = () => { view.aiError = ''; render(); };
 }
 
 async function doGenerate(src) {
   const f = view.form;
   if (!f.city) return toast('请选择目的地');
   if (generating) return;
+  // AI 不可用时不再静默降级：交给用户决定重试 / 用规则 / 取消，生成结果永远标注来源
   if (src === 'ai' && !PlannerAI.ready) {
-    toast('未登录，已用规则引擎离线生成（登录后可用 AI）');
-    src = 'rule';
+    view.aiError = '未登录或未配置 AI 接口';
+    render();
+    return;
   }
   generating = true;
   const btn = document.getElementById('pl-gen-ai');
@@ -274,21 +230,22 @@ async function doGenerate(src) {
           points: cache.pts.filter(p => p.city === f.city),
           routes: cache.rts.filter(r => r.city === f.city),
         })
-      : ruleEngine(f);
+      : ruleEngine(f, { pts: cache.pts, rts: cache.rts });
     plans.unshift(plan);
-    localStorage.setItem(LS_PLANS, JSON.stringify(plans));
-    view.mode = 'detail'; view.planId = plan.id;
+    if (!persistPlans()) {
+      plans = plans.filter(x => x.id !== plan.id);
+      generating = false;
+      render();
+      return;
+    }
+    view.mode = 'detail'; view.planId = plan.id; view.aiError = '';
     generating = false;
     render();
-    toast('计划已生成 ✓');
+    toast(`计划已生成（${sourceLabel(plan)}）`);
     if (plan.note) setTimeout(() => toast(plan.note), 600);
   } catch (err) {
     generating = false;
-    toast('AI 生成失败：' + err.message + '，已回退规则引擎');
-    const plan = ruleEngine(f);
-    plans.unshift(plan);
-    localStorage.setItem(LS_PLANS, JSON.stringify(plans));
-    view.mode = 'detail'; view.planId = plan.id;
+    view.aiError = err.message;
     render();
   }
 }
@@ -304,7 +261,7 @@ function renderDetail() {
       <h2>${esc(p.name)}</h2>
       <button class="pl-btn" id="pl-back">← 返回</button>
     </div>
-    <div class="pl-meta" style="margin:0 0 12px">${esc(p.city)} · ${esc(p.date || '日期待定')} · ${p.days.length} 天 · 来源：${p.source === 'ai' ? 'AI' : '规则引擎'}</div>
+    <div class="pl-meta" style="margin:0 0 12px">${esc(p.city)} · ${esc(p.date || '日期待定')} · ${p.days.length} 天 · 来源：${esc(sourceLabel(p))}</div>
     ${p.note ? `<div class="pl-tip" style="margin-bottom:12px">⚠️ ${esc(p.note)}</div>` : ''}
     ${p.days.map(d => `
       <div class="pl-day card" style="border-left:4px solid ${col}">
@@ -327,14 +284,14 @@ function renderDetail() {
   document.getElementById('pl-exp').onclick = () => exportMd(p);
   document.getElementById('pl-del').onclick = () => {
     plans = plans.filter(x => x.id !== p.id);
-    localStorage.setItem(LS_PLANS, JSON.stringify(plans));
+    persistPlans();
     view.mode = 'list'; render(); toast('已删除');
   };
 }
 
 function exportMd(p) {
   const byName = new Map(cache.pts.map(x => [x.name, x]));
-  const md = [`# ${p.name}`, ``, `> ${p.city} · ${p.date || '日期待定'} · 来源：${p.source === 'ai' ? 'AI' : '规则引擎'}`, ``,
+  const md = [`# ${p.name}`, ``, `> ${p.city} · ${p.date || '日期待定'} · 来源：${sourceLabel(p)}`, ``,
     ...p.days.flatMap(d => [`## Day ${d.day}`, ``,
       ...Object.entries(d.slots).flatMap(([sk, list]) => list.length ? [`### ${{ morning: '上午', afternoon: '下午', evening: '晚上' }[sk]}`, ``,
         ...list.map(n => { const pt = byName.get(n); return `- **${n}**${pt ? `（${pt.type}）` : ''}`; }), ``] : []),
@@ -354,7 +311,7 @@ $app.addEventListener('click', e => {
   const del = e.target.closest('[data-del]');
   if (del) {
     plans = plans.filter(x => x.id !== del.dataset.del);
-    localStorage.setItem(LS_PLANS, JSON.stringify(plans));
+    persistPlans();
     render(); toast('已删除'); return;
   }
   const exp = e.target.closest('[data-export]');
@@ -368,7 +325,7 @@ $app.addEventListener('click', e => {
     fetch('./data/meta.json').then(r => r.json()),
     loadAiInfo(),
   ]);
-  cache.pts = pts; cache.rts = rts; points = pts; routes = rts; meta = mt;
+  cache.pts = pts; cache.rts = rts; meta = mt;
   render();
 })().catch(err => {
   $app.innerHTML = `<div class="pl-empty">⚠️ 加载失败：${esc(err.message)}</div>`;

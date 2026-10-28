@@ -500,6 +500,21 @@ AI 工具权限分级：
 
 P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协作或分享。
 
+### 完成情况（2026-10-29）
+
+| # | 状态 | 证据 |
+|---|---|---|
+| 1 | ✅ | `vite.config.js` 的 `devRepoAssets` 插件（数据/内容/照片映射 + `/api/*` mock/代理 + 路径逃逸拦截）；README 增「本地开发」 |
+| 2 | ✅ | `tools/smoke-test.mjs` 增 plan 全流程探针；`tools/test-plan-engine.mjs`（14 项断言） |
+| 3 | ✅ | 引擎抽成纯函数 `src/pages/plan/engine.js`；跨动线去重 / 单日 8 点与时段上限 / 天数不足返回真实天数 + note |
+| 4 | ✅ | `src/pages/plan/store.js`（信封 + 损坏备份 + 迁移）；`tools/test-plan-store.mjs`；页面显示恢复告警 |
+| 5 | ✅ | `sw.js` 瓦片白名单改为 OSM/OSM-DE/Esri，明确不缓存高德/腾讯；外壳补齐 9 页；`tools/sw-policy-test.mjs` |
+| 6 | ✅ | AI 失败弹「重试 / 用离线规则 / 取消」，不再静默降级；计划详情与导出标注「站内通道/自定义接口 · 模型」 |
+| 7 | ✅（待线上验证） | `CURLOPT_RESOLVE` 固定校验阶段解析的 IP；限制 443/禁 userinfo；`AI_KEY_FILE` 可选 sodium 静态加密（读旧明文兼容）。本地无 PHP，语法未能编译验证 |
+| 8 | ✅ | `tools/check-doc-facts.mjs` 把变异数/点位数/动线数/页面数/测试覆盖钉进 CI；AGENTS/README 同步 |
+
+剩余验收项（飞行模式离线清单）未做：需要在真机/浏览器 DevTools offline 下逐页确认，属发布前人工复核项。
+
 ---
 
 ## P1：Trip v2 与可信事实模型（5–7 周）

@@ -81,33 +81,87 @@ function ai_policy(PDO $db): array {
   ];
 }
 // SSRF 防线：自定义 endpoint 会被服务器代发请求，必须挡住内网/回环地址（2026-10 审计项）
-function ssrf_check(string $url): ?string {
+// 同时返回解析结果，供 cURL 用 CURLOPT_RESOLVE 固定 IP —— 否则校验与真正连接各解析一次，
+// 攻击者可用 DNS rebinding 在两次解析之间把域名指回内网。
+function ssrf_resolve(string $url): array {
   $parts = parse_url($url);
-  if (!$parts || strtolower((string)($parts['scheme'] ?? '')) !== 'https') return '自定义接口仅支持 https:// 地址';
+  if (!$parts || strtolower((string)($parts['scheme'] ?? '')) !== 'https') return ['error' => '自定义接口仅支持 https:// 地址'];
   $host = (string)($parts['host'] ?? '');
-  if ($host === '') return '接口地址无效';
-  $ip = gethostbyname($host);
-  if ($ip === $host && !filter_var($host, FILTER_VALIDATE_IP)) return '接口域名无法解析';
+  if ($host === '') return ['error' => '接口地址无效'];
+  if (isset($parts['user']) || isset($parts['pass'])) return ['error' => '接口地址不能包含用户名/密码'];
+  $port = (int)($parts['port'] ?? 443);
+  if ($port !== 443) return ['error' => '自定义接口仅支持 443 端口'];
+  if (filter_var($host, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)) {
+    $ip = $host;
+  } else {
+    $ip = gethostbyname($host);
+    if ($ip === $host) return ['error' => '接口域名无法解析'];
+  }
   $long = ip2long($ip);
-  if ($long === false) return '仅支持可解析为 IPv4 的接口地址';
+  if ($long === false) return ['error' => '仅支持可解析为 IPv4 的接口地址'];
   foreach ([['0.0.0.0', 8], ['10.0.0.0', 8], ['100.64.0.0', 10], ['127.0.0.0', 8], ['169.254.0.0', 16], ['172.16.0.0', 12], ['192.168.0.0', 16]] as [$net, $bits]) {
     $m = -1 << (32 - $bits);
-    if (($long & $m) === (ip2long($net) & $m)) return '接口地址指向内网/保留地址，已拦截';
+    if (($long & $m) === (ip2long($net) & $m)) return ['error' => '接口地址指向内网/保留地址，已拦截'];
   }
-  return null;
+  return ['host' => $host, 'port' => $port, 'ip' => $ip];
 }
-function ai_http(string $url, string $key, array $payload): array {
+function ssrf_check(string $url): ?string {
+  return ssrf_resolve($url)['error'] ?? null;
+}
+
+/* ---------- 自定义 AI Key 静态加密（可选） ----------
+ * 设 AI_KEY_FILE 指向 webroot 之外的文件（32 字节 hex/base64，或任意口令，会 sha256 派生）
+ * 时，新保存的 key 以 enc:v1: 前缀加密落库；文件不存在则维持明文（与旧版兼容）。
+ * 读取时两种格式都认，所以开启/关闭都不会锁死已存的数据。 */
+function ai_key_master(): ?string {
+  static $k = null;
+  if ($k !== null) return $k ?: null;
+  $f = (string)(getenv('AI_KEY_FILE') ?: '');
+  if ($f === '' || !is_file($f) || !is_readable($f) || !function_exists('sodium_crypto_secretbox')) return null;
+  $raw = trim((string)file_get_contents($f));
+  if (preg_match('/^[0-9a-f]{64}$/i', $raw)) $k = hex2bin($raw);
+  elseif (($b = base64_decode($raw, true)) !== false && strlen($b) === SODIUM_CRYPTO_SECRETBOX_KEYBYTES) $k = $b;
+  elseif ($raw !== '') $k = hash('sha256', $raw, true);
+  else $k = '';
+  return $k ?: null;
+}
+function ai_key_seal(string $plain): string {
+  $m = ai_key_master();
+  if ($plain === '' || $m === null) return $plain;
+  $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+  return 'enc:v1:' . base64_encode($nonce . sodium_crypto_secretbox($plain, $nonce, $m));
+}
+function ai_key_open(string $stored): string {
+  if (strncmp($stored, 'enc:v1:', 7) !== 0) return $stored; // 旧明文
+  $m = ai_key_master();
+  if ($m === null || !function_exists('sodium_crypto_secretbox_open')) return '';
+  $raw = base64_decode(substr($stored, 7), true);
+  if ($raw === false || strlen($raw) <= SODIUM_CRYPTO_SECRETBOX_NONCEBYTES) return '';
+  $nonce = substr($raw, 0, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
+  $plain = sodium_crypto_secretbox_open(substr($raw, SODIUM_CRYPTO_SECRETBOX_NONCEBYTES), $nonce, $m);
+  return $plain === false ? '' : $plain;
+}
+
+function ai_http(string $url, string $key, array $payload, array $pin = []): array {
   $ch = curl_init($url);
   $headers = ['Content-Type: application/json'];
   if ($key !== '') $headers[] = 'Authorization: Bearer ' . $key;
-  curl_setopt_array($ch, [
+  $opts = [
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_POST => true,
     CURLOPT_HTTPHEADER => $headers,
     CURLOPT_POSTFIELDS => json_encode($payload, JSON_UNESCAPED_UNICODE),
     CURLOPT_TIMEOUT => 60,
+    CURLOPT_CONNECTTIMEOUT => 10,
     CURLOPT_FOLLOWLOCATION => false, // 防重定向绕过 SSRF 校验
-  ]);
+    CURLOPT_SSL_VERIFYPEER => true,
+    CURLOPT_SSL_VERIFYHOST => 2,
+  ];
+  // DNS 固定：用校验阶段解析出的 IP 直连，杜绝 rebinding 与二次解析
+  if (isset($pin['host'], $pin['port'], $pin['ip'])) $opts[CURLOPT_RESOLVE] = [$pin['host'] . ':' . $pin['port'] . ':' . $pin['ip']];
+  if (defined('CURLOPT_PROTOCOLS_STR')) $opts[CURLOPT_PROTOCOLS_STR] = 'https';
+  elseif (defined('CURLOPT_PROTOCOLS')) $opts[CURLOPT_PROTOCOLS] = CURLPROTO_HTTPS;
+  curl_setopt_array($ch, $opts);
   $raw = curl_exec($ch);
   $code = (int)curl_getinfo($ch, CURLINFO_HTTP_CODE);
   $err = curl_error($ch);
@@ -306,10 +360,13 @@ switch ($a) {
     $st->execute([$who]);
     $cfg = $st->fetch(PDO::FETCH_ASSOC);
     $custom = $cfg && !empty($cfg['endpoint']);
+    $pin = [];
     if ($custom) {
-      if ($err = ssrf_check($cfg['endpoint'])) out(['error' => $err], 400);
+      $chk = ssrf_resolve($cfg['endpoint']);
+      if (isset($chk['error'])) out(['error' => $chk['error']], 400);
+      $pin = $chk;
       $url = $cfg['endpoint'];
-      $key = (string)($cfg['api_key'] ?? '');
+      $key = ai_key_open((string)($cfg['api_key'] ?? ''));
       $model = preg_replace('/[^\w.\/-]/', '', (string)($cfg['model'] ?? '')) ?: 'deepseek-v4-pro';
       $quota = $pol['custom_quota'];
       $channel = 'custom';
@@ -356,7 +413,7 @@ switch ($a) {
       ],
     ];
 
-    $r = ai_http($url, $key, $payload);
+    $r = ai_http($url, $key, $payload, $pin);
     $pt = 0; $ct = 0; $ok = 0; $plan = null; $errMsg = '';
     if (isset($r['error'])) {
       $errMsg = $r['error'];
@@ -424,6 +481,8 @@ switch ($a) {
       $st = $db->prepare('SELECT api_key FROM ai_settings WHERE username=?');
       $st->execute([$who]);
       $key = (string)($st->fetchColumn() ?: '');
+    } elseif (strncmp($key, 'enc:v1:', 7) !== 0) {
+      $key = ai_key_seal($key); // 配了 AI_KEY_FILE 才真加密，否则原样存
     }
     $db->prepare('INSERT INTO ai_settings(username,endpoint,api_key,model,updated) VALUES(?,?,?,?,?)
       ON CONFLICT(username) DO UPDATE SET endpoint=excluded.endpoint, api_key=excluded.api_key, model=excluded.model, updated=excluded.updated')
@@ -492,6 +551,7 @@ switch ($a) {
     if ((int)$q->fetchColumn() > time() - 10) out(['error' => '操作太频繁，请稍候再试'], 429);
     $b = body();
     $endpoint = mb_substr(trim((string)($b['endpoint'] ?? '')), 0, 200);
+    $pin = [];
     if ($endpoint === '') {
       if (empty($CONF['tokenhub_key'])) out(['error' => '站内 AI 未配置'], 503);
       $url = 'https://tokenhub.tencentmaas.com/v1/chat/completions';
@@ -499,19 +559,22 @@ switch ($a) {
       $model = preg_replace('/[^\w.\/-]/', '', (string)($b['model'] ?? '')) ?: ($CONF['tokenhub_model'] ?? 'deepseek-v4-pro');
       $channel = 'site';
     } else {
-      if ($err = ssrf_check($endpoint)) out(['error' => $err], 400);
+      $chk = ssrf_resolve($endpoint);
+      if (isset($chk['error'])) out(['error' => $chk['error']], 400);
+      $pin = $chk;
       $url = $endpoint;
       $key = mb_substr((string)($b['key'] ?? ''), 0, 200);
+      if (strncmp($key, 'enc:v1:', 7) === 0) $key = ai_key_open($key);
       if ($key === '') { // 留空用已存的个人 key
         $st = $db->prepare('SELECT api_key FROM ai_settings WHERE username=?');
         $st->execute([$who]);
-        $key = (string)($st->fetchColumn() ?: '');
+        $key = ai_key_open((string)($st->fetchColumn() ?: ''));
       }
       $model = preg_replace('/[^\w.\/-]/', '', (string)($b['model'] ?? '')) ?: 'deepseek-v4-pro';
       $channel = 'custom';
     }
     $t0 = microtime(true);
-    $r = ai_http($url, $key, ['model' => $model, 'messages' => [['role' => 'user', 'content' => '回复一个字：好']]]);
+    $r = ai_http($url, $key, ['model' => $model, 'messages' => [['role' => 'user', 'content' => '回复一个字：好']]], $pin);
     $ms = (int)round((microtime(true) - $t0) * 1000);
     $pt = 0; $ct = 0; $ok = 0; $preview = ''; $errMsg = '';
     if (isset($r['error'])) $errMsg = $r['error'];

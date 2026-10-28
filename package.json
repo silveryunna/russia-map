@@ -7,6 +7,7 @@
     "build": "vite build",
     "preview": "vite preview",
     "check-data": "node tools/check-data.mjs ./data",
+    "test": "node tools/test-plan-engine.mjs && node tools/test-plan-store.mjs && node tools/sw-policy-test.mjs && node tools/coords-test.mjs && node tools/check-doc-facts.mjs",
     "publish": "node tools/publish.mjs"
   },
   "author": "",

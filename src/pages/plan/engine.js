@@ -1,0 +1,152 @@
+// 规则引擎纯函数：不碰 DOM / localStorage，便于 Node 单测。
+// 输出格式仍是 slots:[name]，P1 迁移到 placeId 时只改这一层与渲染层。
+
+export const PLAN_DAYS_MIN = 1;
+export const PLAN_DAYS_MAX = 7; // 与 api/index.php 的 1–7 保持一致
+export const MAX_PER_DAY = 8;
+export const SLOT_CAPS = { morning: 3, afternoon: 3, evening: 2 };
+
+export const INTERESTS = {
+  '建筑': /建筑|构成主义|斯大林|现代主义|粗野|先锋派|新艺术|折衷|古典主义|摩天|工业遗产/,
+  '美食': /餐厅|咖啡|食堂|小吃|甜品|酒吧|美食|饮品|冰淇淋|下午茶|大排档|自助|火锅/,
+  '博物馆': /博物馆|美术馆|展览|画廊/,
+  '自然': /海湾|公园|湖泊|雨林|峡谷|海岛|沙滩|森林|冰川|温泉|湿地|草原/,
+  '摄影': /拍照|摄影|观景|登顶|全景|机位|出片|扫街/,
+  '地铁': /地铁站|火车站|交通|口岸|机场/,
+  '文学': /文学|故居|书店|诗人|作家|纪念雕像/,
+  '购物': /商场|市场|免税|巴扎|市集|步行街/,
+};
+
+const FOOD_RE = /餐厅|咖啡|甜品|酒吧|下午茶|大排档|自助|火锅|食堂|小吃|粥铺/;
+
+export function clampDays(n) {
+  const v = Number.parseInt(n, 10);
+  if (!Number.isFinite(v)) return 3;
+  return Math.max(PLAN_DAYS_MIN, Math.min(PLAN_DAYS_MAX, v));
+}
+
+export function interestHits(p) {
+  const t = `${p.type} ${p.cluster} ${p.highlight || ''} ${(p.tags || []).join(' ')}`;
+  return Object.keys(INTERESTS).filter(k => INTERESTS[k].test(t));
+}
+
+// 按顺序去重并截断到单日上限；超出的点位留作后续天数的候选，而不是硬塞进下午。
+export function selectDayPoints(list, cap = MAX_PER_DAY) {
+  const seen = new Set();
+  const picked = [];
+  for (const p of list) {
+    if (!p || typeof p !== 'object' || !p.id || seen.has(p.id)) continue;
+    seen.add(p.id);
+    picked.push(p);
+    if (picked.length >= cap) break;
+  }
+  return picked;
+}
+
+export function buildDay(list) {
+  const picked = selectDayPoints(list);
+  const food = picked.filter(p => FOOD_RE.test(p.type || ''));
+  const rest = picked.filter(p => !FOOD_RE.test(p.type || ''));
+  const slots = { morning: [], afternoon: [], evening: [] };
+
+  const push = (slot, p) => {
+    if (slots[slot].length < SLOT_CAPS[slot]) { slots[slot].push(p); return true; }
+    return false;
+  };
+
+  // 非餐饮按原顺序铺进上午/下午，超出上限才进入晚上；
+  // 餐饮优先晚上，晚上满了再回填下午/上午，保证不丢点也不超上限。
+  for (const p of rest) {
+    if (!push('morning', p) && !push('afternoon', p)) push('evening', p);
+  }
+  for (const p of food) {
+    if (!push('evening', p) && !push('afternoon', p)) push('morning', p);
+  }
+
+  return {
+    slots: {
+      morning: slots.morning.map(p => p.name),
+      afternoon: slots.afternoon.map(p => p.name),
+      evening: slots.evening.map(p => p.name),
+    },
+    usedIds: [...slots.morning, ...slots.afternoon, ...slots.evening].map(p => p.id),
+  };
+}
+
+function mkDay(n, slots, tip) {
+  return { day: n, slots, tip };
+}
+
+/**
+ * @param {{city:string,date?:string,days:number,interests?:string[]}} params
+ * @param {{pts:Array,rts:Array}} data
+ */
+export function ruleEngine(params, data) {
+  const targetDays = clampDays(params.days);
+  const interests = Array.isArray(params.interests) ? params.interests : [];
+  const cityPts = (data.pts || []).filter(p => !p.pending && p.city === params.city);
+
+  let pool = cityPts;
+  if (interests.length) {
+    const hit = cityPts.filter(p => interestHits(p).some(i => interests.includes(i)));
+    if (hit.length >= 4) pool = hit; // 兴趣过滤后点位太少则回退全城
+  }
+
+  const byName = new Map((data.pts || []).map(p => [p.name, p]));
+  const cityRoutes = (data.rts || []).filter(r => r.city === params.city);
+  const used = new Set();
+  const days = [];
+
+  // 动线映射为日：先剔除已用点位，再按单日上限截断，溢出点位回到候选池。
+  for (const r of cityRoutes) {
+    if (days.length >= targetDays) break;
+    const routePts = (r.steps || [])
+      .map(s => byName.get(s.point))
+      .filter(p => p && !used.has(p.id));
+    const day = buildDay(routePts);
+    if (!day.usedIds.length) continue;
+    day.usedIds.forEach(id => used.add(id));
+    days.push(mkDay(days.length + 1, day.slots, `参考动线：${r.name} · ${r.tip || r.summary || ''}`));
+  }
+
+  // 剩余点位按点位群聚类补齐；按扁平队列逐日取，避免整个 cluster 超上限后丢点。
+  const byCluster = new Map();
+  for (const p of pool) {
+    if (used.has(p.id)) continue;
+    if (!byCluster.has(p.cluster)) byCluster.set(p.cluster, []);
+    byCluster.get(p.cluster).push(p);
+  }
+  const queue = [...byCluster.values()].sort((a, b) => b.length - a.length).flat();
+  let qi = 0;
+  while (days.length < targetDays && qi < queue.length) {
+    const candidates = [];
+    const seen = new Set();
+    while (candidates.length < MAX_PER_DAY && qi < queue.length) {
+      const p = queue[qi++];
+      if (!p || used.has(p.id) || seen.has(p.id)) continue;
+      seen.add(p.id);
+      candidates.push(p);
+    }
+    if (!candidates.length) continue;
+    const day = buildDay(candidates);
+    day.usedIds.forEach(id => used.add(id));
+    days.push(mkDay(days.length + 1, day.slots, ''));
+  }
+
+  const note = days.length < targetDays
+    ? `可用点位不足，已生成 ${days.length} 天；建议减少天数、补充点位或搭配周边城市`
+    : '';
+
+  return {
+    id: 'p' + Date.now().toString(36),
+    name: `${params.city}${days.length}日游草案`,
+    city: params.city,
+    date: params.date || '',
+    daysN: days.length,
+    source: 'rule',
+    createdAt: Date.now(),
+    interests,
+    days,
+    ...(note ? { note } : {}),
+  };
+}
