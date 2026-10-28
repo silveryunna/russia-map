@@ -6,6 +6,7 @@
 //   3) 项目实测：MAINTENANCE.md §7.9 三城偏移量/方向交叉核对（量级+方向区间断言）
 //   4) 境外不变换：矩形外原样返回
 // 用法: node tools/coords-test.mjs
+import { readFileSync } from 'node:fs';
 import { wgs2gcj, gcj2wgs } from '../src/pages/map/coords.js';
 
 let bad = 0;
@@ -34,12 +35,16 @@ function distM(a, b) {
   else fail(`往返误差 ${worst.toFixed(2)}m（@ ${worstAt}）超 1m 门槛——gcj2wgs 迭代次数或算法被改`);
 }
 
-// 2) 主流库基准：coordtransform README 示例 wgs84togcj02(116.404, 39.915) = (116.41024449916938, 39.91640428150164)
+// 2) 主流库基准：tools/fixtures/coord-baseline.json（24 点，由 wandergis/coordtransform 生成，逐值比对 < 0.5m）
 {
-  const g = wgs2gcj(39.915, 116.404);
-  const d = distM(g, [39.91640428150164, 116.41024449916938]);
-  if (d < 5) ok(`coordtransform 基准差 ${d.toFixed(2)}m，< 5m 门槛`);
-  else fail(`与 coordtransform 基准差 ${d.toFixed(1)}m（>5m）——算法与主流实现不一致（历史 bug：系数错位/正弦加倍曾差 ~200m）`);
+  const base = JSON.parse(readFileSync(new URL('./fixtures/coord-baseline.json', import.meta.url), 'utf8'));
+  let worst = 0, at = '';
+  for (const p of base.points) {
+    const d = distM(wgs2gcj(...p.wgs), p.gcj);
+    if (d > worst) { worst = d; at = p.name; }
+  }
+  if (worst < 0.5) ok(`coordtransform 24 点基线最大差 ${worst.toFixed(3)}m（@${at}），< 0.5m 门槛`);
+  else fail(`与 coordtransform 基线差 ${worst.toFixed(1)}m（@${at}，>0.5m）——算法与主流实现不一致（历史 bug：系数错位/正弦加倍曾差 ~200m）`);
 }
 
 // 3) 项目实测交叉核对（MAINTENANCE.md §7.9）：量级区间 + 方向
