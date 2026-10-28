@@ -471,6 +471,7 @@ tail -c 25 data/points.json | od -c
 - **端点**：`?a=plan`（生成）/ `ai_settings`（个人接入读写）/ `ai_policy`（GET 调用者视图，admin 附完整策略；POST 仅 admin）/ `ai_usage`（admin：daily/by_model/by_user/month_by_model/items，供可视化）/ `ai_test`（连通性测试，返回延迟+应答预览）
 - **预设模型表**：`assets/ai-models-v1.js`（刊例价快照 2026-10-27；用 `thcli models get --id <id>` 更新价格，注意 glm-5.3-flashx 比 glm-5.3-flash 贵 2.5 倍这类同名陷阱）
 - **安全**：SSRF 校验（自定义 endpoint 仅 https + 拒私网/回环/CGNAT + 禁跟随重定向）、站点 Key 只发往硬编码 TokenHub 域名、日配额 + 月 token 熔断、同用户 10s 防重入、AI 返回点位名做幻觉过滤（不在点位库的剔除进 plan.note）、AI 接入表单已做 autocomplete 隔离（防浏览器把登录密码填进 Key 框）
+- **自定义 Key 静态加密**：主密钥 `ai-at-rest.key` 默认与 `config.php` 同目录（webroot 外，`root:apache 640`），新 key 以 `enc:v1:` 落库。来源优先级、`AI_KEY_FILE` 在 php-fpm 下的真实行为（`clear_env=yes` + `env[]` 才有效，`export` 无效；生产当前走默认路径）、文件格式陷阱（BOM 会静默换钥匙）与恢复步骤见 `docs/AI-KEY-ENV.md`
 - 模型范围改了立即生效；换默认模型改 `config.php` 的 `tokenhub_model` 即可，不用动代码
 
 ## 11. 地图区域遮罩（单一中国区域，两个模式互为补集）

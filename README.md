@@ -89,6 +89,7 @@ node tools/deploy-check.mjs data/          # 提交/部署前防覆盖检查
 | `AGENTS.md` | AI 助手 | 硬性规则与数据契约 |
 | `MAINTENANCE.md` | AI 助手/维护者 | 完整维护知识与踩坑记录 |
 | `REMOTE-DEV.md` | 远程开发者 | NAS · frp 隧道 · SSH 跳板接入 |
+| `docs/AI-KEY-ENV.md` | 维护者/运维 | AI Key 静态加密主密钥来源、`AI_KEY_FILE` 覆盖行为与恢复 |
 
 ## 许可
 

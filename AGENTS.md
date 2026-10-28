@@ -12,7 +12,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 - `npm test`：规则引擎 + 计划存储 + SW 缓存策略 + 坐标变换 + 文档事实（CI 同样跑）
 - 计划模块：`src/pages/plan/engine.js`（纯函数，勿引入 DOM/storage）、`src/pages/plan/store.js`（`travel-plans-v1` 信封 + 损坏备份）。改规则逻辑必须同步 `tools/test-plan-engine.mjs`
 - SW 瓦片缓存白名单只有 OSM/OSM-DE/Esri；高德、腾讯（GCJ-02）与天地图（同源反代）都不进运行时缓存——`tools/sw-policy-test.mjs` 守护，别为了"多缓存"放宽
-- 自定义 AI Key 的静态加密：已启用。2026-10-29 服务器装 `php-sodium`（PHP 8.3.36 + libsodium 1.0.19），密钥文件固定为 `/www/wwwroot/julyyunna-art-data/ai-at-rest.key`（`root:apache 640`，webroot 外；`AI_KEY_FILE` 或 config.php 的 `ai_key_file` 可覆盖）。新保存的 key 以 `enc:v1:` 落库，旧明文读取仍兼容。**该密钥文件丢失 = 已存 Key 无法解密（只能让用户重填）**，必须并入 NAS 密钥归档包；`ai_settings` 在启用时为空表，因此无需迁移旧数据
+- 自定义 AI Key 的静态加密：已启用。2026-10-29 服务器装 `php-sodium`（PHP 8.3.36 + libsodium 1.0.19），密钥文件固定为 `/www/wwwroot/julyyunna-art-data/ai-at-rest.key`（`root:apache 640`，webroot 外；`AI_KEY_FILE` 或 config.php 的 `ai_key_file` 可覆盖）。新保存的 key 以 `enc:v1:` 落库，旧明文读取仍兼容。**该密钥文件丢失 = 已存 Key 无法解密（只能让用户重填）**，必须并入 NAS 密钥归档包；`ai_settings` 在启用时为空表，因此无需迁移旧数据。主密钥来源优先级、`AI_KEY_FILE` 在 FPM 下的真实行为（`clear_env`/`env[]`）、格式陷阱与恢复步骤见 `docs/AI-KEY-ENV.md`
 
 ## 每次改数据的固定动作
 
