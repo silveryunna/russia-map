@@ -106,6 +106,45 @@
 .tr-feas.is-bad { background: #FDF1F0; color: #9B2C2C; }
 .tr-feas-chips { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
 .tr-day-ops { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* 时间轴视图 */
+.tl-wrap { display: flex; flex-direction: column; gap: 8px; }
+.tl-hint { font-size: 10px; color: #B0A897; }
+.tl-rail { position: relative; overflow: auto; max-height: 62vh; border: 1px solid #F0EBDF; border-radius: 10px; background: #FCFAF5; }
+.tl-inner { position: relative; margin: 14px 0 8px; }
+.tl-hour { position: absolute; left: 0; right: 0; border-top: 1px dashed #EDE7DA; pointer-events: none; }
+.tl-hour b { position: absolute; left: 8px; top: -7px; background: #FCFAF5; padding-right: 4px; font-weight: 400; font-size: 10px; color: #B0A897; font-variant-numeric: tabular-nums; }
+.tl-bound { position: absolute; left: 0; right: 0; z-index: 1; pointer-events: none; }
+.tl-bound.start { border-top: 1.5px solid #A8C6A8; }
+.tl-bound.end { border-top: 1.5px dashed #D9A5A0; }
+.tl-bound b { position: absolute; right: 6px; top: -8px; background: #FCFAF5; padding-left: 4px; font-size: 10px; font-weight: 600; }
+.tl-bound.start b { color: #4F7A4F; }
+.tl-bound.end b { color: #B13B3B; }
+.tl-overrun { position: absolute; left: 44px; right: 0; z-index: 0; background: repeating-linear-gradient(135deg, #FDF1F0 0 8px, #FBEBEA 8px 16px); border-radius: 4px; pointer-events: none; }
+.tl-leg { position: absolute; left: 58px; font-size: 9px; pointer-events: none; z-index: 3; }
+.tl-leg span { background: #F1EDE3; border-radius: 999px; padding: 1px 6px; white-space: nowrap; color: #8A8272; font-variant-numeric: tabular-nums; }
+.tl-wait { position: absolute; left: 46px; right: 12px; font-size: 10px; color: #B0A897; display: flex; align-items: center; pointer-events: none; margin-left: 12px; padding-left: 8px; z-index: 3; }
+.tl-wait span { background: #FFF8E1; border-radius: 999px; padding: 1px 7px; color: #8A6A1F; }
+.tl-block { position: absolute; left: 54px; right: 12px; border-radius: 8px; padding: 3px 8px 4px; font-size: 12px; overflow: hidden; cursor: grab; user-select: none; touch-action: none; border-left: 4px solid #B08A4A; z-index: 2; line-height: 1.35; }
+.tl-block .tl-time { font-size: 10px; color: #8A8272; font-variant-numeric: tabular-nums; }
+.tl-block .tl-name { font-weight: 700; font-size: 12px; color: #454034; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl-block .tl-meta { font-size: 10px; color: #A79C86; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tl-block.compact .tl-meta { display: none; }
+.tl-block.tiny { padding-top: 2px; }
+.tl-block.tiny .tl-time { display: none; }
+.tl-block.tiny .tl-name { font-size: 11px; }
+.tl-block.optional { border-left-style: dashed; opacity: .92; }
+.tl-block.booked { cursor: default; }
+.tl-block.pinned { box-shadow: inset 0 0 0 1.5px #D8B95C; }
+.tl-block.selected { outline: 2px solid #B71C1C; outline-offset: 1px; }
+.tl-block.overlap { left: auto; width: calc(50% - 18px); box-shadow: inset 0 0 0 1.5px #C96A6A; }
+.tl-block.dragging { opacity: .85; cursor: grabbing; z-index: 6; box-shadow: 0 6px 18px rgba(60, 50, 30, .18); }
+.tl-pin { position: absolute; right: 6px; top: 3px; font-size: 9px; color: #8A6A1F; background: #FFF4D6; border: 1px solid #E0C983; border-radius: 999px; padding: 0 5px; line-height: 14px; }
+.tl-unplaced { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.tl-unplaced-label { font-size: 10px; color: #B0A897; }
+.tl-unplaced-item { border: 1px dashed #E8E2D5; background: #FAF8F2; border-radius: 8px; padding: 5px 9px; font-size: 12px; color: #5D5340; cursor: pointer; text-align: left; }
+.tl-unplaced-item small { display: block; font-size: 10px; color: #B0A897; }
+.tl-unplaced-item.sel { border-color: #D9B0AC; background: #FFFBFA; }
 .tr-foot-ops { display: flex; gap: 10px; }
 .tr-foot-ops .pl-btn { flex: 1; }
 

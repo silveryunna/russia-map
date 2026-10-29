@@ -108,6 +108,31 @@ async function probePlan(name, viewport, shot) {
   const namesUndo = await firstDay.locator('.tr-name').allTextContents();
   ok(`${name} 撤销恢复顺序`, namesUndo[0] === namesBefore[0], namesUndo.slice(0, 2).join(' / '));
 
+  // 时间轴视图：色块渲染 → 点选面板 → 拖动锁定
+  await page.click('#tr-layout');
+  await page.waitForSelector('.tl-block', { timeout: 10000 });
+  const blockCount = await page.locator('.tl-block').count();
+  ok(`${name} 时间轴视图渲染色块`, blockCount === itemCount, `${blockCount} 块 / ${itemCount} 项`);
+  await page.locator('.tl-block').first().click();
+  await page.waitForSelector('.tr-item-panel', { timeout: 5000 });
+  ok(`${name} 时间轴点选打开控件面板`, await page.locator('.tr-item-panel').count() === 1, '');
+  const dragBlock = page.locator('.tl-block').nth(1);
+  await dragBlock.scrollIntoViewIfNeeded();
+  const dragBox = await dragBlock.boundingBox();
+  if (dragBox) {
+    await page.mouse.move(dragBox.x + 40, dragBox.y + 10);
+    await page.mouse.down();
+    await page.mouse.move(dragBox.x + 40, dragBox.y + 90, { steps: 5 });
+    await page.mouse.up();
+    await page.waitForTimeout(700);
+    const afterDrag = await readTrips();
+    const pin = afterDrag[0].days.flatMap(d => d.items).map(i => i.pinnedStart).find(Boolean);
+    ok(`${name} 拖动色块写入 pinnedStart`, /^\d{2}:\d{2}$/.test(pin || ''), pin || '');
+  }
+  await page.screenshot({ path: shot.replace(/\.png$/, '-timeline.png'), fullPage: false });
+  await page.click('#tr-layout');
+  await page.waitForSelector('.tr-item', { timeout: 5000 });
+
   // 刷新后完整恢复
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForSelector('.pl-card', { timeout: 20000 });

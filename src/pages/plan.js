@@ -1,7 +1,8 @@
 import '../shared/base.css';
 import './plan.css';
 import { INTERESTS, PLAN_DAYS_MAX, clampDays, ruleEngine } from './plan/engine.js';
-import { evaluateDay, formatMinutesCrossDay } from './plan/feasibility.js';
+import { evaluateDay, formatMinutes, formatMinutesCrossDay } from './plan/feasibility.js';
+import { buildDayRail } from './plan/timeline.js';
 import { loadPlans } from './plan/store.js';
 import { loadCheckins } from '../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
@@ -21,6 +22,8 @@ import {
 
 const $app = document.getElementById('plan-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const clampNum = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const snap5 = v => Math.round(v / 5) * 5;
 const LS_AI = 'planner-ai-config';
 const STATUS_LABEL = { draft: '草稿', planned: '已计划', active: '进行中', completed: '已完成', archived: '已归档' };
 const TYPE_LABEL = { visit: '景点', transit: '交通', lodging: '住宿', meal: '餐饮', reservation: '预订', task: '事项', note: '备注' };
@@ -35,7 +38,10 @@ let trips = [];
 let current = null;              // 编辑器里的行程
 let ambiguities = [];            // 迁移遗留的待确认项（仅用于预置候选）
 let undoStack = [];
-let view = { mode: 'list', form: null, showAI: false, aiError: '', picker: null, sel: null };
+let view = { mode: 'list', form: null, showAI: false, aiError: '', picker: null, sel: null, layout: 'list' };
+let railDrag = null;
+let tlDragged = false;
+let lastBlockTap = { id: '', at: 0 };
 
 const planLoad = loadPlans(localStorage);
 
@@ -376,12 +382,8 @@ const FEAS_LABEL = {
 };
 
 // 每天一条可行性结论：硬冲突才标红，unknown 只作为提示（绝不假装"全天开放"）
-function feasibilityLine(d) {
-  const res = evaluateDay({
-    day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
-    options: { start: d.startTime, end: d.endTime },
-  });
-  if (res.empty) return '';
+function feasibilityLine(d, res) {
+  if (!res || res.empty) return '';
   const errs = res.errors;
   const unknown = res.stats.unknownHours;
   const start = formatMinutesCrossDay(res.timeline[0].arrive);
@@ -397,10 +399,18 @@ function feasibilityLine(d) {
     </div>`;
 }
 
-function itemPanelHtml(it) {
+function itemPanelHtml(it, di, withOps = false) {
   const booking = splitStartLocal(it.startLocal);
   const hasBooking = !!booking.date;
   const pinned = it.pinnedStart || '';
+  const day = current.days[di];
+  const idx = day ? day.items.findIndex(x => x.id === it.id) : -1;
+  const last = day ? day.items.length - 1 : 0;
+  const ops = withOps ? `
+      <button class="tr-icon" data-up="${esc(it.id)}" ${idx <= 0 ? 'disabled' : ''} aria-label="上移">↑</button>
+      <button class="tr-icon" data-dn="${esc(it.id)}" ${idx === last ? 'disabled' : ''} aria-label="下移">↓</button>
+      ${current.days.length > 1 ? `<select class="tr-day-move" name="move-day" data-moveday="${esc(it.id)}" aria-label="移动到某天">${current.days.map((x, xi) => `<option value="${xi}" ${xi === di ? 'selected' : ''}>D${xi + 1}</option>`).join('')}</select>` : ''}
+      <button class="tr-icon danger" data-rm="${esc(it.id)}" aria-label="删除">✕</button>` : '';
   return `
     <div class="tr-item-panel">
       <label class="tr-panel-field">锁定时点
@@ -412,6 +422,62 @@ function itemPanelHtml(it) {
         <button class="${it.mustVisit === false ? 'on' : ''}" data-must="${esc(it.id)}" data-must-value="0">可删</button>
       </span>
       <span class="tr-panel-hint">${hasBooking ? `已按预订 ${esc(booking.time)} 锁定，锁时字段不生效` : (pinned ? '按锁定时刻排程' : '留空＝跟随前一站顺排')}</span>
+      ${ops}
+    </div>`;
+}
+
+function unplacedReason(it) {
+  if (!it.refId) return '未绑定点位';
+  if (it.type === 'note' || it.type === 'task') return '不参与排程';
+  if (it.plannedStatus === 'skipped') return '已跳过';
+  return '缺时长或坐标';
+}
+
+function timelineDayHtml(d, di, res) {
+  const railItems = d.items.map(it => ({ ...it, placeType: itemType(it) }));
+  const rail = buildDayRail({ result: res, day: d, items: railItems });
+  const placed = new Set(res.timeline.map(x => x.itemId));
+  const unplaced = d.items.filter(it => !placed.has(it.id));
+  const selected = view.sel && d.items.some(it => it.id === view.sel) ? d.items.find(it => it.id === view.sel) : null;
+
+  const blocks = rail.blocks.map(b => {
+    const compact = b.height < 54;
+    const tiny = b.height < 34;
+    const cls = [
+      b.must ? '' : 'optional', b.pinned ? 'pinned' : '', b.booked ? 'booked' : '',
+      b.overlapPrev ? 'overlap' : '', view.sel === b.itemId ? 'selected' : '',
+      compact ? 'compact' : '', tiny ? 'tiny' : '',
+    ].filter(Boolean).join(' ');
+    return `<div class="tl-block ${cls}" data-tl-block="${esc(b.itemId)}" data-start="${b.start}" data-duration="${b.duration}"
+      style="top:${b.top}px;height:${b.height}px;background:${b.color}14;border-left-color:${b.color}">
+      ${b.pinned ? '<span class="tl-pin">🔒</span>' : (b.booked ? '<span class="tl-pin">预订</span>' : '')}
+      <div class="tl-time">${esc(b.timeLabel)}</div>
+      <div class="tl-name">${esc(b.name)}</div>
+      ${compact ? '' : `<div class="tl-meta">${esc(b.type)}${b.unknown ? ' · 开放时间未知' : ''}</div>`}
+    </div>`;
+  }).join('');
+
+  const hours = rail.hours.map(h => `<div class="tl-hour" style="top:${h.top}px"><b>${h.label}</b></div>`).join('');
+  const legs = rail.legs.filter(l => l.showLabel).map(l => `<div class="tl-leg" style="top:${l.top}px"><span>${esc(l.label)}</span></div>`).join('');
+  const waits = rail.waits.map(w => `<div class="tl-wait" style="top:${w.top}px;height:${w.height}px"><span>${esc(w.label)}</span></div>`).join('');
+  const overrun = rail.overrun ? `<div class="tl-overrun" style="top:${rail.overrun.top}px;height:${rail.overrun.height}px"></div>` : '';
+  const unplacedHtml = unplaced.length ? `<div class="tl-unplaced">
+      <span class="tl-unplaced-label">未排程 ${unplaced.length} 项</span>
+      ${unplaced.map(it => `<button class="tl-unplaced-item ${view.sel === it.id ? 'sel' : ''}" data-item="${esc(it.id)}">${esc(itemName(it))}<small>${esc(unplacedReason(it))}</small></button>`).join('')}
+    </div>` : '';
+
+  return `<div class="tl-wrap">
+      <div class="tl-hint">拖动色块锁定时刻 · 双击解锁 · 点色块改必去/可删或删除</div>
+      <div class="tl-rail" data-rail="${di}" data-range-start="${rail.rangeStart}" data-px="${rail.pxPerMin}" data-day-start="${rail.startMin}">
+        <div class="tl-inner" style="height:${rail.height}px">
+          ${hours}
+          <div class="tl-bound start" style="top:${(rail.startMin - rail.rangeStart) * rail.pxPerMin}px"><b>出发 ${formatMinutesCrossDay(rail.startMin)}</b></div>
+          <div class="tl-bound end" style="top:${(rail.endMin - rail.rangeStart) * rail.pxPerMin}px"><b>收工 ${formatMinutesCrossDay(rail.endMin)}</b></div>
+          ${overrun}${legs}${waits}${blocks}
+        </div>
+      </div>
+      ${unplacedHtml}
+      ${selected ? itemPanelHtml(selected, di, true) : ''}
     </div>`;
 }
 
@@ -421,10 +487,15 @@ function renderEditor() {
   const conflicts = itemDateConflicts(t);
   const conflictByItem = new Map(conflicts.map(c => [c.itemId, c]));
   const pending = countNeedsConfirm(t);
+  const dayRes = new Map(t.days.map(d => [d.id, evaluateDay({
+    day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
+    options: { start: d.startTime, end: d.endTime },
+  })]));
   $app.innerHTML = `
     <div class="pl-head">
       <button class="pl-btn small" id="tr-back">← 全部行程</button>
       <div class="tr-head-ops">
+        <button class="pl-btn small" id="tr-layout">${view.layout === 'timeline' ? '☰ 列表' : '🗓 时间轴'}</button>
         <button class="pl-btn small" id="tr-undo" ${undoStack.length ? '' : 'disabled'}>↶ 撤销</button>
         <button class="pl-btn small" id="tr-md">导出 MD</button>
       </div>
@@ -461,8 +532,8 @@ function renderEditor() {
           <span class="tr-window-sep">–</span>
           <input type="time" data-window-end="${di}" value="${esc(d.endTime || '21:00')}" aria-label="Day ${d.index} 收工时间">
         </div>
-        ${feasibilityLine(d)}
-        ${d.items.length ? d.items.map((it, ii) => {
+        ${feasibilityLine(d, dayRes.get(d.id))}
+        ${view.layout === 'timeline' ? timelineDayHtml(d, di, dayRes.get(d.id)) : (d.items.length ? d.items.map((it, ii) => {
           const cf = conflictByItem.get(it.id);
           return `
           <div class="pl-point tr-item ${view.sel === it.id ? 'is-sel' : ''}" data-item="${esc(it.id)}">
@@ -482,7 +553,7 @@ function renderEditor() {
             </span>
           </div>
           ${view.sel === it.id ? itemPanelHtml(it) : ''}`;
-        }).join('') : '<div class="tr-day-empty">这一天还没有安排</div>'}
+        }).join('') : '<div class="tr-day-empty">这一天还没有安排</div>')}
         <div class="tr-day-ops">
           <button class="pl-btn small" data-add="${di}">＋ 加点位</button>
           <button class="pl-btn small" data-note="${di}">📝 ${d.note ? '改备注' : '加备注'}</button>
@@ -499,6 +570,11 @@ function renderEditor() {
   document.getElementById('tr-back').onclick = () => { view.mode = 'list'; view.picker = null; view.sel = null; current = null; render(); };
   const undoBtn = document.getElementById('tr-undo');
   if (undoBtn) undoBtn.onclick = doUndo;
+  document.getElementById('tr-layout').onclick = () => {
+    view.layout = view.layout === 'timeline' ? 'list' : 'timeline';
+    view.sel = null;
+    render();
+  };
   document.getElementById('tr-md').onclick = () => exportMd(current);
   document.getElementById('tr-json').onclick = () => download(`${current.title || '行程'}.json`, JSON.stringify({ schemaVersion: current.schemaVersion, trips: [current], visits: [] }, null, 2));
   document.getElementById('tr-add-day').onclick = () => mutate(trip => addDay(trip));
@@ -524,6 +600,22 @@ function renderEditor() {
 
   // 委托：items 与 day 操作
   $app.onclick = e => {
+    const tlBlock = e.target.closest('[data-tl-block]');
+    if (tlBlock) {
+      if (tlDragged) { tlDragged = false; return; }
+      const id = tlBlock.dataset.tlBlock;
+      const now = Date.now();
+      if (lastBlockTap.id === id && now - lastBlockTap.at < 300) {
+        lastBlockTap = { id: '', at: 0 };
+        const it = findItem(id);
+        if (it && it.pinnedStart) mutate(trip => setItemPinnedStart(trip, it.id, ''));
+        return;
+      }
+      lastBlockTap = { id, at: now };
+      view.sel = view.sel === id ? null : id;
+      render();
+      return;
+    }
     const pick = e.target.closest('[data-pick]');
     if (pick) { pickPlace(pick.dataset.pick); return; }
     const add = e.target.closest('[data-add]');
@@ -583,6 +675,49 @@ function renderEditor() {
       if (v && !/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) { render(); return; }
       mutate(trip => setItemPinnedStart(trip, pin.dataset.pinTime, v));
     }
+  };
+  $app.onpointerdown = e => {
+    const block = e.target.closest('[data-tl-block]');
+    const rail = block && block.closest('.tl-rail');
+    if (!block || !rail) return;
+    const item = findItem(block.dataset.tlBlock);
+    if (item && splitStartLocal(item.startLocal).date) return; // 预订时刻不可拖动
+    railDrag = {
+      block, rail, itemId: block.dataset.tlBlock, startY: e.clientY,
+      baseStart: Number(block.dataset.start), duration: Number(block.dataset.duration) || 30,
+      moved: false, pending: null,
+    };
+    try { block.setPointerCapture(e.pointerId); } catch { /* 合成事件无真实指针 */ }
+  };
+  $app.onpointermove = e => {
+    const g = railDrag;
+    if (!g) return;
+    const dy = e.clientY - g.startY;
+    if (!g.moved && Math.abs(dy) < 4) return;
+    g.moved = true;
+    tlDragged = true;
+    const px = Number(g.rail.dataset.px) || 1.25;
+    const rangeStart = Number(g.rail.dataset.rangeStart) || 0;
+    const dayStart = Number(g.rail.dataset.dayStart) || 0;
+    const newStart = clampNum(snap5(g.baseStart + dy / px), dayStart, 1439);
+    g.pending = newStart;
+    g.block.classList.add('dragging', 'pinned');
+    g.block.style.top = ((newStart - rangeStart) * px) + 'px';
+    const timeEl = g.block.querySelector('.tl-time');
+    if (timeEl) timeEl.textContent = `${formatMinutesCrossDay(newStart)}–${formatMinutesCrossDay(newStart + g.duration)} · ${g.duration}m`;
+  };
+  $app.onpointerup = () => {
+    const g = railDrag;
+    railDrag = null;
+    if (!g || !g.moved) return;
+    const value = formatMinutes(clampNum(g.pending ?? g.baseStart, 0, 1439));
+    mutate(trip => setItemPinnedStart(trip, g.itemId, value)).then(() => { if (current) render(); });
+    setTimeout(() => { tlDragged = false; }, 350);
+  };
+  $app.onpointercancel = () => {
+    if (!railDrag) return;
+    railDrag = null;
+    render();
   };
 }
 
