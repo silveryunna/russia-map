@@ -7725,7 +7725,9 @@
     "confidence": 100,
     "tags": [
       "机场"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p532",
@@ -7741,7 +7743,9 @@
     "confidence": 100,
     "tags": [
       "交通枢纽"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p533",
@@ -7757,7 +7761,9 @@
     "confidence": 100,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p534",
@@ -7773,7 +7779,9 @@
     "confidence": 100,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p535",
@@ -7790,7 +7798,9 @@
     "tags": [
       "餐厅/咖啡"
     ],
-    "hours": "夜市晚间为主"
+    "hours": "夜市晚间为主",
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p536",
@@ -7806,7 +7816,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p537",
@@ -7819,7 +7831,9 @@
     "note": "价格不算便宜，记得讲价",
     "lat": 18.27942,
     "lon": 109.574796,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p538",
@@ -7832,7 +7846,9 @@
     "note": "品牌较少体量小；买得多建议去海棠湾cdf",
     "lat": 18.291417,
     "lon": 109.525132,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 180,
+    "durationBasis": "estimate"
   },
   {
     "id": "p539",
@@ -7849,7 +7865,9 @@
     "tags": [
       "餐厅/咖啡"
     ],
-    "mustOrder": "鸳鸯锅糟粕醋+椰子鸡、现烤脆皮文昌鸡"
+    "mustOrder": "鸳鸯锅糟粕醋+椰子鸡、现烤脆皮文昌鸡",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p540",
@@ -7866,7 +7884,9 @@
     "tags": [
       "餐厅/咖啡"
     ],
-    "mustOrder": "砂锅香草鸭（汤汁拌饭）"
+    "mustOrder": "砂锅香草鸭（汤汁拌饭）",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p541",
@@ -7882,7 +7902,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p542",
@@ -7898,7 +7920,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p543",
@@ -7914,7 +7938,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p544",
@@ -7930,7 +7956,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p545",
@@ -7946,7 +7974,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p546",
@@ -7963,7 +7993,9 @@
     "tags": [
       "餐厅/咖啡"
     ],
-    "mustOrder": "现开榴莲不限量、波龙/青龙二选一、帝王蟹"
+    "mustOrder": "现开榴莲不限量、波龙/青龙二选一、帝王蟹",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p547",
@@ -7979,7 +8011,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p548",
@@ -7996,7 +8030,9 @@
     "tags": [
       "餐厅/咖啡"
     ],
-    "mustOrder": "三拼锅（糟粕醋+椰子鸡+椰奶鸡）"
+    "mustOrder": "三拼锅（糟粕醋+椰子鸡+椰奶鸡）",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p549",
@@ -8013,7 +8049,9 @@
     "tags": [
       "餐厅/咖啡"
     ],
-    "mustOrder": "糟粕醋+椰子水双拼、海岛大转盘"
+    "mustOrder": "糟粕醋+椰子水双拼、海岛大转盘",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p550",
@@ -8027,7 +8065,9 @@
     "lat": 18.297725,
     "lon": 109.346755,
     "confidence": 100,
-    "ticket": "需预约；观光车25r"
+    "ticket": "需预约；观光车25r",
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p551",
@@ -8043,7 +8083,9 @@
     "confidence": 100,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p552",
@@ -8057,7 +8099,9 @@
     "lat": 18.300907,
     "lon": 109.204538,
     "confidence": 100,
-    "ticket": "门票建议线上购；观光车30r"
+    "ticket": "门票建议线上购；观光车30r",
+    "estimatedDuration": 240,
+    "durationBasis": "estimate"
   },
   {
     "id": "p553",
@@ -8073,7 +8117,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p554",
@@ -8089,7 +8135,9 @@
     "confidence": 75,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p555",
@@ -8105,7 +8153,9 @@
     "confidence": 100,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p556",
@@ -8121,7 +8171,9 @@
     "confidence": 100,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p557",
@@ -8138,7 +8190,9 @@
     "tags": [
       "免费"
     ],
-    "ticket": "免费；往返观光车28r"
+    "ticket": "免费；往返观光车28r",
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p558",
@@ -8154,7 +8208,9 @@
     "confidence": 100,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 180,
+    "durationBasis": "estimate"
   },
   {
     "id": "p559",
@@ -8167,7 +8223,9 @@
     "note": "门票偏高但值得；买门票+游览车套票；7:30前到避旅行团；穿防滑鞋带驱蚊液",
     "lat": 18.256045,
     "lon": 109.640074,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 180,
+    "durationBasis": "estimate"
   },
   {
     "id": "p560",
@@ -8180,7 +8238,9 @@
     "note": "10点前或16点后去，正午暴晒",
     "lat": 18.229728,
     "lon": 109.617896,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p561",
@@ -8193,7 +8253,9 @@
     "note": "柏悦酒店方向；沿海边走几分钟即到；太阳湾公路为“最美公路”，有交警不能停车，只能短暂停几分钟",
     "lat": 18.195048,
     "lon": 109.606506,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p562",
@@ -8209,7 +8271,9 @@
     "confidence": 100,
     "tags": [
       "交通枢纽"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p563",
@@ -8225,7 +8289,9 @@
     "confidence": 100,
     "tags": [
       "酒店/旅馆"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p564",
@@ -8238,7 +8304,9 @@
     "note": "沙滩免费；中午逆光",
     "lat": 18.324281,
     "lon": 109.701963,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p565",
@@ -8252,7 +8320,9 @@
     "lat": 18.373715,
     "lon": 109.746488,
     "confidence": 100,
-    "hours": "A区3楼免费寄存行李"
+    "hours": "A区3楼免费寄存行李",
+    "estimatedDuration": 180,
+    "durationBasis": "estimate"
   },
   {
     "id": "p566",
@@ -8265,7 +8335,9 @@
     "note": "门票贵，热门项目排队1小时起；亲子/年轻人向；住亚特兰蒂斯酒店客人按房型含畅玩权益（以官网为准）",
     "lat": 18.358836,
     "lon": 109.740904,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 240,
+    "durationBasis": "estimate"
   },
   {
     "id": "p567",
@@ -8280,7 +8352,9 @@
     "lon": 109.721971,
     "confidence": 100,
     "ticket": "免费入园，项目单收费",
-    "hours": "16:00后开放"
+    "hours": "16:00后开放",
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p568",
@@ -8293,7 +8367,9 @@
     "note": "住宿可电话让老板三轮车村口接；小电驴40r/天记得讲价",
     "lat": 18.27499,
     "lon": 109.728282,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 180,
+    "durationBasis": "estimate"
   },
   {
     "id": "p569",
@@ -8307,7 +8383,9 @@
     "lat": 18.312304,
     "lon": 109.761955,
     "confidence": 100,
-    "ticket": "线上往返船票133/线下144；船票+游览车套票258"
+    "ticket": "线上往返船票133/线下144；船票+游览车套票258",
+    "estimatedDuration": 300,
+    "durationBasis": "estimate"
   },
   {
     "id": "p570",
@@ -8324,7 +8402,9 @@
     "tags": [
       "餐厅/咖啡"
     ],
-    "mustOrder": "海鲜粥 20r"
+    "mustOrder": "海鲜粥 20r",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p571",
@@ -8340,7 +8420,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p572",
@@ -8356,7 +8438,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p573",
@@ -8372,7 +8456,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p574",
@@ -8388,7 +8474,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p575",
@@ -8404,7 +8492,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p576",
@@ -8420,7 +8510,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p577",
@@ -8433,7 +8525,9 @@
     "note": "机场打车20分钟到码头；线上提前购票更便宜，学生证半价；可租电动车环岛；牛王岭必去（景交车35/位），海边礁石很有大片感",
     "lat": 18.239245,
     "lon": 109.369467,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 180,
+    "durationBasis": "estimate"
   },
   {
     "id": "p578",
@@ -8449,7 +8543,9 @@
     "confidence": 100,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p579",
@@ -8463,7 +8559,9 @@
     "lat": 18.580076,
     "lon": 110.200704,
     "confidence": 100,
-    "ticket": "门票+往返船票122r，游览车40r"
+    "ticket": "门票+往返船票122r，游览车40r",
+    "estimatedDuration": 240,
+    "durationBasis": "estimate"
   },
   {
     "id": "p580",
@@ -8476,7 +8574,9 @@
     "note": "避雷小吃一条街（贵且难吃）；吃饭打车去兴隆镇更local",
     "lat": 18.63057,
     "lon": 110.215137,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 180,
+    "durationBasis": "estimate"
   },
   {
     "id": "p581",
@@ -8489,7 +8589,9 @@
     "note": "",
     "lat": 18.665029,
     "lon": 110.271121,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p582",
@@ -8502,7 +8604,9 @@
     "note": "",
     "lat": 18.397379,
     "lon": 109.867875,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p583",
@@ -8515,7 +8619,9 @@
     "note": "",
     "lat": 18.45492,
     "lon": 109.646943,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 240,
+    "durationBasis": "estimate"
   },
   {
     "id": "p584",
@@ -8532,7 +8638,9 @@
     "tags": [
       "酒店/旅馆"
     ],
-    "url": "https://www.atlantissanya.cn/"
+    "url": "https://www.atlantissanya.cn/",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p585",
@@ -8682,7 +8790,9 @@
       "市集",
       "本地体验"
     ],
-    "name_en": "Yazhou Central Fishing Port"
+    "name_en": "Yazhou Central Fishing Port",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p596",
@@ -8700,7 +8810,9 @@
       "礁石",
       "婚纱摄影"
     ],
-    "name_en": "Daxiaodongtian Scenic Area"
+    "name_en": "Daxiaodongtian Scenic Area",
+    "estimatedDuration": 150,
+    "durationBasis": "estimate"
   },
   {
     "id": "p597",
@@ -8717,7 +8829,9 @@
       "市集",
       "夜宵"
     ],
-    "name_en": "Yiheng Night Market"
+    "name_en": "Yiheng Night Market",
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p598",
@@ -8734,7 +8848,9 @@
       "演出",
       "夜游"
     ],
-    "name_en": "Sanya Romance Park"
+    "name_en": "Sanya Romance Park",
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p599",
@@ -8753,7 +8869,9 @@
       "游艇",
       "网红机位"
     ],
-    "name_en": "Xiaodonghai Photo Base (Serenity Marina)"
+    "name_en": "Xiaodonghai Photo Base (Serenity Marina)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p600",
@@ -8771,7 +8889,9 @@
       "网红打卡",
       "航拍"
     ],
-    "name_en": "Baifu Bay (Baifu Island)"
+    "name_en": "Baifu Bay (Baifu Island)",
+    "estimatedDuration": 180,
+    "durationBasis": "estimate"
   },
   {
     "id": "p601",
@@ -8788,7 +8908,9 @@
       "潜水",
       "玻璃海"
     ],
-    "name_en": "Jiajing Island (Shimei Bay)"
+    "name_en": "Jiajing Island (Shimei Bay)",
+    "estimatedDuration": 150,
+    "durationBasis": "estimate"
   },
   {
     "id": "p602",
@@ -8806,7 +8928,9 @@
       "海岛",
       "亲子"
     ],
-    "name_en": "Daidai Island (Nanwan Monkey Island)"
+    "name_en": "Daidai Island (Nanwan Monkey Island)",
+    "estimatedDuration": 180,
+    "durationBasis": "estimate"
   },
   {
     "id": "p603",
@@ -8824,7 +8948,9 @@
       "稻田",
       "备用"
     ],
-    "name_en": "Sanya Rice National Park"
+    "name_en": "Sanya Rice National Park",
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p604",
@@ -8841,7 +8967,9 @@
       "市集",
       "本地烟火"
     ],
-    "name_en": "Linwang Night Market"
+    "name_en": "Linwang Night Market",
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p605",
@@ -8859,7 +8987,9 @@
     "lon": 109.504447,
     "confidence": 100,
     "mustOrder": "香辣蟹、椒盐皮皮虾",
-    "name_en": "Linjie Xiangwei Seafood (First Market)"
+    "name_en": "Linjie Xiangwei Seafood (First Market)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p606",
@@ -8874,7 +9004,9 @@
     ],
     "mustOrder": "香辣秘制和乐蟹",
     "pending": true,
-    "name_en": "Hailuohao Seafood Restaurant"
+    "name_en": "Hailuohao Seafood Restaurant",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p607",
@@ -8890,7 +9022,9 @@
     "lat": 18.35937,
     "lon": 109.72656,
     "confidence": 75,
-    "name_en": "Sichuan Xiaohuzi Seafood (Haitang Bay)"
+    "name_en": "Sichuan Xiaohuzi Seafood (Haitang Bay)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p608",
@@ -8906,7 +9040,9 @@
     "lat": 18.270641,
     "lon": 109.483483,
     "confidence": 100,
-    "name_en": "Qiongxiangge Hainan Cuisine (Sanya Bay)"
+    "name_en": "Qiongxiangge Hainan Cuisine (Sanya Bay)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p609",
@@ -8922,7 +9058,9 @@
     "lat": 18.239466,
     "lon": 109.503467,
     "confidence": 100,
-    "name_en": "Zheng Apo Qingbuliang (First Market)"
+    "name_en": "Zheng Apo Qingbuliang (First Market)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p610",
@@ -8939,7 +9077,9 @@
     "lat": 18.24046,
     "lon": 109.505318,
     "confidence": 100,
-    "name_en": "Sanya Baoluofen Noodle Shop"
+    "name_en": "Sanya Baoluofen Noodle Shop",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p611",
@@ -8956,7 +9096,9 @@
     "lat": 18.223597,
     "lon": 109.50615,
     "confidence": 100,
-    "name_en": "Yucun Fried Chicken (Chunji)"
+    "name_en": "Yucun Fried Chicken (Chunji)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p612",
@@ -8971,7 +9113,9 @@
       "本地体验"
     ],
     "pending": true,
-    "name_en": "Agong BBQ"
+    "name_en": "Agong BBQ",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p613",
@@ -8987,7 +9131,9 @@
     "lat": 18.238805,
     "lon": 109.5045,
     "confidence": 100,
-    "name_en": "Aju Cold Drinks (First Market)"
+    "name_en": "Aju Cold Drinks (First Market)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p614",
@@ -9004,7 +9150,9 @@
     "lat": 18.236939,
     "lon": 109.501537,
     "confidence": 100,
-    "name_en": "Apo Dongshan Mutton (Laohonggang Market)"
+    "name_en": "Apo Dongshan Mutton (Laohonggang Market)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p615",
@@ -9020,7 +9168,9 @@
     "lat": 18.301489,
     "lon": 109.44354,
     "confidence": 100,
-    "name_en": "Dazhong Beef Bone Soup (Fenghuang Road)"
+    "name_en": "Dazhong Beef Bone Soup (Fenghuang Road)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p616",
@@ -9036,7 +9186,9 @@
     "lat": 18.255755,
     "lon": 109.517447,
     "confidence": 100,
-    "name_en": "Liguo Restaurant (Shoudi Plaza)"
+    "name_en": "Liguo Restaurant (Shoudi Plaza)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p617",
@@ -9053,7 +9205,9 @@
     "lat": 18.255638,
     "lon": 109.498776,
     "confidence": 100,
-    "name_en": "Wenma Hou-an Rice Noodles"
+    "name_en": "Wenma Hou-an Rice Noodles",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p618",
@@ -9070,7 +9224,9 @@
     "lat": 18.209099,
     "lon": 109.504971,
     "confidence": 100,
-    "name_en": "Guijing Cape (Pink Broken Bridge, Xiaodonghai)"
+    "name_en": "Guijing Cape (Pink Broken Bridge, Xiaodonghai)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p619",
@@ -9089,7 +9245,9 @@
     "lat": 18.289048,
     "lon": 109.439937,
     "confidence": 100,
-    "name_en": "Sanya Haiyun Resort (Coconut Dream Corridor Lawn Spot)"
+    "name_en": "Sanya Haiyun Resort (Coconut Dream Corridor Lawn Spot)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p620",
@@ -9107,7 +9265,9 @@
     "lat": 18.278947,
     "lon": 109.466671,
     "confidence": 100,
-    "name_en": "Sanya Bay Wedding Photo Base"
+    "name_en": "Sanya Bay Wedding Photo Base",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p621",
@@ -9124,7 +9284,9 @@
     "lat": 18.212739,
     "lon": 109.533498,
     "confidence": 100,
-    "name_en": "Mandarin Oriental Coral Bay Sanya (Seaside Stone Gate Spot)"
+    "name_en": "Mandarin Oriental Coral Bay Sanya (Seaside Stone Gate Spot)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p622",
@@ -9141,7 +9303,9 @@
     "lat": 18.376957,
     "lon": 110.000792,
     "confidence": 100,
-    "name_en": "Jianling Hill (Lingshui)"
+    "name_en": "Jianling Hill (Lingshui)",
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p623",
@@ -9158,7 +9322,9 @@
     "lat": 18.680462,
     "lon": 110.319624,
     "confidence": 100,
-    "name_en": "Qiaohai Ranch (Wanning)"
+    "name_en": "Qiaohai Ranch (Wanning)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p624",
@@ -9173,7 +9339,9 @@
       "餐厅/咖啡"
     ],
     "pending": true,
-    "name_en": "Shanhai Langren (Wanning)"
+    "name_en": "Shanhai Langren (Wanning)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p625",
@@ -9190,7 +9358,9 @@
     "lat": 19.04698,
     "lon": 110.561552,
     "confidence": 100,
-    "name_en": "Shanqin Bay Swallow Cave (Wanning)"
+    "name_en": "Shanqin Bay Swallow Cave (Wanning)",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p626",
@@ -9208,7 +9378,9 @@
     "lat": 20.154907,
     "lon": 110.686586,
     "confidence": 100,
-    "name_en": "Mulan Bay (Wenchang)"
+    "name_en": "Mulan Bay (Wenchang)",
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p627",
@@ -9225,7 +9397,9 @@
     "lat": 19.640006,
     "lon": 111.032012,
     "confidence": 100,
-    "name_en": "Stone Park (Wenchang)"
+    "name_en": "Stone Park (Wenchang)",
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p628",
@@ -9242,7 +9416,9 @@
     "lat": 19.277373,
     "lon": 110.639497,
     "confidence": 100,
-    "name_en": "Mengcaiyuan Milk Sea (Qionghai)"
+    "name_en": "Mengcaiyuan Milk Sea (Qionghai)",
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p629",
@@ -9260,6 +9436,8 @@
     "lat": 20.048788,
     "lon": 110.31203,
     "confidence": 100,
-    "name_en": "Haikou Cloudscape Library"
+    "name_en": "Haikou Cloudscape Library",
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   }
 ]

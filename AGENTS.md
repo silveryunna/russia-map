@@ -9,8 +9,9 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 ## 本地开发 / 质量门
 
 - `npm run dev`：Vite（root=`src/`）。`vite.config.js` 的 `devRepoAssets` 插件把仓库根 `data/ content/ photos/` 与白名单根文件映射到站点根，`/api/*` 默认返回 JSON 错误（页面降级规则引擎）；要连真后端用 `DEV_API=http://127.0.0.1:8080 npm run dev`
-- `npm test`：规则引擎 + 计划存储 + Trip 契约/迁移/编辑/存储 + 可行性引擎 + 时间轴视图 + 可执行修复 + 软目标 + Plan B + 顺序求解 + 打车费率表 + 样板数据契约 + SW 缓存策略 + 坐标变换 + 文档事实（CI 同样跑）
+- `npm test`：规则引擎 + 计划存储 + Trip 契约/迁移/编辑/存储 + 可行性引擎 + 时间轴视图 + 可执行修复 + 软目标 + Plan B + 顺序求解 + 打车费率表 + 样板/三亚数据契约 + SW 缓存策略 + 坐标变换 + 文档事实（CI 同样跑）
 - `node tools/check-sample-data.mjs ./data`：莫斯科样板数据门槛（动线覆盖的 42 个点位的排程字段、坐标置信度、城市时区；`unknown` 允许但必须显式）。CI 跑，改样板城市点位必跑
+- `node tools/check-city-duration.mjs ./data 三亚`：三亚非 pending 点位必须有坐标、停留时长与依据（当前 86 个可排程点位）。CI 跑，改三亚点位必跑
 - `node tools/check-route-feasibility.mjs ./data`：真实动线可行性验收（逐条按一天重排，报告收工时间/未知日历/冲突与修复建议；只在结构性错误时退出 1）。CI 跑，改莫斯科动线或点位时长后看这里
 - 计划模块：`src/pages/plan/engine.js`（纯函数，勿引入 DOM/storage）、`src/pages/plan/store.js`（`travel-plans-v1` 信封 + 损坏备份）。改规则逻辑必须同步 `tools/test-plan-engine.mjs`
 - 可行性引擎（ROADMAP P2）：`src/pages/plan/feasibility.js` 纯函数 `evaluateDay()`/`suggestFixes()`，硬约束含闭馆、最后入场、预订重叠、跨日、重复点位、缺时长/坐标、超收工线；未知开放日历保留宽边界但必定报 `hours-unknown`，**绝不当成"全天开放"**；没有点位的 `meal`/`break` 条目按"就地时间块"排程（不计交通/日历，不切断前后站通行），其他无点位条目仍报未绑定；交通只能是明确标注的估算（步行 ≤1.2km，否则地铁 10 分钟开销 + 30km/h）；跨午夜的时间一律用 `formatMinutesCrossDay()` 显示为「HH:MM（次日）」，不要用 `formatMinutes()` 直接展示可能超过 24:00 的值。改约束或估算必须同步 `tools/test-feasibility.mjs`
@@ -46,7 +47,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 
 ## CI / 监控（GitHub Actions）
 
-- `check.yml`（push 触发）：check-data + 样板数据契约 + 变异测试（32 变异须全捕获）+ 坐标变换 + 计划模块单测 + Trip v2 单测 + 可行性/时间轴/修复/软目标/Plan B/顺序求解/费率表单测与真实动线验收 + SW 缓存策略 + 文档事实 + assets ESM 严格解析 + 版本同步检查（改 assets/*.js 必须同提交改 map.html 与 sw.js）+ Playwright 冒烟（地图桌面/手机 + 行程页生成/排序/撤销/时间轴拖拽/午餐/休息/交通切换/刷新恢复截图 artifact）
+- `check.yml`（push 触发）：check-data + 样板数据契约 + 三亚排程字段 + 变异测试（32 变异须全捕获）+ 坐标变换 + 计划模块单测 + Trip v2 单测 + 可行性/时间轴/修复/软目标/Plan B/顺序求解/费率表单测与真实动线验收 + SW 缓存策略 + 文档事实 + assets ESM 严格解析 + 版本同步检查（改 assets/*.js 必须同提交改 map.html 与 sw.js）+ Playwright 冒烟（地图桌面/手机 + 行程页生成/排序/撤销/时间轴拖拽/午餐/休息/交通切换/刷新恢复截图 artifact）
 - `monitor.yml`（每 6 小时）：探测腾讯云主站/API/NAS/TLS 证书（剩 <14 天告警），故障自动开 issue、恢复自动关闭；仓库 60 天无活动 GitHub 会停定时任务，手动跑一次即可恢复
 - 探针脚本 `tools/site-monitor.mjs` 可本地直接跑（Pages 检查需网络可达 GitHub）
 

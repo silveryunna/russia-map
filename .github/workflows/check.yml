@@ -21,6 +21,10 @@ jobs:
       - name: 样板数据契约
         run: node tools/check-sample-data.mjs ./data
 
+      # 1.6) 三亚排程字段：非 pending 点位必须有坐标、停留时长与依据
+      - name: 三亚排程字段
+        run: node tools/check-city-duration.mjs ./data 三亚
+
       # 2) 校验器本身不能退化：32 个变异必须全部捕获
       - name: 变异测试
         run: |
