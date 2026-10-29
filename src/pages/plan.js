@@ -1,7 +1,7 @@
 import '../shared/base.css';
 import './plan.css';
 import { INTERESTS, PLAN_DAYS_MAX, clampDays, ruleEngine } from './plan/engine.js';
-import { evaluateDay, formatMinutes } from './plan/feasibility.js';
+import { evaluateDay, formatMinutesCrossDay } from './plan/feasibility.js';
 import { loadPlans } from './plan/store.js';
 import { loadCheckins } from '../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
@@ -384,8 +384,8 @@ function feasibilityLine(d) {
   if (res.empty) return '';
   const errs = res.errors;
   const unknown = res.stats.unknownHours;
-  const start = formatMinutes(res.timeline[0].arrive);
-  const end = formatMinutes(res.timeline[res.timeline.length - 1].end);
+  const start = formatMinutesCrossDay(res.timeline[0].arrive);
+  const end = formatMinutesCrossDay(res.timeline[res.timeline.length - 1].end);
   const dwell = (res.stats.dwellMinutes / 60).toFixed(1);
   const chips = errs.slice(0, 3).map(c => `<span class="tr-chip danger">${FEAS_LABEL[c.kind] || c.kind}</span>`).join('')
     + (errs.length > 3 ? `<span class="tr-chip danger">+${errs.length - 3}</span>` : '')

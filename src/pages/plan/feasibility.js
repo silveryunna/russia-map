@@ -28,6 +28,12 @@ export function formatMinutes(min) {
   return String(Math.floor(v / 60)).padStart(2, '0') + ':' + String(v % 60).padStart(2, '0');
 }
 
+// 展示用：>= 24:00 的分钟数写成「01:28（次日）」，避免看起来早于 23:30
+export function formatMinutesCrossDay(min) {
+  if (!Number.isFinite(min)) return '';
+  return Math.round(min) >= 1440 ? `${formatMinutes(min)}（次日）` : formatMinutes(min);
+}
+
 export function distanceMeters(a, b) {
   if (!a || !b || typeof a.lat !== 'number' || typeof b.lat !== 'number') return null;
   const R = 6371000;
@@ -208,15 +214,15 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       const hard = start.kind === 'absolute' || item.flexibility === 'fixed';
       if (pin < arrive) {
         if (hard) {
-          push('overlap', 'error', item.id, `「${name}」固定 ${formatMinutes(pin)} 开始，但按前面的行程 ${formatMinutes(arrive)} 才能到`, {
+          push('overlap', 'error', item.id, `「${name}」固定 ${formatMinutes(pin)} 开始，但按前面的行程 ${formatMinutesCrossDay(arrive)} 才能到`, {
             fixedAt: formatMinutes(pin),
-            earliestArrival: formatMinutes(arrive),
+            earliestArrival: formatMinutesCrossDay(arrive),
           });
         } else {
           // 软时点被晚到覆盖：按实际到达继续，但必须告诉用户晚了多少
-          push('late-start', 'warn', item.id, `「${name}」计划 ${formatMinutes(pin)} 开始，实际 ${formatMinutes(arrive)} 才到`, {
+          push('late-start', 'warn', item.id, `「${name}」计划 ${formatMinutes(pin)} 开始，实际 ${formatMinutesCrossDay(arrive)} 才到`, {
             planned: formatMinutes(pin),
-            actual: formatMinutes(arrive),
+            actual: formatMinutesCrossDay(arrive),
           });
         }
       } else {
@@ -238,11 +244,11 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       }
       const lastEntry = cal.lastEntry ?? cal.close;
       if (arrive > lastEntry) {
-        push('after-last-entry', 'error', item.id, `「${name}」最晚入场 ${formatMinutes(lastEntry)}，实际 ${formatMinutes(arrive)} 才到`, {
+        push('after-last-entry', 'error', item.id, `「${name}」最晚入场 ${formatMinutes(lastEntry)}，实际 ${formatMinutesCrossDay(arrive)} 才到`, {
           lastEntry: formatMinutes(lastEntry),
         });
       } else if (arrive + duration > cal.close) {
-        push('after-close', 'error', item.id, `「${name}」${formatMinutes(cal.close)} 关门，${formatMinutes(arrive)} 开始停留 ${duration} 分钟会超时`, {
+        push('after-close', 'error', item.id, `「${name}」${formatMinutes(cal.close)} 关门，${formatMinutesCrossDay(arrive)} 开始停留 ${duration} 分钟会超时`, {
           closes: formatMinutes(cal.close),
         });
       }
@@ -269,7 +275,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
   }
 
   if (timeline.length && cursor > dayEnd) {
-    push('day-overrun', 'error', 'day', `这天要到 ${formatMinutes(cursor)} 才结束，超出 ${formatMinutes(dayEnd)} 的收工线 ${cursor - dayEnd} 分钟`);
+    push('day-overrun', 'error', 'day', `这天要到 ${formatMinutesCrossDay(cursor)} 才结束，超出 ${formatMinutes(dayEnd)} 的收工线 ${cursor - dayEnd} 分钟`);
   }
 
   const errors = conflicts.filter((c) => c.severity === 'error');

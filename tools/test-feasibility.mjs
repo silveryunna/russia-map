@@ -3,7 +3,7 @@
 // 用法: node tools/test-feasibility.mjs
 import {
   DEFAULT_DAY, calendarState, distanceMeters, estimateLeg, evaluateDay, formatMinutes,
-  parseDays, parseMinutes, suggestFixes, weekdayKey,
+  formatMinutesCrossDay, parseDays, parseMinutes, suggestFixes, weekdayKey,
 } from '../src/pages/plan/feasibility.js';
 
 let bad = 0;
@@ -40,6 +40,8 @@ const it = (id, refId, extra = {}) => ({
   assert(parseMinutes('09:30') === 570 && parseMinutes('24:00') === null && parseMinutes('9:30') === null,
     'parseMinutes 只接受 HH:MM');
   assert(formatMinutes(570) === '09:30' && formatMinutes(1440) === '00:00', 'formatMinutes 归一化');
+  assert(formatMinutesCrossDay(570) === '09:30' && formatMinutesCrossDay(1440) === '00:00（次日）'
+    && formatMinutesCrossDay(1548) === '01:48（次日）', 'formatMinutesCrossDay 跨午夜标注次日');
   assert(weekdayKey('2026-11-09') === 'Mo' && weekdayKey('bad') === null, 'weekdayKey 取星期（2026-11-09 = 周一）');
   const days = parseDays('Mo-Fr,Sa');
   assert(days.length === 6 && days.includes('Mo') && days.includes('Sa') && !days.includes('Su'),
@@ -131,6 +133,22 @@ const it = (id, refId, extra = {}) => ({
   });
   assert(formatMinutes(booked.timeline[booked.timeline.length - 1].start) === '19:30',
     '带日期的预订优先于 pinnedStart');
+
+  const crossing = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('i1', 'p2', { pinnedStart: '22:00' })],
+    places,
+  });
+  const over = crossing.conflicts.find((c) => c.kind === 'day-overrun');
+  assert(crossing.timeline[0].end === 1500 && /01:00（次日）/.test(over?.message || ''),
+    '收工跨午夜 → 冲突消息写「01:00（次日）」');
+  const lateNight = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('i1', 'p2', { pinnedStart: '22:00' }), it('i2', 'p1', { pinnedStart: '10:00' })],
+    places,
+  });
+  assert(lateNight.conflicts.some((c) => c.kind === 'late-start' && /（次日）/.test(c.message)),
+    '晚到发生在次日 → 提示同样带次日标记');
 }
 
 // ── 4) 闭馆日：报错 + 有修复建议 ──

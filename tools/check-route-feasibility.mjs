@@ -5,8 +5,9 @@
 // 用法: node tools/check-route-feasibility.mjs [数据目录，默认 ./data] [城市，默认 莫斯科]
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { evaluateDay, formatMinutes, suggestFixes, DEFAULT_DAY } from '../src/pages/plan/feasibility.js';
-import { weekdayKey } from '../src/pages/plan/feasibility.js';
+import {
+  DEFAULT_DAY, evaluateDay, formatMinutesCrossDay, suggestFixes, weekdayKey,
+} from '../src/pages/plan/feasibility.js';
 
 const dir = resolve(process.argv[2] || './data');
 const city = process.argv[3] || '莫斯科';
@@ -38,7 +39,7 @@ for (const r of routes) {
   if (errs.length) verdict = `❌ ${errs.map((c) => c.kind).join('/')}`;
   else if (overrun.length) {
     const wide = evaluateDay({ day: DAY, items, places, options: { start: '07:00', end: '23:00' } });
-    verdict = `⚠️ 超时（收工 ${end ? formatMinutes(end) : '?'}）${wide.errors.length ? '，07:00–23:00 也走不完' : '，07:00–23:00 可完成'}`;
+    verdict = `⚠️ 超时（收工 ${end ? formatMinutesCrossDay(end) : '?'}）${wide.errors.length ? '，07:00–23:00 也走不完' : '，07:00–23:00 可完成'}`;
   } else verdict = '✅ 可行';
 
   rows.push({
@@ -46,7 +47,7 @@ for (const r of routes) {
     steps: `${res.timeline.length}/${steps.length}`,
     dwell: `${(res.stats.dwellMinutes / 60).toFixed(1)}h`,
     transit: `${res.stats.transitMinutes}m`,
-    end: end ? formatMinutes(end) : '-',
+    end: end ? formatMinutesCrossDay(end) : '-',
     unknown: `${res.stats.unknownHours}/${res.timeline.length}`,
     verdict,
     res, items,
@@ -55,9 +56,9 @@ for (const r of routes) {
 
 const pad = (s, n) => String(s).padEnd(n);
 console.log(`\n${city}动线可行性验收（验收日 ${DAY.date} ${weekdayKey(DAY.date)}，时间窗 ${DEFAULT_DAY.start}–${DEFAULT_DAY.end}）\n`);
-console.log(pad('动线', 30) + pad('点位', 8) + pad('停留', 8) + pad('通行', 8) + pad('结束', 8) + pad('未知日历', 10) + '结论');
+console.log(pad('动线', 30) + pad('点位', 8) + pad('停留', 8) + pad('通行', 8) + pad('结束', 14) + pad('未知日历', 10) + '结论');
 for (const r of rows) {
-  console.log(pad(r.route, 30) + pad(r.steps, 8) + pad(r.dwell, 8) + pad(r.transit, 8) + pad(r.end, 8) + pad(r.unknown, 10) + r.verdict);
+  console.log(pad(r.route, 30) + pad(r.steps, 8) + pad(r.dwell, 8) + pad(r.transit, 8) + pad(r.end, 14) + pad(r.unknown, 10) + r.verdict);
 }
 
 for (const r of rows) {

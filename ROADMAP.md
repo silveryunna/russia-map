@@ -599,7 +599,7 @@ P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协
 
 真实动线验收结果（当前数据）：D1 市中心经典线预计收工 23:28（建议去掉克里姆林宫 180m）、D2 预计 21:47（建议去掉大剧院 150m）；D3/D4 与三条专题线通过；结构性错误 0。结论是"数据与动线需要取舍"，不是引擎不可用。
 
-测试：`tools/test-feasibility.mjs`（42 项：解析/日历/通行估算/当天窗口/锁定时刻/各类硬约束/修复建议/确定性/空白天），已进 `npm test` 与 CI；`tools/check-route-feasibility.mjs ./data` 在 CI 里做真实数据回归。
+测试：`tools/test-feasibility.mjs`（45 项：解析/日历/通行估算/当天窗口/锁定时刻/跨午夜显示/各类硬约束/修复建议/确定性/空白天），已进 `npm test` 与 CI；`tools/check-route-feasibility.mjs ./data` 在 CI 里做真实数据回归。
 
 ### 技术策略
 
