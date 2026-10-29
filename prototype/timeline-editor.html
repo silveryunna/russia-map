@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>时间线编辑器 · 原型</title>
+<style>
+:root{
+  --paper:#FAF7F0; --card:#fff; --ink:#3E3526; --ink2:#5D5340; --muted:#999; --line:#E8E2D5;
+  --red:#B71C1C; --red-soft:#FDF1F0; --green:#2E7D32; --green-soft:#EDF6EE; --gold:#B08A4A;
+  --rail-bg:#FCFAF5;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--paper);color:var(--ink);font-family:system-ui,-apple-system,"PingFang SC","Microsoft YaHei",sans-serif;padding:16px 14px 60px;-webkit-font-smoothing:antialiased}
+.wrap{max-width:1180px;margin:0 auto}
+h1{font-size:20px;margin:0;font-family:"Songti SC","Noto Serif SC",serif;letter-spacing:.5px}
+.proto{display:inline-block;font-size:10px;font-family:system-ui,sans-serif;font-weight:600;color:#8A6A1F;background:#FFF4D6;border:1px solid #E0C983;border-radius:999px;padding:2px 8px;vertical-align:3px;margin-left:6px;letter-spacing:0}
+.sub{font-size:11px;color:var(--muted);margin-top:4px;line-height:1.6}
+.hints{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 12px}
+.hint{font-size:10px;color:#8A8272;background:#F1EDE3;border-radius:999px;padding:3px 9px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:0 1px 4px rgba(60,50,30,.05)}
+.toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding:10px 12px;margin-bottom:14px}
+.tabs{display:flex;gap:6px;flex-wrap:wrap}
+.tab{border:1.5px solid var(--line);background:#fff;color:var(--ink2);border-radius:999px;padding:6px 12px;font-size:12px;cursor:pointer;min-height:32px}
+.tab.on{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
+.tab small{font-weight:400;opacity:.72;margin-left:4px}
+label.time{font-size:11px;color:var(--muted);display:flex;align-items:center;gap:6px}
+input[type=time]{border:1.5px solid var(--line);border-radius:8px;padding:6px 8px;font-size:13px;color:var(--ink);background:#fff;font-variant-numeric:tabular-nums}
+input[type=time]:focus{outline:none;border-color:var(--red)}
+button{border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:7px 12px;font-size:12px;color:var(--ink2);cursor:pointer;min-height:34px;transition:background .15s}
+button:active{background:#F6F4EE}
+button.primary{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
+button.primary:active{background:#8E1414}
+.status{font-size:12px;border-radius:999px;padding:5px 11px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.status.ok{background:var(--green-soft);color:var(--green)}
+.status.bad{background:var(--red-soft);color:var(--red)}
+.spacer{flex:1}
+.cols{display:grid;grid-template-columns:minmax(0,1.18fr) minmax(0,.82fr);gap:14px;align-items:start}
+@media(max-width:880px){.cols{grid-template-columns:1fr}}
+.card-head{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:13px;font-weight:700;color:var(--ink);margin:2px 2px 10px}
+.card-head span{font-weight:400;font-size:11px;color:var(--muted);text-align:right}
+.rail-card{padding:12px 12px 14px;min-width:0}
+.rail{overflow:auto;max-height:72vh;border-radius:10px;background:linear-gradient(#FCFAF5,#FCFAF5);border:1px solid #F0EBDF}
+.rail-inner{position:relative;margin:14px 0 8px}
+.hour{position:absolute;left:0;right:0;border-top:1px dashed #EDE7DA;pointer-events:none}
+.hour b{position:absolute;left:8px;top:-7px;background:var(--rail-bg);padding-right:4px;font-weight:400;font-size:10px;color:#B0A897;font-variant-numeric:tabular-nums}
+.bound{position:absolute;left:0;right:0;z-index:1;pointer-events:none}
+.bound.start{border-top:1.5px solid #A8C6A8}
+.bound.end{border-top:1.5px dashed #D9A5A0}
+.bound b{position:absolute;right:6px;top:-8px;background:var(--rail-bg);padding-left:4px;font-size:10px;font-weight:600}
+.bound.start b{color:#4F7A4F}
+.bound.end b{color:#B13B3B}
+.overrun{position:absolute;left:44px;right:0;z-index:0;background:repeating-linear-gradient(135deg,#FDF1F0 0 8px,#FBEBEA 8px 16px);border-radius:4px;pointer-events:none}
+.leg{position:absolute;left:58px;font-size:9px;pointer-events:none;z-index:3}
+.leg span{background:#F1EDE3;border-radius:999px;padding:1px 6px;white-space:nowrap;color:#8A8272;font-variant-numeric:tabular-nums}
+.wait{position:absolute;left:46px;right:12px;font-size:10px;color:#B0A897;display:flex;align-items:center;pointer-events:none;margin-left:12px;padding-left:8px;z-index:3}
+.wait span{background:#FFF8E1;border-radius:999px;padding:1px 7px;color:#8A6A1F}
+.block{position:absolute;left:54px;right:12px;border-radius:8px;padding:3px 8px 4px;font-size:12px;overflow:hidden;cursor:grab;user-select:none;touch-action:none;border-left:4px solid var(--gold);z-index:2;line-height:1.35}
+.block .b-time{font-size:10px;color:#8A8272;font-variant-numeric:tabular-nums}
+.block .b-name{font-weight:700;font-size:12px;color:#454034;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.block .b-meta{font-size:10px;color:#A79C86;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.block.compact .b-meta{display:none}
+.block.tiny{padding-top:2px}
+.block.tiny .b-time{display:none}
+.block.tiny .b-name{font-size:11px}
+.block.pinned{box-shadow:inset 0 0 0 1.5px #D8B95C}
+.block.selected{outline:2px solid var(--red);outline-offset:1px}
+.block.optional{border-left-style:dashed;opacity:.92}
+.block.overlap{left:auto;width:calc(50% - 18px);box-shadow:inset 0 0 0 1.5px #C96A6A}
+.item.bad .time{color:var(--red);font-weight:700}
+.block.dragging{opacity:.85;cursor:grabbing;z-index:6;box-shadow:0 6px 18px rgba(60,50,30,.18)}
+.block .pinbadge{position:absolute;right:6px;top:3px;font-size:9px;color:#8A6A1F;background:#FFF4D6;border:1px solid #E0C983;border-radius:999px;padding:0 5px;line-height:14px}
+.list-card{padding:12px 12px 14px;min-width:0}
+.items{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow:auto;padding:1px 2px 1px 1px}
+.item{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:10px;padding:6px 7px;background:#fff;cursor:pointer}
+.item.sel{border-color:#D9B0AC;background:#FFFBFA}
+.item.dragging{opacity:.45}
+.handle{cursor:grab;color:#C9C0AC;font-size:13px;padding:0 1px;letter-spacing:-1px}
+.item .time{font-size:10.5px;color:#8A8272;font-variant-numeric:tabular-nums;min-width:76px;flex-shrink:0}
+.item .nm{flex:1;min-width:0;font-size:12.5px;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.item .nm small{display:block;font-weight:400;color:var(--muted);font-size:10px;overflow:hidden;text-overflow:ellipsis}
+.dwell{display:flex;align-items:center;gap:1px;font-size:10.5px;color:#5D5340;flex-shrink:0;font-variant-numeric:tabular-nums}
+.dwell button{min-height:24px;padding:0 5px;font-size:12px;border-radius:6px;line-height:1}
+.dwell b{min-width:24px;text-align:center;font-weight:600}
+.chipbtn{border-radius:999px;padding:2px 8px;font-size:10px;min-height:26px;flex-shrink:0}
+.chipbtn.must{background:var(--red-soft);border-color:#E8C4C0;color:var(--red);font-weight:700}
+.chipbtn.opt{background:#F6F4EE;color:#8A8272}
+.chipbtn.pin.on{background:#FFF4D6;border-color:#E0C983;color:#8A6A1F;font-weight:600}
+.chipbtn.del{color:#B13B3B;border-color:#E8D3D1;padding:2px 7px}
+.add-row{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
+.add-row button{flex:1;min-width:120px;font-size:11px}
+.stats{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;font-size:10.5px;color:#8A8272}
+.stat{background:#F6F4EE;border-radius:999px;padding:3px 9px;font-variant-numeric:tabular-nums}
+.stat b{color:var(--ink2);font-weight:700}
+.stat.warn{background:#FFF8E1;color:#8A6A1F}
+.conflicts{padding:12px 14px;margin-top:14px}
+.conflict{display:flex;gap:10px;align-items:flex-start;padding:8px 0;border-top:1px dashed var(--line);font-size:12px;line-height:1.6}
+.conflict:first-of-type{border-top:none;padding-top:2px}
+.sev{flex-shrink:0;width:8px;height:8px;border-radius:50%;margin-top:7px;background:#C9A227}
+.sev.error{background:var(--red)}
+.conflict .msg{flex:1;min-width:0}
+.conflict .msg b{color:var(--ink)}
+.conflict .fixes{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px}
+.conflict .fixes button{min-height:28px;padding:4px 10px;font-size:11px}
+.note{font-size:11px;color:#8A6A1F;background:#FFF8E1;border-radius:8px;padding:8px 10px;margin-top:8px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.note button{min-height:26px;padding:3px 9px;font-size:11px}
+.note button.undo{border-color:#E0C983;color:#8A6A1F}
+.allgood{color:var(--green);font-size:12px;padding:4px 0 2px}
+.foot{max-width:1180px;margin:12px auto 0;font-size:10.5px;color:#B0A897;line-height:1.7}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%) translateY(8px);background:#3E3526;color:#fff;font-size:12px;border-radius:10px;padding:9px 14px;opacity:0;pointer-events:none;transition:all .2s;z-index:50;max-width:90vw;text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>时间线编辑器<span class="proto">原型</span></h1>
+  <div class="sub">P2 交互原型 · 只改内存，不写 IndexedDB · 硬约束与交通估算口径同 <code>src/pages/plan/feasibility.js</code></div>
+  <div class="hints">
+    <span class="hint">拖动时间轴色块 = 锁定该时点</span>
+    <span class="hint">双击色块 = 解锁</span>
+    <span class="hint">列表 ⋮⋮ 拖动 = 排序</span>
+    <span class="hint">−/+ = 改停留</span>
+    <span class="hint">必去/可删 决定自动减负候选</span>
+  </div>
+
+  <section class="toolbar card">
+    <div class="tabs" id="tabs"></div>
+    <label class="time">出发 <input type="time" id="day-start" value="09:00"></label>
+    <label class="time">收工 <input type="time" id="day-end" value="21:00"></label>
+    <span class="status" id="status"></span>
+    <div class="spacer"></div>
+    <button id="auto-fix">⚡ 自动减负</button>
+    <button id="reset">↺ 重置这天</button>
+  </section>
+
+  <section class="cols">
+    <div class="card rail-card">
+      <div class="card-head">时间轴 <span id="rail-sub"></span></div>
+      <div class="rail" id="rail"><div class="rail-inner" id="rail-inner"></div></div>
+    </div>
+    <div class="card list-card">
+      <div class="card-head">条目 <span id="list-sub"></span></div>
+      <div class="items" id="items"></div>
+      <div class="add-row">
+        <button id="add-meal">＋ 午餐预留 60m</button>
+        <button id="add-rest">＋ 休息 20m</button>
+      </div>
+      <div class="stats" id="stats"></div>
+    </div>
+  </section>
+
+  <section class="card conflicts" id="conflicts"></section>
+
+  <div class="foot">
+    数据：<code>data/routes.json</code> 的 m-d1–m-d4 与 <code>data/points.json</code>；停留时长为此前按类型估算（<code>durationBasis: estimate</code>），开放时间全为显式 unknown。
+    交通按直线距离估算（步行 ≤1.2km 按 80m/min，否则地铁 10 分钟固定开销 + 30km/h），只用于排程判断，不是导航。
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const DATA = {
+ "m-d1": {
+  "name": "市中心经典线",
+  "steps": [
+   {
+    "id": "p004",
+    "name": "历史博物馆（红砖楼）",
+    "type": "博物馆",
+    "dwell": 30,
+    "lat": 55.755323,
+    "lon": 37.617882
+   },
+   {
+    "id": "p001",
+    "name": "红场",
+    "type": "纪念地",
+    "dwell": 45,
+    "lat": 55.753591,
+    "lon": 37.621501
+   },
+   {
+    "id": "p003",
+    "name": "圣瓦西里大教堂",
+    "type": "宗教场所",
+    "dwell": 40,
+    "lat": 55.752474,
+    "lon": 37.623162
+   },
+   {
+    "id": "p002",
+    "name": "克里姆林宫",
+    "type": "宫殿庄园",
+    "dwell": 180,
+    "lat": 55.751621,
+    "lon": 37.618122
+   },
+   {
+    "id": "p005",
+    "name": "古姆百货 + 冰淇淋",
+    "type": "餐饮",
+    "dwell": 60,
+    "lat": 55.754703,
+    "lon": 37.621438
+   },
+   {
+    "id": "p025",
+    "name": "特列季亚科夫画廊",
+    "type": "博物馆",
+    "dwell": 150,
+    "lat": 55.741361,
+    "lon": 37.62022
+   },
+   {
+    "id": "p006",
+    "name": "莫斯科大剧院（芭蕾）",
+    "type": "演出",
+    "dwell": 150,
+    "lat": 55.76013,
+    "lon": 37.618612
+   },
+   {
+    "id": "p014",
+    "name": "莫斯科河夜游船",
+    "type": "水上巴士",
+    "dwell": 150,
+    "lat": 55.751456,
+    "lon": 37.565489
+   }
+  ]
+ },
+ "m-d2": {
+  "name": "地铁巡礼 + 阿尔巴特线",
+  "steps": [
+   {
+    "id": "p006",
+    "name": "莫斯科大剧院（芭蕾）",
+    "type": "演出",
+    "dwell": 150,
+    "lat": 55.76013,
+    "lon": 37.618612
+   },
+   {
+    "id": "p008",
+    "name": "老阿尔巴特步行街 + 维克多·崔纪念墙（痛哭之墙）",
+    "type": "城市记忆",
+    "dwell": 90,
+    "lat": 55.748017,
+    "lon": 37.590131
+   },
+   {
+    "id": "p009",
+    "name": "圣母无原罪主教座堂",
+    "type": "宗教场所",
+    "dwell": 40,
+    "lat": 55.767179,
+    "lon": 37.571315
+   },
+   {
+    "id": "p010",
+    "name": "普希金国家美术博物馆",
+    "type": "博物馆",
+    "dwell": 150,
+    "lat": 55.747285,
+    "lon": 37.605423
+   },
+   {
+    "id": "p012",
+    "name": "高尔基故居",
+    "type": "博物馆",
+    "dwell": 90,
+    "lat": 55.758158,
+    "lon": 37.596349
+   },
+   {
+    "id": "p011",
+    "name": "果戈里故居",
+    "type": "博物馆",
+    "dwell": 90,
+    "lat": 55.754123,
+    "lon": 37.599814
+   },
+   {
+    "id": "p013",
+    "name": "托尔斯泰故居",
+    "type": "博物馆",
+    "dwell": 75,
+    "lat": 55.734167,
+    "lon": 37.585925
+   }
+  ]
+ },
+ "m-d3": {
+  "name": "航天科学线",
+  "steps": [
+   {
+    "id": "p015",
+    "name": "俄罗斯科学院“金脑子”",
+    "type": "建筑",
+    "dwell": 15,
+    "lat": 55.710809,
+    "lon": 37.57897
+   },
+   {
+    "id": "p016",
+    "name": "加加林广场",
+    "type": "科技遗迹",
+    "dwell": 30,
+    "lat": 55.706967,
+    "lon": 37.586394
+   },
+   {
+    "id": "p017",
+    "name": "莫斯科航天博物馆",
+    "type": "博物馆",
+    "dwell": 120,
+    "lat": 55.82279,
+    "lon": 37.639749
+   },
+   {
+    "id": "p018",
+    "name": "VDNKh 全俄展览中心",
+    "type": "建筑",
+    "dwell": 180,
+    "lat": 55.820955,
+    "lon": 37.641201
+   }
+  ]
+ },
+ "m-d4": {
+  "name": "胜利线 + 傍晚压轴",
+  "steps": [
+   {
+    "id": "p019",
+    "name": "胜利广场",
+    "type": "纪念地",
+    "dwell": 75,
+    "lat": 55.736575,
+    "lon": 37.518671
+   },
+   {
+    "id": "p020",
+    "name": "圣乔治胜利教堂",
+    "type": "宗教场所",
+    "dwell": 30,
+    "lat": 55.732362,
+    "lon": 37.512051
+   },
+   {
+    "id": "p021",
+    "name": "凯旋门",
+    "type": "纪念地",
+    "dwell": 20,
+    "lat": 55.736781,
+    "lon": 37.519989
+   },
+   {
+    "id": "p026",
+    "name": "武装力量大教堂（库宾卡爱国者公园）",
+    "type": "宗教场所",
+    "dwell": 120,
+    "lat": 55.580527,
+    "lon": 36.826662
+   },
+   {
+    "id": "p022",
+    "name": "察里津诺庄园（公主换装）",
+    "type": "宫殿庄园",
+    "dwell": 150,
+    "lat": 55.62122,
+    "lon": 37.68384
+   },
+   {
+    "id": "p023",
+    "name": "圣母生命之泉圣像教堂",
+    "type": "宗教场所",
+    "dwell": 20,
+    "lat": 55.616949,
+    "lon": 37.68152
+   }
+  ]
+ }
+};
+
+const PX = 1.25;
+const TYPE_COLOR = {
+  '博物馆':'#B08A4A','宫殿庄园':'#A5574E','宗教场所':'#7E6BA8','餐饮':'#5E8C4A',
+  '演出':'#A8577E','水上巴士':'#4A7E96','纪念地':'#8A8272','公园':'#6C8C4A',
+  '地铁站':'#6B7B8C','观景台':'#B08A4A','文学地标':'#8A6A4A','交通':'#9A9A9A','休息':'#7A9AA8'
+};
+const OPTIONAL_HINT = /冰淇淋|夜游船/;
+
+const $ = (s) => document.querySelector(s);
+const pad = (n) => String(n).padStart(2, '0');
+const fmt = (m) => { const v = Math.max(0, Math.round(m)); return pad(Math.floor(v / 60)) + ':' + pad(v % 60); };
+const parse = (t) => { const [h, m] = String(t || '00:00').split(':').map(Number); return h * 60 + (m || 0); };
+const dur = (m) => m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? pad(m % 60) : ''}` : `${m}m`;
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;' }[c]));
+const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
+const snap = (m, step) => Math.round(m / step) * step;
+
+function haversine(a, b) {
+  const rad = (x) => x * Math.PI / 180;
+  const dLat = rad(b.lat - a.lat), dLon = rad(b.lon - a.lon);
+  const s = Math.sin(dLat / 2) ** 2 + Math.cos(rad(a.lat)) * Math.cos(rad(b.lat)) * Math.sin(dLon / 2) ** 2;
+  return 2 * 6371000 * Math.asin(Math.sqrt(s));
+}
+function transit(a, b) {
+  if (a.lat == null || b.lat == null || a.lon == null || b.lon == null) return { mode: '交通未知', minutes: 0 };
+  const d = haversine(a, b);
+  if (d <= 1200) return { mode: '步行', minutes: Math.max(1, Math.ceil(d / 80)), meters: d };
+  return { mode: '地铁', minutes: 10 + Math.ceil(d / 500), meters: d };
+}
+
+const days = {};
+for (const [id, route] of Object.entries(DATA)) {
+  days[id] = {
+    id, name: route.name, dayStart: '09:00', dayEnd: '21:00', selected: null, lastFix: null,
+    items: route.steps.map((s, i) => ({
+      ...s, uid: `${id}-${i}`, must: !OPTIONAL_HINT.test(s.name), pinned: null
+    }))
+  };
+}
+let dayId = Object.keys(days)[0];
+const day = () => days[dayId];
+
+function schedule(d) {
+  const startOfDay = parse(d.dayStart), endOfDay = parse(d.dayEnd);
+  const rows = [], conflicts = [], seen = new Map();
+  let cursor = startOfDay, lastGeo = null, transitTotal = 0, waitTotal = 0, dwellTotal = 0;
+
+  for (const it of d.items) {
+    let leg = null;
+    if (it.lat != null && it.lon != null) {
+      leg = lastGeo ? transit(lastGeo, it) : null;
+      lastGeo = it;
+    }
+    if (leg) transitTotal += leg.minutes;
+    const arrive = cursor + (leg ? leg.minutes : 0);
+    const pinned = it.pinned != null;
+    const start = pinned ? it.pinned : arrive;
+    const end = start + it.dwell;
+
+    if (pinned && start < arrive) {
+      conflicts.push({
+        type: 'overlap', sev: 'error', uid: it.uid, earliest: arrive,
+        message: `「${it.name}」锁定 ${fmt(start)}，但上一站最早 ${fmt(arrive)} 才能到，重叠 ${arrive - start} 分钟`
+      });
+    }
+    if (pinned && start < startOfDay) {
+      conflicts.push({ type: 'early', sev: 'error', uid: it.uid, message: `「${it.name}」锁定 ${fmt(start)}，早于出发时间 ${fmt(startOfDay)}` });
+    }
+    if (seen.has(it.id)) {
+      conflicts.push({ type: 'dup', sev: 'error', uid: it.uid, message: `「${it.name}」在这天出现了不止一次` });
+    }
+    seen.set(it.id, it.uid);
+
+    if (pinned && start > arrive) waitTotal += start - arrive;
+    rows.push({ it, leg, arrive, start, end, pinned, wait: pinned && start > arrive ? start - arrive : 0, overlapPrev: rows.length > 0 && start < rows[rows.length - 1].end });
+    dwellTotal += it.dwell;
+    cursor = end;
+  }
+
+  const lastEnd = rows.length ? rows[rows.length - 1].end : startOfDay;
+  if (rows.length && lastEnd > endOfDay) {
+    conflicts.push({
+      type: 'overrun', sev: 'error', lastEnd,
+      message: `预计 ${fmt(lastEnd)} 收工，超出收工线 ${fmt(endOfDay)} 共 ${lastEnd - endOfDay} 分钟`
+    });
+  }
+  if (rows.length && rows[0].start < startOfDay) {
+    // 无锁定但首站早于出发（理论上不会出现，防御）
+  }
+
+  return {
+    rows, conflicts, startOfDay, endOfDay, lastEnd,
+    stats: { transitTotal, waitTotal, dwellTotal, unknown: d.items.filter(i => i.lat != null).length }
+  };
+}
+
+const state = { dragging: null };
+let dragReorder = null;
+
+function render() {
+  const d = day();
+  const res = schedule(d);
+  renderTabs();
+  renderToolbar(res);
+  renderRail(res);
+  renderList(res);
+  renderConflicts(res);
+  renderStats(res);
+}
+
+function renderTabs() {
+  $('#tabs').innerHTML = Object.values(days).map((d, i) =>
+    `<button class="tab ${d.id === dayId ? 'on' : ''}" data-day="${d.id}">D${i + 1}<small>${esc(d.name)}</small></button>`
+  ).join('');
+}
+
+function renderToolbar(res) {
+  const d = day();
+  $('#day-start').value = d.dayStart;
+  $('#day-end').value = d.dayEnd;
+  const bad = res.conflicts.some(c => c.sev === 'error');
+  const st = $('#status');
+  st.className = 'status ' + (bad ? 'bad' : 'ok');
+  st.textContent = (bad ? '⚠️ ' : '✅ ') + (res.rows.length ? fmt(res.lastEnd) + ' 收工' : '空白的一天');
+  $('#rail-sub').textContent = `${d.name} · ${d.items.length} 项 · 每 75px ≈ 1 小时`;
+  $('#list-sub').textContent = `${fmt(res.startOfDay)}–${fmt(res.endOfDay)} · ${dur(res.stats.dwellTotal)}`;
+}
+
+function renderRail(res) {
+  const inner = $('#rail-inner');
+  const d = day();
+  const starts = res.rows.map(r => r.start), ends = res.rows.map(r => r.end);
+  const rangeStart = Math.max(0, Math.min(res.startOfDay, ...starts) - 30);
+  const rangeEnd = Math.max(res.endOfDay, ...ends, res.startOfDay + 60) + 20;
+  const H = Math.max(320, (rangeEnd - rangeStart) * PX);
+  inner.style.height = H + 'px';
+  let html = '';
+
+  for (let t = Math.ceil(rangeStart / 60) * 60; t <= rangeEnd; t += 60) {
+    if (Math.abs(t - res.startOfDay) < 1 || Math.abs(t - res.endOfDay) < 1) continue;
+    html += `<div class="hour" style="top:${(t - rangeStart) * PX}px"><b>${fmt(t)}</b></div>`;
+  }
+
+  if (res.lastEnd > res.endOfDay) {
+    html += `<div class="overrun" style="top:${(res.endOfDay - rangeStart) * PX}px;height:${(res.lastEnd - res.endOfDay) * PX}px"></div>`;
+  }
+  html += `<div class="bound start" style="top:${(res.startOfDay - rangeStart) * PX}px"><b>出发 ${fmt(res.startOfDay)}</b></div>`;
+  html += `<div class="bound end" style="top:${(res.endOfDay - rangeStart) * PX}px"><b>收工 ${fmt(res.endOfDay)}</b></div>`;
+
+  res.rows.forEach((r, i) => {
+    if (i > 0) {
+      const prev = res.rows[i - 1];
+      if (r.leg && r.leg.minutes >= 12) {
+        const mid = (prev.end + r.arrive) / 2;
+        const icon = r.leg.mode === '步行' ? '🚶' : r.leg.mode === '地铁' ? '🚇' : '→';
+        const tip = `${r.leg.mode} ${r.leg.minutes} 分钟${r.leg.meters ? ' · ' + (r.leg.meters / 1000).toFixed(1) + 'km' : ''}（估算，非导航）`;
+        html += `<div class="leg" style="top:${(mid - rangeStart) * PX - 8}px" title="${esc(tip)}"><span>${icon} ${r.leg.minutes}m</span></div>`;
+      }
+      if (r.wait > 0) {
+        html += `<div class="wait" style="top:${(r.arrive - rangeStart) * PX}px;height:${r.wait * PX}px"><span>空档 ${r.wait}m</span></div>`;
+      }
+    }
+    const color = TYPE_COLOR[r.it.type] || '#8A8272';
+    const h = Math.max(r.it.dwell * PX, 26);
+    const compact = h < 54;
+    const tiny = h < 34;
+    const isReserved = r.it.lat == null;
+    const meta = isReserved
+      ? `${r.it.type} · 预留 ${r.it.dwell}m`
+      : `${r.it.type} · 停留 ${r.it.dwell}m · 开放时间未知`;
+    html += `<div class="block ${r.pinned ? 'pinned' : ''} ${r.it.must ? '' : 'optional'} ${d.selected === r.it.uid ? 'selected' : ''} ${compact ? 'compact' : ''} ${tiny ? 'tiny' : ''} ${r.overlapPrev ? 'overlap' : ''}"
+      data-uid="${r.it.uid}" style="top:${(r.start - rangeStart) * PX}px;height:${h}px;background:${color}14;border-left-color:${color}">
+      ${r.pinned ? `<span class="pinbadge">🔒 ${fmt(r.start)}</span>` : ''}
+      <div class="b-time">${fmt(r.start)}–${fmt(r.end)} · ${r.it.dwell}m</div>
+      <div class="b-name">${esc(r.it.name)}</div>
+      ${compact ? '' : `<div class="b-meta">${esc(meta)}</div>`}
+    </div>`;
+  });
+
+  inner.innerHTML = html;
+}
+
+function renderList(res) {
+  const d = day();
+  $('#items').innerHTML = res.rows.map(r => {
+    const it = r.it;
+    return `<div class="item ${d.selected === it.uid ? 'sel' : ''} ${r.overlapPrev ? 'bad' : ''}" data-uid="${it.uid}" draggable="true">
+      <span class="handle" title="拖动排序">⋮⋮</span>
+      <span class="time">${fmt(r.start)}–${fmt(r.end)}</span>
+      <span class="nm">${esc(it.name)}<small>${esc(it.type)}${it.pinned ? ' · 已锁定' : ''}</small></span>
+      <span class="dwell"><button data-act="minus" aria-label="减少停留">−</button><b>${it.dwell}</b><button data-act="plus" aria-label="增加停留">+</button></span>
+      <button class="chipbtn pin ${it.pinned != null ? 'on' : ''}" data-act="pin" title="${it.pinned != null ? '取消锁定' : '锁定到当前时刻'}">${it.pinned != null ? '🔒 ' + fmt(it.pinned) : '🔓'}</button>
+      <button class="chipbtn ${it.must ? 'must' : 'opt'}" data-act="must" title="切换必去/可删">${it.must ? '必去' : '可删'}</button>
+      <button class="chipbtn del" data-act="del" aria-label="移除">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function renderConflicts(res) {
+  const box = $('#conflicts');
+  const errors = res.conflicts.filter(c => c.sev === 'error');
+  const warns = res.conflicts.filter(c => c.sev !== 'error');
+  let html = `<div class="card-head">冲突与建议 <span>${errors.length ? errors.length + ' 个硬冲突' : '无硬冲突'}${warns.length ? ' · ' + warns.length + ' 条提示' : ''}</span></div>`;
+
+  if (!errors.length) html += `<div class="allgood">✅ 硬约束通过：时间线可执行（开放时间未知的部分仍按宽边界处理）</div>`;
+
+  for (const c of [...errors, ...warns]) {
+    const fixes = [];
+    if (c.type === 'overlap') {
+      fixes.push(`<button data-fix="pin-earliest" data-uid="${c.uid}" data-earliest="${c.earliest}">锁定改到 ${fmt(c.earliest)}</button>`);
+      fixes.push(`<button data-fix="unpin" data-uid="${c.uid}">解锁这一站</button>`);
+    }
+    if (c.type === 'overrun') {
+      fixes.push(`<button data-fix="autofix">自动减负</button>`);
+      fixes.push(`<button data-fix="extend" data-end="${c.lastEnd}">收工延到 ${fmt(c.lastEnd)}</button>`);
+    }
+    if (c.type === 'dup') fixes.push(`<button data-fix="del" data-uid="${c.uid}">删除后出现的这条</button>`);
+    if (c.type === 'early') fixes.push(`<button data-fix="unpin" data-uid="${c.uid}">去掉锁定</button>`);
+    html += `<div class="conflict">
+      <span class="sev ${c.sev === 'error' ? 'error' : ''}"></span>
+      <div class="msg">${esc(c.message)}${fixes.length ? `<div class="fixes">${fixes.join('')}</div>` : ''}</div>
+    </div>`;
+  }
+
+  if (d_fixNote()) {
+    html += `<div class="note">⚡ ${esc(d_fixNote())} <button class="undo" data-fix="undo">撤销减负</button></div>`;
+  }
+  box.innerHTML = html;
+}
+
+function d_fixNote() {
+  const d = day();
+  return d.lastFix && d.lastFix.length ? `已自动减负：${d.lastFix.join('、')}` : '';
+}
+
+function renderStats(res) {
+  const s = res.stats;
+  $('#stats').innerHTML = `
+    <span class="stat">停留 <b>${dur(s.dwellTotal)}</b></span>
+    <span class="stat">通行 <b>${s.transitTotal}m</b></span>
+    <span class="stat">空档 <b>${s.waitTotal}m</b></span>
+    <span class="stat">收工 <b>${fmt(res.lastEnd)}</b></span>
+    <span class="stat warn">开放未知 ${s.unknown} 处</span>`;
+}
+
+function findItem(uid) { return day().items.find(i => i.uid === uid) || null; }
+function indexOf(uid) { return day().items.findIndex(i => i.uid === uid); }
+
+function toast(msg) {
+  const t = $('#toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toast._timer);
+  toast._timer = setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function updateTime(which, value) {
+  const d = day();
+  if (!value) return;
+  if (which === 'start') {
+    if (parse(value) >= parse(d.dayEnd)) return toast('出发必须早于收工');
+    d.dayStart = value;
+  } else {
+    if (parse(value) <= parse(d.dayStart)) return toast('收工必须晚于出发');
+    d.dayEnd = value;
+  }
+  render();
+}
+
+function togglePin(uid) {
+  const d = day();
+  const it = findItem(uid);
+  if (!it) return;
+  if (it.pinned != null) { it.pinned = null; toast('已解锁'); }
+  else {
+    const row = schedule(d).rows.find(r => r.it.uid === uid);
+    it.pinned = snap(row.start, 5);
+    toast(`锁定在 ${fmt(it.pinned)}，之后可拖动色块调整`);
+  }
+  d.lastFix = null;
+  d.selected = uid;
+  render();
+}
+
+function toggleMust(uid) {
+  const it = findItem(uid);
+  if (!it) return;
+  it.must = !it.must;
+  render();
+}
+
+function removeItem(uid) {
+  const d = day();
+  const i = indexOf(uid);
+  if (i < 0) return;
+  d.items.splice(i, 1);
+  d.lastFix = null;
+  d.selected = null;
+  render();
+}
+
+function changeDwell(uid, delta) {
+  const it = findItem(uid);
+  if (!it) return;
+  it.dwell = clamp(it.dwell + delta, 15, 360);
+  render();
+}
+
+function moveItem(fromUid, toUid, after) {
+  const d = day();
+  const from = indexOf(fromUid);
+  if (from < 0) return;
+  const [it] = d.items.splice(from, 1);
+  let to = indexOf(toUid);
+  if (to < 0) { d.items.push(it); return; }
+  if (after) to += 1;
+  d.items.splice(to, 0, it);
+}
+
+function addItem(kind) {
+  const d = day();
+  const isMeal = kind === 'meal';
+  const it = {
+    uid: `${d.id}-x${Date.now()}`, id: `${isMeal ? 'meal' : 'rest'}-${Date.now()}`,
+    name: isMeal ? '午餐（预留）' : '休息（预留）', type: isMeal ? '餐饮' : '休息',
+    dwell: isMeal ? 60 : 20, must: false, pinned: null, lat: null, lon: null
+  };
+  if (isMeal) {
+    const rows = schedule(d).rows;
+    const lunchTarget = 12 * 60 + 30;
+    let idx = rows.findIndex(r => r.end >= lunchTarget);
+    if (idx < 0) idx = d.items.length;
+    d.items.splice(idx, 0, it);
+  } else {
+    d.items.push(it);
+  }
+  d.lastFix = null;
+  d.selected = it.uid;
+  render();
+  toast(isMeal ? '已在午间插入 60 分钟午餐预留（可删）' : '已追加 20 分钟休息（可删）');
+}
+
+function autoFix() {
+  const d = day();
+  if (!d.lastFix) d.lastFix = null;
+  const snapshot = { items: d.items.map(i => ({ ...i })), dayEnd: d.dayEnd, note: d.lastFix };
+  const removed = [];
+  for (let guard = 0; guard < 20; guard++) {
+    const res = schedule(d);
+    if (!res.conflicts.some(c => c.type === 'overrun')) break;
+    const cands = d.items.filter(i => !i.must).sort((a, b) => b.dwell - a.dwell);
+    if (!cands.length) break;
+    const victim = cands[0];
+    d.items = d.items.filter(i => i.uid !== victim.uid);
+    if (d.selected === victim.uid) d.selected = null;
+    removed.push(`「${victim.name}」${victim.dwell}m`);
+  }
+  const res = schedule(d);
+  if (!removed.length) {
+    toast(res.conflicts.some(c => c.type === 'overrun') ? '没有可删条目：把某条设为「可删」，或延长收工' : '当前没有超时，无需减负');
+    return;
+  }
+  d.lastFix = removed;
+  d._undo = snapshot;
+  render();
+  toast(`已移除 ${removed.length} 个可删条目，${res.conflicts.some(c => c.type === 'overrun') ? '仍超时' : '硬约束通过'}`);
+}
+
+function undoFix() {
+  const d = day();
+  if (!d._undo) return;
+  d.items = d._undo.items;
+  d.dayEnd = d._undo.dayEnd;
+  d.lastFix = d._undo.note;
+  d._undo = null;
+  d.selected = null;
+  render();
+  toast('已撤销减负');
+}
+
+/* ---------- 事件 ---------- */
+$('#tabs').addEventListener('click', (e) => {
+  const tab = e.target.closest('[data-day]');
+  if (!tab || tab.dataset.day === dayId) return;
+  dayId = tab.dataset.day;
+  render();
+});
+
+$('#day-start').addEventListener('change', (e) => updateTime('start', e.target.value));
+$('#day-end').addEventListener('change', (e) => updateTime('end', e.target.value));
+$('#auto-fix').addEventListener('click', autoFix);
+$('#reset').addEventListener('click', () => {
+  const id = dayId;
+  const route = DATA[id];
+  days[id] = {
+    id, name: route.name, dayStart: '09:00', dayEnd: '21:00', selected: null, lastFix: null,
+    items: route.steps.map((s, i) => ({ ...s, uid: `${id}-${i}`, must: !OPTIONAL_HINT.test(s.name), pinned: null }))
+  };
+  render();
+  toast('已重置为初始数据');
+});
+$('#add-meal').addEventListener('click', () => addItem('meal'));
+$('#add-rest').addEventListener('click', () => addItem('rest'));
+
+$('#items').addEventListener('click', (e) => {
+  const row = e.target.closest('.item');
+  if (!row) return;
+  const uid = row.dataset.uid;
+  const btn = e.target.closest('[data-act]');
+  if (!btn) { day().selected = day().selected === uid ? null : uid; render(); return; }
+  const act = btn.dataset.act;
+  if (act === 'minus') changeDwell(uid, -15);
+  if (act === 'plus') changeDwell(uid, 15);
+  if (act === 'pin') togglePin(uid);
+  if (act === 'must') toggleMust(uid);
+  if (act === 'del') removeItem(uid);
+});
+
+/* 列表拖拽排序 */
+$('#items').addEventListener('dragstart', (e) => {
+  const row = e.target.closest('.item');
+  if (!row) return;
+  dragReorder = row.dataset.uid;
+  row.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+});
+$('#items').addEventListener('dragend', () => {
+  dragReorder = null;
+  document.querySelectorAll('.item.dragging').forEach(n => n.classList.remove('dragging'));
+});
+$('#items').addEventListener('dragover', (e) => {
+  if (dragReorder) e.preventDefault();
+});
+$('#items').addEventListener('drop', (e) => {
+  if (!dragReorder) return;
+  e.preventDefault();
+  const row = e.target.closest('.item');
+  if (row && row.dataset.uid !== dragReorder) {
+    const rect = row.getBoundingClientRect();
+    moveItem(dragReorder, row.dataset.uid, e.clientY > rect.top + rect.height / 2);
+  }
+  dragReorder = null;
+  day().lastFix = null;
+  render();
+});
+
+/* 时间轴拖动锁定 */
+const railInner = $('#rail-inner');
+railInner.addEventListener('pointerdown', (e) => {
+  const block = e.target.closest('.block');
+  if (!block) return;
+  const uid = block.dataset.uid;
+  const d = day();
+  const res = schedule(d);
+  const row = res.rows.find(r => r.it.uid === uid);
+  if (!row) return;
+  const rangeStart = Math.max(0, Math.min(res.startOfDay, ...res.rows.map(r => r.start)) - 30);
+  state.dragging = {
+    uid, block, row, rangeStart,
+    startY: e.clientY, moved: false, baseStart: row.start
+  };
+  try { block.setPointerCapture(e.pointerId); } catch { /* 合成事件无真实指针时忽略 */ }
+  d.selected = uid;
+});
+railInner.addEventListener('pointermove', (e) => {
+  const g = state.dragging;
+  if (!g) return;
+  const dy = e.clientY - g.startY;
+  if (!g.moved && Math.abs(dy) < 4) return;
+  g.moved = true;
+  const it = findItem(g.uid);
+  if (!it) return;
+  const newStart = clamp(snap(g.baseStart + dy / PX, 5), parse(day().dayStart), 1440 - it.dwell);
+  it.pinned = newStart;
+  g.block.classList.add('dragging', 'pinned');
+  g.block.style.top = ((newStart - g.rangeStart) * PX) + 'px';
+  const label = g.block.querySelector('.b-time');
+  if (label) label.textContent = `${fmt(newStart)}–${fmt(newStart + it.dwell)} · ${it.dwell}m · 锁定`;
+});
+railInner.addEventListener('pointerup', () => {
+  const g = state.dragging;
+  state.dragging = null;
+  if (!g) return;
+  if (!g.moved) { render(); return; }
+  day().lastFix = null;
+  render();
+  toast(`已锁定在 ${fmt(findItem(g.uid).pinned)}，双击色块可解锁`);
+});
+railInner.addEventListener('dblclick', (e) => {
+  const block = e.target.closest('.block');
+  if (!block) return;
+  const it = findItem(block.dataset.uid);
+  if (it && it.pinned != null) {
+    it.pinned = null;
+    day().lastFix = null;
+    render();
+    toast('已解锁');
+  }
+});
+
+$('#conflicts').addEventListener('click', (e) => {
+  const btn = e.target.closest('[data-fix]');
+  if (!btn) return;
+  const d = day();
+  const fix = btn.dataset.fix;
+  if (fix === 'autofix') { autoFix(); return; }
+  if (fix === 'undo') { undoFix(); return; }
+  if (fix === 'extend') { d.dayEnd = fmt(Number(btn.dataset.end)); render(); return; }
+  if (fix === 'unpin') {
+    const it = findItem(btn.dataset.uid);
+    if (it) { it.pinned = null; render(); toast('已解锁'); }
+    return;
+  }
+  if (fix === 'pin-earliest') {
+    const it = findItem(btn.dataset.uid);
+    if (it) { it.pinned = Number(btn.dataset.earliest); render(); toast(`已改锁到 ${fmt(it.pinned)}`); }
+    return;
+  }
+  if (fix === 'del') removeItem(btn.dataset.uid);
+});
+
+render();
+</script>
+</body>
+</html>
