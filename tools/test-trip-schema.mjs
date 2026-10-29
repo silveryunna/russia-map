@@ -86,6 +86,9 @@ const idFn = (p) => `${p}${++seq}`;
   const durHuge = createItem({ estimatedDuration: 721 }, idFn);
   if (durBad.estimatedDuration === null && durHuge.estimatedDuration === null) ok('createItem 非法停留时长回落 null');
   else fail('createItem 停留时长未回落：' + JSON.stringify([durBad.estimatedDuration, durHuge.estimatedDuration]));
+  const brk = createItem({ type: 'break', estimatedDuration: 20 }, idFn);
+  if (brk.type === 'break' && brk.estimatedDuration === 20) ok('createItem 支持休息块类型');
+  else fail('createItem 休息块类型丢失：' + JSON.stringify(brk));
 
   const badEnum = createItem({ type: 'nope', flexibility: 'x', plannedStatus: 'y', period: 'z' }, idFn);
   if (badEnum.type === 'visit' && badEnum.flexibility === 'flexible' && badEnum.plannedStatus === 'planned' && badEnum.period === '') ok('createItem 非法枚举回落默认值');

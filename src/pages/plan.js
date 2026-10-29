@@ -27,7 +27,7 @@ const clampNum = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const snap5 = v => Math.round(v / 5) * 5;
 const LS_AI = 'planner-ai-config';
 const STATUS_LABEL = { draft: '草稿', planned: '已计划', active: '进行中', completed: '已完成', archived: '已归档' };
-const TYPE_LABEL = { visit: '景点', transit: '交通', lodging: '住宿', meal: '餐饮', reservation: '预订', task: '事项', note: '备注' };
+const TYPE_LABEL = { visit: '景点', transit: '交通', lodging: '住宿', meal: '餐饮', break: '休息', reservation: '预订', task: '事项', note: '备注' };
 const PERIOD_LABEL = { morning: '上午', afternoon: '下午', evening: '晚上', '': '' };
 
 let meta = { cities: [], cityColors: {} };
@@ -478,6 +478,19 @@ function addLunch(di) {
   toast('已插入 60 分钟午餐预留（可删，可改停留）');
 }
 
+function addRest(di) {
+  const day = current.days[di];
+  if (!day) return;
+  const id = `break_${Date.now().toString(36)}`;
+  const patch = {
+    id, type: 'break', refId: null, placeNameSnapshot: '休息（预留）',
+    mustVisit: false, estimatedDuration: 20, confirm: 'ok',
+  };
+  view.sel = id;
+  mutate(trip => insertItemAt(trip, di, day.items.length, patch));
+  toast('已追加 20 分钟休息预留（可删，可改停留）');
+}
+
 function timelineDayHtml(d, di, res) {
   const railItems = d.items.map(it => ({ ...it, placeType: itemType(it) }));
   const rail = buildDayRail({ result: res, day: d, items: railItems });
@@ -630,6 +643,7 @@ function renderEditor() {
         <div class="tr-day-ops">
           <button class="pl-btn small" data-add="${di}">＋ 加点位</button>
           <button class="pl-btn small" data-lunch="${di}">🍽 午餐 60m</button>
+          <button class="pl-btn small" data-rest="${di}">☕ 休息 20m</button>
           <button class="pl-btn small" data-note="${di}">📝 ${d.note ? '改备注' : '加备注'}</button>
           ${t.days.length > 1 ? `<button class="pl-btn small danger" data-delday="${di}">删除这天</button>` : ''}
         </div>
@@ -696,6 +710,8 @@ function renderEditor() {
     if (add) { view.picker = { mode: 'add', dayIndex: +add.dataset.add, q: '', city: (current.cities || [])[0] || '' }; render(); const q = document.getElementById('tr-q'); if (q) q.focus(); return; }
     const lunch = e.target.closest('[data-lunch]');
     if (lunch) { addLunch(+lunch.dataset.lunch); return; }
+    const rest = e.target.closest('[data-rest]');
+    if (rest) { addRest(+rest.dataset.rest); return; }
     const note = e.target.closest('[data-note]');
     if (note) {
       const di = +note.dataset.note;

@@ -16,7 +16,7 @@ export const TRIP_SCHEMA_VERSION = 2;
 
 export const TRIP_STATUS = ['draft', 'planned', 'active', 'completed', 'archived'];
 export const DATE_MODES = ['fixed', 'relative'];
-export const ITEM_TYPES = ['visit', 'transit', 'lodging', 'meal', 'reservation', 'task', 'note'];
+export const ITEM_TYPES = ['visit', 'transit', 'lodging', 'meal', 'break', 'reservation', 'task', 'note'];
 export const ITEM_PERIODS = ['morning', 'afternoon', 'evening', ''];
 export const PLANNED_STATUS = ['planned', 'done', 'skipped', 'moved'];
 export const FLEXIBILITY = ['fixed', 'flexible', 'optional'];

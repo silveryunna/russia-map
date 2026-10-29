@@ -125,6 +125,8 @@ function resolveStart(item) {
 }
 
 const SKIP_TYPES = new Set(['note', 'task']);
+// 无点位也可排程的"就地时间块"：就餐与休息预留
+const BLOCK_ONLY_TYPES = new Set(['meal', 'break']);
 
 function placeOf(places, id) {
   if (!places) return null;
@@ -166,8 +168,8 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
   for (const item of list) {
     const place = item.refId ? placeOf(places, item.refId) : null;
     const name = item.placeNameSnapshot || (place && place.name) || item.id || '未命名条目';
-    // 无点位的就餐预留是可排程的"就地时间块"，不是缺数据的错误
-    const blockOnly = !place && item.type === 'meal';
+    // 无点位的就餐/休息预留是可排程的"就地时间块"，不是缺数据的错误
+    const blockOnly = !place && BLOCK_ONLY_TYPES.has(item.type);
 
     if (!place && !blockOnly) {
       push('unresolved-place', 'error', item.id, `「${name}」没有绑定点位，无法排程`);

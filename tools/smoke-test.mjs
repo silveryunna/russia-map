@@ -157,6 +157,12 @@ async function probePlan(name, viewport, shot) {
     const afterDwell = await readTrips();
     ok(`${name} 就地改停留时长`, afterDwell[0].days[0].items.some(i => i.estimatedDuration === 75), '');
   }
+  await page.locator('[data-rest="0"]').first().click();
+  await page.waitForTimeout(700);
+  const withRest = await readTrips();
+  const rest = withRest[0].days[0].items.find(i => i.type === 'break');
+  ok(`${name} 休息快捷插入`, !!rest && rest.estimatedDuration === 20 && rest.mustVisit === false,
+    rest ? `${rest.placeNameSnapshot}/${rest.estimatedDuration}m` : '');
 
   const fatal = errors.filter(e => /SyntaxError|JSON\.parse|is not defined/i.test(e));
   ok(`${name} 行程页无致命 JS 错误`, fatal.length === 0, fatal[0] || '');

@@ -101,6 +101,13 @@ const keep = (t, label) => { validAll.push({ t, label }); return t; };
   const tail = keep(insertItemAt(fixture(), 0, 99, { id: 'meal2', type: 'meal', estimatedDuration: 60 }, idFn), 'insertLunchEnd');
   if (tail.days[0].items[2].id === 'meal2') ok('越界插入落到末尾');
   else fail('越界插入位置错误');
+  const rest = keep(insertItemAt(fixture(), 1, 99, {
+    id: 'rest1', type: 'break', placeNameSnapshot: '休息（预留）', estimatedDuration: 20, mustVisit: false,
+  }, idFn), 'insertRest');
+  const restItem = rest.days[1].items[rest.days[1].items.length - 1];
+  if (restItem.type === 'break' && restItem.estimatedDuration === 20 && restItem.confirm === 'ok' && restItem.mustVisit === false) {
+    ok('休息块可追加且无需确认');
+  } else fail('休息块字段错误：' + JSON.stringify(restItem));
 }
 
 // 4) 排序 / 跨天移动 / 删除

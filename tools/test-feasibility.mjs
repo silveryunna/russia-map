@@ -172,6 +172,11 @@ const it = (id, refId, extra = {}) => ({
     places,
   });
   assert(missing.conflicts.some((c) => c.kind === 'missing-duration'), '餐食块缺停留时长仍报错');
+
+  const rest = it('b1', null, { type: 'break', placeNameSnapshot: '休息（预留）', estimatedDuration: 20, mustVisit: false });
+  const rr = evaluateDay({ day: { id: 'd', date: '2026-11-10' }, items: [it('i1', 'p1'), rest], places });
+  assert(rr.errors.length === 0 && rr.timeline[1].duration === 20 && rr.timeline[1].calendar === 'none',
+    '无点位休息块同样可排程');
 }
 
 // ── 4) 闭馆日：报错 + 有修复建议 ──
