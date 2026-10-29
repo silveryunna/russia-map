@@ -1,42 +1,48 @@
 import '../shared/base.css';
 import './plan.css';
 import { INTERESTS, PLAN_DAYS_MAX, clampDays, ruleEngine } from './plan/engine.js';
-import { loadPlans, savePlans } from './plan/store.js';
-// 日程计划 v2：规则引擎离线生成 + TokenHub AI（站内通道，api/index.php?a=plan 代理）
-// 默认走站内接口，Bearer 用本站登录 token（friend-token / admin-token）；Key 只在服务器侧
-// 高级设置可会话级覆盖 endpoint/key（不落盘）；长期自定义接入在 friend.html「我的 AI 接入」保存
-// 协议：POST {endpoint, headers:{Authorization:Bearer key}, body:{model?, params:{city,date,days,interests}, context:{points,routes}}}
-// 期望返回：{plan:{name,days:[{day,slots:{morning:[],afternoon:[],evening:[]},tip}]}, remaining?, model?}
+import { loadPlans } from './plan/store.js';
+import { loadCheckins } from '../modules/checkin.js';
+import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
+import { migratePlansV1 } from './trip/migrate.js';
+import { tripItemCount } from './trip/schema.js';
+import {
+  addDay, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip,
+  itemDateConflicts, moveItemToDay, moveItemWithinDay, removeDay, removeItem,
+  setDateMode, setDayNote, shiftTripStart, updateTrip,
+} from './trip/edit.js';
 
+// 行程计划（Trip v2）：本次旅行可编辑、可恢复、可导出
+// - 存储：IndexedDB（travel-trips），旧 travel-plans-v1 / travel-checkin-v2 首次打开时一次性迁移
+// - AI 生成仍走站内通道（api/index.php?a=plan，Key 只在服务器侧）；生成结果统一转成 Trip
+// - 每个编辑动作即时落库，保留最近 30 步内存撤销；删除行程不解绑历史打卡（Visit 留档）
 
 const $app = document.getElementById('plan-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const LS_AI = 'planner-ai-config';
+const STATUS_LABEL = { draft: '草稿', planned: '已计划', active: '进行中', completed: '已完成', archived: '已归档' };
+const TYPE_LABEL = { visit: '景点', transit: '交通', lodging: '住宿', meal: '餐饮', reservation: '预订', task: '事项', note: '备注' };
+const PERIOD_LABEL = { morning: '上午', afternoon: '下午', evening: '晚上', '': '' };
 
 let meta = { cities: [], cityColors: {} };
-const planLoad = loadPlans(localStorage);
-let plans = planLoad.plans;
-let view = { mode: 'list', planId: null, form: null, showAI: false, aiError: '' };
-let cache = { pts: null, rts: null };
+let cache = { pts: [], rts: [] };
+let pointsById = new Map();
+let store = null;
+let storeWarn = '';
+let trips = [];
+let current = null;              // 编辑器里的行程
+let ambiguities = [];            // 迁移遗留的待确认项（仅用于预置候选）
+let undoStack = [];
+let view = { mode: 'list', form: null, showAI: false, aiError: '', picker: null };
 
-function persistPlans() {
-  try {
-    savePlans(localStorage, plans);
-    planLoad.recovered = false;
-    return true;
-  } catch (err) {
-    toast('本地存储写入失败：' + err.message + '（可先导出 Markdown）');
-    return false;
-  }
-}
+const planLoad = loadPlans(localStorage);
 
 /* ---------- PlannerAI（站内通道 + 会话级自定义覆盖） ---------- */
 const siteToken = () => localStorage.getItem('friend-token') || localStorage.getItem('admin-token') || '';
 let aiSession = {};  // 高级设置：仅本次会话生效，不落盘（密钥不进 localStorage）
 let aiInfo = null;   // ?a=ai_policy：配额 / 可选模型 / 是否有个人接入
-let aiModel = localStorage.getItem('planner-ai-model') || '';  // 记住上次选择的模型
+let aiModel = localStorage.getItem('planner-ai-model') || '';
 let generating = false;
-// 旧版 localStorage AI 配置迁移为会话级（密钥不再落盘）
 try {
   const old = JSON.parse(localStorage.getItem(LS_AI) || 'null');
   if (old && (old.endpoint || old.key || old.model)) {
@@ -45,6 +51,7 @@ try {
     setTimeout(() => toast('旧版 AI 配置已改为本次会话有效；长期接入请在朋友页「我的 AI 接入」保存'), 800);
   }
 } catch { /* 忽略损坏的旧配置 */ }
+
 async function loadAiInfo() {
   if (!siteToken()) { aiInfo = null; return; }
   try {
@@ -54,6 +61,7 @@ async function loadAiInfo() {
     if (aiInfo && Array.isArray(aiInfo.models) && aiInfo.models.length && !aiInfo.models.includes(aiModel)) aiModel = aiInfo.models[0];
   } catch { aiInfo = null; }
 }
+
 const PlannerAI = {
   get ready() { return !!siteToken() || !!aiSession.endpoint; },
   async generate(params, context) {
@@ -75,6 +83,7 @@ const PlannerAI = {
     return {
       ...plan,
       id: 'p' + Date.now().toString(36),
+      name: plan.name || `${params.city}行程`,
       city: params.city,
       date: params.date,
       source: 'ai',
@@ -84,10 +93,12 @@ const PlannerAI = {
     };
   },
 };
-function sourceLabel(p) {
-  if (p.source !== 'ai') return '规则引擎（离线）';
-  const ch = p.channel === 'custom' ? '自定义接口' : '站内通道';
-  return `AI（${ch}${p.model ? ' · ' + p.model : ''}）`;
+function sourceLabel(trip) {
+  const o = trip.origin || {};
+  if (o.source === 'copy') return '复制自其它行程';
+  if (o.source !== 'ai') return '规则引擎（离线）';
+  const ch = o.channel === 'custom' ? '自定义接口' : '站内通道';
+  return `AI（${ch}${o.model ? ' · ' + o.model : ''}）`;
 }
 function aiBtnLabel() {
   if (aiSession.endpoint) return '✨ AI 生成（自定义接口）';
@@ -96,7 +107,7 @@ function aiBtnLabel() {
   return '✨ AI 生成';
 }
 
-/* ---------- 视图 ---------- */
+/* ---------- 通用 ---------- */
 function toast(msg) {
   const t = document.createElement('div');
   t.className = 'plan-toast';
@@ -105,50 +116,144 @@ function toast(msg) {
   setTimeout(() => t.classList.add('show'), 20);
   setTimeout(() => { t.classList.remove('show'); setTimeout(() => t.remove(), 400); }, 3200);
 }
+const md = d => (d || '').slice(5).replace('-', '/');
+function dateRange(trip) {
+  if (trip.dateMode !== 'fixed' || !trip.startDate) return '日期待定';
+  return trip.endDate && trip.endDate !== trip.startDate ? `${md(trip.startDate)}–${md(trip.endDate)}` : md(trip.startDate);
+}
+function weekday(date) {
+  if (!date) return '';
+  return ['周日', '周一', '周二', '周三', '周四', '周五', '周六'][new Date(date + 'T00:00:00').getDay()] || '';
+}
+function itemName(item) {
+  const pt = item.refId ? pointsById.get(item.refId) : null;
+  return (pt && pt.name) || item.placeNameSnapshot || TYPE_LABEL[item.type] || '未命名';
+}
+function itemType(item) {
+  const pt = item.refId ? pointsById.get(item.refId) : null;
+  return (pt && pt.type) || TYPE_LABEL[item.type] || '';
+}
+function download(name, text, type = 'application/json') {
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(new Blob([text], { type }));
+  a.download = name;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+}
 
+/* ---------- 渲染 ---------- */
 function render() {
-  if (view.mode === 'list') return renderList();
   if (view.mode === 'create') return renderCreate();
-  return renderDetail();
+  if (view.mode === 'editor' && current) return renderEditor();
+  return renderList();
+}
+
+function banners() {
+  const out = [];
+  if (storeWarn) out.push(`<div class="pl-tip warn">⚠️ ${esc(storeWarn)}</div>`);
+  if (planLoad.recovered) out.push(`<div class="pl-tip warn">⚠️ 检测到损坏的旧本地计划，已备份为 ${esc(planLoad.backupKey || '备份键')}</div>`);
+  const live = current
+    ? ambiguities.filter(a => current.days.some(d => d.items.some(it => it.id === a.itemId && it.confirm !== 'ok')))
+    : [];
+  if (live.length) out.push(`<div class="pl-tip">🔎 旧计划迁移有 ${live.length} 个点位待确认，点名字即可绑定</div>`);
+  return out.join('');
 }
 
 function renderList() {
+  const needConfirm = trips.reduce((s, t) => s + countNeedsConfirm(t), 0);
   $app.innerHTML = `
     <div class="pl-head">
-      <h2>🧭 我的计划</h2>
-      <button class="pl-btn primary" id="pl-new">＋ 新建计划</button>
+      <h2>🧭 我的行程</h2>
+      <div class="tr-head-ops">
+        <button class="pl-btn primary" id="pl-new">＋ 新建</button>
+        <button class="pl-btn small" id="tr-import">导入备份</button>
+        <button class="pl-btn small" id="tr-export">备份全部</button>
+      </div>
     </div>
-    ${planLoad.recovered ? `<div class="pl-tip">⚠️ 检测到损坏的本地计划，已备份为 ${esc(planLoad.backupKey)} 并重建空列表</div>` : ''}
-    ${plans.length ? plans.map(p => `
-      <div class="pl-card" data-open="${p.id}">
+    ${banners()}
+    ${needConfirm ? `<div class="pl-tip">🔎 ${needConfirm} 个点位待确认（旧计划迁移的歧义名称），打开行程点名字即可绑定</div>` : ''}
+    ${trips.length ? trips.map(t => `
+      <div class="pl-card" data-open="${esc(t.id)}">
         <div class="pl-card-top">
-          <span class="pl-name">${esc(p.name)}</span>
-          <span class="pl-src ${p.source}">${p.source === 'ai' ? 'AI' : '规则'}</span>
+          <span class="pl-name">${esc(t.title)}</span>
+          <span class="pl-src ${t.status === 'completed' ? 'ai' : ''}">${esc(STATUS_LABEL[t.status] || t.status)}</span>
         </div>
-        <div class="pl-meta">${esc(p.city)} · ${esc(p.date || '日期待定')} · ${p.days.length} 天 · ${p.days.reduce((s, d) => s + d.slots.morning.length + d.slots.afternoon.length + d.slots.evening.length, 0)} 个点位</div>
+        <div class="pl-meta">${esc((t.cities || []).join(' / ') || '未设城市')} · ${dateRange(t)} · ${t.days.length} 天 · ${tripItemCount(t)} 项${countNeedsConfirm(t) ? ` · <b class="tr-warn">${countNeedsConfirm(t)} 待确认</b>` : ''}</div>
         <div class="pl-ops">
-          <button class="pl-btn small" data-export="${p.id}">导出 Markdown</button>
-          <button class="pl-btn small danger" data-del="${p.id}">删除</button>
+          <button class="pl-btn small" data-open="${esc(t.id)}">编辑</button>
+          <button class="pl-btn small" data-copy="${esc(t.id)}">复制</button>
+          <button class="pl-btn small" data-md="${esc(t.id)}">导出 Markdown</button>
+          <button class="pl-btn small danger" data-del="${esc(t.id)}">删除</button>
         </div>
       </div>`).join('')
-      : `<div class="pl-empty">还没有计划<br><span>点右上角"新建计划"生成第一份行程草案</span></div>`}
-    <div class="pl-foot">规则引擎离线可用 · AI 生成需登录账号（朋友页 / 管理页）</div>`;
+      : `<div class="pl-empty">还没有行程<br><span>点"新建"生成一份草案，之后可以逐日调整、增删点位</span></div>`}
+    <div class="pl-foot">数据只存在这台设备的浏览器里（IndexedDB）· 离线可编辑 · 共 ${trips.length} 份行程${needConfirm ? ` · ${needConfirm} 项待确认` : ''}</div>
+    <input type="file" id="tr-import-file" accept="application/json,.json" hidden>`;
+
   document.getElementById('pl-new').onclick = () => {
     view.mode = 'create'; view.aiError = ''; view.showAI = false;
     view.form = { city: meta.cities[0] || '', date: '', days: 3, interests: [] };
     render();
   };
+  document.getElementById('tr-export').onclick = exportBackup;
+  const file = document.getElementById('tr-import-file');
+  document.getElementById('tr-import').onclick = () => file.click();
+  file.onchange = () => { if (file.files && file.files[0]) importBackup(file.files[0]); file.value = ''; };
+
+  $app.onchange = null;
+  $app.onclick = e => {
+    // 卡片内的按钮必须先于卡片的 data-open 匹配，否则点"复制"会变成"打开"
+    const copy = e.target.closest('[data-copy]');
+    if (copy) { copyTrip(copy.dataset.copy); return; }
+    const mdBtn = e.target.closest('[data-md]');
+    if (mdBtn) { const t = trips.find(x => x.id === mdBtn.dataset.md); if (t) exportMd(t); return; }
+    const del = e.target.closest('[data-del]');
+    if (del) { deleteTrip(del.dataset.del); return; }
+    const open = e.target.closest('[data-open]');
+    if (open) openTrip(open.dataset.open);
+  };
+}
+
+async function openTrip(id) {
+  const t = await store.getTrip(id);
+  if (!t) { toast('行程不存在'); await refreshTrips(); render(); return; }
+  current = t;
+  undoStack = [];
+  view.mode = 'editor';
+  view.picker = null;
+  render();
+}
+
+async function copyTrip(id) {
+  const src = await store.getTrip(id);
+  if (!src) return;
+  const copy = duplicateTrip(src);
+  const r = await store.saveTrip(copy);
+  if (!r.ok) { toast('复制失败：' + ((r.errors[0] || {}).message || '')); return; }
+  await refreshTrips();
+  render();
+  toast('已复制为新行程');
+}
+
+async function deleteTrip(id) {
+  const t = trips.find(x => x.id === id);
+  if (!t) return;
+  if (!confirm(`删除「${t.title}」？打卡记录会保留（解除关联），不会丢失`)) return;
+  const r = await store.deleteTrip(id);
+  await refreshTrips();
+  render();
+  toast(r.detachedVisits ? `已删除，${r.detachedVisits} 条打卡记录已解除关联` : '已删除');
 }
 
 function renderCreate() {
   const f = view.form;
   $app.innerHTML = `
-    <div class="pl-head"><h2>新建计划</h2><button class="pl-btn" id="pl-back">← 返回</button></div>
+    <div class="pl-head"><h2>新建行程</h2><button class="pl-btn" id="pl-back">← 返回</button></div>
     <div class="pl-form card">
       <label>目的地
         <select id="pl-city">${[...meta.cities].sort().map(c => `<option ${c === f.city ? 'selected' : ''}>${esc(c)}</option>`).join('')}</select>
       </label>
-      <label>出发日期 <input id="pl-date" type="date" value="${esc(f.date)}"></label>
+      <label>出发日期（可留空＝无日期行程）<input id="pl-date" type="date" value="${esc(f.date)}"></label>
       <label>天数 <input id="pl-days" type="number" min="1" max="${PLAN_DAYS_MAX}" value="${f.days}"></label>
       <div class="pl-label">兴趣标签（可多选，不选=全城点位）</div>
       <div class="pl-chips">${Object.keys(INTERESTS).map(k => `<button class="chip ${f.interests.includes(k) ? 'on' : ''}" data-int="${k}">${k}</button>`).join('')}</div>
@@ -182,8 +287,10 @@ function renderCreate() {
       </div>` : ''}
     </div>`;
   document.getElementById('pl-back').onclick = () => { view.mode = 'list'; render(); };
-  document.getElementById('pl-city').onchange = e => f.city = e.target.value;
-  document.getElementById('pl-date').onchange = e => f.date = e.target.value;
+  $app.onclick = null;
+  $app.onchange = null;
+  document.getElementById('pl-city').onchange = e => { f.city = e.target.value; };
+  document.getElementById('pl-date').onchange = e => { f.date = e.target.value; };
   document.getElementById('pl-days').onchange = e => { f.days = clampDays(e.target.value); e.target.value = f.days; };
   const modelSel = document.getElementById('pl-model');
   if (modelSel) modelSel.onchange = e => { aiModel = e.target.value; localStorage.setItem('planner-ai-model', aiModel); };
@@ -214,6 +321,7 @@ async function doGenerate(src) {
   const f = view.form;
   if (!f.city) return toast('请选择目的地');
   if (generating) return;
+  if (src === 'ai' && !f.date) return toast('AI 生成需要出发日期，请先选择日期（也可以留空用离线规则生成无日期行程）');
   // AI 不可用时不再静默降级：交给用户决定重试 / 用规则 / 取消，生成结果永远标注来源
   if (src === 'ai' && !PlannerAI.ready) {
     view.aiError = '未登录或未配置 AI 接口';
@@ -231,17 +339,24 @@ async function doGenerate(src) {
           routes: cache.rts.filter(r => r.city === f.city),
         })
       : ruleEngine(f, { pts: cache.pts, rts: cache.rts });
-    plans.unshift(plan);
-    if (!persistPlans()) {
-      plans = plans.filter(x => x.id !== plan.id);
+    const mig = migratePlansV1({ plans: [plan], points: cache.pts });
+    const trip = mig.trips[0];
+    if (!trip || !trip.days.length) {
       generating = false;
+      toast('没有可用点位，试试减少天数或换城市');
       render();
       return;
     }
-    view.mode = 'detail'; view.planId = plan.id; view.aiError = '';
+    const saved = await store.saveTrip(trip);
     generating = false;
+    if (!saved.ok) { toast('保存失败：' + (saved.errors[0] || {}).message); render(); return; }
+    await refreshTrips();
+    current = saved.trip;
+    undoStack = [];
+    view.mode = 'editor';
     render();
-    toast(`计划已生成（${sourceLabel(plan)}）`);
+    const pending = countNeedsConfirm(current);
+    toast(`行程已生成（${sourceLabel(current)}）${pending ? ` · ${pending} 个点位待确认` : ''}`);
     if (plan.note) setTimeout(() => toast(plan.note), 600);
   } catch (err) {
     generating = false;
@@ -250,73 +365,351 @@ async function doGenerate(src) {
   }
 }
 
-function renderDetail() {
-  const p = plans.find(x => x.id === view.planId);
-  if (!p) { view.mode = 'list'; return render(); }
-  const byName = new Map(cache.pts.map(x => [x.name, x]));
-  const col = meta.cityColors[p.city] || '#B71C1C';
-  const slotName = { morning: '🌅 上午', afternoon: '☀️ 下午', evening: '🌙 晚上' };
+/* ---------- 编辑器 ---------- */
+function renderEditor() {
+  const t = current;
+  const col = meta.cityColors[(t.cities || [])[0]] || '#B71C1C';
+  const conflicts = itemDateConflicts(t);
+  const conflictByItem = new Map(conflicts.map(c => [c.itemId, c]));
+  const pending = countNeedsConfirm(t);
   $app.innerHTML = `
     <div class="pl-head">
-      <h2>${esc(p.name)}</h2>
-      <button class="pl-btn" id="pl-back">← 返回</button>
+      <button class="pl-btn small" id="tr-back">← 全部行程</button>
+      <div class="tr-head-ops">
+        <button class="pl-btn small" id="tr-undo" ${undoStack.length ? '' : 'disabled'}>↶ 撤销</button>
+        <button class="pl-btn small" id="tr-md">导出 MD</button>
+      </div>
     </div>
-    <div class="pl-meta" style="margin:0 0 12px">${esc(p.city)} · ${esc(p.date || '日期待定')} · ${p.days.length} 天 · 来源：${esc(sourceLabel(p))}</div>
-    ${p.note ? `<div class="pl-tip" style="margin-bottom:12px">⚠️ ${esc(p.note)}</div>` : ''}
-    ${p.days.map(d => `
+    ${banners()}
+    <div class="card tr-meta">
+      <input id="tr-title" class="tr-title-input" value="${esc(t.title)}" aria-label="行程标题">
+      <div class="tr-meta-row">
+        <label>状态
+          <select id="tr-status">${Object.entries(STATUS_LABEL).map(([k, v]) => `<option value="${k}" ${t.status === k ? 'selected' : ''}>${v}</option>`).join('')}</select>
+        </label>
+        <label>出发日期
+          <input id="tr-date" type="date" value="${esc(t.startDate || '')}">
+        </label>
+        ${t.dateMode === 'fixed' ? `<label>改期方式
+          <select id="tr-policy">
+            <option value="shift_all">整体平移</option>
+            <option value="keep_bookings">保留已订时刻</option>
+          </select>
+        </label>` : ''}
+      </div>
+      <div class="pl-meta">${esc(sourceLabel(t))} · ${t.days.length} 天 · ${tripItemCount(t)} 项${pending ? ` · <b class="tr-warn">${pending} 待确认</b>` : ''}${conflicts.length ? ` · <b class="tr-warn">${conflicts.length} 处预订日冲突</b>` : ''} · 修订 ${t.revision}</div>
+    </div>
+    ${t.notes ? `<div class="pl-tip">📌 ${esc(t.notes)}</div>` : ''}
+    ${t.days.map((d, di) => `
       <div class="pl-day card" style="border-left:4px solid ${col}">
-        <div class="pl-day-head">Day ${d.day} <span>${d.slots.morning.length + d.slots.afternoon.length + d.slots.evening.length} 个点位</span></div>
-        ${Object.keys(slotName).map(sk => d.slots[sk].length ? `
-          <div class="pl-slot">
-            <div class="pl-slot-name">${slotName[sk]}</div>
-            ${d.slots[sk].map(n => {
-              const pt = byName.get(n);
-              return `<div class="pl-point"><span class="pl-dot" style="background:${pt ? (meta.cityColors[pt.city] || '#546E7A') : '#999'}"></span>${esc(n)}<span class="pl-ptype">${pt ? esc(pt.type) : ''}</span></div>`;
-            }).join('')}
-          </div>` : '').join('')}
-        ${d.tip ? `<div class="pl-tip">💡 ${esc(d.tip)}` : ''}
+        <div class="pl-day-head">
+          <span>Day ${d.index}${d.date ? ` <em>${md(d.date)} ${weekday(d.date)}</em>` : ''}</span>
+          <span>${d.items.length} 项</span>
+        </div>
+        ${d.items.length ? d.items.map((it, ii) => {
+          const cf = conflictByItem.get(it.id);
+          return `
+          <div class="pl-point tr-item" data-item="${esc(it.id)}">
+            <span class="pl-dot" style="background:${it.confirm === 'ok' && it.refId ? (meta.cityColors[(pointsById.get(it.refId) || {}).city] || '#546E7A') : '#C9A227'}"></span>
+            <button class="tr-name" data-bind="${esc(it.id)}">${esc(itemName(it))}</button>
+            ${it.period ? `<span class="tr-chip">${PERIOD_LABEL[it.period]}</span>` : ''}
+            ${it.confirm !== 'ok' ? '<span class="tr-chip warn">待确认</span>' : ''}
+            ${cf ? `<span class="tr-chip danger">预订 ${md(cf.itemDate)}</span>` : ''}
+            <span class="pl-ptype">${esc(itemType(it))}</span>
+            <span class="tr-ops">
+              <button class="tr-icon" data-up="${esc(it.id)}" ${ii === 0 ? 'disabled' : ''} aria-label="上移">↑</button>
+              <button class="tr-icon" data-dn="${esc(it.id)}" ${ii === d.items.length - 1 ? 'disabled' : ''} aria-label="下移">↓</button>
+              ${t.days.length > 1 ? `<select class="tr-day-move" name="move-day" data-moveday="${esc(it.id)}" aria-label="移动到某天">${t.days.map((x, xi) => `<option value="${xi}" ${xi === di ? 'selected' : ''}>D${xi + 1}</option>`).join('')}</select>` : ''}
+              <button class="tr-icon danger" data-rm="${esc(it.id)}" aria-label="删除">✕</button>
+            </span>
+          </div>`;
+        }).join('') : '<div class="tr-day-empty">这一天还没有安排</div>'}
+        <div class="tr-day-ops">
+          <button class="pl-btn small" data-add="${di}">＋ 加点位</button>
+          <button class="pl-btn small" data-note="${di}">📝 ${d.note ? '改备注' : '加备注'}</button>
+          ${t.days.length > 1 ? `<button class="pl-btn small danger" data-delday="${di}">删除这天</button>` : ''}
+        </div>
+        ${d.note ? `<div class="pl-tip">💡 ${esc(d.note)}</div>` : ''}
       </div>`).join('')}
-    <div class="pl-ops" style="margin-top:14px">
-      <button class="pl-btn primary" id="pl-exp">导出 Markdown</button>
-      <button class="pl-btn danger" id="pl-del">删除计划</button>
-    </div>`;
-  document.getElementById('pl-back').onclick = () => { view.mode = 'list'; render(); };
-  document.getElementById('pl-exp').onclick = () => exportMd(p);
-  document.getElementById('pl-del').onclick = () => {
-    plans = plans.filter(x => x.id !== p.id);
-    persistPlans();
-    view.mode = 'list'; render(); toast('已删除');
+    <div class="tr-foot-ops">
+      <button class="pl-btn" id="tr-add-day">＋ 增加一天</button>
+      <button class="pl-btn" id="tr-json">导出本行程 JSON</button>
+    </div>
+    ${view.picker ? pickerHtml() : ''}`;
+
+  document.getElementById('tr-back').onclick = () => { view.mode = 'list'; view.picker = null; current = null; render(); };
+  const undoBtn = document.getElementById('tr-undo');
+  if (undoBtn) undoBtn.onclick = doUndo;
+  document.getElementById('tr-md').onclick = () => exportMd(current);
+  document.getElementById('tr-json').onclick = () => download(`${current.title || '行程'}.json`, JSON.stringify({ schemaVersion: current.schemaVersion, trips: [current], visits: [] }, null, 2));
+  document.getElementById('tr-add-day').onclick = () => mutate(trip => addDay(trip));
+  const titleInput = document.getElementById('tr-title');
+  titleInput.onchange = () => {
+    const v = titleInput.value.trim();
+    if (v && v !== current.title) mutate(trip => updateTrip(trip, { title: v }));
+    else titleInput.value = current.title;
+  };
+  document.getElementById('tr-status').onchange = e => mutate(trip => updateTrip(trip, { status: e.target.value }));
+  const dateInput = document.getElementById('tr-date');
+  dateInput.onchange = () => {
+    const v = dateInput.value;
+    if (!v) { mutate(trip => setDateMode(trip, 'relative')); return; }
+    if (t.dateMode !== 'fixed') { mutate(trip => setDateMode(trip, 'fixed', v)); return; }
+    const policy = document.getElementById('tr-policy').value;
+    const res = shiftTripStart(current, v, { policy });
+    if (!res.ok) { toast(res.error); dateInput.value = current.startDate; return; }
+    applyTrip(res.trip);
+    if (res.conflicts.length) toast(`已改期，${res.conflicts.length} 处预订仍保留原日期，请逐条核对`);
+  };
+  if (view.picker) wirePicker();
+
+  // 委托：items 与 day 操作
+  $app.onclick = e => {
+    const pick = e.target.closest('[data-pick]');
+    if (pick) { pickPlace(pick.dataset.pick); return; }
+    const add = e.target.closest('[data-add]');
+    if (add) { view.picker = { mode: 'add', dayIndex: +add.dataset.add, q: '', city: (current.cities || [])[0] || '' }; render(); const q = document.getElementById('tr-q'); if (q) q.focus(); return; }
+    const note = e.target.closest('[data-note]');
+    if (note) {
+      const di = +note.dataset.note;
+      const v = prompt('这一天的备注（留空清除）', current.days[di].note || '');
+      if (v !== null) mutate(trip => setDayNote(trip, di, v.trim()));
+      return;
+    }
+    const delDay = e.target.closest('[data-delday]');
+    if (delDay) {
+      const di = +delDay.dataset.delday;
+      const n = current.days[di].items.length;
+      if (confirm(`删除 Day ${di + 1}？${n ? `其中 ${n} 个点位会并入相邻的一天，不会丢失` : ''}`)) mutate(trip => removeDay(trip, di));
+      return;
+    }
+    const up = e.target.closest('[data-up]');
+    if (up) { mutate(trip => moveItemWithinDay(trip, up.dataset.up, -1)); return; }
+    const dn = e.target.closest('[data-dn]');
+    if (dn) { mutate(trip => moveItemWithinDay(trip, dn.dataset.dn, 1)); return; }
+    const rm = e.target.closest('[data-rm]');
+    if (rm) { mutate(trip => removeItem(trip, rm.dataset.rm)); return; }
+    const bind = e.target.closest('[data-bind]');
+    if (bind) {
+      const it = findItem(bind.dataset.bind);
+      if (it && it.confirm !== 'ok') { view.picker = { mode: 'bind', itemId: it.id, q: '', city: (current.cities || [])[0] || '' }; render(); const q = document.getElementById('tr-q'); if (q) q.focus(); }
+      return;
+    }
+    const back = e.target.closest('[data-pick-close]');
+    if (back) { view.picker = null; render(); }
+  };
+  $app.onchange = e => {
+    const sel = e.target.closest('[data-moveday]');
+    if (sel) { const to = +sel.value; mutate(trip => moveItemToDay(trip, sel.dataset.moveday, to)); }
   };
 }
 
-function exportMd(p) {
-  const byName = new Map(cache.pts.map(x => [x.name, x]));
-  const md = [`# ${p.name}`, ``, `> ${p.city} · ${p.date || '日期待定'} · 来源：${sourceLabel(p)}`, ``,
-    ...p.days.flatMap(d => [`## Day ${d.day}`, ``,
-      ...Object.entries(d.slots).flatMap(([sk, list]) => list.length ? [`### ${{ morning: '上午', afternoon: '下午', evening: '晚上' }[sk]}`, ``,
-        ...list.map(n => { const pt = byName.get(n); return `- **${n}**${pt ? `（${pt.type}）` : ''}`; }), ``] : []),
-      ...(d.tip ? [`> 💡 ${d.tip}`, ``] : [])])].join('\n');
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([md], { type: 'text/markdown' }));
-  a.download = `${p.name}.md`;
-  a.click();
+function findItem(id) {
+  for (const d of current.days) {
+    const it = d.items.find(x => x.id === id);
+    if (it) return it;
+  }
+  return null;
+}
+
+function pickerHtml() {
+  const p = view.picker;
+  const title = p.mode === 'bind'
+    ? `为「${esc((findItem(p.itemId) || {}).placeNameSnapshot || '待确认点位')}」指定点位`
+    : `添加点位到 Day ${(p.dayIndex || 0) + 1}`;
+  return `
+    <div class="tr-overlay">
+      <div class="tr-sheet">
+        <div class="tr-sheet-head">
+          <strong>${title}</strong>
+          <button class="pl-btn small" data-pick-close>完成</button>
+        </div>
+        <input id="tr-q" placeholder="搜索点位名 / 英文名 / 类型" value="${esc(p.q)}">
+        <select id="tr-city-sel">
+          <option value="">全部城市</option>
+          ${[...new Set(cache.pts.map(x => x.city))].sort().map(c => `<option ${c === p.city ? 'selected' : ''}>${esc(c)}</option>`).join('')}
+        </select>
+        <div class="tr-results" id="tr-results">${pickerResultsHtml()}</div>
+      </div>
+    </div>`;
+}
+
+function pickerResultsHtml() {
+  const p = view.picker;
+  const q = (p.q || '').trim().toLowerCase();
+  let list = cache.pts.filter(x => !x.pending && (!p.city || x.city === p.city));
+  if (q) list = list.filter(x => `${x.name || ''} ${x.name_en || ''} ${x.type || ''} ${x.cluster || ''}`.toLowerCase().includes(q));
+  if (p.mode === 'add') {
+    const day = current.days[p.dayIndex];
+    const added = new Set((day ? day.items : []).map(i => i.refId));
+    list = list.filter(x => !added.has(x.id));
+  }
+  const candIds = p.mode === 'bind'
+    ? ((ambiguities.find(a => a.itemId === p.itemId) || {}).candidates || [])
+    : [];
+  const cands = candIds.map(id => pointsById.get(id)).filter(Boolean);
+  const rest = list.filter(x => !candIds.includes(x.id)).slice(0, 60);
+  const row = (x, tag) => `
+    <button class="tr-result" data-pick="${esc(x.id)}">
+      <span>${esc(x.name)}${x.name_en ? `<em>${esc(x.name_en)}</em>` : ''}</span>
+      <span class="pl-ptype">${tag || esc(x.type || '')}</span>
+    </button>`;
+  return `
+    ${cands.length ? `<div class="tr-res-label">同名候选</div>${cands.map(x => row(x, '候选')).join('')}` : ''}
+    ${rest.length ? `${cands.length ? '<div class="tr-res-label">其它点位</div>' : ''}${rest.map(x => row(x)).join('')}` : (cands.length ? '' : '<div class="tr-day-empty">没有匹配的点位</div>')}`;
+}
+
+function wirePicker() {
+  const q = document.getElementById('tr-q');
+  if (q) q.oninput = () => { view.picker.q = q.value; const box = document.getElementById('tr-results'); if (box) box.innerHTML = pickerResultsHtml(); };
+  const city = document.getElementById('tr-city-sel');
+  if (city) city.onchange = () => { view.picker.city = city.value; const box = document.getElementById('tr-results'); if (box) box.innerHTML = pickerResultsHtml(); };
+}
+
+async function pickPlace(placeId) {
+  const pt = pointsById.get(placeId);
+  if (!pt || !view.picker) return;
+  const p = view.picker;
+  if (p.mode === 'bind') {
+    const day = current.days.find(d => d.items.some(i => i.id === p.itemId));
+    if (day && day.items.some(i => i.id !== p.itemId && i.refId === pt.id)) {
+      toast('这一天已经有这个点位了；如需替换请先删掉重复的一条');
+      return;
+    }
+    view.picker = null;
+    await mutate(trip => bindItemPlace(trip, p.itemId, pt));
+    toast(`已绑定：${pt.name}`);
+    return;
+  }
+  const keepQ = p.q;
+  await mutate(trip => addPlaceToDay(trip, pt, { dayIndex: p.dayIndex }));
+  view.picker = { mode: 'add', dayIndex: p.dayIndex, q: keepQ, city: p.city };
+  render();
+  const q = document.getElementById('tr-q');
+  if (q) q.focus();
+}
+
+/* ---------- 落库 / 撤销 ---------- */
+async function persistTrip(next) {
+  const r = await store.saveTrip(next);
+  if (!r.ok) {
+    toast('保存失败：' + ((r.errors && r.errors[0] && r.errors[0].message) || '数据未通过校验'));
+    return false;
+  }
+  current = r.trip;
+  return true;
+}
+
+async function mutate(fn) {
+  if (!current) return;
+  const before = JSON.stringify(current);
+  const next = fn(current);
+  if (JSON.stringify(next) === before) return;
+  if (await persistTrip(next)) {
+    undoStack.push(before);
+    if (undoStack.length > 30) undoStack.shift();
+    await refreshTrips();
+    render();
+  }
+}
+
+async function applyTrip(next) {
+  const before = JSON.stringify(current);
+  if (await persistTrip(next)) {
+    undoStack.push(before);
+    if (undoStack.length > 30) undoStack.shift();
+    await refreshTrips();
+    render();
+  }
+}
+
+async function doUndo() {
+  const snap = undoStack.pop();
+  if (!snap) return;
+  if (await persistTrip(JSON.parse(snap))) {
+    await refreshTrips();
+    render();
+    toast('已撤销上一步');
+  }
+}
+
+/* ---------- 导入导出 ---------- */
+async function exportBackup() {
+  const payload = await store.exportAll();
+  download(`trips-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(payload, null, 2));
+  toast(`已导出 ${payload.trips.length} 份行程、${payload.visits.length} 条打卡记录`);
+}
+
+async function importBackup(file) {
+  let payload;
+  try {
+    payload = JSON.parse(await file.text());
+    if (Array.isArray(payload)) payload = { trips: payload, visits: [] };
+  } catch {
+    toast('备份文件不是合法 JSON');
+    return;
+  }
+  const replace = confirm('用备份覆盖本机全部行程吗？\n确定＝覆盖；取消＝合并（同一行程保留修订号更高的版本）');
+  const r = await store.importAll(payload, { mode: replace ? 'replace' : 'merge' });
+  if (!r.ok) { toast(r.error || '导入失败'); return; }
+  await refreshTrips();
+  render();
+  toast(replace ? `已覆盖：${r.added} 份行程` : `合并完成：新增 ${r.added}、更新 ${r.updated}、跳过 ${r.skipped}`);
+}
+
+function exportMd(trip) {
+  const lines = [`# ${trip.title}`, ``, `> ${(trip.cities || []).join(' / ')} · ${dateRange(trip)} · 来源：${sourceLabel(trip)}`, ``];
+  if (trip.notes) lines.push(`> 📌 ${trip.notes}`, ``);
+  for (const d of trip.days) {
+    lines.push(`## Day ${d.index}${d.date ? ` · ${d.date}` : ''}`, ``);
+    for (const it of d.items) {
+      const parts = [`- **${itemName(it)}**`];
+      if (it.period) parts.push(`（${PERIOD_LABEL[it.period]}）`);
+      if (it.confirm !== 'ok') parts.push(' 〔待确认〕');
+      if (it.startLocal) parts.push(` ${it.startLocal.replace('T', ' ')}`);
+      lines.push(parts.join(''));
+    }
+    if (d.items.length) lines.push('');
+    if (d.note) lines.push(`> 💡 ${d.note}`, '');
+  }
+  download(`${trip.title || '行程'}.md`, lines.join('\n'), 'text/markdown');
   toast('已导出 Markdown');
 }
 
-$app.addEventListener('click', e => {
-  const open = e.target.closest('[data-open]');
-  if (open && !e.target.closest('[data-del],[data-export]')) {
-    view.mode = 'detail'; view.planId = open.dataset.open; render(); return;
+/* ---------- 启动 ---------- */
+async function refreshTrips() {
+  trips = await store.listTrips();
+}
+
+async function bootStore() {
+  try {
+    const idb = await openTripStore({ driver: createIdbDriver() });
+    await idb.getMeta('__probe'); // 真正打开一次数据库，隐私模式下会在这里失败
+    store = idb;
+  } catch {
+    store = await openTripStore({ driver: createMemoryDriver() });
+    storeWarn = '当前浏览器无法使用本地数据库（可能处于隐私模式），本次修改不会保存';
   }
-  const del = e.target.closest('[data-del]');
-  if (del) {
-    plans = plans.filter(x => x.id !== del.dataset.del);
-    persistPlans();
-    render(); toast('已删除'); return;
+}
+
+async function runMigration() {
+  try {
+    let checkins = {};
+    try { checkins = loadCheckins() || {}; } catch { checkins = {}; }
+    const rep = await store.migrateLegacy({ plans: planLoad.plans || [], checkins, points: cache.pts });
+    if (rep.ran) {
+      const p = rep.plans ? `旧计划 ${rep.plans.plans} 份→${rep.plans.trips} 份行程` : '';
+      const c = rep.checkins ? `打卡 ${rep.checkins.visits} 条→历史记录` : '';
+      toast(`已迁移：${[p, c].filter(Boolean).join('，')}`);
+    } else if (rep.reasons && rep.reasons.length) {
+      toast('旧数据迁移未完成：' + rep.reasons[0]);
+    }
+  } catch (err) {
+    toast('旧数据迁移失败：' + err.message);
   }
-  const exp = e.target.closest('[data-export]');
-  if (exp) { const p = plans.find(x => x.id === exp.dataset.export); if (p) exportMd(p); }
-});
+  const saved = await store.getMeta('migration:report').catch(() => null);
+  ambiguities = (saved && Array.isArray(saved.ambiguities) ? saved.ambiguities : []).filter(a => a && a.itemId);
+}
 
 (async () => {
   const [pts, rts, mt] = await Promise.all([
@@ -325,7 +718,13 @@ $app.addEventListener('click', e => {
     fetch('./data/meta.json').then(r => r.json()),
     loadAiInfo(),
   ]);
-  cache.pts = pts; cache.rts = rts; meta = mt;
+  cache.pts = Array.isArray(pts) ? pts : (pts.points || []);
+  cache.rts = Array.isArray(rts) ? rts : (rts.routes || []);
+  meta = mt;
+  pointsById = new Map(cache.pts.map(p => [p.id, p]));
+  await bootStore();
+  await runMigration();
+  await refreshTrips();
   render();
 })().catch(err => {
   $app.innerHTML = `<div class="pl-empty">⚠️ 加载失败：${esc(err.message)}</div>`;

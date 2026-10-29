@@ -64,7 +64,7 @@ const readme = read('README.md');
 // 5) CI 必须跑新增的质量门（防止只在本地跑、CI 悄悄退化）
 {
   const ci = read(' .github/workflows/check.yml'.trim());
-  const required = ['test-plan-engine.mjs', 'test-plan-store.mjs', 'test-trip-schema.mjs', 'test-trip-migrate.mjs', 'test-trip-store.mjs', 'sw-policy-test.mjs', 'check-doc-facts.mjs'];
+  const required = ['test-plan-engine.mjs', 'test-plan-store.mjs', 'test-trip-schema.mjs', 'test-trip-migrate.mjs', 'test-trip-edit.mjs', 'test-trip-store.mjs', 'sw-policy-test.mjs', 'check-doc-facts.mjs'];
   const missing = required.filter(f => !ci.includes(f));
   if (!missing.length) ok('CI 覆盖计划/Trip/SW/文档事实质量门');
   else fail(`CI 缺少质量门：${missing.join('、')}`);

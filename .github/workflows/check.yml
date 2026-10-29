@@ -33,11 +33,12 @@ jobs:
           node tools/test-plan-engine.mjs
           node tools/test-plan-store.mjs
 
-      # 2.7) Trip v2：schema 契约、旧计划/打卡迁移（零丢失 + 歧义队列）、存储与导入
+      # 2.7) Trip v2：schema 契约、旧计划/打卡迁移（零丢失 + 歧义队列）、编辑操作、存储与导入
       - name: Trip v2 测试
         run: |
           node tools/test-trip-schema.mjs
           node tools/test-trip-migrate.mjs
+          node tools/test-trip-edit.mjs
           node tools/test-trip-store.mjs
 
       # 2.8) SW 缓存策略：外壳覆盖全部页面 + 瓦片白名单与实际底图一致

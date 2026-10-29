@@ -12,7 +12,7 @@
 - ✅ **打卡清单**（`list.html`）：按城市分组的打卡进度
 - 📝 **旅行笔记**（`notes.html`）：Markdown 笔记
 - 📷 **相册**（`album.html`）：旅行照片（内容筹备中）
-- 🤖 **日程计划**（`plan.html`）：接入腾讯云 TokenHub 的 AI 行程生成，朋友也可限时使用
+- 🤖 **行程计划**（`plan.html`）：规则引擎离线生成 / AI 生成，生成后逐日编辑（加点位、排序、改期、撤销），数据存在本机 IndexedDB，可导出 JSON 备份与 Markdown
 - 👥 **朋友投稿 / 协作管理**（`friend.html` / `account.html`）：朋友可提交点位与笔记，管理员审核
 
 ## 技术栈

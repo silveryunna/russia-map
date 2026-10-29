@@ -94,7 +94,7 @@ async function renderAISettings(body) {
         <button class="pl-btn small danger" id="fa-clear">清除（回到站内通道）</button>
       </div>
       <div class="fr-note" id="fa-result"></div>
-      <div class="fr-note">配置后，日程计划页的 AI 生成将走你自己的接口（OpenAI 兼容格式），不占用本站次数；密钥随账号保存在服务器，任何接口都不会回显明文。模型名旁的价格为 TokenHub 刊例快照（2026-10-27）。</div>
+      <div class="fr-note">配置后，行程计划页的 AI 生成将走你自己的接口（OpenAI 兼容格式），不占用本站次数；密钥随账号保存在服务器，任何接口都不会回显明文。模型名旁的价格为 TokenHub 刊例快照（2026-10-27）。</div>
     </div>`;
   const selVal = () => {
     const s = document.getElementById('fa-model-sel');

@@ -1,4 +1,4 @@
-// Playwright 页面冒烟测试（CI 专用）：加载 map.html（桌面+手机）与 plan.html（规则引擎全流程），抓白屏类错误并截图
+// Playwright 页面冒烟测试（CI 专用）：加载 map.html（桌面+手机）与 plan.html（Trip v2 生成→编辑→刷新恢复）
 // CI: SMOKE_DEPS=/tmp/smoke node tools/smoke-test.mjs
 // 依赖 playwright 不在仓库内安装，CI 里装到 /tmp/smoke 后通过 SMOKE_DEPS 指向
 import { createRequire } from 'node:module';
@@ -37,29 +37,90 @@ async function probe(name, viewport, shot) {
   await page.close();
 }
 
+// 计划页现在是 Trip v2 编辑器：生成 → 落 IndexedDB → 排序/撤销 → 刷新恢复
 async function probePlan(name, viewport, shot) {
   const page = await browser.newPage({ viewport });
   const errors = [];
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
   page.on('console', m => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
   await page.goto(`${BASE}/plan.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
-  await page.evaluate(() => localStorage.removeItem('travel-plans-v1'));
+
+  // 清空旧计划与本地数据库（直接清 store，避免 deleteDatabase 被已打开的连接阻塞）
+  await page.evaluate(async () => {
+    localStorage.removeItem('travel-plans-v1');
+    localStorage.removeItem('travel-checkin-v2');
+    const db = await new Promise(res => {
+      const r = indexedDB.open('travel-trips');
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => res(null);
+    });
+    if (!db || !db.objectStoreNames.length) return;
+    const names = [...db.objectStoreNames];
+    await new Promise(res => {
+      const t = db.transaction(names, 'readwrite');
+      names.forEach(n => t.objectStore(n).clear());
+      t.oncomplete = res;
+      t.onerror = res;
+    });
+    db.close();
+  });
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForSelector('#pl-new', { timeout: 30000 });
-  ok(`${name} 计划页渲染`, true);
+  ok(`${name} 行程页渲染`, true);
+
+  const readTrips = () => page.evaluate(async () => {
+    const db = await new Promise((res, rej) => { const r = indexedDB.open('travel-trips'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+    const list = await new Promise((res, rej) => {
+      const t = db.transaction('trips', 'readonly');
+      const r = t.objectStore('trips').getAll();
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    });
+    db.close();
+    return list;
+  });
+
   await page.click('#pl-new');
   await page.waitForSelector('#pl-gen-rule', { timeout: 15000 });
+  await page.fill('#pl-date', '2026-11-01');
   const days = await page.inputValue('#pl-days').catch(() => '');
   ok(`${name} 新建表单可选天数`, Number(days) >= 1, `days=${days}`);
   await page.click('#pl-gen-rule');
   await page.waitForSelector('.pl-day', { timeout: 20000 });
   const dayCount = await page.locator('.pl-day').count();
-  ok(`${name} 规则引擎生成行程`, dayCount > 0, `${dayCount} 天`);
-  const stored = await page.evaluate(() => localStorage.getItem('travel-plans-v1'));
-  ok(`${name} 计划写入带 schemaVersion 的信封`, !!stored && /"schemaVersion"/.test(stored) && /"plans"/.test(stored));
+  const itemCount = await page.locator('.tr-item').count();
+  ok(`${name} 规则引擎生成行程`, dayCount > 0 && itemCount > 0, `${dayCount} 天 / ${itemCount} 项`);
+
+  const stored = await readTrips();
+  ok(`${name} 行程写入 IndexedDB（schemaVersion 2）`,
+    stored.length === 1 && stored[0].schemaVersion === 2 && stored[0].days.length === dayCount,
+    `${stored.length} 份 / rev ${stored[0] && stored[0].revision}`);
+
+  // 排序 → 撤销
+  const firstDay = page.locator('.pl-day').first();
+  const namesBefore = await firstDay.locator('.tr-name').allTextContents();
+  await firstDay.locator('[data-dn]').first().click();
+  await page.waitForTimeout(400);
+  const namesAfter = await firstDay.locator('.tr-name').allTextContents();
+  ok(`${name} 点位可下移重排`, namesAfter[0] === namesBefore[1] && namesAfter[1] === namesBefore[0], `${namesBefore.slice(0, 2)} → ${namesAfter.slice(0, 2)}`);
+  await page.click('#tr-undo');
+  await page.waitForTimeout(400);
+  const namesUndo = await firstDay.locator('.tr-name').allTextContents();
+  ok(`${name} 撤销恢复顺序`, namesUndo[0] === namesBefore[0], namesUndo.slice(0, 2).join(' / '));
+
+  // 刷新后完整恢复
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('.pl-card', { timeout: 20000 });
+  const cards = await page.locator('.pl-card').count();
+  ok(`${name} 刷新后行程仍在列表`, cards === 1, `${cards} 份`);
+  await page.locator('.pl-card [data-open]').first().click();
+  await page.waitForSelector('.pl-day', { timeout: 20000 });
+  const itemsAfterReload = await page.locator('.tr-item').count();
+  ok(`${name} 刷新后逐日内容完整`, itemsAfterReload === itemCount, `${itemsAfterReload} 项`);
+
   const fatal = errors.filter(e => /SyntaxError|JSON\.parse|is not defined/i.test(e));
-  ok(`${name} 计划页无致命 JS 错误`, fatal.length === 0, fatal[0] || '');
-  if (errors.length) console.log(`  [${name} 计划页全部 console 错误]`, JSON.stringify(errors.slice(0, 5)));
+  ok(`${name} 行程页无致命 JS 错误`, fatal.length === 0, fatal[0] || '');
+  if (errors.length) console.log(`  [${name} 行程页全部 console 错误]`, JSON.stringify(errors.slice(0, 5)));
   await page.screenshot({ path: shot, fullPage: false });
   await page.close();
 }

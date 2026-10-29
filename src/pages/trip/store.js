@@ -210,7 +210,13 @@ export async function openTripStore({ driver = createMemoryDriver(), now = () =>
       await setMeta(META_CHECKINS_MIGRATED, { at: now(), stats: visitResult.stats });
       report.checkins = visitResult.stats;
     }
-    await setMeta(META_MIGRATION_REPORT, { at: now(), plans: report.plans, checkins: report.checkins, ambiguities: report.ambiguities.length });
+    await setMeta(META_MIGRATION_REPORT, {
+      at: now(),
+      plans: report.plans,
+      checkins: report.checkins,
+      ambiguityCount: report.ambiguities.length,
+      ambiguities: report.ambiguities.slice(0, 300),
+    });
     return { ...report, ran: true };
   }
 
