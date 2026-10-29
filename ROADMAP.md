@@ -534,6 +534,21 @@ P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协
 7. IndexedDB 存储、JSON 备份/恢复、基础撤销。
 8. 建立莫斯科样板数据集：优先真实动线覆盖的 30–50 个核心点位。
 
+### 进度（2026-10-29）
+
+| 工作项 | 状态 | 落到哪里 |
+|---|---|---|
+| 1 schema + 版本 | 🟡 契约完成，UI 未接 | `src/pages/trip/schema.js`：Trip/Day/Item/Visit 工厂 + 枚举 + 日期工具 + `validateTrip`（反例覆盖非法枚举、日期不连续、天数与跨度不一致、重复 id、visit 缺 placeId 未标记） |
+| 2 placeId 迁移 | 🟡 计划侧完成，routes 未改 | `src/pages/trip/migrate.js`：名称精确匹配 → `refId`；同名进歧义队列（带候选 id）；未知名保留 `placeNameSnapshot` + `needs_confirm`，零丢弃 |
+| 3 Trip CRUD / 加点位 / 排序 | ⬜ 未开始 | — |
+| 4 无日期 / 改期 / 多城 | 🟡 数据层支持 | `dateMode: relative` 无日期行程；`cities[]` + `TripDay.city` 多城市扩展位；改期策略（`shift_all` / `keep_bookings`）未实现 |
+| 5 旧计划迁移 | ✅ 逻辑+测试完成，未接页面 | `migratePlansV1`；迁移前原始 localStorage 原文备份进 IndexedDB `meta`，校验不过则零写入 |
+| 6 打卡 → Visit | ✅ 逻辑+测试完成，未接页面 | `migrateCheckinsToVisits`：次数完整保留（仅最后一次带日期/感想），非法日期标 `unknown`，不伪造 |
+| 7 IndexedDB / 备份 | 🟡 存储层完成 | `src/pages/trip/store.js`：IDB/内存双驱动、revision、`exportAll`/`importAll`（merge 按 revision、replace）、删行程解绑 Visit 不删回忆；基础撤销未做 |
+| 8 莫斯科样板数据 | ⬜ 未开始 | — |
+
+测试：`tools/test-trip-schema.mjs`（18 项）、`test-trip-migrate.mjs`（25 项）、`test-trip-store.mjs`（19 项），已进 `npm test` 与 CI。
+
 ### 莫斯科样板数据门槛
 
 - 100% 有稳定 ID、坐标精度与来源；
