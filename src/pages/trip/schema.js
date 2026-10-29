@@ -6,6 +6,7 @@
 //   Trip.origin              生成来源与旧计划 id（可追溯，不影响业务逻辑）
 //   TripDay.note             当天的提示（旧计划 tip 的落点）
 //   TripDay.startTime/endTime 当天可用的钟点窗口（HH:MM，默认 09:00–21:00；旧数据缺失按默认处理）
+//   TripDay.transportMode    transit|taxi（打车优先＝用更高费用换时间，费用未建模）
 //   ItineraryItem.period     morning|afternoon|evening|''（旧计划的时段信息，不塞进 startLocal）
 //   ItineraryItem.placeNameSnapshot  点位改名/删除后仍能读出当时的名字
 //   ItineraryItem.confirm    ok|needs_confirm（名称迁移歧义待人工确认，不静默丢弃）
@@ -22,6 +23,7 @@ export const PLANNED_STATUS = ['planned', 'done', 'skipped', 'moved'];
 export const FLEXIBILITY = ['fixed', 'flexible', 'optional'];
 export const CONFIRM_STATUS = ['ok', 'needs_confirm'];
 export const VISIT_SOURCES = ['manual', 'legacy-checkin', 'plan'];
+export const DAY_TRANSPORT_MODES = ['transit', 'taxi'];
 // 新字段对旧数据保持"缺失按默认"兼容，因此不升 schemaVersion：旧备份与旧 IndexedDB 记录仍可读写
 export const DAY_TIME_DEFAULTS = { startTime: '09:00', endTime: '21:00' };
 
@@ -93,6 +95,7 @@ export function createDay(input = {}, idFn = defaultId) {
     city: typeof input.city === 'string' ? input.city : '',
     startTime: isTimeString(input.startTime) ? input.startTime : DAY_TIME_DEFAULTS.startTime,
     endTime: isTimeString(input.endTime) ? input.endTime : DAY_TIME_DEFAULTS.endTime,
+    transportMode: DAY_TRANSPORT_MODES.includes(input.transportMode) ? input.transportMode : 'transit',
     note: typeof input.note === 'string' ? input.note : '',
     items: Array.isArray(input.items) ? input.items : [],
   };
@@ -189,6 +192,9 @@ export function validateTrip(trip) {
     if (day.endTime !== undefined && !isTimeString(day.endTime)) err(`${p}.endTime`, 'time', 'endTime 必须是 HH:MM');
     if (isTimeString(day.startTime) && isTimeString(day.endTime) && day.endTime <= day.startTime) {
       err(`${p}.endTime`, 'range', 'endTime 必须晚于 startTime');
+    }
+    if (day.transportMode !== undefined && !DAY_TRANSPORT_MODES.includes(day.transportMode)) {
+      err(`${p}.transportMode`, 'enum', 'transportMode 必须是 transit 或 taxi');
     }
     if (!Array.isArray(day.items)) return err(`${p}.items`, 'type', 'items 必须是数组');
     day.items.forEach((item, ii) => {

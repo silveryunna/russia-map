@@ -37,9 +37,11 @@ export function evaluateSoft({ day, result, items = [], places = null, interests
   }
 
   let metroLegs = 0;
+  let taxiLegs = 0;
   let walkMinutes = 0;
   for (const r of rows) {
     if (r.mode === 'metro') metroLegs += 1;
+    if (r.mode === 'taxi') taxiLegs += 1;
     if (r.mode === 'walk') walkMinutes += r.transitMinutes || 0;
   }
 
@@ -78,6 +80,7 @@ export function evaluateSoft({ day, result, items = [], places = null, interests
   return {
     reversals,
     metroLegs,
+    taxiLegs,
     walkMinutes,
     longestStretchMinutes: longestStretch,
     endSlackMinutes,

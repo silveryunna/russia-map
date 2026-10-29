@@ -5,6 +5,7 @@ import { evaluateDay, formatMinutes, formatMinutesCrossDay } from './plan/feasib
 import { buildDayRail } from './plan/timeline.js';
 import { planAutoTrim } from './plan/repair.js';
 import { evaluateSoft } from './plan/soft.js';
+import { suggestAlternatives } from './plan/alternatives.js';
 import { loadPlans } from './plan/store.js';
 import { loadCheckins } from '../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
@@ -13,7 +14,7 @@ import { tripItemCount } from './trip/schema.js';
 import {
   addDay, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip, insertItemAt,
   itemDateConflicts, moveItemAfter, moveItemToDay, moveItemWithinDay, removeDay, removeItem,
-  setDateMode, setDayNote, setDayWindow, setItemDuration, setItemMustVisit, setItemPinnedStart,
+  replaceItemPlace, setDateMode, setDayNote, setDayTransportMode, setDayWindow, setItemDuration, setItemMustVisit, setItemPinnedStart,
   shiftTripStart, splitStartLocal, updateTrip,
 } from './trip/edit.js';
 
@@ -406,6 +407,22 @@ function feasibilityLine(d, res) {
     </div>`;
 }
 
+function planBAlternatives(it, limit = 2) {
+  const place = it.refId ? pointsById.get(it.refId) : null;
+  if (!place) return [];
+  const used = new Set();
+  for (const d of current.days) for (const x of d.items) if (x.refId) used.add(x.refId);
+  return suggestAlternatives({ target: place, points: cache.pts, usedIds: used, limit });
+}
+
+function alternativesHtml(it) {
+  const alts = planBAlternatives(it);
+  if (!alts.length) return '';
+  return `<div class="tr-planb"><span>Plan B</span>${alts.map(a =>
+    `<button class="tr-fix" data-alt-item="${esc(it.id)}" data-alt-place="${esc(a.point.id)}">换「${esc(a.point.name)}」${a.distance ? ` · ${(a.distance / 1000).toFixed(1)}km` : ''}</button>`
+  ).join('')}</div>`;
+}
+
 function effectiveDuration(it) {
   if (Number.isFinite(it.estimatedDuration)) return it.estimatedDuration;
   const place = it.refId ? pointsById.get(it.refId) : null;
@@ -428,7 +445,7 @@ function itemPanelHtml(it, di, withOps = false) {
   return `
     <div class="tr-item-panel">
       <label class="tr-panel-field">锁定时点
-        <input type="time" data-pin-time="${esc(it.id)}" value="${esc(pinned)}" ${hasBooking ? 'disabled' : ''} aria-label="锁定时点">
+        <input type="time" data-pin-time="${esc(it.id)}" value="${esc(pinned)}" ${hasBooking ? 'disabled' : ''} name="pin-time" aria-label="锁定时点">
       </label>
       <button class="pl-btn small" data-pin-clear="${esc(it.id)}" ${pinned && !hasBooking ? '' : 'disabled'}>清除</button>
       <span class="tr-seg" role="group" aria-label="必去或可删">
@@ -444,6 +461,7 @@ function itemPanelHtml(it, di, withOps = false) {
       </span>
       <span class="tr-panel-hint">${hasBooking ? `已按预订 ${esc(booking.time)} 锁定，锁时字段不生效` : (pinned ? '按锁定时刻排程' : '留空＝跟随前一站顺排')}</span>
       ${ops}
+      ${alternativesHtml(it)}
     </div>`;
 }
 
@@ -453,6 +471,7 @@ function softLine(d, res, interests) {
   const chips = [];
   if (s.reversals) chips.push(`<span class="tr-soft-chip ${s.reversals > 1 ? 'warn' : ''}" title="相邻两段方向接近掉头的次数">↩ 折返 ${s.reversals}</span>`);
   if (s.metroLegs) chips.push(`<span class="tr-soft-chip" title="地铁段数（含进出站时间）">🚇 换乘 ${s.metroLegs} 段</span>`);
+  if (s.taxiLegs) chips.push(`<span class="tr-soft-chip" title="打车段数；费用未建模">🚕 打车 ${s.taxiLegs} 段</span>`);
   if (interests.length) {
     chips.push(`<span class="tr-soft-chip ${s.interest.matched === 0 ? 'warn' : ''}" title="所选兴趣命中的点位">🎯 兴趣 ${s.interest.matched}/${s.interest.total}</span>`);
   }
@@ -565,13 +584,31 @@ function fixBar(d, di, res) {
     if (lastEnd > 0 && lastEnd < 1440) {
       acts.push(`<button class="tr-fix" data-extend="${di}" data-end="${lastEnd}">收工延到 ${formatMinutesCrossDay(lastEnd)}</button>`);
     }
+    if ((d.transportMode || 'transit') !== 'taxi') {
+      const taxi = evaluateDay({
+        day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
+        options: { start: d.startTime, end: d.endTime, transportMode: 'taxi' },
+      });
+      const saved = res.stats.transitMinutes - taxi.stats.transitMinutes;
+      if (saved > 0) acts.push(`<button class="tr-fix" data-day-taxi="${di}">打车优先（通行省 ${saved}m，费用未知）</button>`);
+    }
   }
   const unpinned = new Set();
   const movedNext = new Set();
+  const planBShown = new Set();
   for (const c of res.conflicts) {
     if (c.kind === 'duplicate-place' && c.itemId) {
       const it = d.items.find(i => i.id === c.itemId);
       if (it) acts.push(`<button class="tr-fix danger" data-remove-item="${esc(it.id)}">删掉重复「${esc(itemName(it))}」</button>`);
+    }
+    if (c.kind === 'closed' && c.itemId && !planBShown.has(c.itemId)) {
+      const it = d.items.find(i => i.id === c.itemId);
+      if (it) {
+        planBShown.add(it.id);
+        for (const a of planBAlternatives(it, 2)) {
+          acts.push(`<button class="tr-fix" data-alt-item="${esc(it.id)}" data-alt-place="${esc(a.point.id)}">Plan B「${esc(a.point.name)}」</button>`);
+        }
+      }
     }
     if (c.kind === 'overlap' && c.itemId) {
       const idx = res.timeline.findIndex(t => t.itemId === c.itemId);
@@ -610,7 +647,7 @@ function renderEditor() {
   const pending = countNeedsConfirm(t);
   const dayRes = new Map(t.days.map(d => [d.id, evaluateDay({
     day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
-    options: { start: d.startTime, end: d.endTime },
+    options: { start: d.startTime, end: d.endTime, transportMode: d.transportMode || 'transit' },
   })]));
   const tripInterests = Array.isArray(t.origin && t.origin.interests) ? t.origin.interests : [];
   $app.innerHTML = `
@@ -650,9 +687,13 @@ function renderEditor() {
         </div>
         <div class="tr-window">
           <span class="tr-window-label">⏱ 当天窗口</span>
-          <input type="time" data-window-start="${di}" value="${esc(d.startTime || '09:00')}" aria-label="Day ${d.index} 出发时间">
+          <input type="time" data-window-start="${di}" value="${esc(d.startTime || '09:00')}" name="day-start" aria-label="Day ${d.index} 出发时间">
           <span class="tr-window-sep">–</span>
-          <input type="time" data-window-end="${di}" value="${esc(d.endTime || '21:00')}" aria-label="Day ${d.index} 收工时间">
+          <input type="time" data-window-end="${di}" value="${esc(d.endTime || '21:00')}" name="day-end" aria-label="Day ${d.index} 收工时间">
+          <select class="tr-mode-select" data-day-mode="${di}" name="day-mode" aria-label="Day ${d.index} 交通方式" title="打车优先：用更高费用换时间（费用未建模）">
+            <option value="transit" ${(d.transportMode || 'transit') !== 'taxi' ? 'selected' : ''}>公交优先</option>
+            <option value="taxi" ${d.transportMode === 'taxi' ? 'selected' : ''}>打车优先</option>
+          </select>
         </div>
         ${feasibilityLine(d, dayRes.get(d.id))}
         ${softLine(d, dayRes.get(d.id), tripInterests)}
@@ -813,6 +854,14 @@ function renderEditor() {
     if (moveAfterBtn) { mutate(trip => moveItemAfter(trip, moveAfterBtn.dataset.moveAfter, moveAfterBtn.dataset.anchor)); return; }
     const moveNextBtn = e.target.closest('[data-move-next]');
     if (moveNextBtn) { mutate(trip => moveItemToDay(trip, moveNextBtn.dataset.moveNext, +moveNextBtn.dataset.to)); return; }
+    const taxiBtn = e.target.closest('[data-day-taxi]');
+    if (taxiBtn) { mutate(trip => setDayTransportMode(trip, +taxiBtn.dataset.dayTaxi, 'taxi')); toast('已切换为打车优先（费用未建模）'); return; }
+    const altBtn = e.target.closest('[data-alt-place]');
+    if (altBtn) {
+      const place = pointsById.get(altBtn.dataset.altPlace);
+      if (place) mutate(trip => replaceItemPlace(trip, altBtn.dataset.altItem, place));
+      return;
+    }
     const bind = e.target.closest('[data-bind]');
     if (bind) {
       const it = findItem(bind.dataset.bind);
@@ -843,6 +892,12 @@ function renderEditor() {
       const v = pin.value;
       if (v && !/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) { render(); return; }
       mutate(trip => setItemPinnedStart(trip, pin.dataset.pinTime, v));
+      return;
+    }
+    const modeSel = e.target.closest('[data-day-mode]');
+    if (modeSel) {
+      mutate(trip => setDayTransportMode(trip, +modeSel.dataset.dayMode, modeSel.value));
+      if (modeSel.value === 'taxi') toast('打车优先：用更高费用换时间（费用未建模）');
     }
   };
   $app.onpointerdown = e => {

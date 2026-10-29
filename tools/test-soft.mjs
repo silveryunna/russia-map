@@ -23,7 +23,7 @@ const timeline = [
   { itemId: 'i2', placeId: 'p2', start: 720, end: 810, duration: 90, transitMinutes: 10, mode: 'metro' },
   { itemId: 'i3', placeId: 'p3', start: 820, end: 880, duration: 60, transitMinutes: 10, mode: 'walk' },
   { itemId: 'm1', placeId: null, start: 880, end: 940, duration: 60, transitMinutes: 0, mode: 'none' },
-  { itemId: 'i4', placeId: 'p4', start: 950, end: 1010, duration: 60, transitMinutes: 10, mode: 'walk' },
+  { itemId: 'i4', placeId: 'p4', start: 950, end: 1010, duration: 60, transitMinutes: 10, mode: 'taxi' },
   { itemId: 'b1', placeId: null, start: 1010, end: 1030, duration: 20, transitMinutes: 0, mode: 'none' },
 ];
 const day = { startTime: '09:00', endTime: '21:00' };
@@ -32,7 +32,7 @@ const day = { startTime: '09:00', endTime: '21:00' };
 {
   const s = evaluateSoft({ day, result: { timeline }, items, places, interests: ['摄影', '美食'] });
   assert(s.reversals === 1, '先北后南的一次掉头被识别为折返');
-  assert(s.metroLegs === 1 && s.walkMinutes === 20, '地铁段与步行分钟正确');
+  assert(s.metroLegs === 1 && s.walkMinutes === 10 && s.taxiLegs === 1, '地铁/步行/打车段分别统计');
   assert(s.longestStretchMinutes === 230, '用餐/休息会打断连续活动');
   assert(s.endSlackMinutes === 230, '收工留白按窗口结束减最后收工');
   assert(s.middayPhoto === 1, '12:00–15:00 的观景/摄影点被标出');

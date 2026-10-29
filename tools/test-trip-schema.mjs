@@ -65,6 +65,12 @@ const idFn = (p) => `${p}${++seq}`;
   const badWin = createDay({ startTime: '9:00', endTime: '25:00' }, idFn);
   if (badWin.startTime === DAY_TIME_DEFAULTS.startTime && badWin.endTime === DAY_TIME_DEFAULTS.endTime) ok('createDay 非法钟点回落默认');
   else fail('createDay 非法钟点未回落：' + JSON.stringify(badWin));
+  if (d.transportMode === 'transit') ok('createDay 默认公交优先');
+  else fail('createDay 默认交通方式错误：' + d.transportMode);
+  const taxiDay = createDay({ transportMode: 'taxi' }, idFn);
+  const badModeDay = createDay({ transportMode: 'rocket' }, idFn);
+  if (taxiDay.transportMode === 'taxi' && badModeDay.transportMode === 'transit') ok('createDay 交通方式校验');
+  else fail('createDay 交通方式回落错误');
 
   const i = createItem({ type: 'transit', refId: 'p1', order: 0, estimatedDuration: 30.6, period: 'morning' }, idFn);
   if (i.type === 'transit' && i.estimatedDuration === 31 && i.period === 'morning' && i.confirm === 'ok') ok('createItem 类型/时长取整/时段');
@@ -138,6 +144,7 @@ const idFn = (p) => `${p}${++seq}`;
     ['pinnedStart 非法', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), pinnedStart: '25:00' }); }), 'time'],
     ['estimatedDuration 为 0', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), estimatedDuration: 0 }); }), 'duration'],
     ['estimatedDuration 超上限', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), estimatedDuration: 721 }); }), 'duration'],
+    ['transportMode 非法', mk(t => { t.days[0].transportMode = 'rocket'; }), 'enum'],
   ];
   const wrong = [];
   for (const [label, r, code] of cases) {

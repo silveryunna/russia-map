@@ -9,6 +9,7 @@ export const TRANSIT = {
   walkRadiusMeters: 1200,    // 1.2km 内默认步行
   metroOverheadMinutes: 10,  // 进站/候车/换乘/出站
   metroMPerMin: 500,         // 30 km/h 门到门均速
+  taxiOverheadMinutes: 5,    // 打车：叫车/上下车，费用未建模
 };
 
 export const DEFAULT_DAY = { start: '09:00', end: '21:00' };
@@ -44,14 +45,22 @@ export function distanceMeters(a, b) {
   return Math.round(2 * R * Math.asin(Math.min(1, Math.sqrt(h))));
 }
 
-// 两站之间的通行估算；同一点位返回 0，缺坐标返回 null（调用方据此报冲突，而不是当成 0 分钟）
-export function estimateLeg(from, to) {
+// 两站之间的通行估算；options.mode='taxi' 时用打车口径（省进出站时间，费用未知）
+export function estimateLeg(from, to, options = {}) {
   if (!from || !to) return null;
   if (from.id && to.id && from.id === to.id) return { meters: 0, minutes: 0, mode: 'walk', source: 'estimate' };
   const meters = distanceMeters(from, to);
   if (meters === null) return null;
   if (meters <= TRANSIT.walkRadiusMeters) {
     return { meters, minutes: Math.ceil(meters / TRANSIT.walkSpeedMPerMin), mode: 'walk', source: 'estimate' };
+  }
+  if (options.mode === 'taxi') {
+    return {
+      meters,
+      minutes: TRANSIT.taxiOverheadMinutes + Math.ceil(meters / TRANSIT.metroMPerMin),
+      mode: 'taxi',
+      source: 'estimate',
+    };
   }
   return {
     meters,
@@ -144,6 +153,7 @@ function placeOf(places, id) {
 export function evaluateDay({ day = {}, items = [], places = null, options = {} } = {}) {
   const dayStart = parseMinutes(options.start || DEFAULT_DAY.start) ?? 540;
   const dayEnd = parseMinutes(options.end || DEFAULT_DAY.end) ?? 1260;
+  const transportMode = options.transportMode === 'taxi' ? 'taxi' : 'transit';
   const date = typeof day.date === 'string' ? day.date : '';
 
   const conflicts = [];
@@ -179,7 +189,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       const closesLoop = item === lastResolvable && firstResolvable && seen.size >= 2
         && placeOf(places, firstResolvable.refId)?.id === place.id;
       if (closesLoop) {
-        const leg = prevPlace ? estimateLeg(prevPlace, place) : null;
+        const leg = prevPlace ? estimateLeg(prevPlace, place, { mode: transportMode }) : null;
         if (leg) transit += leg.minutes;
         push('loop-closure', 'warn', item.id, `「${name}」是回到起点的闭合回路，只计通行不计停留`, {
           backMinutes: leg ? leg.minutes : 0,
@@ -204,7 +214,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       continue;
     }
 
-    const leg = place && prevPlace ? estimateLeg(prevPlace, place) : null;
+    const leg = place && prevPlace ? estimateLeg(prevPlace, place, { mode: transportMode }) : null;
     if (place && prevPlace && !leg) {
       push('missing-coords', 'error', item.id, `「${name}」或上一站没有坐标，无法估算通行时间`);
       continue;

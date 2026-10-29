@@ -117,6 +117,7 @@ async function probePlan(name, viewport, shot) {
   await page.locator('.tl-block').first().click();
   await page.waitForSelector('.tr-item-panel', { timeout: 5000 });
   ok(`${name} 时间轴点选打开控件面板`, await page.locator('.tr-item-panel').count() === 1, '');
+  ok(`${name} Plan B 候选可见`, await page.locator('.tr-planb [data-alt-place]').count() > 0, '');
   const dragBlock = page.locator('.tl-block').nth(1);
   await dragBlock.scrollIntoViewIfNeeded();
   const dragBox = await dragBlock.boundingBox();
@@ -164,6 +165,13 @@ async function probePlan(name, viewport, shot) {
   const rest = withRest[0].days[0].items.find(i => i.type === 'break');
   ok(`${name} 休息快捷插入`, !!rest && rest.estimatedDuration === 20 && rest.mustVisit === false,
     rest ? `${rest.placeNameSnapshot}/${rest.estimatedDuration}m` : '');
+  const modeSel = page.locator('[data-day-mode="0"]').first();
+  if (await modeSel.count()) {
+    await modeSel.selectOption('taxi');
+    await page.waitForTimeout(500);
+    const withTaxi = await readTrips();
+    ok(`${name} 交通预算可切打车`, withTaxi[0].days[0].transportMode === 'taxi', withTaxi[0].days[0].transportMode || '');
+  }
 
   const fatal = errors.filter(e => /SyntaxError|JSON\.parse|is not defined/i.test(e));
   ok(`${name} 行程页无致命 JS 错误`, fatal.length === 0, fatal[0] || '');

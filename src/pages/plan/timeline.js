@@ -8,7 +8,7 @@ export const TL_TYPE_COLORS = {
   '演出': '#A8577E', '水上巴士': '#4A7E96', '纪念地': '#8A8272', '公园': '#6C8C4A',
   '地铁站': '#6B7B8C', '观景台': '#B08A4A', '文学地标': '#8A6A4A', '交通': '#9A9A9A', '休息': '#7A9AA8',
 };
-const MODE_LABEL = { walk: '步行', metro: '地铁' };
+const MODE_LABEL = { walk: '步行', metro: '地铁', taxi: '打车' };
 
 // 轨道上的小时刻度用连续时间（24:00、25:00），避免跨日刻度与 00:00 混淆
 function railHourLabel(minutes) {

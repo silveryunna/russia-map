@@ -179,6 +179,23 @@ const it = (id, refId, extra = {}) => ({
     '无点位休息块同样可排程');
 }
 
+// ── 3.4) 打车优先（交通预算：用费用换时间）──
+{
+  const A = P('ta', '远 A', 55.75, 37.61, { estimatedDuration: 60 });
+  const B = P('tb', '远 B', 55.70, 37.50, { estimatedDuration: 60 });
+  const farPlaces = new Map([['ta', A], ['tb', B]]);
+  const items = [it('i1', 'ta'), it('i2', 'tb')];
+  const metroLeg = estimateLeg(A, B);
+  const taxiLeg = estimateLeg(A, B, { mode: 'taxi' });
+  assert(taxiLeg.mode === 'taxi' && taxiLeg.minutes === metroLeg.minutes - 5,
+    '打车比地铁少 5 分钟进出站（费用未建模）');
+  const opts = { start: '19:00', end: '21:25' };
+  const metro = evaluateDay({ day: { id: 'd', date: '2026-11-10' }, items, places: farPlaces, options: opts });
+  const taxi = evaluateDay({ day: { id: 'd', date: '2026-11-10' }, items, places: farPlaces, options: { ...opts, transportMode: 'taxi' } });
+  assert(!metro.feasible && metro.conflicts.some((c) => c.kind === 'day-overrun'), '公共交通口径下这一天超时');
+  assert(taxi.feasible && taxi.timeline[1].mode === 'taxi', '切到打车优先后同一窗口可行');
+}
+
 // ── 4) 闭馆日：报错 + 有修复建议 ──
 {
   const r = evaluateDay({ day: { id: 'd', date: '2026-11-09' }, items: [it('i1', 'p4')], places });

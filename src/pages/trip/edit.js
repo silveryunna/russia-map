@@ -3,7 +3,7 @@
 // 零丢失原则：删天不删点位（转入相邻天），解绑歧义点位不删条目。
 
 import {
-  DAY_TIME_DEFAULTS, addDays, createDay, createItem, diffDays, isDateString, isTimeString,
+  DAY_TIME_DEFAULTS, DAY_TRANSPORT_MODES, addDays, createDay, createItem, diffDays, isDateString, isTimeString,
 } from './schema.js';
 
 const clone = v => (v === undefined ? v : JSON.parse(JSON.stringify(v)));
@@ -34,6 +34,7 @@ export function normalizeTrip(trip) {
     else day.date = '';
     day.startTime = isTimeString(day.startTime) ? day.startTime : DAY_TIME_DEFAULTS.startTime;
     day.endTime = isTimeString(day.endTime) ? day.endTime : DAY_TIME_DEFAULTS.endTime;
+    day.transportMode = DAY_TRANSPORT_MODES.includes(day.transportMode) ? day.transportMode : 'transit';
     if (!Array.isArray(day.items)) day.items = [];
     day.items.forEach((item, ii) => {
       item.order = ii;
@@ -202,6 +203,31 @@ export function setItemMustVisit(trip, itemId, mustVisit) {
   const hit = findDay(next, itemId);
   if (!hit) return normalizeTrip(next);
   hit.day.items[hit.idx].mustVisit = mustVisit;
+  return normalizeTrip(next);
+}
+
+// transit=公共交通估算；taxi=打车优先（用更高费用换时间，费用未建模）
+export function setDayTransportMode(trip, dayIndex, mode) {
+  const next = clone(trip);
+  if (!DAY_TRANSPORT_MODES.includes(mode)) return normalizeTrip(next);
+  const day = next.days[dayIndex];
+  if (!day) return normalizeTrip(trip);
+  day.transportMode = mode;
+  return normalizeTrip(next);
+}
+
+// Plan B：替换条目绑定的点位，并回到该点位的默认停留时长
+export function replaceItemPlace(trip, itemId, place) {
+  const next = clone(trip);
+  if (!isObj(place) || typeof place.id !== 'string' || !place.id) return normalizeTrip(trip);
+  const hit = findDay(next, itemId);
+  if (!hit) return normalizeTrip(next);
+  const item = hit.day.items[hit.idx];
+  item.refId = place.id;
+  item.confirm = 'ok';
+  item.placeNameSnapshot = typeof place.name === 'string' ? place.name : '';
+  item.estimatedDuration = null;
+  if (typeof place.city === 'string' && place.city && !next.cities.includes(place.city)) next.cities.push(place.city);
   return normalizeTrip(next);
 }
 

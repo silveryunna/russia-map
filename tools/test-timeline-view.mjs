@@ -93,5 +93,20 @@ const row = (itemId, start, duration, extra = {}) => ({
     '休息时间块用休息色且时长正确');
 }
 
+// 6) 打车段标签
+{
+  const rail = buildDayRail({
+    day,
+    items: [{ id: 'a' }, { id: 'b' }],
+    result: {
+      timeline: [
+        row('a', 540, 60),
+        row('b', 620, 60, { transitMinutes: 20, mode: 'taxi' }),
+      ],
+    },
+  });
+  assert(rail.legs[0].label === '打车 20m' && rail.legs[0].showLabel, '打车段按打车标签显示');
+}
+
 if (bad) { console.error(`\n${bad} 项时间轴几何测试失败`); process.exit(1); }
 console.log('\n时间轴视图质量门通过');

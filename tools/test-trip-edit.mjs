@@ -4,8 +4,9 @@
 import {
   addDay, addItem, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip, insertItemAt,
   itemDateConflicts, joinLocal, moveItemAfter, moveItemToDay, moveItemWithinDay, normalizeTrip,
-  removeDay, removeItem, setDateMode, setDayNote, setDayWindow, setItemDuration,
-  setItemMustVisit, setItemPinnedStart, shiftTripStart, splitStartLocal, updateTrip,
+  removeDay, removeItem, replaceItemPlace, setDateMode, setDayNote, setDayTransportMode,
+  setDayWindow, setItemDuration, setItemMustVisit, setItemPinnedStart, shiftTripStart,
+  splitStartLocal, updateTrip,
 } from '../src/pages/trip/edit.js';
 import { createDay, createItem, createTrip, validateTrip } from '../src/pages/trip/schema.js';
 
@@ -186,6 +187,26 @@ const keep = (t, label) => { validAll.push({ t, label }); return t; };
   });
   if (legacyPin.days[0].items.every(it => it.pinnedStart === '')) ok('缺 pinnedStart 的旧条目按未锁定处理');
   else fail('旧条目 pinnedStart 默认值错误');
+  const taxi = keep(setDayTransportMode(fixture(), 0, 'taxi'), 'setTransportMode');
+  if (taxi.days[0].transportMode === 'taxi') ok('当天可切到打车优先');
+  else fail('交通方式未写入');
+  if (setDayTransportMode(taxi, 0, 'rocket').days[0].transportMode === 'taxi') ok('非法交通方式被拒绝');
+  else fail('非法交通方式被接受');
+  const legacyMode = normalizeTrip({ ...fixture(), days: fixture().days.map(({ transportMode, ...d }) => d) });
+  if (legacyMode.days.every(d => d.transportMode === 'transit')) ok('旧数据默认公交优先');
+  else fail('旧数据交通方式默认值错误');
+
+  const withDur = normalizeTrip({
+    ...fixture(),
+    days: fixture().days.map((d, i) => (i ? d : { ...d, items: d.items.map(x => (x.id === 'i1' ? { ...x, estimatedDuration: 90 } : x)) })),
+  });
+  const replaced = keep(replaceItemPlace(withDur, 'i1', P3), 'replacePlace');
+  const ri = replaced.days[0].items.find(x => x.id === 'i1');
+  if (ri.refId === 'p003' && ri.placeNameSnapshot === '冬宫' && ri.estimatedDuration === null && replaced.cities.includes('圣彼得堡')) {
+    ok('Plan B 替换点位并恢复默认停留');
+  } else fail('Plan B 替换字段错误：' + JSON.stringify(ri));
+  if (replaceItemPlace(replaced, 'i1', null).days[0].items.find(x => x.id === 'i1').refId === 'p003') ok('非法 Plan B 被拒绝');
+  else fail('非法 Plan B 被接受');
   const legacyItem = normalizeTrip({
     ...fixture(),
     days: fixture().days.map((d, i) => (i === 0 ? { ...d, items: d.items.map(({ mustVisit, ...it }) => it) } : d)),
