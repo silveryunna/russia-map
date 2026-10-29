@@ -100,6 +100,9 @@
 .tr-step { border: 1px solid #E8E2D5; background: #fff; border-radius: 7px; min-height: 26px; padding: 0 7px; font-size: 11px; color: #5D5340; cursor: pointer; }
 .tr-step.reset { border-color: #E0C983; color: #8A6A1F; }
 .tr-step:disabled { opacity: .4; cursor: default; }
+.tr-fixbar { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; margin: -4px 0 8px; font-size: 10px; color: #B0A897; }
+.tr-fix { border: 1px solid #E0C983; background: #FFF8E1; color: #8A6A1F; border-radius: 999px; padding: 4px 10px; font-size: 11px; cursor: pointer; min-height: 30px; }
+.tr-fix.danger { border-color: #E8C4C0; background: #FDF1F0; color: #B13B3B; }
 .tr-panel-hint { font-size: 10px; color: #B0A897; }
 .tr-ops { margin-left: auto; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 .tr-icon { width: 30px; height: 30px; padding: 0; border: 1px solid #E8E2D5; border-radius: 8px; background: #fff; color: #5D5340; font-size: 13px; cursor: pointer; }
@@ -109,6 +112,7 @@
 .tr-day-empty { font-size: 12px; color: #B0A897; padding: 6px 8px; }
 .tr-feas { display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline; font-size: 12px; color: #5C5347; background: #F6F4EE; border-radius: 6px; padding: 6px 8px; margin: 0 0 8px; }
 .tr-feas.is-bad { background: #FDF1F0; color: #9B2C2C; }
+.tr-feas.is-warn { background: #FFF8E1; color: #8A6A1F; }
 .tr-feas-chips { display: flex; flex-wrap: wrap; gap: 4px; width: 100%; }
 .tr-day-ops { display: flex; flex-wrap: wrap; gap: 8px; }
 

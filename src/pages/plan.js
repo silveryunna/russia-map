@@ -3,6 +3,7 @@ import './plan.css';
 import { INTERESTS, PLAN_DAYS_MAX, clampDays, ruleEngine } from './plan/engine.js';
 import { evaluateDay, formatMinutes, formatMinutesCrossDay } from './plan/feasibility.js';
 import { buildDayRail } from './plan/timeline.js';
+import { planAutoTrim } from './plan/repair.js';
 import { loadPlans } from './plan/store.js';
 import { loadCheckins } from '../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
@@ -385,16 +386,19 @@ const FEAS_LABEL = {
 function feasibilityLine(d, res) {
   if (!res || res.empty) return '';
   const errs = res.errors;
+  const warns = res.conflicts.filter(c => c.severity === 'warn' && c.kind !== 'hours-unknown');
+  const lead = errs[0] || warns[0];
   const unknown = res.stats.unknownHours;
   const start = formatMinutesCrossDay(res.timeline[0].arrive);
   const end = formatMinutesCrossDay(res.timeline[res.timeline.length - 1].end);
   const dwell = (res.stats.dwellMinutes / 60).toFixed(1);
   const chips = errs.slice(0, 3).map(c => `<span class="tr-chip danger">${FEAS_LABEL[c.kind] || c.kind}</span>`).join('')
     + (errs.length > 3 ? `<span class="tr-chip danger">+${errs.length - 3}</span>` : '')
+    + (warns.length ? `<span class="tr-chip warn">${warns.length} 条提示</span>` : '')
     + (unknown ? `<span class="tr-chip">${unknown} 处开放时间未知</span>` : '');
-  return `<div class="tr-feas ${errs.length ? 'is-bad' : ''}">
+  return `<div class="tr-feas ${errs.length ? 'is-bad' : warns.length ? 'is-warn' : ''}">
       <span>⏱ 预计 ${start}–${end} · 停留 ${dwell}h · 通行 ${res.stats.transitMinutes}m</span>
-      <span>${errs.length ? `⚠️ ${errs[0].message}` : '✅ 硬约束通过'}</span>
+      <span>${lead ? `${errs.length ? '⚠️' : '🔔'} ${lead.message}` : '✅ 硬约束通过'}</span>
       ${chips ? `<div class="tr-feas-chips">${chips}</div>` : ''}
     </div>`;
 }
@@ -522,6 +526,33 @@ function timelineDayHtml(d, di, res) {
     </div>`;
 }
 
+function fixBar(d, di, res) {
+  const acts = [];
+  if (res.errors.some(c => c.kind === 'day-overrun')) {
+    acts.push(`<button class="tr-fix" data-trim="${di}">⚡ 自动减负</button>`);
+    const lastEnd = res.timeline.length ? res.timeline[res.timeline.length - 1].end : 0;
+    if (lastEnd > 0 && lastEnd < 1440) {
+      acts.push(`<button class="tr-fix" data-extend="${di}" data-end="${lastEnd}">收工延到 ${formatMinutesCrossDay(lastEnd)}</button>`);
+    }
+  }
+  const unpinned = new Set();
+  for (const c of res.conflicts) {
+    if (c.kind === 'duplicate-place' && c.itemId) {
+      const it = d.items.find(i => i.id === c.itemId);
+      if (it) acts.push(`<button class="tr-fix danger" data-remove-item="${esc(it.id)}">删掉重复「${esc(itemName(it))}」</button>`);
+    }
+    if ((c.kind === 'late-start' || c.kind === 'overlap') && c.itemId) {
+      const it = d.items.find(i => i.id === c.itemId);
+      if (it && it.pinnedStart && !unpinned.has(it.id)) {
+        unpinned.add(it.id);
+        acts.push(`<button class="tr-fix" data-unpin-item="${esc(it.id)}">解锁「${esc(itemName(it))}」</button>`);
+      }
+    }
+  }
+  if (!acts.length) return '';
+  return `<div class="tr-fixbar"><span>可执行修复</span>${acts.join('')}</div>`;
+}
+
 function renderEditor() {
   const t = current;
   const col = meta.cityColors[(t.cities || [])[0]] || '#B71C1C';
@@ -574,6 +605,7 @@ function renderEditor() {
           <input type="time" data-window-end="${di}" value="${esc(d.endTime || '21:00')}" aria-label="Day ${d.index} 收工时间">
         </div>
         ${feasibilityLine(d, dayRes.get(d.id))}
+        ${fixBar(d, di, dayRes.get(d.id))}
         ${view.layout === 'timeline' ? timelineDayHtml(d, di, dayRes.get(d.id)) : (d.items.length ? d.items.map((it, ii) => {
           const cf = conflictByItem.get(it.id);
           return `
@@ -698,6 +730,31 @@ function renderEditor() {
       mutate(trip => setItemDuration(trip, it.id, next));
       return;
     }
+    const trim = e.target.closest('[data-trim]');
+    if (trim) {
+      const di = +trim.dataset.trim;
+      const d = current.days[di];
+      if (!d) return;
+      const plan = planAutoTrim({ day: d, items: d.items, places: pointsById });
+      if (!plan.dropIds.length) { toast('没有可删条目：把某条设为「可删」，或延长收工'); return; }
+      mutate(trip => plan.dropIds.reduce((t, id) => removeItem(t, id), trip));
+      toast(`已移除 ${plan.dropIds.length} 项${plan.resolved ? '，硬约束通过' : '，仍超时'}`);
+      return;
+    }
+    const extend = e.target.closest('[data-extend]');
+    if (extend) {
+      const di = +extend.dataset.extend;
+      const d = current.days[di];
+      const end = Number(extend.dataset.end);
+      if (!d || !Number.isFinite(end) || end >= 1440) return;
+      mutate(trip => setDayWindow(trip, di, { startTime: d.startTime || '09:00', endTime: formatMinutes(end) }));
+      toast(`收工线已延到 ${formatMinutes(end)}`);
+      return;
+    }
+    const removeFix = e.target.closest('[data-remove-item]');
+    if (removeFix) { mutate(trip => removeItem(trip, removeFix.dataset.removeItem)); return; }
+    const unpinFix = e.target.closest('[data-unpin-item]');
+    if (unpinFix) { mutate(trip => setItemPinnedStart(trip, unpinFix.dataset.unpinItem, '')); return; }
     const bind = e.target.closest('[data-bind]');
     if (bind) {
       const it = findItem(bind.dataset.bind);

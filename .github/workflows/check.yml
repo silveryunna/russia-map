@@ -45,11 +45,12 @@ jobs:
           node tools/test-trip-edit.mjs
           node tools/test-trip-store.mjs
 
-      # 2.7.1) P2 可行性引擎：硬约束、未知时间处理、修复建议、确定性 + 时间轴几何 + 真实动线验收
+      # 2.7.1) P2 可行性引擎：硬约束、未知时间处理、修复建议、确定性 + 时间轴几何 + 自动减负 + 真实动线验收
       - name: 可行性引擎测试
         run: |
           node tools/test-feasibility.mjs
           node tools/test-timeline-view.mjs
+          node tools/test-repair.mjs
           node tools/check-route-feasibility.mjs ./data
 
       # 2.8) SW 缓存策略：外壳覆盖全部页面 + 瓦片白名单与实际底图一致
