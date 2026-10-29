@@ -6,6 +6,7 @@ import { buildDayRail } from './plan/timeline.js';
 import { planAutoTrim } from './plan/repair.js';
 import { evaluateSoft } from './plan/soft.js';
 import { suggestAlternatives } from './plan/alternatives.js';
+import { optimizeDayOrder } from './plan/solver.js';
 import { loadPlans } from './plan/store.js';
 import { loadCheckins } from '../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
@@ -14,7 +15,7 @@ import { tripItemCount } from './trip/schema.js';
 import {
   addDay, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip, insertItemAt,
   itemDateConflicts, moveItemAfter, moveItemToDay, moveItemWithinDay, removeDay, removeItem,
-  replaceItemPlace, setDateMode, setDayNote, setDayTransportMode, setDayWindow, setItemDuration, setItemMustVisit, setItemPinnedStart,
+  reorderDay, replaceItemPlace, setDateMode, setDayNote, setDayTransportMode, setDayWindow, setItemDuration, setItemMustVisit, setItemPinnedStart,
   shiftTripStart, splitStartLocal, updateTrip,
 } from './trip/edit.js';
 
@@ -465,7 +466,7 @@ function itemPanelHtml(it, di, withOps = false) {
     </div>`;
 }
 
-function softLine(d, res, interests) {
+function softLine(d, di, res, interests) {
   if (!res || res.empty) return '';
   const s = evaluateSoft({ day: d, result: res, items: d.items, places: pointsById, interests });
   const chips = [];
@@ -478,6 +479,11 @@ function softLine(d, res, interests) {
   if (s.middayPhoto) chips.push(`<span class="tr-soft-chip warn" title="12:00–15:00 的摄影/观景点，光线通常最硬">📷 正午摄影 ${s.middayPhoto}</span>`);
   if (s.longestStretchMinutes) chips.push(`<span class="tr-soft-chip ${s.longestStretchMinutes > 240 ? 'warn' : ''}" title="两次用餐/休息之间最长的连续活动时间">🧗 连续 ${fmtSpan(s.longestStretchMinutes)}</span>`);
   if (s.endSlackMinutes > 0) chips.push(`<span class="tr-soft-chip" title="收工线前的剩余时间">🛋 留白 ${fmtSpan(s.endSlackMinutes)}</span>`);
+  const movable = d.items.filter(it => it.type === 'visit' && it.flexibility !== 'fixed'
+    && !it.pinnedStart && !it.startLocal);
+  if (res.timeline.length >= 2 && movable.length >= 2) {
+    chips.push(`<button class="tr-soft-action" data-optimize="${di}" title="按折返/通行/摄影/连续活动做确定性顺序搜索">✨ 优化顺序</button>`);
+  }
   return chips.length ? `<div class="tr-soft">${chips.join('')}</div>` : '';
 }
 
@@ -696,7 +702,7 @@ function renderEditor() {
           </select>
         </div>
         ${feasibilityLine(d, dayRes.get(d.id))}
-        ${softLine(d, dayRes.get(d.id), tripInterests)}
+        ${softLine(d, di, dayRes.get(d.id), tripInterests)}
         ${fixBar(d, di, dayRes.get(d.id))}
         ${view.layout === 'timeline' ? timelineDayHtml(d, di, dayRes.get(d.id)) : (d.items.length ? d.items.map((it, ii) => {
           const cf = conflictByItem.get(it.id);
@@ -860,6 +866,18 @@ function renderEditor() {
     if (altBtn) {
       const place = pointsById.get(altBtn.dataset.altPlace);
       if (place) mutate(trip => replaceItemPlace(trip, altBtn.dataset.altItem, place));
+      return;
+    }
+    const optimizeBtn = e.target.closest('[data-optimize]');
+    if (optimizeBtn) {
+      const di = +optimizeBtn.dataset.optimize;
+      const d = current.days[di];
+      if (!d) return;
+      const r = optimizeDayOrder({ day: d, items: d.items, places: pointsById, interests: tripInterests });
+      if (!r.improved) { toast('当前顺序在折返/通行/摄影/时段上已是最优'); return; }
+      mutate(trip => reorderDay(trip, di, r.order));
+      const periodPart = r.beforePeriods !== r.afterPeriods ? `时段 ${r.beforePeriods}→${r.afterPeriods}，` : '';
+      toast(`顺序已优化：${periodPart}折返 ${r.before.soft.reversals}→${r.after.soft.reversals}，通行 ${r.before.result.stats.transitMinutes}→${r.after.result.stats.transitMinutes}m`);
       return;
     }
     const bind = e.target.closest('[data-bind]');

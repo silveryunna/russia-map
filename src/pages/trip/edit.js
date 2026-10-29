@@ -147,6 +147,19 @@ export function moveItemAfter(trip, itemId, anchorId) {
   return normalizeTrip(next);
 }
 
+// 按给定 id 顺序重排一天；集合必须与现有条目完全一致
+export function reorderDay(trip, dayIndex, orderedIds) {
+  const next = clone(trip);
+  const day = next.days[dayIndex];
+  if (!day || !Array.isArray(day.items)) return normalizeTrip(trip);
+  if (!Array.isArray(orderedIds) || orderedIds.length !== day.items.length) return normalizeTrip(trip);
+  const byId = new Map(day.items.map(i => [i.id, i]));
+  const ordered = orderedIds.map(id => byId.get(id));
+  if (ordered.some(x => !x) || new Set(orderedIds).size !== orderedIds.length) return normalizeTrip(trip);
+  day.items = ordered;
+  return normalizeTrip(next);
+}
+
 export function moveItemToDay(trip, itemId, toDayIndex) {
   const next = clone(trip);
   const hit = findDay(next, itemId);

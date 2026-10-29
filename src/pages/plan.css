@@ -108,6 +108,7 @@
 .tr-soft { display: flex; flex-wrap: wrap; gap: 5px; margin: -4px 0 8px; }
 .tr-soft-chip { font-size: 10px; background: #F6F4EE; color: #6B6252; border-radius: 999px; padding: 3px 8px; font-variant-numeric: tabular-nums; }
 .tr-soft-chip.warn { background: #FFF8E1; color: #8A6A1F; }
+.tr-soft-action { border: 1px solid #E0C983; background: #FFF8E1; color: #8A6A1F; border-radius: 999px; padding: 3px 9px; font-size: 10px; cursor: pointer; }
 .tr-panel-hint { font-size: 10px; color: #B0A897; }
 .tr-ops { margin-left: auto; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 .tr-icon { width: 30px; height: 30px; padding: 0; border: 1px solid #E8E2D5; border-radius: 8px; background: #fff; color: #5D5340; font-size: 13px; cursor: pointer; }

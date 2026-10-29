@@ -96,6 +96,7 @@ async function probePlan(name, viewport, shot) {
     stored.length === 1 && stored[0].schemaVersion === 2 && stored[0].days.length === dayCount,
     `${stored.length} 份 / rev ${stored[0] && stored[0].revision}`);
   ok(`${name} 软目标行渲染`, await page.locator('.tr-soft').count() > 0, '');
+  ok(`${name} 顺序求解入口可见`, await page.locator('[data-optimize]').count() > 0, '');
 
   // 排序 → 撤销
   const firstDay = page.locator('.pl-day').first();

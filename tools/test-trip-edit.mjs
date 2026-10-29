@@ -4,7 +4,7 @@
 import {
   addDay, addItem, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip, insertItemAt,
   itemDateConflicts, joinLocal, moveItemAfter, moveItemToDay, moveItemWithinDay, normalizeTrip,
-  removeDay, removeItem, replaceItemPlace, setDateMode, setDayNote, setDayTransportMode,
+  removeDay, removeItem, reorderDay, replaceItemPlace, setDateMode, setDayNote, setDayTransportMode,
   setDayWindow, setItemDuration, setItemMustVisit, setItemPinnedStart, shiftTripStart,
   splitStartLocal, updateTrip,
 } from '../src/pages/trip/edit.js';
@@ -128,6 +128,11 @@ const keep = (t, label) => { validAll.push({ t, label }); return t; };
   const crossAnchor = moveItemAfter(fixture(), 'i1', 'i3');
   if (crossAnchor.days[0].items.map(i => i.id).join(',') === 'i1,i2') ok('跨天锚点不做移动');
   else fail('跨天锚点被移动');
+  const reordered = keep(reorderDay(fixture(), 0, ['i2', 'i1']), 'reorderDay');
+  if (reordered.days[0].items.map(i => i.id).join(',') === 'i2,i1') ok('可按求解结果重排一天');
+  else fail('重排失败');
+  if (reorderDay(fixture(), 0, ['i1']).days[0].items.map(i => i.id).join(',') === 'i1,i2') ok('非法重排集合被拒绝');
+  else fail('非法重排被接受');
   const del = keep(removeItem(fixture(), 'i1'), 'removeItem');
   if (del.days[0].items.length === 1 && del.days[0].items[0].order === 0) ok('删除点位后重排 order');
   else fail('删除点位失败');
