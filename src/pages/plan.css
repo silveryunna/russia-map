@@ -95,6 +95,11 @@
 .tr-seg { display: inline-flex; border: 1px solid #E8E2D5; border-radius: 999px; overflow: hidden; }
 .tr-seg button { border: none; background: #fff; color: #8A8272; font-size: 11px; padding: 5px 10px; cursor: pointer; }
 .tr-seg button.on { background: #B71C1C; color: #fff; }
+.tr-dwell-edit { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; color: #8A8272; }
+.tr-dwell-edit b { min-width: 34px; text-align: center; color: #454034; font-size: 12px; font-variant-numeric: tabular-nums; }
+.tr-step { border: 1px solid #E8E2D5; background: #fff; border-radius: 7px; min-height: 26px; padding: 0 7px; font-size: 11px; color: #5D5340; cursor: pointer; }
+.tr-step.reset { border-color: #E0C983; color: #8A6A1F; }
+.tr-step:disabled { opacity: .4; cursor: default; }
 .tr-panel-hint { font-size: 10px; color: #B0A897; }
 .tr-ops { margin-left: auto; display: flex; align-items: center; gap: 4px; flex-shrink: 0; }
 .tr-icon { width: 30px; height: 30px; padding: 0; border: 1px solid #E8E2D5; border-radius: 8px; background: #fff; color: #5D5340; font-size: 13px; cursor: pointer; }

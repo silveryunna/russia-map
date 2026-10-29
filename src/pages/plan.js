@@ -9,9 +9,9 @@ import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store
 import { migratePlansV1 } from './trip/migrate.js';
 import { tripItemCount } from './trip/schema.js';
 import {
-  addDay, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip,
+  addDay, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip, insertItemAt,
   itemDateConflicts, moveItemToDay, moveItemWithinDay, removeDay, removeItem,
-  setDateMode, setDayNote, setDayWindow, setItemMustVisit, setItemPinnedStart,
+  setDateMode, setDayNote, setDayWindow, setItemDuration, setItemMustVisit, setItemPinnedStart,
   shiftTripStart, splitStartLocal, updateTrip,
 } from './trip/edit.js';
 
@@ -399,10 +399,17 @@ function feasibilityLine(d, res) {
     </div>`;
 }
 
+function effectiveDuration(it) {
+  if (Number.isFinite(it.estimatedDuration)) return it.estimatedDuration;
+  const place = it.refId ? pointsById.get(it.refId) : null;
+  return place && Number.isFinite(place.estimatedDuration) ? place.estimatedDuration : null;
+}
+
 function itemPanelHtml(it, di, withOps = false) {
   const booking = splitStartLocal(it.startLocal);
   const hasBooking = !!booking.date;
   const pinned = it.pinnedStart || '';
+  const duration = effectiveDuration(it);
   const day = current.days[di];
   const idx = day ? day.items.findIndex(x => x.id === it.id) : -1;
   const last = day ? day.items.length - 1 : 0;
@@ -421,6 +428,13 @@ function itemPanelHtml(it, di, withOps = false) {
         <button class="${it.mustVisit !== false ? 'on' : ''}" data-must="${esc(it.id)}" data-must-value="1">必去</button>
         <button class="${it.mustVisit === false ? 'on' : ''}" data-must="${esc(it.id)}" data-must-value="0">可删</button>
       </span>
+      <span class="tr-dwell-edit" role="group" aria-label="停留时长">
+        <span>停留</span>
+        <button class="tr-step" data-dwell="${esc(it.id)}" data-step="-15" ${!duration || duration <= 15 ? 'disabled' : ''}>−15</button>
+        <b>${duration ? duration + 'm' : '未设'}</b>
+        <button class="tr-step" data-dwell="${esc(it.id)}" data-step="15" ${duration && duration >= 720 ? 'disabled' : ''}>+15</button>
+        ${it.estimatedDuration != null ? `<button class="tr-step reset" data-dwell="${esc(it.id)}" data-step="reset">恢复默认</button>` : ''}
+      </span>
       <span class="tr-panel-hint">${hasBooking ? `已按预订 ${esc(booking.time)} 锁定，锁时字段不生效` : (pinned ? '按锁定时刻排程' : '留空＝跟随前一站顺排')}</span>
       ${ops}
     </div>`;
@@ -431,6 +445,33 @@ function unplacedReason(it) {
   if (it.type === 'note' || it.type === 'task') return '不参与排程';
   if (it.plannedStatus === 'skipped') return '已跳过';
   return '缺时长或坐标';
+}
+
+// 午餐预留：在 0…n 个插入位里试排，选开始时间最接近 12:30 的位置
+function addLunch(di) {
+  const day = current.days[di];
+  if (!day) return;
+  const id = `meal_${Date.now().toString(36)}`;
+  const patch = {
+    id, type: 'meal', refId: null, placeNameSnapshot: '午餐（预留）',
+    mustVisit: false, estimatedDuration: 60, confirm: 'ok',
+  };
+  let bestIdx = day.items.length;
+  let bestDiff = Infinity;
+  for (let idx = 0; idx <= day.items.length; idx += 1) {
+    const trial = [...day.items.slice(0, idx), { ...patch }, ...day.items.slice(idx)];
+    const res = evaluateDay({
+      day: { id: day.id, date: day.date }, items: trial, places: pointsById,
+      options: { start: day.startTime, end: day.endTime },
+    });
+    const row = res.timeline.find(t => t.itemId === id);
+    if (!row) continue;
+    const diff = Math.abs(row.start - (12 * 60 + 30));
+    if (diff < bestDiff) { bestDiff = diff; bestIdx = idx; }
+  }
+  view.sel = id;
+  mutate(trip => insertItemAt(trip, di, bestIdx, patch));
+  toast('已插入 60 分钟午餐预留（可删，可改停留）');
 }
 
 function timelineDayHtml(d, di, res) {
@@ -556,6 +597,7 @@ function renderEditor() {
         }).join('') : '<div class="tr-day-empty">这一天还没有安排</div>')}
         <div class="tr-day-ops">
           <button class="pl-btn small" data-add="${di}">＋ 加点位</button>
+          <button class="pl-btn small" data-lunch="${di}">🍽 午餐 60m</button>
           <button class="pl-btn small" data-note="${di}">📝 ${d.note ? '改备注' : '加备注'}</button>
           ${t.days.length > 1 ? `<button class="pl-btn small danger" data-delday="${di}">删除这天</button>` : ''}
         </div>
@@ -620,6 +662,8 @@ function renderEditor() {
     if (pick) { pickPlace(pick.dataset.pick); return; }
     const add = e.target.closest('[data-add]');
     if (add) { view.picker = { mode: 'add', dayIndex: +add.dataset.add, q: '', city: (current.cities || [])[0] || '' }; render(); const q = document.getElementById('tr-q'); if (q) q.focus(); return; }
+    const lunch = e.target.closest('[data-lunch]');
+    if (lunch) { addLunch(+lunch.dataset.lunch); return; }
     const note = e.target.closest('[data-note]');
     if (note) {
       const di = +note.dataset.note;
@@ -644,6 +688,16 @@ function renderEditor() {
     if (pinClear) { mutate(trip => setItemPinnedStart(trip, pinClear.dataset.pinClear, '')); return; }
     const must = e.target.closest('[data-must]');
     if (must) { mutate(trip => setItemMustVisit(trip, must.dataset.must, must.dataset.mustValue === '1')); return; }
+    const dwellBtn = e.target.closest('[data-dwell]');
+    if (dwellBtn) {
+      const it = findItem(dwellBtn.dataset.dwell);
+      if (!it) return;
+      const cur = effectiveDuration(it);
+      const step = dwellBtn.dataset.step;
+      const next = step === 'reset' ? null : cur ? clampNum(cur + Number(step), 15, 720) : 30;
+      mutate(trip => setItemDuration(trip, it.id, next));
+      return;
+    }
     const bind = e.target.closest('[data-bind]');
     if (bind) {
       const it = findItem(bind.dataset.bind);

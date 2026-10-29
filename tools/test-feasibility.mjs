@@ -151,6 +151,29 @@ const it = (id, refId, extra = {}) => ({
     '晚到发生在次日 → 提示同样带次日标记');
 }
 
+// ── 3.3) 无点位的就餐预留（就地时间块）──
+{
+  const meal = it('m1', null, { type: 'meal', placeNameSnapshot: '午餐（预留）', estimatedDuration: 60, mustVisit: false });
+  const r = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('i1', 'p1'), meal, it('i2', 'p2')],
+    places,
+  });
+  assert(r.errors.length === 0 && r.timeline.length === 3, '无点位餐食块可排程，不报未绑定');
+  const m = r.timeline[1];
+  assert(m.placeId === null && m.duration === 60 && m.calendar === 'none', '餐食块不参与点位与日历统计');
+  assert(formatMinutes(m.start) === formatMinutes(r.timeline[0].end) && m.end === m.start + 60, '餐食块顺接上一站并占用时长');
+  const direct = estimateLeg(places.get('p1'), places.get('p2'));
+  assert(r.timeline[2].transitMinutes === direct.minutes, '餐食块不切断前后站的通行估算');
+  assert(r.stats.places === 2 && r.stats.unknownHours === 2, '点位/未知日历统计不含餐食块');
+  const missing = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('m1', null, { type: 'meal', placeNameSnapshot: '午餐（预留）' })],
+    places,
+  });
+  assert(missing.conflicts.some((c) => c.kind === 'missing-duration'), '餐食块缺停留时长仍报错');
+}
+
 // ── 4) 闭馆日：报错 + 有修复建议 ──
 {
   const r = evaluateDay({ day: { id: 'd', date: '2026-11-09' }, items: [it('i1', 'p4')], places });

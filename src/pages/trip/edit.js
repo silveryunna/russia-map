@@ -96,6 +96,18 @@ export function addItem(trip, dayIndex, patch = {}, idFn) {
   return normalizeTrip(next);
 }
 
+// 在指定位置插入条目（午餐预留等），index 越界时夹到两端
+export function insertItemAt(trip, dayIndex, index, patch = {}, idFn) {
+  const next = clone(trip);
+  const day = next.days[dayIndex];
+  if (!day) return normalizeTrip(trip);
+  const item = createItem({ ...patch, dayId: day.id }, idFn);
+  if (item.type === 'visit' && !item.refId) item.confirm = 'needs_confirm';
+  const at = Math.max(0, Math.min(day.items.length, Number.isInteger(index) ? index : day.items.length));
+  day.items.splice(at, 0, item);
+  return normalizeTrip(next);
+}
+
 export function removeItem(trip, itemId) {
   const next = clone(trip);
   for (const day of next.days) {
@@ -183,6 +195,16 @@ export function setItemPinnedStart(trip, itemId, value) {
   const hit = findDay(next, itemId);
   if (!hit) return normalizeTrip(next);
   hit.day.items[hit.idx].pinnedStart = value;
+  return normalizeTrip(next);
+}
+
+// 覆盖点位默认停留时长；null 表示恢复用点位数据里的默认值
+export function setItemDuration(trip, itemId, minutes) {
+  const next = clone(trip);
+  if (minutes !== null && (!Number.isInteger(minutes) || minutes <= 0 || minutes > 720)) return normalizeTrip(next);
+  const hit = findDay(next, itemId);
+  if (!hit) return normalizeTrip(next);
+  hit.day.items[hit.idx].estimatedDuration = minutes;
   return normalizeTrip(next);
 }
 

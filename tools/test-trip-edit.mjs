@@ -2,10 +2,10 @@
 // Trip v2 编辑操作质量门（CI 强制）：每个操作的结果都必须能通过 validateTrip
 // 用法: node tools/test-trip-edit.mjs
 import {
-  addDay, addItem, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip,
+  addDay, addItem, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip, insertItemAt,
   itemDateConflicts, joinLocal, moveItemToDay, moveItemWithinDay, normalizeTrip,
-  removeDay, removeItem, setDateMode, setDayNote, setDayWindow, setItemMustVisit,
-  setItemPinnedStart, shiftTripStart, splitStartLocal, updateTrip,
+  removeDay, removeItem, setDateMode, setDayNote, setDayWindow, setItemDuration,
+  setItemMustVisit, setItemPinnedStart, shiftTripStart, splitStartLocal, updateTrip,
 } from '../src/pages/trip/edit.js';
 import { createDay, createItem, createTrip, validateTrip } from '../src/pages/trip/schema.js';
 
@@ -74,6 +74,33 @@ const keep = (t, label) => { validAll.push({ t, label }); return t; };
   const booking = keep(addItem(fixture(), 0, { type: 'reservation', flexibility: 'fixed', startLocal: '2026-11-01T19:30', placeNameSnapshot: '马林斯基' }, idFn), 'addBooking');
   if (booking.days[0].items[2].startLocal === '2026-11-01T19:30') ok('预订可带绝对时刻');
   else fail('预订绝对时刻丢失');
+}
+
+// 3.1) 就地改停留 / 定点插入（午餐预留）
+{
+  const dur = keep(setItemDuration(fixture(), 'i1', 90), 'setDuration');
+  if (dur.days[0].items[0].estimatedDuration === 90) ok('条目停留时长可覆盖');
+  else fail('停留时长未写入');
+  if (setItemDuration(dur, 'i1', 0).days[0].items[0].estimatedDuration === 90
+    && setItemDuration(dur, 'i1', 721).days[0].items[0].estimatedDuration === 90) ok('非法停留时长被拒绝');
+  else fail('非法停留时长被接受');
+  const cleared = keep(setItemDuration(dur, 'i1', null), 'clearDuration');
+  if (cleared.days[0].items[0].estimatedDuration === null) ok('null 恢复点位默认停留');
+  else fail('停留时长未恢复默认');
+
+  const ins = keep(insertItemAt(fixture(), 0, 1, {
+    id: 'meal1', type: 'meal', refId: null, placeNameSnapshot: '午餐（预留）',
+    estimatedDuration: 60, mustVisit: false, confirm: 'ok',
+  }, idFn), 'insertLunch');
+  const insIds = ins.days[0].items.map(i => i.id).join(',');
+  if (insIds === 'i1,meal1,i2' && ins.days[0].items[1].order === 1 && ins.days[0].items[2].order === 2) ok('午餐可插入指定位置并重排 order');
+  else fail(`午餐插入位置错误：${insIds}`);
+  if (ins.days[0].items[1].mustVisit === false && ins.days[0].items[1].estimatedDuration === 60
+    && ins.days[0].items[1].confirm === 'ok') ok('午餐预留保持可删/60 分钟/无需确认');
+  else fail('午餐预留字段错误');
+  const tail = keep(insertItemAt(fixture(), 0, 99, { id: 'meal2', type: 'meal', estimatedDuration: 60 }, idFn), 'insertLunchEnd');
+  if (tail.days[0].items[2].id === 'meal2') ok('越界插入落到末尾');
+  else fail('越界插入位置错误');
 }
 
 // 4) 排序 / 跨天移动 / 删除

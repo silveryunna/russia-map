@@ -65,5 +65,22 @@ const row = (itemId, start, duration, extra = {}) => ({
   assert(rail.overrun === null && rail.lastEnd === 540 && rail.height === 962.5, '空白天仍渲染窗口');
 }
 
+// 5) 餐食预留块：餐饮色，不参与未知日历告警
+{
+  const rail = buildDayRail({
+    day,
+    items: [{ id: 'm', type: 'meal', placeType: '餐饮', mustVisit: false }],
+    result: {
+      timeline: [{
+        itemId: 'm', name: '午餐（预留）', start: 600, end: 660, duration: 60,
+        transitMinutes: 0, mode: 'none', calendar: 'none', pinned: false,
+      }],
+    },
+  });
+  const b = rail.blocks[0];
+  assert(b.color === TL_TYPE_COLORS['餐饮'] && b.unknown === false && b.must === false,
+    '餐食时间块用餐饮色且不标未知日历');
+}
+
 if (bad) { console.error(`\n${bad} 项时间轴几何测试失败`); process.exit(1); }
 console.log('\n时间轴视图质量门通过');

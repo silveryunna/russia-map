@@ -143,6 +143,21 @@ async function probePlan(name, viewport, shot) {
   const itemsAfterReload = await page.locator('.tr-item').count();
   ok(`${name} 刷新后逐日内容完整`, itemsAfterReload === itemCount, `${itemsAfterReload} 项`);
 
+  // 午餐快捷插入 + 就地改停留
+  await page.locator('[data-lunch="0"]').first().click();
+  await page.waitForTimeout(700);
+  const withMeal = await readTrips();
+  const meal = withMeal[0].days[0].items.find(i => i.type === 'meal');
+  ok(`${name} 午餐快捷插入`, !!meal && meal.estimatedDuration === 60 && meal.mustVisit === false,
+    meal ? `${meal.placeNameSnapshot}/${meal.estimatedDuration}m` : '');
+  const plus = page.locator('[data-dwell][data-step="15"]').first();
+  if (await plus.count()) {
+    await plus.click();
+    await page.waitForTimeout(600);
+    const afterDwell = await readTrips();
+    ok(`${name} 就地改停留时长`, afterDwell[0].days[0].items.some(i => i.estimatedDuration === 75), '');
+  }
+
   const fatal = errors.filter(e => /SyntaxError|JSON\.parse|is not defined/i.test(e));
   ok(`${name} 行程页无致命 JS 错误`, fatal.length === 0, fatal[0] || '');
   if (errors.length) console.log(`  [${name} 行程页全部 console 错误]`, JSON.stringify(errors.slice(0, 5)));

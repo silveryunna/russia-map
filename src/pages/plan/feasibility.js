@@ -166,12 +166,14 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
   for (const item of list) {
     const place = item.refId ? placeOf(places, item.refId) : null;
     const name = item.placeNameSnapshot || (place && place.name) || item.id || '未命名条目';
+    // 无点位的就餐预留是可排程的"就地时间块"，不是缺数据的错误
+    const blockOnly = !place && item.type === 'meal';
 
-    if (!place) {
+    if (!place && !blockOnly) {
       push('unresolved-place', 'error', item.id, `「${name}」没有绑定点位，无法排程`);
       continue;
     }
-    if (seen.has(place.id)) {
+    if (place && seen.has(place.id)) {
       const closesLoop = item === lastResolvable && firstResolvable && seen.size >= 2
         && placeOf(places, firstResolvable.refId)?.id === place.id;
       if (closesLoop) {
@@ -185,10 +187,10 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       }
       continue;
     }
-    seen.set(place.id, item.id);
+    if (place) seen.set(place.id, item.id);
 
     const duration = Number.isFinite(item.estimatedDuration) ? item.estimatedDuration
-      : Number.isFinite(place.estimatedDuration) ? place.estimatedDuration : null;
+      : place && Number.isFinite(place.estimatedDuration) ? place.estimatedDuration : null;
     if (!duration || duration <= 0) {
       push('missing-duration', 'error', item.id, `「${name}」没有停留时长，排程无法进行`);
       continue;
@@ -200,8 +202,8 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       continue;
     }
 
-    const leg = prevPlace ? estimateLeg(prevPlace, place) : null;
-    if (prevPlace && !leg) {
+    const leg = place && prevPlace ? estimateLeg(prevPlace, place) : null;
+    if (place && prevPlace && !leg) {
       push('missing-coords', 'error', item.id, `「${name}」或上一站没有坐标，无法估算通行时间`);
       continue;
     }
@@ -231,26 +233,29 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       }
     }
 
-    const cal = calendarState(place.openCalendar, date);
-    if (cal.state === 'unknown') {
-      push('hours-unknown', 'warn', item.id, `「${name}」开放时间未知，按宽边界排程（不等于全天开放）`);
-    } else if (cal.state === 'closed') {
-      push('closed', 'error', item.id, `「${name}」${cal.reason}，${date || '当天'}去不了`, { reason: cal.reason });
-    } else {
-      if (arrive < cal.open) {
-        wait += cal.open - arrive;
-        push('before-open', 'warn', item.id, `「${name}」${formatMinutes(cal.open)} 才开门，需等待 ${cal.open - arrive} 分钟`, { opens: formatMinutes(cal.open) });
-        arrive = cal.open;
-      }
-      const lastEntry = cal.lastEntry ?? cal.close;
-      if (arrive > lastEntry) {
-        push('after-last-entry', 'error', item.id, `「${name}」最晚入场 ${formatMinutes(lastEntry)}，实际 ${formatMinutesCrossDay(arrive)} 才到`, {
-          lastEntry: formatMinutes(lastEntry),
-        });
-      } else if (arrive + duration > cal.close) {
-        push('after-close', 'error', item.id, `「${name}」${formatMinutes(cal.close)} 关门，${formatMinutesCrossDay(arrive)} 开始停留 ${duration} 分钟会超时`, {
-          closes: formatMinutes(cal.close),
-        });
+    let cal = { state: 'none' };
+    if (place) {
+      cal = calendarState(place.openCalendar, date);
+      if (cal.state === 'unknown') {
+        push('hours-unknown', 'warn', item.id, `「${name}」开放时间未知，按宽边界排程（不等于全天开放）`);
+      } else if (cal.state === 'closed') {
+        push('closed', 'error', item.id, `「${name}」${cal.reason}，${date || '当天'}去不了`, { reason: cal.reason });
+      } else {
+        if (arrive < cal.open) {
+          wait += cal.open - arrive;
+          push('before-open', 'warn', item.id, `「${name}」${formatMinutes(cal.open)} 才开门，需等待 ${cal.open - arrive} 分钟`, { opens: formatMinutes(cal.open) });
+          arrive = cal.open;
+        }
+        const lastEntry = cal.lastEntry ?? cal.close;
+        if (arrive > lastEntry) {
+          push('after-last-entry', 'error', item.id, `「${name}」最晚入场 ${formatMinutes(lastEntry)}，实际 ${formatMinutesCrossDay(arrive)} 才到`, {
+            lastEntry: formatMinutes(lastEntry),
+          });
+        } else if (arrive + duration > cal.close) {
+          push('after-close', 'error', item.id, `「${name}」${formatMinutes(cal.close)} 关门，${formatMinutesCrossDay(arrive)} 开始停留 ${duration} 分钟会超时`, {
+            closes: formatMinutes(cal.close),
+          });
+        }
       }
     }
 
@@ -258,7 +263,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
     dwell += duration;
     timeline.push({
       itemId: item.id,
-      placeId: place.id,
+      placeId: place ? place.id : null,
       name,
       arrive,
       start: arrive,
@@ -271,7 +276,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       pinned: start.kind === 'absolute' || item.flexibility === 'fixed',
     });
     cursor = end;
-    prevPlace = place;
+    if (place) prevPlace = place;
   }
 
   if (timeline.length && cursor > dayEnd) {
@@ -292,7 +297,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       transitMinutes: transit,
       waitMinutes: wait,
       totalMinutes,
-      places: timeline.length,
+      places: timeline.filter((t) => t.placeId).length,
       unknownHours: timeline.filter((t) => t.calendar === 'unknown').length,
     },
   };

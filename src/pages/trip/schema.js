@@ -99,7 +99,7 @@ export function createDay(input = {}, idFn = defaultId) {
 }
 
 export function createItem(input = {}, idFn = defaultId) {
-  const duration = Number.isFinite(input.estimatedDuration) && input.estimatedDuration >= 0
+  const duration = Number.isFinite(input.estimatedDuration) && input.estimatedDuration > 0 && input.estimatedDuration <= 720
     ? Math.round(input.estimatedDuration) : null;
   return {
     id: input.id || idFn('i'),
@@ -207,6 +207,10 @@ export function validateTrip(trip) {
       if (!PLANNED_STATUS.includes(item.plannedStatus)) err(`${ip}.plannedStatus`, 'enum', 'plannedStatus 非法');
       if (!FLEXIBILITY.includes(item.flexibility)) err(`${ip}.flexibility`, 'enum', 'flexibility 非法');
       if (typeof item.mustVisit !== 'boolean') err(`${ip}.mustVisit`, 'type', 'mustVisit 必须是布尔值');
+      if (item.estimatedDuration !== null && item.estimatedDuration !== undefined
+        && (!Number.isInteger(item.estimatedDuration) || item.estimatedDuration <= 0 || item.estimatedDuration > 720)) {
+        err(`${ip}.estimatedDuration`, 'duration', 'estimatedDuration 必须是 1–720 的整数或 null');
+      }
       if (item.pinnedStart !== undefined && item.pinnedStart !== '' && !isTimeString(item.pinnedStart)) {
         err(`${ip}.pinnedStart`, 'time', 'pinnedStart 必须是 HH:MM 或空串');
       }

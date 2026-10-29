@@ -82,6 +82,10 @@ const idFn = (p) => `${p}${++seq}`;
   const badPin = createItem({ pinnedStart: '9:05' }, idFn);
   if (badPin.pinnedStart === '') ok('createItem 非法锁定时点回落空串');
   else fail('createItem 非法锁定时点未回落：' + badPin.pinnedStart);
+  const durBad = createItem({ estimatedDuration: 0 }, idFn);
+  const durHuge = createItem({ estimatedDuration: 721 }, idFn);
+  if (durBad.estimatedDuration === null && durHuge.estimatedDuration === null) ok('createItem 非法停留时长回落 null');
+  else fail('createItem 停留时长未回落：' + JSON.stringify([durBad.estimatedDuration, durHuge.estimatedDuration]));
 
   const badEnum = createItem({ type: 'nope', flexibility: 'x', plannedStatus: 'y', period: 'z' }, idFn);
   if (badEnum.type === 'visit' && badEnum.flexibility === 'flexible' && badEnum.plannedStatus === 'planned' && badEnum.period === '') ok('createItem 非法枚举回落默认值');
@@ -129,6 +133,8 @@ const idFn = (p) => `${p}${++seq}`;
     ['钟点窗口只写一半', mk(t => { delete t.days[0].endTime; }), 'required'],
     ['mustVisit 非布尔', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), mustVisit: 'yes' }); }), 'type'],
     ['pinnedStart 非法', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), pinnedStart: '25:00' }); }), 'time'],
+    ['estimatedDuration 为 0', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), estimatedDuration: 0 }); }), 'duration'],
+    ['estimatedDuration 超上限', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), estimatedDuration: 721 }); }), 'duration'],
   ];
   const wrong = [];
   for (const [label, r, code] of cases) {
