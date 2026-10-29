@@ -221,18 +221,20 @@ const it = (id, refId, extra = {}) => ({
     ['b1', P('b1', '大馆 1', 55.75, 37.62, { estimatedDuration: 240 })],
     ['b2', P('b2', '大馆 2', 55.76, 37.63, { estimatedDuration: 240 })],
     ['b3', P('b3', '大馆 3', 55.77, 37.64, { estimatedDuration: 240 })],
+    ['b4', P('b4', '大馆 4', 55.78, 37.65, { estimatedDuration: 300 })],
   ]);
   const items = [
     it('i1', 'b1', { mustVisit: true }),
     it('i2', 'b2'),
     it('i3', 'b3', { flexibility: 'fixed' }),
+    it('i4', 'b4', { pinnedStart: '22:00' }),
   ];
   const r = evaluateDay({ day: { date: '2026-11-10' }, items, places: big });
   const over = r.conflicts.find((c) => c.kind === 'day-overrun');
   assert(!r.feasible && over && over.severity === 'error', '12 小时点位 + 通行超出 09:00–21:00 → day-overrun');
   const fixes = suggestFixes(r, { items });
   const drop = fixes.find((f) => f.kind === 'drop');
-  assert(drop && /大馆 2/.test(drop.label), '修复建议跳过必去/固定项，优先删最长的可删项');
+  assert(drop && /大馆 2/.test(drop.label), '修复建议跳过必去/固定/已锁定项，优先删最长的自由可删项');
 }
 
 // ── 9) 确定性：同输入两次结果一致 ──

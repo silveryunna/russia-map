@@ -306,7 +306,7 @@ export function suggestFixes(result, { items = [], dayEnd = DEFAULT_DAY.end } = 
       const longest = [...(result.timeline || [])]
         .filter((t) => {
           const it = byId.get(t.itemId);
-          return it && it.mustVisit !== true && it.flexibility !== 'fixed';
+          return it && it.mustVisit !== true && it.flexibility !== 'fixed' && !it.pinnedStart;
         })
         .sort((a, b) => b.duration - a.duration)[0];
       if (longest) add('drop', `删掉「${longest.name}」可省 ${longest.duration} 分钟`, '优先删非必去、非预订的点位');
