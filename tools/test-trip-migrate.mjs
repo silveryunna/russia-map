@@ -62,6 +62,11 @@ const points = [
   if (periods.join(',') === 'morning,morning,afternoon' && day1.items.map(i => i.order).join(',') === '0,1,2') ok('时段与 order 保序');
   else fail('时段/顺序错误：' + JSON.stringify(periods) + ' / ' + JSON.stringify(day1.items.map(i => i.order)));
 
+  if (day1.startTime === '09:00' && day1.endTime === '21:00' && t.days[1].startTime === '09:00') ok('迁移补默认钟点窗口 09:00–21:00');
+  else fail('迁移钟点窗口错误：' + JSON.stringify(t.days.map(d => [d.startTime, d.endTime])));
+  if (day1.items.every(i => i.mustVisit === true)) ok('迁移条目标记为必去（可安全参与自动减负筛选）');
+  else fail('迁移条目 mustVisit 错误：' + JSON.stringify(day1.items.map(i => i.mustVisit)));
+
   if (day1.items[0].refId === 'p1' && day1.items[1].refId === 'p2') ok('名称映射到 placeId');
   else fail('placeId 映射错误：' + JSON.stringify(day1.items.map(i => i.refId)));
 

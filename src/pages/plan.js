@@ -375,7 +375,10 @@ const FEAS_LABEL = {
 
 // 每天一条可行性结论：硬冲突才标红，unknown 只作为提示（绝不假装"全天开放"）
 function feasibilityLine(d) {
-  const res = evaluateDay({ day: { id: d.id, date: d.date }, items: d.items, places: pointsById });
+  const res = evaluateDay({
+    day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
+    options: { start: d.startTime, end: d.endTime },
+  });
   if (res.empty) return '';
   const errs = res.errors;
   const unknown = res.stats.unknownHours;

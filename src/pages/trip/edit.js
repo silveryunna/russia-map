@@ -3,7 +3,7 @@
 // 零丢失原则：删天不删点位（转入相邻天），解绑歧义点位不删条目。
 
 import {
-  addDays, createDay, createItem, diffDays, isDateString,
+  DAY_TIME_DEFAULTS, addDays, createDay, createItem, diffDays, isDateString, isTimeString,
 } from './schema.js';
 
 const clone = v => (v === undefined ? v : JSON.parse(JSON.stringify(v)));
@@ -23,7 +23,7 @@ export function joinLocal(date, time) {
   return isDateString(date) ? `${date}T${time}` : time;
 }
 
-// 结构归一：序号、dayId、order、固定日期行程的天日期与 endDate
+// 结构归一：序号、dayId、order、固定日期行程的天日期与 endDate、旧数据补当天钟点窗口
 export function normalizeTrip(trip) {
   const next = clone(trip);
   if (!Array.isArray(next.days)) next.days = [];
@@ -32,10 +32,13 @@ export function normalizeTrip(trip) {
     day.index = di + 1;
     if (fixed) day.date = addDays(next.startDate, di);
     else day.date = '';
+    day.startTime = isTimeString(day.startTime) ? day.startTime : DAY_TIME_DEFAULTS.startTime;
+    day.endTime = isTimeString(day.endTime) ? day.endTime : DAY_TIME_DEFAULTS.endTime;
     if (!Array.isArray(day.items)) day.items = [];
     day.items.forEach((item, ii) => {
       item.order = ii;
       item.dayId = day.id;
+      if (typeof item.mustVisit !== 'boolean') item.mustVisit = true;
     });
   });
   if (fixed) next.endDate = addDays(next.startDate, Math.max(0, next.days.length - 1));
@@ -149,6 +152,26 @@ export function setDayNote(trip, dayIndex, note) {
   const day = next.days[dayIndex];
   if (!day) return normalizeTrip(next);
   day.note = typeof note === 'string' ? note : '';
+  return normalizeTrip(next);
+}
+
+// 当天钟点窗口：非法格式或 endTime <= startTime 时不改动
+export function setDayWindow(trip, dayIndex, { startTime, endTime } = {}) {
+  if (!isTimeString(startTime) || !isTimeString(endTime) || endTime <= startTime) return normalizeTrip(trip);
+  const next = clone(trip);
+  const day = next.days[dayIndex];
+  if (!day) return normalizeTrip(trip);
+  day.startTime = startTime;
+  day.endTime = endTime;
+  return normalizeTrip(next);
+}
+
+export function setItemMustVisit(trip, itemId, mustVisit) {
+  const next = clone(trip);
+  if (typeof mustVisit !== 'boolean') return normalizeTrip(next);
+  const hit = findDay(next, itemId);
+  if (!hit) return normalizeTrip(next);
+  hit.day.items[hit.idx].mustVisit = mustVisit;
   return normalizeTrip(next);
 }
 

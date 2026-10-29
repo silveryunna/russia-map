@@ -5,9 +5,11 @@
 //   Trip.notes               行程级提醒（旧计划 note 的落点）
 //   Trip.origin              生成来源与旧计划 id（可追溯，不影响业务逻辑）
 //   TripDay.note             当天的提示（旧计划 tip 的落点）
+//   TripDay.startTime/endTime 当天可用的钟点窗口（HH:MM，默认 09:00–21:00；旧数据缺失按默认处理）
 //   ItineraryItem.period     morning|afternoon|evening|''（旧计划的时段信息，不塞进 startLocal）
 //   ItineraryItem.placeNameSnapshot  点位改名/删除后仍能读出当时的名字
 //   ItineraryItem.confirm    ok|needs_confirm（名称迁移歧义待人工确认，不静默丢弃）
+//   ItineraryItem.mustVisit  必去=true（默认）/可删=false；自动减负只动 false 的条目
 
 export const TRIP_SCHEMA_VERSION = 2;
 
@@ -19,13 +21,20 @@ export const PLANNED_STATUS = ['planned', 'done', 'skipped', 'moved'];
 export const FLEXIBILITY = ['fixed', 'flexible', 'optional'];
 export const CONFIRM_STATUS = ['ok', 'needs_confirm'];
 export const VISIT_SOURCES = ['manual', 'legacy-checkin', 'plan'];
+// 新字段对旧数据保持"缺失按默认"兼容，因此不升 schemaVersion：旧备份与旧 IndexedDB 记录仍可读写
+export const DAY_TIME_DEFAULTS = { startTime: '09:00', endTime: '21:00' };
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 export function isDateString(s) {
   if (typeof s !== 'string' || !DATE_RE.test(s)) return false;
   const t = Date.parse(s + 'T00:00:00Z');
   return Number.isFinite(t) && new Date(t).toISOString().slice(0, 10) === s;
+}
+
+export function isTimeString(s) {
+  return typeof s === 'string' && TIME_RE.test(s);
 }
 
 // 纯日期加减（UTC 归一，避开夏令时）；非法输入返回空串而不是抛错
@@ -81,6 +90,8 @@ export function createDay(input = {}, idFn = defaultId) {
     index: Number.isInteger(input.index) && input.index > 0 ? input.index : 1,
     date: isDateString(input.date) ? input.date : '',
     city: typeof input.city === 'string' ? input.city : '',
+    startTime: isTimeString(input.startTime) ? input.startTime : DAY_TIME_DEFAULTS.startTime,
+    endTime: isTimeString(input.endTime) ? input.endTime : DAY_TIME_DEFAULTS.endTime,
     note: typeof input.note === 'string' ? input.note : '',
     items: Array.isArray(input.items) ? input.items : [],
   };
@@ -99,7 +110,7 @@ export function createItem(input = {}, idFn = defaultId) {
     endLocal: typeof input.endLocal === 'string' ? input.endLocal : '',
     timeZone: typeof input.timeZone === 'string' ? input.timeZone : '',
     flexibility: FLEXIBILITY.includes(input.flexibility) ? input.flexibility : 'flexible',
-    mustVisit: input.mustVisit === true,
+    mustVisit: input.mustVisit !== false,
     estimatedDuration: duration,
     plannedStatus: PLANNED_STATUS.includes(input.plannedStatus) ? input.plannedStatus : 'planned',
     actualVisitId: typeof input.actualVisitId === 'string' && input.actualVisitId ? input.actualVisitId : null,
@@ -168,6 +179,15 @@ export function validateTrip(trip) {
     if (isDateString(trip.startDate) && day.date && day.date !== addDays(trip.startDate, di)) {
       err(`${p}.date`, 'range', 'day.date 与出发日期不连续');
     }
+    // 旧数据没有这两个字段：缺失按默认窗口处理；只要写了就必须成对且合法
+    if ((day.startTime !== undefined) !== (day.endTime !== undefined)) {
+      err(`${p}.startTime`, 'required', 'startTime 与 endTime 必须同时提供');
+    }
+    if (day.startTime !== undefined && !isTimeString(day.startTime)) err(`${p}.startTime`, 'time', 'startTime 必须是 HH:MM');
+    if (day.endTime !== undefined && !isTimeString(day.endTime)) err(`${p}.endTime`, 'time', 'endTime 必须是 HH:MM');
+    if (isTimeString(day.startTime) && isTimeString(day.endTime) && day.endTime <= day.startTime) {
+      err(`${p}.endTime`, 'range', 'endTime 必须晚于 startTime');
+    }
     if (!Array.isArray(day.items)) return err(`${p}.items`, 'type', 'items 必须是数组');
     day.items.forEach((item, ii) => {
       const ip = `${p}.items[${ii}]`;
@@ -184,6 +204,7 @@ export function validateTrip(trip) {
       }
       if (!PLANNED_STATUS.includes(item.plannedStatus)) err(`${ip}.plannedStatus`, 'enum', 'plannedStatus 非法');
       if (!FLEXIBILITY.includes(item.flexibility)) err(`${ip}.flexibility`, 'enum', 'flexibility 非法');
+      if (typeof item.mustVisit !== 'boolean') err(`${ip}.mustVisit`, 'type', 'mustVisit 必须是布尔值');
       if (!ITEM_PERIODS.includes(item.period)) err(`${ip}.period`, 'enum', `period 非法：${item.period}`);
       if (!CONFIRM_STATUS.includes(item.confirm)) err(`${ip}.confirm`, 'enum', 'confirm 非法');
     });

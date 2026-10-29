@@ -2,8 +2,8 @@
 // Trip v2 契约质量门（CI 强制）：枚举/日期工具/工厂默认值/结构校验
 // 用法: node tools/test-trip-schema.mjs
 import {
-  TRIP_SCHEMA_VERSION, addDays, createDay, createItem, createTrip, createVisit,
-  diffDays, isDateString, tripItemCount, validateTrip, validateVisit,
+  DAY_TIME_DEFAULTS, TRIP_SCHEMA_VERSION, addDays, createDay, createItem, createTrip, createVisit,
+  diffDays, isDateString, isTimeString, tripItemCount, validateTrip, validateVisit,
 } from '../src/pages/trip/schema.js';
 
 let bad = 0;
@@ -31,6 +31,8 @@ const idFn = (p) => `${p}${++seq}`;
   else fail('diffDays 错误：' + diffDays('2026-11-01', '2026-11-05'));
   if (addDays('2026-2-1', 1) === '' && addDays('bad', 1) === '') ok('addDays 非法输入返回空串');
   else fail('addDays 非法输入未返回空串');
+  if (isTimeString('09:05') && isTimeString('00:00') && !isTimeString('9:05') && !isTimeString('24:00')) ok('isTimeString 严格匹配 HH:MM');
+  else fail('isTimeString 判定错误');
 }
 
 // 2) Trip 工厂默认值
@@ -55,10 +57,23 @@ const idFn = (p) => `${p}${++seq}`;
   const d = createDay({ index: 2, date: '2026-11-02' }, idFn);
   if (d.index === 2 && d.items.length === 0 && d.date === '2026-11-02') ok('createDay 基本字段');
   else fail('createDay 错误：' + JSON.stringify(d));
+  if (d.startTime === DAY_TIME_DEFAULTS.startTime && d.endTime === DAY_TIME_DEFAULTS.endTime) ok('createDay 默认钟点窗口 09:00–21:00');
+  else fail('createDay 默认钟点窗口错误：' + JSON.stringify({ s: d.startTime, e: d.endTime }));
+  const win = createDay({ startTime: '10:30', endTime: '23:15' }, idFn);
+  if (win.startTime === '10:30' && win.endTime === '23:15') ok('createDay 保留合法钟点窗口');
+  else fail('createDay 自定义窗口丢失：' + JSON.stringify(win));
+  const badWin = createDay({ startTime: '9:00', endTime: '25:00' }, idFn);
+  if (badWin.startTime === DAY_TIME_DEFAULTS.startTime && badWin.endTime === DAY_TIME_DEFAULTS.endTime) ok('createDay 非法钟点回落默认');
+  else fail('createDay 非法钟点未回落：' + JSON.stringify(badWin));
 
   const i = createItem({ type: 'transit', refId: 'p1', order: 0, estimatedDuration: 30.6, period: 'morning' }, idFn);
   if (i.type === 'transit' && i.estimatedDuration === 31 && i.period === 'morning' && i.confirm === 'ok') ok('createItem 类型/时长取整/时段');
   else fail('createItem 错误：' + JSON.stringify(i));
+  if (i.mustVisit === true) ok('createItem 默认必去（mustVisit=true）');
+  else fail('createItem mustVisit 默认值错误：' + i.mustVisit);
+  const opt = createItem({ mustVisit: false }, idFn);
+  if (opt.mustVisit === false) ok('createItem 保留显式 mustVisit=false');
+  else fail('createItem 显式可删丢失');
 
   const badEnum = createItem({ type: 'nope', flexibility: 'x', plannedStatus: 'y', period: 'z' }, idFn);
   if (badEnum.type === 'visit' && badEnum.flexibility === 'flexible' && badEnum.plannedStatus === 'planned' && badEnum.period === '') ok('createItem 非法枚举回落默认值');
@@ -101,13 +116,21 @@ const idFn = (p) => `${p}${++seq}`;
     ['day.index 非连续', mk(t => { t.days[0].index = 2; }), 'sequence'],
     ['day.date 不连续', mk(t => { t.days[0].date = '2026-11-02'; }), 'range'],
     ['item 类型非法', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), type: 'nope' }); }), 'enum'],
+    ['startTime 格式非法', mk(t => { t.days[0].startTime = '9:00'; }), 'time'],
+    ['endTime 不晚于 startTime', mk(t => { t.days[0].startTime = '18:00'; t.days[0].endTime = '09:00'; }), 'range'],
+    ['钟点窗口只写一半', mk(t => { delete t.days[0].endTime; }), 'required'],
+    ['mustVisit 非布尔', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), mustVisit: 'yes' }); }), 'type'],
   ];
   const wrong = [];
   for (const [label, r, code] of cases) {
     if (r.ok || !r.errors.some(e => e.code === code)) wrong.push(`${label}（期望 ${code}，实际 ${JSON.stringify(r.errors)}）`);
   }
-  if (!wrong.length) ok('9 个校验反例全部捕获');
+  if (!wrong.length) ok(`${cases.length} 个校验反例全部捕获`);
   else fail('校验反例漏报：\n  ' + wrong.join('\n  '));
+
+  const legacy = mk(t => { delete t.days[0].startTime; delete t.days[0].endTime; });
+  if (legacy.ok) ok('旧数据缺钟点窗口仍通过校验（按默认 09:00–21:00 处理）');
+  else fail('旧数据兼容失败：' + JSON.stringify(legacy.errors));
 
   const dup = mk(t => {
     const d = createDay({ id: 'same', index: 2, date: '2026-11-02' }, idFn);

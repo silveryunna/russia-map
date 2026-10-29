@@ -79,6 +79,21 @@ const it = (id, refId, extra = {}) => ({
     'unknown 明确提示"不等于全天开放"');
 }
 
+// ── 3.1) 当天钟点窗口（TripDay.startTime/endTime 传入 options）──
+{
+  const one = [it('i1', 'p1')];
+  const base = evaluateDay({ day: { id: 'd', date: '2026-11-10' }, items: one, places });
+  const late = evaluateDay({ day: { id: 'd', date: '2026-11-10' }, items: one, places, options: { start: '14:00', end: '18:00' } });
+  assert(formatMinutes(base.timeline[0].start) === '09:00' && formatMinutes(late.timeline[0].start) === '14:00',
+    'options.start 改变当天起点');
+  assert(late.feasible && !late.errors.length, '14:00–18:00 窗口内 45 分钟行程可行');
+  const short = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' }, items: [it('i1', 'p2')], places,
+    options: { start: '17:00', end: '18:00' },
+  });
+  assert(!short.feasible && short.conflicts.some((c) => c.kind === 'day-overrun'), '窗口放不下 180 分钟 → 报超收工线');
+}
+
 // ── 4) 闭馆日：报错 + 有修复建议 ──
 {
   const r = evaluateDay({ day: { id: 'd', date: '2026-11-09' }, items: [it('i1', 'p4')], places });

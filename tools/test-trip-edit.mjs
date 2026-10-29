@@ -4,7 +4,8 @@
 import {
   addDay, addItem, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip,
   itemDateConflicts, joinLocal, moveItemToDay, moveItemWithinDay, normalizeTrip,
-  removeDay, removeItem, setDateMode, setDayNote, shiftTripStart, splitStartLocal, updateTrip,
+  removeDay, removeItem, setDateMode, setDayNote, setDayWindow, setItemMustVisit,
+  shiftTripStart, splitStartLocal, updateTrip,
 } from '../src/pages/trip/edit.js';
 import { createDay, createItem, createTrip, validateTrip } from '../src/pages/trip/schema.js';
 
@@ -109,11 +110,34 @@ const keep = (t, label) => { validAll.push({ t, label }); return t; };
   else fail('唯一一天被删除');
 }
 
-// 6) 备注 / 改字段 / 绑定歧义点
+// 6) 备注 / 改字段 / 绑定歧义点 / 钟点窗口 / 必去
 {
   const t = setDayNote(fixture(), 0, '早点出门');
   if (t.days[0].note === '早点出门') ok('日备注可写');
   else fail('日备注未写入');
+  const win = keep(setDayWindow(fixture(), 0, { startTime: '10:00', endTime: '22:30' }), 'setDayWindow');
+  if (win.days[0].startTime === '10:00' && win.days[0].endTime === '22:30') ok('当天钟点窗口可改');
+  else fail(`钟点窗口未写入：${JSON.stringify({ s: win.days[0].startTime, e: win.days[0].endTime })}`);
+  const badWin = setDayWindow(win, 0, { startTime: '18:00', endTime: '09:00' });
+  if (badWin.days[0].startTime === '10:00') ok('endTime 早于 startTime 的窗口被拒绝');
+  else fail('非法窗口被写入');
+  const legacyDay = normalizeTrip({ ...fixture(), days: fixture().days.map(({ startTime, endTime, ...d }) => d) });
+  if (legacyDay.days.every(d => d.startTime === '09:00' && d.endTime === '21:00')) ok('normalizeTrip 为旧数据补默认钟点窗口');
+  else fail('旧数据未补默认窗口');
+
+  const must = keep(setItemMustVisit(fixture(), 'i1', false), 'setMustVisit');
+  if (must.days[0].items[0].mustVisit === false) ok('条目可标为可删（mustVisit=false）');
+  else fail('mustVisit 未写入');
+  const badMust = setItemMustVisit(must, 'i1', 'no');
+  if (badMust.days[0].items[0].mustVisit === false) ok('非布尔 mustVisit 被拒绝');
+  else fail('非布尔 mustVisit 被接受');
+  const legacyItem = normalizeTrip({
+    ...fixture(),
+    days: fixture().days.map((d, i) => (i === 0 ? { ...d, items: d.items.map(({ mustVisit, ...it }) => it) } : d)),
+  });
+  if (legacyItem.days[0].items.every(it => it.mustVisit === true)) ok('缺 mustVisit 的旧条目按必去处理');
+  else fail('旧条目 mustVisit 默认值错误');
+
   const u = updateTrip(fixture(), { title: '  ', status: 'planned' });
   if (u.title === '莫斯科 3 日' && u.status === 'planned') ok('空标题回退、状态可改');
   else fail(`updateTrip 异常：${u.title} / ${u.status}`);
