@@ -205,7 +205,7 @@ const state = {
 let points = [];          // 全部点位（含 pending）
 let routes = [];
 let meta = { cities: [], cityColors: {} };
-let pointByName = new Map();   // 动线 steps 按名称引用点位，保留名称索引
+let pointByName = new Map();   // 动线 steps 的 point 名称快照索引（pointId 缺失时兜底）
 let pointById = new Map();
 
 let map, clusterGroup, routesGroup;
@@ -230,13 +230,17 @@ function matchTags(p) {
   return !state.tagFilter.size || (p.tags && p.tags.some(t => state.tagFilter.has(t)));
 }
 
-// 动线落点：steps 中引用了点位的条目，编上序号
+// 动线落点：steps 中引用了点位的条目，编上序号；pointId 为准，名称兜底
+function resolveStep(s) {
+  if (!s) return null;
+  return (s.pointId && pointById.get(s.pointId)) || (s.point ? pointByName.get(s.point) : null) || null;
+}
+
 function routePoints(route) {
   const out = [];
   let n = 0;
   for (const s of route.steps) {
-    if (!s.point) continue;
-    const p = pointByName.get(s.point);
+    const p = resolveStep(s);
     if (p) out.push({ p, n: ++n, note: s.note });
   }
   return out;
@@ -522,7 +526,7 @@ function routeDetailHtml(r) {
         </div>
       </div><button class="route-play" data-play>${window.__playTimer__ ? '⏸ 停止播放' : '▶ 播放动线（镜头跟随）'}</button>`;
   r.steps.forEach((s) => {
-    const p = s.point ? pointByName.get(s.point) : null;
+    const p = resolveStep(s);
     const idx = p ? numbered.findIndex(x => x.p.id === p.id) + 1 : 0;
     html += `
       <div class="route-step" ${p ? `data-pid="${esc(p.id)}"` : ''} style="cursor:${p ? 'pointer' : 'default'}${state.selected && p && state.selected === p.id ? ';background:#F0EBE0' : ''}">

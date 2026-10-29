@@ -38,7 +38,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 
 ## CI / 监控（GitHub Actions）
 
-- `check.yml`（push 触发）：check-data + 变异测试（26 变异须全捕获）+ 坐标变换 + 计划模块单测 + SW 缓存策略 + 文档事实 + assets ESM 严格解析 + 版本同步检查（改 assets/*.js 必须同提交改 map.html 与 sw.js）+ Playwright 冒烟（地图桌面/手机 + 行程页生成/排序/撤销/刷新恢复截图 artifact）
+- `check.yml`（push 触发）：check-data + 变异测试（29 变异须全捕获）+ 坐标变换 + 计划模块单测 + SW 缓存策略 + 文档事实 + assets ESM 严格解析 + 版本同步检查（改 assets/*.js 必须同提交改 map.html 与 sw.js）+ Playwright 冒烟（地图桌面/手机 + 行程页生成/排序/撤销/刷新恢复截图 artifact）
 - `monitor.yml`（每 6 小时）：探测腾讯云主站/API/NAS/TLS 证书（剩 <14 天告警），故障自动开 issue、恢复自动关闭；仓库 60 天无活动 GitHub 会停定时任务，手动跑一次即可恢复
 - 探针脚本 `tools/site-monitor.mjs` 可本地直接跑（Pages 检查需网络可达 GitHub）
 
@@ -55,6 +55,6 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 ## 数据结构速查
 
 - `data/points.json` 点位：id/name/city/cluster/type/highlight/note/lat/lon/confidence(100精确/75待核)/tags；无坐标用 `pending: true`
-- `data/routes.json` 动线：steps[].point 按 name 精确索引，写错静默跳过
+- `data/routes.json` 动线：steps[] 以 `pointId`（`pNNN`）索引点位，`point` 只是展示快照；缺 pointId / id 不存在 / 名称不一致由 check-data 报错。改名或加点后跑 `node tools/migrate-routes-pointid.mjs`（幂等，`--check` 只校验），解析顺序 pointId → 名称兜底
 - `data/ratings.json` 评分：多来源 `{items:{id:{ratings:[...]}}}`；携程来源=问道API环境变量 `WENDAO_API_KEY`（每日30次/令牌）；交通类点位不显示评分
 - 第一方评分（私人米其林）：站长录入写 `data/michelin-manual.json`（`{id:{dims,overall,note,visited}}`），跑 fetch 脚本合并入 ratings.json；维度集按类型：餐饮 口味/性价比/等位/环境，酒店 位置/景观/服务/性价比，景点 出片/清净/可达/票价（全部正向，5=最好）

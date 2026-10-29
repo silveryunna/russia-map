@@ -316,7 +316,7 @@ plannedStatus, actualVisitId, notes
 |---|---|---|
 | `travel-plans-v1` | Trip + ItineraryItem | 名称→placeId 映射；歧义进入人工确认队列；绝不静默丢数据 |
 | `travel-checkin-v2` | Visit | 无 Trip 的历史 Visit；保留次数/日期/感想 |
-| `routes.json` steps.point | RouteTemplate + placeId | 生成名称→ID 映射；校验器逐步强制 ID |
+| `routes.json` steps.point | RouteTemplate + placeId | ✅ 已落地：`pointId` 为解析事实来源，`point` 保留展示快照；check-data 强制、`tools/migrate-routes-pointid.mjs` 幂等迁移 |
 | `points.json` hours/ticket/url | Assertion | 保留旧字段兼容读取；新写入走 Assertion |
 | `ratings.json` | Assertion(kind=rating) | 保留来源/采集时间；补 `verified_at` |
 | `photos/index.json` | Photo | 先静态登记；后续接对象存储/Immich |
@@ -539,7 +539,7 @@ P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协
 | 工作项 | 状态 | 落到哪里 |
 |---|---|---|
 | 1 schema + 版本 | ✅ 契约+校验+页面已接 | `src/pages/trip/schema.js`：Trip/Day/Item/Visit 工厂 + 枚举 + 日期工具 + `validateTrip`（反例覆盖非法枚举、日期不连续、天数与跨度不一致、重复 id、visit 缺 placeId 未标记）；落库前一律再校验 |
-| 2 placeId 迁移 | 🟡 计划侧完成，routes 未改 | `src/pages/trip/migrate.js`：名称精确匹配 → `refId`；同名进歧义队列（带候选 id）；未知名保留 `placeNameSnapshot` + `needs_confirm`，零丢弃 |
+| 2 placeId 迁移 | ✅ 计划与动线两侧完成 | `src/pages/trip/migrate.js`：名称精确匹配 → `refId`；同名进歧义队列（带候选 id）；未知名保留 `placeNameSnapshot` + `needs_confirm`，零丢弃。动线：`data/routes.json` 28 条 / 129 个点位步骤全部带 `pointId`（`point` 降为展示快照），`tools/migrate-routes-pointid.mjs` 幂等迁移 + `--check`，check-data 强校验缺失/失联/名称不一致；引擎与地图解析 `pointId` 优先、名称兜底 |
 | 3 Trip CRUD / 加点位 / 排序 | ✅ 页面可用（2026-10-29） | `src/pages/plan.js`：新建/复制/删除/编辑；`trip/edit.js` 提供加点位、上下移、跨天移、增删天（删天点位并入相邻天）；点位从搜索面板按城市挑选 |
 | 4 无日期 / 改期 / 多城 | ✅ 改期策略已落地 | 新建可留空日期（`dateMode: relative`，页面可随时落成具体日期）；`shiftTripStart` 支持 `shift_all`（含绝对时刻预订整体平移）与 `keep_bookings`（预订保留原日期，冲突逐条显式提示）；`cities[]` + `TripDay.city` 多城市扩展位 |
 | 5 旧计划迁移 | ✅ 已接页面 | 打开行程页即一次性迁移 `migratePlansV1`；原始 localStorage 原文备份进 IndexedDB `meta`，校验不过则零写入；歧义/未知名带候选进确认队列，点名字即可人工绑定（同日已有同点位会拒绝并提示） |
@@ -547,7 +547,7 @@ P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协
 | 7 IndexedDB / 备份 | ✅ 备份+撤销可用 | `src/pages/trip/store.js` 双驱动/`revision`/merge+replace 导入；页面提供整库备份导出、单行程 JSON 导出、导入（覆盖或合并）；编辑器内存撤销 30 步（刷新后清空） |
 | 8 莫斯科样板数据 | ⬜ 未开始 | — |
 
-测试：`tools/test-trip-schema.mjs`（18 项）、`test-trip-migrate.mjs`（25 项）、`test-trip-edit.mjs`（45 项，含"每个操作结果必须过 validateTrip"）、`test-trip-store.mjs`（19 项），已进 `npm test` 与 CI；Playwright 冒烟覆盖行程页生成→排序→撤销→刷新恢复。
+测试：`tools/test-trip-schema.mjs`（18 项）、`test-trip-migrate.mjs`（25 项）、`test-trip-edit.mjs`（45 项，含"每个操作结果必须过 validateTrip"）、`test-trip-store.mjs`（19 项），已进 `npm test` 与 CI；Playwright 冒烟覆盖行程页生成→排序→撤销→刷新恢复。动线 ID：`test-plan-engine.mjs` 覆盖 pointId 优先/名称兜底/失联回退，check-data 变异测试 29 项含 3 条 pointId 反例。
 
 ### 莫斯科样板数据门槛
 

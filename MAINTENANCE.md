@@ -91,12 +91,17 @@
   "id": "m-metro", "city": "莫斯科", "day": "专题",
   "name": "…", "summary": "…", "transport": "…", "duration": "…", "tip": "…",
   "steps": [
-    { "point": "点位name（必须精确匹配points.json的name）", "label": "步骤标题", "note": "说明" }
+    { "point": "点位name（展示快照）", "pointId": "p001", "label": "步骤标题", "note": "说明" }
   ]
 }
 ```
 
-⚠️ `steps[].point` 按 name 精确索引渲染；写错则该步骤静默跳过（不报错）。新增动线后务必逐 step 核对 name。
+⚠️ `steps[].pointId` 是事实来源（点位 `pNNN` id），`point` 只是展示用名称快照；两者由 `check-data` 强校验：缺 pointId、pointId 不存在、或与名称不一致都会报错。
+
+- 新增/改名点位后跑 `node tools/migrate-routes-pointid.mjs` 补全（幂等，只补缺失的；解析不出或有歧义则拒绝写盘）
+- `node tools/migrate-routes-pointid.mjs --check` 只校验不写盘
+- 引擎与地图解析顺序：`pointId` → 名称兜底（旧数据或 id 失联时不丢步骤）
+- 纯串场步骤（只有 `label` 没有 `point`）不参与点位索引，不需要 pointId
 
 ---
 

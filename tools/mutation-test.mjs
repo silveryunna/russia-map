@@ -50,6 +50,9 @@ M.push({name:'name_en为数字', apply(p){p[0].name_en=42;}});
 M.push({name:'动线引用不存在点位', apply(p,r){r[0].steps[0].point='不存在的点位XYZ';}});
 M.push({name:'动线steps非数组', apply(p,r){r[0].steps='x';}});
 M.push({name:'动线city缺失', apply(p,r){delete r[0].city;}});
+M.push({name:'动线pointId缺失', apply(p,r){delete r[0].steps[0].pointId;}});
+M.push({name:'动线pointId不存在', apply(p,r){r[0].steps[0].pointId='p999';}});
+M.push({name:'动线pointId与名称不一致', apply(p,r){r[0].steps[0].pointId=r[0].steps[1].pointId;}});
 M.push({name:'points顶层变对象', apply(p){p = {a:1}; return p;}});
 // 第一方评分（私人米其林）变异：先种一条合法评分再破坏它
 const seedFP = (rt, p) => { const f = p.find(x => (x.tags||[]).includes('餐厅/咖啡')); rt.items = rt.items || {}; rt.items[f.id] = { ratings: [{ src:'站长', dims:{'口味':5}, overall:5, visited:'2026-09' }] }; return f.id; };

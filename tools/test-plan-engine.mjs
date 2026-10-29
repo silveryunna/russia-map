@@ -142,5 +142,32 @@ function checkCaps(plan, label) {
   else fail(`pending 点位混入：${names.join('、')}`);
 }
 
+// F) 动线步骤以 pointId 为准：改名后名称快照过期也能命中；只有 pointId 也可解析
+{
+  const pts = [P('f1', '红场（新名）', '市中心'), P('f2', '圣瓦西里', '市中心'), P('f3', '古姆', '市中心')];
+  const rts = [{
+    name: '改名线',
+    city: '莫斯科',
+    steps: [
+      { point: '红场', pointId: 'f1' },   // 名称快照是旧名，pointId 指向新名点位
+      { pointId: 'f2' },                  // 只有 pointId
+      { point: '古姆' },                  // 只有名称（旧数据兼容）
+    ],
+  }];
+  const plan = ruleEngine({ city: '莫斯科', days: 1, interests: [] }, { pts, rts });
+  const names = allNames(plan);
+  const want = ['红场（新名）', '圣瓦西里', '古姆'];
+  if (want.every(n => names.includes(n))) ok('动线解析：pointId 优先、名称兜底，3 个点位全部命中');
+  else fail(`动线解析失败：得到 ${names.join('、')}，期望 ${want.join('、')}`);
+
+  const stale = ruleEngine({ city: '莫斯科', days: 1, interests: [] }, {
+    pts, rts: [{ name: '失联线', city: '莫斯科', steps: [{ point: '圣瓦西里', pointId: 'p999' }] }],
+  });
+  const staleDay = stale.days.find(d => /参考动线：失联线/.test(d.tip || ''));
+  const staleNames = staleDay ? [...staleDay.slots.morning, ...staleDay.slots.afternoon, ...staleDay.slots.evening] : [];
+  if (staleNames.includes('圣瓦西里')) ok('pointId 失效时回退名称解析，步骤不丢');
+  else fail(`pointId 失效后步骤丢失：动线日 ${JSON.stringify(staleNames)}`);
+}
+
 if (bad) { console.error(`\n${bad} 项规则引擎测试失败`); process.exit(1); }
 console.log('\n规则引擎质量门通过');

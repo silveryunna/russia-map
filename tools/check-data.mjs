@@ -111,10 +111,25 @@ for (const [i, r] of routes.entries()) {
   if (!r.city) err(`${rwhere} 缺少 city`);
   if (r.steps !== undefined && !Array.isArray(r.steps)) err(`${rwhere} steps 必须是数组`);
   for (const s of (Array.isArray(r.steps) ? r.steps : [])) {
-    if (s.point && !names.has(s.point)) { err(`动线「${r.name}」引用了不存在的点位「${s.point}」`); badRefs++; }
+    if (!s || typeof s !== 'object') { err(`${rwhere} steps 里的条目必须是对象`); badRefs++; continue; }
+    if (!s.point) continue; // 纯串场步骤（只有 label/note）不索引点位
+    if (!names.has(s.point)) { err(`动线「${r.name}」引用了不存在的点位「${s.point}」`); badRefs++; }
+    if (!s.pointId) {
+      err(`动线「${r.name}」步骤「${s.point}」缺 pointId（跑 node tools/migrate-routes-pointid.mjs）`);
+      badRefs++; continue;
+    }
+    if (!ids.has(s.pointId)) {
+      err(`动线「${r.name}」步骤「${s.point}」的 pointId=${s.pointId} 在 points.json 里不存在`);
+      badRefs++; continue;
+    }
+    // point 是展示快照，pointId 是事实来源：改名后必须同步，否则动线会指向旧名字
+    if (ids.get(s.pointId) !== s.point) {
+      err(`动线「${r.name}」pointId=${s.pointId} 对应「${ids.get(s.pointId)}」，与 point「${s.point}」不一致（改名需同步）`);
+      badRefs++;
+    }
   }
 }
-if (!badRefs) ok(`动线 ${routes.length} 条，步骤引用全部有效`);
+if (!badRefs) ok(`动线 ${routes.length} 条，步骤引用与 pointId 全部有效`);
 
 // --- 中国点位来源门（防 GCJ 手工坐标再次入库：datum 级偏移离群校验拦不住，必须走校准来源）---
 {

@@ -93,6 +93,9 @@ export function ruleEngine(params, data) {
   }
 
   const byName = new Map((data.pts || []).map(p => [p.name, p]));
+  const byId = new Map((data.pts || []).map(p => [p.id, p]));
+  // 动线步骤以 pointId 为准，point 名称兜底（旧数据/改名未同步时的退路）
+  const stepPoint = s => (s && ((s.pointId && byId.get(s.pointId)) || byName.get(s.point))) || null;
   const cityRoutes = (data.rts || []).filter(r => r.city === params.city);
   const used = new Set();
   const days = [];
@@ -101,7 +104,7 @@ export function ruleEngine(params, data) {
   for (const r of cityRoutes) {
     if (days.length >= targetDays) break;
     const routePts = (r.steps || [])
-      .map(s => byName.get(s.point))
+      .map(stepPoint)
       .filter(p => p && !used.has(p.id));
     const day = buildDay(routePts);
     if (!day.usedIds.length) continue;

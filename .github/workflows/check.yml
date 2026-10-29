@@ -17,7 +17,7 @@ jobs:
       - name: 数据校验
         run: node tools/check-data.mjs ./data
 
-      # 2) 校验器本身不能退化：26 个变异必须全部捕获
+      # 2) 校验器本身不能退化：29 个变异必须全部捕获
       - name: 变异测试
         run: |
           node tools/mutation-test.mjs . mut-report.tsv | tee mut.log
