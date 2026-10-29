@@ -189,14 +189,18 @@ const it = (id, refId, extra = {}) => ({
   const taxiLeg = estimateLeg(A, B, { mode: 'taxi' });
   assert(taxiLeg.mode === 'taxi' && taxiLeg.minutes === metroLeg.minutes - 5,
     '打车比地铁少 5 分钟进出站');
-  assert(taxiLeg.costRub >= 300 && taxiLeg.costRub % 10 === 0 && metroLeg.costRub === undefined,
-    '打车费用按起步+里程估算，地铁不计费用');
+  assert(taxiLeg.cost >= 300 && taxiLeg.cost % 10 === 0 && taxiLeg.currency === 'RUB' && metroLeg.cost === undefined,
+    '打车费用按莫斯科费率估算，地铁不计费用');
+  const cnyFare = { currency: 'CNY', base: 10, perKm: 2.5, minimum: 10, roundTo: 1, scoreUnit: 1 };
+  const cnyLeg = estimateLeg(A, B, { mode: 'taxi', fare: cnyFare });
+  assert(cnyLeg.currency === 'CNY' && cnyLeg.cost >= 10, '打车费用按城市费率与币种计算');
   const opts = { start: '19:00', end: '21:25' };
   const metro = evaluateDay({ day: { id: 'd', date: '2026-11-10' }, items, places: farPlaces, options: opts });
   const taxi = evaluateDay({ day: { id: 'd', date: '2026-11-10' }, items, places: farPlaces, options: { ...opts, transportMode: 'taxi' } });
   assert(!metro.feasible && metro.conflicts.some((c) => c.kind === 'day-overrun'), '公共交通口径下这一天超时');
   assert(taxi.feasible && taxi.timeline[1].mode === 'taxi', '切到打车优先后同一窗口可行');
-  assert(taxi.stats.taxiCostRub === taxiLeg.costRub && metro.stats.taxiCostRub === 0, '打车费用按天累计，公共交通为 0');
+  assert(taxi.stats.taxiCost === taxiLeg.cost && taxi.stats.taxiCurrency === 'RUB' && metro.stats.taxiCost === 0,
+    '打车费用按天累计，公共交通为 0');
 }
 
 // ── 4) 闭馆日：报错 + 有修复建议 ──

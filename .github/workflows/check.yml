@@ -54,6 +54,7 @@ jobs:
           node tools/test-soft.mjs
           node tools/test-alternatives.mjs
           node tools/test-solver.mjs
+          node tools/test-fare-table.mjs
           node tools/check-route-feasibility.mjs ./data
 
       # 2.8) SW 缓存策略：外壳覆盖全部页面 + 瓦片白名单与实际底图一致

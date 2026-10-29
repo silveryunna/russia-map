@@ -4,6 +4,9 @@
 //   • 交通段一律标 source:'estimate'（直线距离 + 速度假设），真实矩阵接入前不冒充实测
 //   • 冲突分 error / warn：error 才判不可行；每条不可行结论都必须能给出至少一个可执行修复
 
+// 打车费用估算来自城市费率表；工具/无城市上下文时默认莫斯科口径
+import { TAXI_FARES } from './fare-table.js';
+
 export const TRANSIT = {
   walkSpeedMPerMin: 80,      // 4.8 km/h，城市步行含找路
   walkRadiusMeters: 1200,    // 1.2km 内默认步行
@@ -11,9 +14,6 @@ export const TRANSIT = {
   metroMPerMin: 500,         // 30 km/h 门到门均速
   taxiOverheadMinutes: 5,    // 打车：叫车/上下车
 };
-
-// 打车费用估算（卢布口径，莫斯科量级；不是报价，也不按城市/时段定价）
-export const TAXI_FARE = { baseRub: 250, perKmRub: 30, minimumRub: 300 };
 
 export const DEFAULT_DAY = { start: '09:00', end: '21:00' };
 
@@ -58,18 +58,17 @@ export function estimateLeg(from, to, options = {}) {
     return { meters, minutes: Math.ceil(meters / TRANSIT.walkSpeedMPerMin), mode: 'walk', source: 'estimate' };
   }
   if (options.mode === 'taxi') {
-    const km = meters / 1000;
-    const costRub = Math.max(
-      TAXI_FARE.minimumRub,
-      Math.round((TAXI_FARE.baseRub + TAXI_FARE.perKmRub * km) / 10) * 10,
-    );
-    return {
+    const base = {
       meters,
       minutes: TRANSIT.taxiOverheadMinutes + Math.ceil(meters / TRANSIT.metroMPerMin),
       mode: 'taxi',
       source: 'estimate',
-      costRub,
     };
+    const fare = Object.prototype.hasOwnProperty.call(options, 'fare') ? options.fare : TAXI_FARES['莫斯科'];
+    if (!fare) return base;
+    const step = fare.roundTo || 1;
+    const cost = Math.max(fare.minimum, Math.round((fare.base + fare.perKm * (meters / 1000)) / step) * step);
+    return { ...base, cost, currency: fare.currency };
   }
   return {
     meters,
@@ -163,6 +162,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
   const dayStart = parseMinutes(options.start || DEFAULT_DAY.start) ?? 540;
   const dayEnd = parseMinutes(options.end || DEFAULT_DAY.end) ?? 1260;
   const transportMode = options.transportMode === 'taxi' ? 'taxi' : 'transit';
+  const taxiFareOption = Object.prototype.hasOwnProperty.call(options, 'taxiFare') ? options.taxiFare : TAXI_FARES['莫斯科'];
   const date = typeof day.date === 'string' ? day.date : '';
 
   const conflicts = [];
@@ -177,6 +177,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
   let transit = 0;
   let wait = 0;
   let taxiCost = 0;
+  let taxiCurrency = '';
 
   const list = (Array.isArray(items) ? items : []).filter(
     (i) => i && typeof i === 'object' && !SKIP_TYPES.has(i.type) && i.plannedStatus !== 'skipped',
@@ -199,10 +200,13 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       const closesLoop = item === lastResolvable && firstResolvable && seen.size >= 2
         && placeOf(places, firstResolvable.refId)?.id === place.id;
       if (closesLoop) {
-        const leg = prevPlace ? estimateLeg(prevPlace, place, { mode: transportMode }) : null;
+        const leg = prevPlace ? estimateLeg(prevPlace, place, { mode: transportMode, fare: taxiFareOption }) : null;
         if (leg) {
           transit += leg.minutes;
-          if (leg.mode === 'taxi') taxiCost += leg.costRub || 0;
+          if (leg.mode === 'taxi') {
+            taxiCost += leg.cost || 0;
+            taxiCurrency = leg.currency || taxiCurrency;
+          }
         }
         push('loop-closure', 'warn', item.id, `「${name}」是回到起点的闭合回路，只计通行不计停留`, {
           backMinutes: leg ? leg.minutes : 0,
@@ -227,7 +231,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       continue;
     }
 
-    const leg = place && prevPlace ? estimateLeg(prevPlace, place, { mode: transportMode }) : null;
+    const leg = place && prevPlace ? estimateLeg(prevPlace, place, { mode: transportMode, fare: taxiFareOption }) : null;
     if (place && prevPlace && !leg) {
       push('missing-coords', 'error', item.id, `「${name}」或上一站没有坐标，无法估算通行时间`);
       continue;
@@ -235,7 +239,10 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
     const legMinutes = leg ? leg.minutes : 0;
     if (leg) {
       transit += legMinutes;
-      if (leg.mode === 'taxi') taxiCost += leg.costRub || 0;
+      if (leg.mode === 'taxi') {
+        taxiCost += leg.cost || 0;
+        taxiCurrency = leg.currency || taxiCurrency;
+      }
     }
 
     let arrive = cursor + legMinutes;
@@ -300,7 +307,8 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       transitMinutes: legMinutes,
       mode: leg ? leg.mode : 'none',
       transitSource: leg ? leg.source : 'none',
-      costRub: leg && leg.mode === 'taxi' ? leg.costRub : 0,
+      cost: leg && leg.mode === 'taxi' ? leg.cost || 0 : 0,
+      currency: leg && leg.mode === 'taxi' ? leg.currency || '' : '',
       calendar: cal.state,
       pinned: start.kind === 'absolute' || item.flexibility === 'fixed',
     });
@@ -325,7 +333,8 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       dwellMinutes: dwell,
       transitMinutes: transit,
       waitMinutes: wait,
-      taxiCostRub: taxiCost,
+      taxiCost,
+      taxiCurrency,
       totalMinutes,
       places: timeline.filter((t) => t.placeId).length,
       unknownHours: timeline.filter((t) => t.calendar === 'unknown').length,

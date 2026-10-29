@@ -54,19 +54,20 @@ const item = (id, extra = {}) => ({ id, refId: id, type: 'visit', flexibility: '
     '求解遵循上午→下午→晚上，不把晚间演出排到上午');
 }
 
-// 5) 打车费用计入分值（10₽≈1 分），非 RUB 口径可关闭
+// 5) 打车费用按城市费率的 scoreUnit 折算；未配置费率不计
 {
   const base = {
     day,
-    result: { timeline: [], errors: [], stats: { transitMinutes: 40, taxiCostRub: 0 } },
+    result: { timeline: [], errors: [], stats: { transitMinutes: 40, taxiCost: 0, taxiCurrency: '' } },
     soft: { reversals: 0, middayPhoto: 0, longestStretchMinutes: 0 },
   };
   const costly = {
     ...base,
-    result: { ...base.result, stats: { transitMinutes: 40, taxiCostRub: 1000 } },
+    result: { ...base.result, stats: { transitMinutes: 40, taxiCost: 1000, taxiCurrency: 'RUB' } },
   };
-  assert(softScore(costly) - softScore(base) === 100, '打车费用按 10₽≈1 分计入求解分值');
-  assert(softScore({ ...costly, taxiCostWeight: 0 }) === softScore(base), '非 RUB 口径可关闭费用项');
+  assert(softScore({ ...costly, taxiFare: { scoreUnit: 10 } }) - softScore(base) === 100,
+    '打车费用按城市 scoreUnit 折算成分值');
+  assert(softScore(costly) === softScore(base), '未配置城市费率时不把费用计入分值');
 }
 
 if (bad) { console.error(`\n${bad} 项顺序求解测试失败`); process.exit(1); }

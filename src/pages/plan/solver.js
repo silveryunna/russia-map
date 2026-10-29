@@ -22,24 +22,24 @@ function endOfDay(day) {
   return m ? Number(m[1]) * 60 + Number(m[2]) : 21 * 60;
 }
 
-// 10 卢布 ≈ 1 个软目标分值（≈1 分钟通行），仅在 RUB 口径下启用
-export const TAXI_COST_PER_SCORE_RUB = 10;
-
-export function softScore({ day, result, soft, taxiCostWeight = 1 }) {
+// 打车费用按城市费率的 scoreUnit（当地货币 ≈ 1 个软目标分值）折算；未配置费率则不计
+export function softScore({ day, result, soft, taxiFare = null }) {
   const rows = result && Array.isArray(result.timeline) ? result.timeline : [];
   const lastEnd = rows.length ? rows[rows.length - 1].end : 0;
   const overrun = Math.max(0, lastEnd - endOfDay(day));
   const errors = result && Array.isArray(result.errors) ? result.errors.length : 0;
+  const taxiCost = result && result.stats ? result.stats.taxiCost || 0 : 0;
+  const taxiScore = taxiFare && taxiFare.scoreUnit > 0 ? taxiCost / taxiFare.scoreUnit : 0;
   return (errors * 1e6)
     + (overrun * 100)
     + (soft.reversals * 60)
     + ((soft.middayPhoto || 0) * 30)
     + (result && result.stats ? result.stats.transitMinutes : 0)
-    + (((result && result.stats ? result.stats.taxiCostRub || 0 : 0) / TAXI_COST_PER_SCORE_RUB) * taxiCostWeight)
+    + taxiScore
     + (Math.max(0, (soft.longestStretchMinutes || 0) - 240) * 0.5);
 }
 
-export function optimizeDayOrder({ day, items, places, interests = [], maxPasses = 2, taxiCostWeight = 1 } = {}) {
+export function optimizeDayOrder({ day, items, places, interests = [], maxPasses = 2, taxiFare = null } = {}) {
   const base = Array.isArray(items) ? items : [];
   const evaluate = (list) => {
     const result = evaluateDay({
@@ -50,12 +50,13 @@ export function optimizeDayOrder({ day, items, places, interests = [], maxPasses
         start: day && day.startTime,
         end: day && day.endTime,
         transportMode: day && day.transportMode === 'taxi' ? 'taxi' : 'transit',
+        taxiFare,
       },
     });
     const soft = evaluateSoft({ day, result, items: list, places, interests });
     // 时段倒置权重高于折返/通行（1 次≈10 分钟超时），避免把晚间演出排到上午
     const periodPenalty = periodViolations(list) * 1000;
-    return { result, soft, score: softScore({ day, result, soft, taxiCostWeight }) + periodPenalty };
+    return { result, soft, score: softScore({ day, result, soft, taxiFare }) + periodPenalty };
   };
 
   // 小时段组内稳定排序的候选：一次修正跨时段倒置，避免局部搜索被中间状态卡住

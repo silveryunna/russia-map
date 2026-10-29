@@ -7,6 +7,7 @@ import { planAutoTrim } from './plan/repair.js';
 import { evaluateSoft } from './plan/soft.js';
 import { suggestAlternatives } from './plan/alternatives.js';
 import { optimizeDayOrder } from './plan/solver.js';
+import { currencySymbol, taxiFareFor } from './plan/fare-table.js';
 import { loadPlans } from './plan/store.js';
 import { loadCheckins } from '../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
@@ -424,8 +425,13 @@ function alternativesHtml(it) {
   ).join('')}</div>`;
 }
 
-function effectiveDuration(it) {
-  if (Number.isFinite(it.estimatedDuration)) return it.estimatedDuration;
+function dayFare(d) {
+  const firstPlace = d.items.map(it => (it.refId ? pointsById.get(it.refId) : null)).find(p => p && p.city);
+  const city = d.city || (firstPlace && firstPlace.city) || (current.cities || [])[0] || '';
+  return taxiFareFor(city);
+}
+
+function effectiveDuration(it) {  if (Number.isFinite(it.estimatedDuration)) return it.estimatedDuration;
   const place = it.refId ? pointsById.get(it.refId) : null;
   return place && Number.isFinite(place.estimatedDuration) ? place.estimatedDuration : null;
 }
@@ -473,9 +479,10 @@ function softLine(d, di, res, interests) {
   if (s.reversals) chips.push(`<span class="tr-soft-chip ${s.reversals > 1 ? 'warn' : ''}" title="相邻两段方向接近掉头的次数">↩ 折返 ${s.reversals}</span>`);
   if (s.metroLegs) chips.push(`<span class="tr-soft-chip" title="地铁段数（含进出站时间）">🚇 换乘 ${s.metroLegs} 段</span>`);
   if (s.taxiLegs) {
-    const fare = (current.currency || 'RUB') === 'RUB' && res.stats.taxiCostRub
-      ? ` · 约 ${res.stats.taxiCostRub}₽` : '';
-    chips.push(`<span class="tr-soft-chip" title="打车段数与估算费用（莫斯科口径，不是报价）">🚕 打车 ${s.taxiLegs} 段${fare}</span>`);
+    const cost = res.stats.taxiCost || 0;
+    const cur = res.stats.taxiCurrency || '';
+    const fare = cost && cur ? ` · 约 ${cost}${currencySymbol(cur)}` : ' · 费用未配置';
+    chips.push(`<span class="tr-soft-chip" title="打车段数与城市费率估算（不是报价）">🚕 打车 ${s.taxiLegs} 段${fare}</span>`);
   }
   if (interests.length) {
     chips.push(`<span class="tr-soft-chip ${s.interest.matched === 0 ? 'warn' : ''}" title="所选兴趣命中的点位">🎯 兴趣 ${s.interest.matched}/${s.interest.total}</span>`);
@@ -597,12 +604,13 @@ function fixBar(d, di, res) {
     if ((d.transportMode || 'transit') !== 'taxi') {
       const taxi = evaluateDay({
         day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
-        options: { start: d.startTime, end: d.endTime, transportMode: 'taxi' },
+        options: { start: d.startTime, end: d.endTime, transportMode: 'taxi', taxiFare: dayFare(d) },
       });
       const saved = res.stats.transitMinutes - taxi.stats.transitMinutes;
       if (saved > 0) {
-        const fare = (current.currency || 'RUB') === 'RUB' && taxi.stats.taxiCostRub
-          ? `，约 ${taxi.stats.taxiCostRub}₽` : '';
+        const cost = taxi.stats.taxiCost || 0;
+        const cur = taxi.stats.taxiCurrency || '';
+        const fare = cost && cur ? `，约 ${cost}${currencySymbol(cur)}` : '，费用未配置';
         acts.push(`<button class="tr-fix" data-day-taxi="${di}">打车优先（通行省 ${saved}m${fare}）</button>`);
       }
     }
@@ -661,7 +669,7 @@ function renderEditor() {
   const pending = countNeedsConfirm(t);
   const dayRes = new Map(t.days.map(d => [d.id, evaluateDay({
     day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
-    options: { start: d.startTime, end: d.endTime, transportMode: d.transportMode || 'transit' },
+    options: { start: d.startTime, end: d.endTime, transportMode: d.transportMode || 'transit', taxiFare: dayFare(d) },
   })]));
   const tripInterests = Array.isArray(t.origin && t.origin.interests) ? t.origin.interests : [];
   $app.innerHTML = `
@@ -882,8 +890,7 @@ function renderEditor() {
       const d = current.days[di];
       if (!d) return;
       const r = optimizeDayOrder({
-        day: d, items: d.items, places: pointsById, interests: tripInterests,
-        taxiCostWeight: (current.currency || 'RUB') === 'RUB' ? 1 : 0,
+        day: d, items: d.items, places: pointsById, interests: tripInterests, taxiFare: dayFare(d),
       });
       if (!r.improved) { toast('当前顺序在折返/通行/摄影/时段上已是最优'); return; }
       mutate(trip => reorderDay(trip, di, r.order));
