@@ -43,6 +43,7 @@ const points = [
 {
   const plan = {
     id: 'px1', name: '莫斯科 2 日', city: '莫斯科', date: '2026-11-01', source: 'ai', channel: 'custom', model: 'm1',
+    interests: ['建筑', '摄影'],
     note: '天数不足提示', createdAt: 111,
     days: [
       { day: 1, slots: { morning: ['红场', '圣瓦西里大教堂'], afternoon: ['同名点'], evening: [] }, tip: '周一闭馆' },
@@ -79,6 +80,8 @@ const points = [
 
   if (t.origin.source === 'ai' && t.origin.channel === 'custom' && t.origin.model === 'm1' && t.origin.legacyPlanId === 'px1') ok('生成来源完整保留');
   else fail('来源丢失：' + JSON.stringify(t.origin));
+  if (t.origin.interests.join(',') === '建筑,摄影') ok('兴趣偏好随来源保留（供软目标匹配）');
+  else fail('兴趣偏好丢失：' + JSON.stringify(t.origin.interests));
 
   if (t.homeTimeZone === 'Europe/Moscow' && t.cities[0] === '莫斯科' && t.notes === '天数不足提示' && day1.note === '周一闭馆') ok('时区/城市/备注/tip 保留');
   else fail('城市相关信息丢失：' + JSON.stringify({ tz: t.homeTimeZone, cities: t.cities, notes: t.notes, tip: day1.note }));

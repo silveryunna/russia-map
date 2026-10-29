@@ -95,6 +95,7 @@ async function probePlan(name, viewport, shot) {
   ok(`${name} 行程写入 IndexedDB（schemaVersion 2）`,
     stored.length === 1 && stored[0].schemaVersion === 2 && stored[0].days.length === dayCount,
     `${stored.length} 份 / rev ${stored[0] && stored[0].revision}`);
+  ok(`${name} 软目标行渲染`, await page.locator('.tr-soft').count() > 0, '');
 
   // 排序 → 撤销
   const firstDay = page.locator('.pl-day').first();

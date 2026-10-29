@@ -4,6 +4,7 @@ import { INTERESTS, PLAN_DAYS_MAX, clampDays, ruleEngine } from './plan/engine.j
 import { evaluateDay, formatMinutes, formatMinutesCrossDay } from './plan/feasibility.js';
 import { buildDayRail } from './plan/timeline.js';
 import { planAutoTrim } from './plan/repair.js';
+import { evaluateSoft } from './plan/soft.js';
 import { loadPlans } from './plan/store.js';
 import { loadCheckins } from '../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
@@ -11,7 +12,7 @@ import { migratePlansV1 } from './trip/migrate.js';
 import { tripItemCount } from './trip/schema.js';
 import {
   addDay, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip, insertItemAt,
-  itemDateConflicts, moveItemToDay, moveItemWithinDay, removeDay, removeItem,
+  itemDateConflicts, moveItemAfter, moveItemToDay, moveItemWithinDay, removeDay, removeItem,
   setDateMode, setDayNote, setDayWindow, setItemDuration, setItemMustVisit, setItemPinnedStart,
   shiftTripStart, splitStartLocal, updateTrip,
 } from './trip/edit.js';
@@ -25,6 +26,7 @@ const $app = document.getElementById('plan-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const clampNum = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
 const snap5 = v => Math.round(v / 5) * 5;
+const fmtSpan = m => (m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? String(m % 60).padStart(2, '0') : ''}` : `${m}m`);
 const LS_AI = 'planner-ai-config';
 const STATUS_LABEL = { draft: '草稿', planned: '已计划', active: '进行中', completed: '已完成', archived: '已归档' };
 const TYPE_LABEL = { visit: '景点', transit: '交通', lodging: '住宿', meal: '餐饮', break: '休息', reservation: '预订', task: '事项', note: '备注' };
@@ -348,6 +350,7 @@ async function doGenerate(src) {
           routes: cache.rts.filter(r => r.city === f.city),
         })
       : ruleEngine(f, { pts: cache.pts, rts: cache.rts });
+    if (!Array.isArray(plan.interests)) plan.interests = Array.isArray(f.interests) ? f.interests : [];
     const mig = migratePlansV1({ plans: [plan], points: cache.pts });
     const trip = mig.trips[0];
     if (!trip || !trip.days.length) {
@@ -442,6 +445,21 @@ function itemPanelHtml(it, di, withOps = false) {
       <span class="tr-panel-hint">${hasBooking ? `已按预订 ${esc(booking.time)} 锁定，锁时字段不生效` : (pinned ? '按锁定时刻排程' : '留空＝跟随前一站顺排')}</span>
       ${ops}
     </div>`;
+}
+
+function softLine(d, res, interests) {
+  if (!res || res.empty) return '';
+  const s = evaluateSoft({ day: d, result: res, items: d.items, places: pointsById, interests });
+  const chips = [];
+  if (s.reversals) chips.push(`<span class="tr-soft-chip ${s.reversals > 1 ? 'warn' : ''}" title="相邻两段方向接近掉头的次数">↩ 折返 ${s.reversals}</span>`);
+  if (s.metroLegs) chips.push(`<span class="tr-soft-chip" title="地铁段数（含进出站时间）">🚇 换乘 ${s.metroLegs} 段</span>`);
+  if (interests.length) {
+    chips.push(`<span class="tr-soft-chip ${s.interest.matched === 0 ? 'warn' : ''}" title="所选兴趣命中的点位">🎯 兴趣 ${s.interest.matched}/${s.interest.total}</span>`);
+  }
+  if (s.middayPhoto) chips.push(`<span class="tr-soft-chip warn" title="12:00–15:00 的摄影/观景点，光线通常最硬">📷 正午摄影 ${s.middayPhoto}</span>`);
+  if (s.longestStretchMinutes) chips.push(`<span class="tr-soft-chip ${s.longestStretchMinutes > 240 ? 'warn' : ''}" title="两次用餐/休息之间最长的连续活动时间">🧗 连续 ${fmtSpan(s.longestStretchMinutes)}</span>`);
+  if (s.endSlackMinutes > 0) chips.push(`<span class="tr-soft-chip" title="收工线前的剩余时间">🛋 留白 ${fmtSpan(s.endSlackMinutes)}</span>`);
+  return chips.length ? `<div class="tr-soft">${chips.join('')}</div>` : '';
 }
 
 function unplacedReason(it) {
@@ -549,10 +567,28 @@ function fixBar(d, di, res) {
     }
   }
   const unpinned = new Set();
+  const movedNext = new Set();
   for (const c of res.conflicts) {
     if (c.kind === 'duplicate-place' && c.itemId) {
       const it = d.items.find(i => i.id === c.itemId);
       if (it) acts.push(`<button class="tr-fix danger" data-remove-item="${esc(it.id)}">删掉重复「${esc(itemName(it))}」</button>`);
+    }
+    if (c.kind === 'overlap' && c.itemId) {
+      const idx = res.timeline.findIndex(t => t.itemId === c.itemId);
+      const prevRow = idx > 0 ? res.timeline[idx - 1] : null;
+      const prevItem = prevRow ? d.items.find(i => i.id === prevRow.itemId) : null;
+      const booked = d.items.find(i => i.id === c.itemId);
+      if (prevItem && booked && prevItem.flexibility !== 'fixed' && !splitStartLocal(prevItem.startLocal).date) {
+        acts.push(`<button class="tr-fix" data-move-after="${esc(prevItem.id)}" data-anchor="${esc(booked.id)}">把「${esc(itemName(prevItem))}」移到预订后</button>`);
+      }
+    }
+    if ((c.kind === 'after-last-entry' || c.kind === 'after-close') && c.itemId
+      && di + 1 < current.days.length && !movedNext.has(c.itemId)) {
+      const it = d.items.find(i => i.id === c.itemId);
+      if (it && !splitStartLocal(it.startLocal).date) {
+        movedNext.add(it.id);
+        acts.push(`<button class="tr-fix" data-move-next="${esc(it.id)}" data-to="${di + 1}">把「${esc(itemName(it))}」移到 Day ${di + 2}</button>`);
+      }
     }
     if ((c.kind === 'late-start' || c.kind === 'overlap') && c.itemId) {
       const it = d.items.find(i => i.id === c.itemId);
@@ -576,6 +612,7 @@ function renderEditor() {
     day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
     options: { start: d.startTime, end: d.endTime },
   })]));
+  const tripInterests = Array.isArray(t.origin && t.origin.interests) ? t.origin.interests : [];
   $app.innerHTML = `
     <div class="pl-head">
       <button class="pl-btn small" id="tr-back">← 全部行程</button>
@@ -618,6 +655,7 @@ function renderEditor() {
           <input type="time" data-window-end="${di}" value="${esc(d.endTime || '21:00')}" aria-label="Day ${d.index} 收工时间">
         </div>
         ${feasibilityLine(d, dayRes.get(d.id))}
+        ${softLine(d, dayRes.get(d.id), tripInterests)}
         ${fixBar(d, di, dayRes.get(d.id))}
         ${view.layout === 'timeline' ? timelineDayHtml(d, di, dayRes.get(d.id)) : (d.items.length ? d.items.map((it, ii) => {
           const cf = conflictByItem.get(it.id);
@@ -771,6 +809,10 @@ function renderEditor() {
     if (removeFix) { mutate(trip => removeItem(trip, removeFix.dataset.removeItem)); return; }
     const unpinFix = e.target.closest('[data-unpin-item]');
     if (unpinFix) { mutate(trip => setItemPinnedStart(trip, unpinFix.dataset.unpinItem, '')); return; }
+    const moveAfterBtn = e.target.closest('[data-move-after]');
+    if (moveAfterBtn) { mutate(trip => moveItemAfter(trip, moveAfterBtn.dataset.moveAfter, moveAfterBtn.dataset.anchor)); return; }
+    const moveNextBtn = e.target.closest('[data-move-next]');
+    if (moveNextBtn) { mutate(trip => moveItemToDay(trip, moveNextBtn.dataset.moveNext, +moveNextBtn.dataset.to)); return; }
     const bind = e.target.closest('[data-bind]');
     if (bind) {
       const it = findItem(bind.dataset.bind);

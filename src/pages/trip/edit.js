@@ -129,6 +129,23 @@ export function moveItemWithinDay(trip, itemId, delta) {
   return normalizeTrip(next);
 }
 
+// 移到同一天锚点之后（例如把挡在预订前的柔性点位挪到预订后）
+export function moveItemAfter(trip, itemId, anchorId) {
+  const next = clone(trip);
+  if (!itemId || !anchorId || itemId === anchorId) return normalizeTrip(next);
+  const hit = findDay(next, itemId);
+  const anchor = findDay(next, anchorId);
+  if (!hit || !anchor || hit.day !== anchor.day) return normalizeTrip(next);
+  const [item] = hit.day.items.splice(hit.idx, 1);
+  const at = anchor.day.items.findIndex(i => i.id === anchorId);
+  if (at < 0) {
+    hit.day.items.splice(hit.idx, 0, item);
+    return normalizeTrip(next);
+  }
+  anchor.day.items.splice(at + 1, 0, item);
+  return normalizeTrip(next);
+}
+
 export function moveItemToDay(trip, itemId, toDayIndex) {
   const next = clone(trip);
   const hit = findDay(next, itemId);
@@ -319,7 +336,12 @@ export function duplicateTrip(trip, { idFn, now = Date.now() } = {}) {
   next.revision = 1;
   next.createdAt = now;
   next.updatedAt = now;
-  next.origin = { source: 'copy', fromTripId: trip.id, copiedAt: now };
+  next.origin = {
+    source: 'copy',
+    fromTripId: trip.id,
+    copiedAt: now,
+    interests: Array.isArray(trip.origin && trip.origin.interests) ? trip.origin.interests : [],
+  };
   next.days = (Array.isArray(trip.days) ? trip.days : []).map((day, di) => {
     const nd = createDay({ ...day, id: idFn ? idFn('d') : `${newId}_d${di + 1}`, index: di + 1 }, idFn);
     nd.items = (Array.isArray(day.items) ? day.items : []).map((item, ii) => createItem({

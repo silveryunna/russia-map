@@ -3,7 +3,7 @@
 // 用法: node tools/test-trip-edit.mjs
 import {
   addDay, addItem, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip, insertItemAt,
-  itemDateConflicts, joinLocal, moveItemToDay, moveItemWithinDay, normalizeTrip,
+  itemDateConflicts, joinLocal, moveItemAfter, moveItemToDay, moveItemWithinDay, normalizeTrip,
   removeDay, removeItem, setDateMode, setDayNote, setDayWindow, setItemDuration,
   setItemMustVisit, setItemPinnedStart, shiftTripStart, splitStartLocal, updateTrip,
 } from '../src/pages/trip/edit.js';
@@ -121,6 +121,12 @@ const keep = (t, label) => { validAll.push({ t, label }); return t; };
   if (!moved.days[0].items.some(x => x.id === 'i1') && moved.days[1].items[1].dayId === moved.days[1].id) ok('跨天移动更新 dayId');
   else fail('跨天移动失败');
   keep(moveItemToDay(fixture(), 'i1', 9), 'moveToBadDay');
+  const after = keep(moveItemAfter(fixture(), 'i1', 'i2'), 'moveAfter');
+  if (after.days[0].items.map(i => i.id).join(',') === 'i2,i1') ok('可把条目移到同日锚点之后');
+  else fail('移到锚点后失败：' + after.days[0].items.map(i => i.id).join(','));
+  const crossAnchor = moveItemAfter(fixture(), 'i1', 'i3');
+  if (crossAnchor.days[0].items.map(i => i.id).join(',') === 'i1,i2') ok('跨天锚点不做移动');
+  else fail('跨天锚点被移动');
   const del = keep(removeItem(fixture(), 'i1'), 'removeItem');
   if (del.days[0].items.length === 1 && del.days[0].items[0].order === 0) ok('删除点位后重排 order');
   else fail('删除点位失败');
@@ -288,6 +294,9 @@ const keep = (t, label) => { validAll.push({ t, label }); return t; };
   else fail('复制丢失点位引用');
   if (!copy.days[0].items.includes(src.days[0].items[0])) ok('复制是深拷贝，不共享对象');
   else fail('复制共享了对象引用');
+  const withInterests = duplicateTrip({ ...src, origin: { interests: ['摄影', '建筑'] } }, { idFn, now: NOW });
+  if (withInterests.origin.interests.join(',') === '摄影,建筑') ok('复制保留兴趣偏好');
+  else fail('复制丢失兴趣偏好');
 }
 
 // 11) 所有操作结果都必须通过 validateTrip

@@ -81,6 +81,7 @@ export function migratePlansV1({ plans, points, idFn, now = Date.now() } = {}) {
         source: plan.source === 'ai' ? 'ai' : 'rule',
         channel: typeof plan.channel === 'string' ? plan.channel : '',
         model: typeof plan.model === 'string' ? plan.model : '',
+        interests: Array.isArray(plan.interests) ? plan.interests.filter(x => typeof x === 'string' && x) : [],
         legacyPlanId: plan.id,
         migratedAt: now,
       },
