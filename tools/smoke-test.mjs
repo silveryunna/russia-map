@@ -172,6 +172,8 @@ async function probePlan(name, viewport, shot) {
     await page.waitForTimeout(500);
     const withTaxi = await readTrips();
     ok(`${name} 交通预算可切打车`, withTaxi[0].days[0].transportMode === 'taxi', withTaxi[0].days[0].transportMode || '');
+    const taxiChip = await page.locator('.tr-soft-chip').filter({ hasText: '打车' }).first().textContent().catch(() => '');
+    ok(`${name} 打车费用显示`, taxiChip.includes('₽'), taxiChip);
   }
 
   const fatal = errors.filter(e => /SyntaxError|JSON\.parse|is not defined/i.test(e));

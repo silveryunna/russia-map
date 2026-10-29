@@ -9,8 +9,11 @@ export const TRANSIT = {
   walkRadiusMeters: 1200,    // 1.2km 内默认步行
   metroOverheadMinutes: 10,  // 进站/候车/换乘/出站
   metroMPerMin: 500,         // 30 km/h 门到门均速
-  taxiOverheadMinutes: 5,    // 打车：叫车/上下车，费用未建模
+  taxiOverheadMinutes: 5,    // 打车：叫车/上下车
 };
+
+// 打车费用估算（卢布口径，莫斯科量级；不是报价，也不按城市/时段定价）
+export const TAXI_FARE = { baseRub: 250, perKmRub: 30, minimumRub: 300 };
 
 export const DEFAULT_DAY = { start: '09:00', end: '21:00' };
 
@@ -55,11 +58,17 @@ export function estimateLeg(from, to, options = {}) {
     return { meters, minutes: Math.ceil(meters / TRANSIT.walkSpeedMPerMin), mode: 'walk', source: 'estimate' };
   }
   if (options.mode === 'taxi') {
+    const km = meters / 1000;
+    const costRub = Math.max(
+      TAXI_FARE.minimumRub,
+      Math.round((TAXI_FARE.baseRub + TAXI_FARE.perKmRub * km) / 10) * 10,
+    );
     return {
       meters,
       minutes: TRANSIT.taxiOverheadMinutes + Math.ceil(meters / TRANSIT.metroMPerMin),
       mode: 'taxi',
       source: 'estimate',
+      costRub,
     };
   }
   return {
@@ -167,6 +176,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
   let dwell = 0;
   let transit = 0;
   let wait = 0;
+  let taxiCost = 0;
 
   const list = (Array.isArray(items) ? items : []).filter(
     (i) => i && typeof i === 'object' && !SKIP_TYPES.has(i.type) && i.plannedStatus !== 'skipped',
@@ -190,7 +200,10 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
         && placeOf(places, firstResolvable.refId)?.id === place.id;
       if (closesLoop) {
         const leg = prevPlace ? estimateLeg(prevPlace, place, { mode: transportMode }) : null;
-        if (leg) transit += leg.minutes;
+        if (leg) {
+          transit += leg.minutes;
+          if (leg.mode === 'taxi') taxiCost += leg.costRub || 0;
+        }
         push('loop-closure', 'warn', item.id, `「${name}」是回到起点的闭合回路，只计通行不计停留`, {
           backMinutes: leg ? leg.minutes : 0,
         });
@@ -220,7 +233,10 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       continue;
     }
     const legMinutes = leg ? leg.minutes : 0;
-    if (leg) transit += legMinutes;
+    if (leg) {
+      transit += legMinutes;
+      if (leg.mode === 'taxi') taxiCost += leg.costRub || 0;
+    }
 
     let arrive = cursor + legMinutes;
     if (start.kind === 'absolute' || start.kind === 'pinned' || start.kind === 'time') {
@@ -284,6 +300,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       transitMinutes: legMinutes,
       mode: leg ? leg.mode : 'none',
       transitSource: leg ? leg.source : 'none',
+      costRub: leg && leg.mode === 'taxi' ? leg.costRub : 0,
       calendar: cal.state,
       pinned: start.kind === 'absolute' || item.flexibility === 'fixed',
     });
@@ -308,6 +325,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       dwellMinutes: dwell,
       transitMinutes: transit,
       waitMinutes: wait,
+      taxiCostRub: taxiCost,
       totalMinutes,
       places: timeline.filter((t) => t.placeId).length,
       unknownHours: timeline.filter((t) => t.calendar === 'unknown').length,

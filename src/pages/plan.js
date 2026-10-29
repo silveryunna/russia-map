@@ -472,7 +472,11 @@ function softLine(d, di, res, interests) {
   const chips = [];
   if (s.reversals) chips.push(`<span class="tr-soft-chip ${s.reversals > 1 ? 'warn' : ''}" title="相邻两段方向接近掉头的次数">↩ 折返 ${s.reversals}</span>`);
   if (s.metroLegs) chips.push(`<span class="tr-soft-chip" title="地铁段数（含进出站时间）">🚇 换乘 ${s.metroLegs} 段</span>`);
-  if (s.taxiLegs) chips.push(`<span class="tr-soft-chip" title="打车段数；费用未建模">🚕 打车 ${s.taxiLegs} 段</span>`);
+  if (s.taxiLegs) {
+    const fare = (current.currency || 'RUB') === 'RUB' && res.stats.taxiCostRub
+      ? ` · 约 ${res.stats.taxiCostRub}₽` : '';
+    chips.push(`<span class="tr-soft-chip" title="打车段数与估算费用（莫斯科口径，不是报价）">🚕 打车 ${s.taxiLegs} 段${fare}</span>`);
+  }
   if (interests.length) {
     chips.push(`<span class="tr-soft-chip ${s.interest.matched === 0 ? 'warn' : ''}" title="所选兴趣命中的点位">🎯 兴趣 ${s.interest.matched}/${s.interest.total}</span>`);
   }
@@ -596,7 +600,11 @@ function fixBar(d, di, res) {
         options: { start: d.startTime, end: d.endTime, transportMode: 'taxi' },
       });
       const saved = res.stats.transitMinutes - taxi.stats.transitMinutes;
-      if (saved > 0) acts.push(`<button class="tr-fix" data-day-taxi="${di}">打车优先（通行省 ${saved}m，费用未知）</button>`);
+      if (saved > 0) {
+        const fare = (current.currency || 'RUB') === 'RUB' && taxi.stats.taxiCostRub
+          ? `，约 ${taxi.stats.taxiCostRub}₽` : '';
+        acts.push(`<button class="tr-fix" data-day-taxi="${di}">打车优先（通行省 ${saved}m${fare}）</button>`);
+      }
     }
   }
   const unpinned = new Set();
@@ -873,7 +881,10 @@ function renderEditor() {
       const di = +optimizeBtn.dataset.optimize;
       const d = current.days[di];
       if (!d) return;
-      const r = optimizeDayOrder({ day: d, items: d.items, places: pointsById, interests: tripInterests });
+      const r = optimizeDayOrder({
+        day: d, items: d.items, places: pointsById, interests: tripInterests,
+        taxiCostWeight: (current.currency || 'RUB') === 'RUB' ? 1 : 0,
+      });
       if (!r.improved) { toast('当前顺序在折返/通行/摄影/时段上已是最优'); return; }
       mutate(trip => reorderDay(trip, di, r.order));
       const periodPart = r.beforePeriods !== r.afterPeriods ? `时段 ${r.beforePeriods}→${r.afterPeriods}，` : '';

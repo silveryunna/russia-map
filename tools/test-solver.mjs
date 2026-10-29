@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // 顺序求解质量门：确定性、减少折返/通行、不移动固定/锁定项、错误不增加
 // 用法: node tools/test-solver.mjs
-import { optimizeDayOrder } from '../src/pages/plan/solver.js';
+import { optimizeDayOrder, softScore } from '../src/pages/plan/solver.js';
 
 let bad = 0;
 const fail = (m) => { console.error('❌ ' + m); bad++; };
@@ -52,6 +52,21 @@ const item = (id, extra = {}) => ({ id, refId: id, type: 'visit', flexibility: '
   const ranks = r.order.map(id => rank[id]);
   assert(r.improved && ranks.every((x, i) => i === 0 || x >= ranks[i - 1]),
     '求解遵循上午→下午→晚上，不把晚间演出排到上午');
+}
+
+// 5) 打车费用计入分值（10₽≈1 分），非 RUB 口径可关闭
+{
+  const base = {
+    day,
+    result: { timeline: [], errors: [], stats: { transitMinutes: 40, taxiCostRub: 0 } },
+    soft: { reversals: 0, middayPhoto: 0, longestStretchMinutes: 0 },
+  };
+  const costly = {
+    ...base,
+    result: { ...base.result, stats: { transitMinutes: 40, taxiCostRub: 1000 } },
+  };
+  assert(softScore(costly) - softScore(base) === 100, '打车费用按 10₽≈1 分计入求解分值');
+  assert(softScore({ ...costly, taxiCostWeight: 0 }) === softScore(base), '非 RUB 口径可关闭费用项');
 }
 
 if (bad) { console.error(`\n${bad} 项顺序求解测试失败`); process.exit(1); }
