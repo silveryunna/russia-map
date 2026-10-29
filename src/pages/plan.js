@@ -1,6 +1,7 @@
 import '../shared/base.css';
 import './plan.css';
 import { INTERESTS, PLAN_DAYS_MAX, clampDays, ruleEngine } from './plan/engine.js';
+import { evaluateDay, formatMinutes } from './plan/feasibility.js';
 import { loadPlans } from './plan/store.js';
 import { loadCheckins } from '../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
@@ -366,6 +367,31 @@ async function doGenerate(src) {
 }
 
 /* ---------- 编辑器 ---------- */
+const FEAS_LABEL = {
+  'day-overrun': '超出收工线', closed: '闭馆', 'after-last-entry': '过最后入场', 'after-close': '会跨闭馆',
+  overlap: '与预订重叠', 'cross-day': '跨日预订', 'duplicate-place': '重复点位', 'missing-duration': '缺时长',
+  'unresolved-place': '未绑定', 'missing-coords': '缺坐标',
+};
+
+// 每天一条可行性结论：硬冲突才标红，unknown 只作为提示（绝不假装"全天开放"）
+function feasibilityLine(d) {
+  const res = evaluateDay({ day: { id: d.id, date: d.date }, items: d.items, places: pointsById });
+  if (res.empty) return '';
+  const errs = res.errors;
+  const unknown = res.stats.unknownHours;
+  const start = formatMinutes(res.timeline[0].arrive);
+  const end = formatMinutes(res.timeline[res.timeline.length - 1].end);
+  const dwell = (res.stats.dwellMinutes / 60).toFixed(1);
+  const chips = errs.slice(0, 3).map(c => `<span class="tr-chip danger">${FEAS_LABEL[c.kind] || c.kind}</span>`).join('')
+    + (errs.length > 3 ? `<span class="tr-chip danger">+${errs.length - 3}</span>` : '')
+    + (unknown ? `<span class="tr-chip">${unknown} 处开放时间未知</span>` : '');
+  return `<div class="tr-feas ${errs.length ? 'is-bad' : ''}">
+      <span>⏱ 预计 ${start}–${end} · 停留 ${dwell}h · 通行 ${res.stats.transitMinutes}m</span>
+      <span>${errs.length ? `⚠️ ${errs[0].message}` : '✅ 硬约束通过'}</span>
+      ${chips ? `<div class="tr-feas-chips">${chips}</div>` : ''}
+    </div>`;
+}
+
 function renderEditor() {
   const t = current;
   const col = meta.cityColors[(t.cities || [])[0]] || '#B71C1C';
@@ -406,6 +432,7 @@ function renderEditor() {
           <span>Day ${d.index}${d.date ? ` <em>${md(d.date)} ${weekday(d.date)}</em>` : ''}</span>
           <span>${d.items.length} 项</span>
         </div>
+        ${feasibilityLine(d)}
         ${d.items.length ? d.items.map((it, ii) => {
           const cf = conflictByItem.get(it.id);
           return `
