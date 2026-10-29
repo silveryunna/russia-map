@@ -94,6 +94,45 @@ const it = (id, refId, extra = {}) => ({
   assert(!short.feasible && short.conflicts.some((c) => c.kind === 'day-overrun'), '窗口放不下 180 分钟 → 报超收工线');
 }
 
+// ── 3.2) 编辑器锁定时刻（pinnedStart，软锚点）──
+{
+  const late = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('i1', 'p1'), it('i2', 'p2', { pinnedStart: '13:00' })],
+    places,
+  });
+  assert(formatMinutes(late.timeline[1].start) === '13:00' && late.stats.waitMinutes > 0,
+    'pinnedStart 晚于到达 → 等待到锁定时刻');
+  const early = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('i1', 'p2'), it('i2', 'p1', { pinnedStart: '10:00' })],
+    places,
+  });
+  assert(early.conflicts.some((c) => c.kind === 'late-start' && c.severity === 'warn'),
+    '软锚点被晚到 → 只提示不阻断');
+  const softTime = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('i1', 'p2'), it('i2', 'p1', { startLocal: '10:00' })],
+    places,
+  });
+  assert(softTime.conflicts.some((c) => c.kind === 'late-start' && c.severity === 'warn'),
+    '时间型 startLocal 被晚到同样提示（不再静默吞掉）');
+  const fixed = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('i1', 'p2'), it('i2', 'p1', { pinnedStart: '10:00', flexibility: 'fixed' })],
+    places,
+  });
+  assert(fixed.conflicts.some((c) => c.kind === 'overlap' && c.severity === 'error'),
+    'flexibility=fixed + pinnedStart 被晚到 → 硬冲突');
+  const booked = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('i1', 'p2'), it('i2', 'p1', { startLocal: '2026-11-10T19:30', pinnedStart: '10:00' })],
+    places,
+  });
+  assert(formatMinutes(booked.timeline[booked.timeline.length - 1].start) === '19:30',
+    '带日期的预订优先于 pinnedStart');
+}
+
 // ── 4) 闭馆日：报错 + 有修复建议 ──
 {
   const r = evaluateDay({ day: { id: 'd', date: '2026-11-09' }, items: [it('i1', 'p4')], places });

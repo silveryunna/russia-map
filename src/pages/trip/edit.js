@@ -39,6 +39,7 @@ export function normalizeTrip(trip) {
       item.order = ii;
       item.dayId = day.id;
       if (typeof item.mustVisit !== 'boolean') item.mustVisit = true;
+      if (!isTimeString(item.pinnedStart)) item.pinnedStart = '';
     });
   });
   if (fixed) next.endDate = addDays(next.startDate, Math.max(0, next.days.length - 1));
@@ -172,6 +173,16 @@ export function setItemMustVisit(trip, itemId, mustVisit) {
   const hit = findDay(next, itemId);
   if (!hit) return normalizeTrip(next);
   hit.day.items[hit.idx].mustVisit = mustVisit;
+  return normalizeTrip(next);
+}
+
+// 锁定当天开始时刻；'' 表示取消锁定，非法值（非 HH:MM）忽略
+export function setItemPinnedStart(trip, itemId, value) {
+  const next = clone(trip);
+  if (value !== '' && !isTimeString(value)) return normalizeTrip(next);
+  const hit = findDay(next, itemId);
+  if (!hit) return normalizeTrip(next);
+  hit.day.items[hit.idx].pinnedStart = value;
   return normalizeTrip(next);
 }
 

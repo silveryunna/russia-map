@@ -110,6 +110,9 @@ function resolveStart(item) {
   const s = typeof item.startLocal === 'string' ? item.startLocal : '';
   const abs = s.match(ABS_RE);
   if (abs) return { kind: 'absolute', date: s.slice(0, 10), minutes: parseMinutes(abs[1]) };
+  // 编辑器里的锁定时刻是软锚点；带日期的预订（absolute）优先
+  const pinned = parseMinutes(typeof item.pinnedStart === 'string' ? item.pinnedStart : '');
+  if (pinned !== null) return { kind: 'pinned', date: '', minutes: pinned };
   const t = parseMinutes(s);
   if (t !== null) return { kind: 'time', date: '', minutes: t };
   return { kind: 'none', date: '', minutes: null };
@@ -200,26 +203,25 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
     if (leg) transit += legMinutes;
 
     let arrive = cursor + legMinutes;
-    if (start.kind === 'absolute' || start.kind === 'time') {
+    if (start.kind === 'absolute' || start.kind === 'pinned' || start.kind === 'time') {
       const pin = start.minutes;
-      if (start.kind === 'absolute' || item.flexibility === 'fixed' || pin > arrive) {
-        if (pin < arrive) {
-          if (start.kind === 'absolute' || item.flexibility === 'fixed') {
-            push('overlap', 'error', item.id, `「${name}」固定 ${formatMinutes(pin)} 开始，但按前面的行程 ${formatMinutes(arrive)} 才能到`, {
-              fixedAt: formatMinutes(pin),
-              earliestArrival: formatMinutes(arrive),
-            });
-          } else {
-            // 软时点被晚到覆盖：按实际到达继续，但必须告诉用户晚了多少
-            push('late-start', 'warn', item.id, `「${name}」计划 ${formatMinutes(pin)} 开始，实际 ${formatMinutes(arrive)} 才到`, {
-              planned: formatMinutes(pin),
-              actual: formatMinutes(arrive),
-            });
-          }
+      const hard = start.kind === 'absolute' || item.flexibility === 'fixed';
+      if (pin < arrive) {
+        if (hard) {
+          push('overlap', 'error', item.id, `「${name}」固定 ${formatMinutes(pin)} 开始，但按前面的行程 ${formatMinutes(arrive)} 才能到`, {
+            fixedAt: formatMinutes(pin),
+            earliestArrival: formatMinutes(arrive),
+          });
         } else {
-          wait += pin - arrive;
-          arrive = pin;
+          // 软时点被晚到覆盖：按实际到达继续，但必须告诉用户晚了多少
+          push('late-start', 'warn', item.id, `「${name}」计划 ${formatMinutes(pin)} 开始，实际 ${formatMinutes(arrive)} 才到`, {
+            planned: formatMinutes(pin),
+            actual: formatMinutes(arrive),
+          });
         }
+      } else {
+        wait += pin - arrive;
+        arrive = pin;
       }
     }
 

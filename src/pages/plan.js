@@ -10,7 +10,8 @@ import { tripItemCount } from './trip/schema.js';
 import {
   addDay, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip,
   itemDateConflicts, moveItemToDay, moveItemWithinDay, removeDay, removeItem,
-  setDateMode, setDayNote, shiftTripStart, updateTrip,
+  setDateMode, setDayNote, setDayWindow, setItemMustVisit, setItemPinnedStart,
+  shiftTripStart, splitStartLocal, updateTrip,
 } from './trip/edit.js';
 
 // 行程计划（Trip v2）：本次旅行可编辑、可恢复、可导出
@@ -34,7 +35,7 @@ let trips = [];
 let current = null;              // 编辑器里的行程
 let ambiguities = [];            // 迁移遗留的待确认项（仅用于预置候选）
 let undoStack = [];
-let view = { mode: 'list', form: null, showAI: false, aiError: '', picker: null };
+let view = { mode: 'list', form: null, showAI: false, aiError: '', picker: null, sel: null };
 
 const planLoad = loadPlans(localStorage);
 
@@ -355,6 +356,7 @@ async function doGenerate(src) {
     current = saved.trip;
     undoStack = [];
     view.mode = 'editor';
+    view.sel = null;
     render();
     const pending = countNeedsConfirm(current);
     toast(`行程已生成（${sourceLabel(current)}）${pending ? ` · ${pending} 个点位待确认` : ''}`);
@@ -392,6 +394,24 @@ function feasibilityLine(d) {
       <span>⏱ 预计 ${start}–${end} · 停留 ${dwell}h · 通行 ${res.stats.transitMinutes}m</span>
       <span>${errs.length ? `⚠️ ${errs[0].message}` : '✅ 硬约束通过'}</span>
       ${chips ? `<div class="tr-feas-chips">${chips}</div>` : ''}
+    </div>`;
+}
+
+function itemPanelHtml(it) {
+  const booking = splitStartLocal(it.startLocal);
+  const hasBooking = !!booking.date;
+  const pinned = it.pinnedStart || '';
+  return `
+    <div class="tr-item-panel">
+      <label class="tr-panel-field">锁定时点
+        <input type="time" data-pin-time="${esc(it.id)}" value="${esc(pinned)}" ${hasBooking ? 'disabled' : ''} aria-label="锁定时点">
+      </label>
+      <button class="pl-btn small" data-pin-clear="${esc(it.id)}" ${pinned && !hasBooking ? '' : 'disabled'}>清除</button>
+      <span class="tr-seg" role="group" aria-label="必去或可删">
+        <button class="${it.mustVisit !== false ? 'on' : ''}" data-must="${esc(it.id)}" data-must-value="1">必去</button>
+        <button class="${it.mustVisit === false ? 'on' : ''}" data-must="${esc(it.id)}" data-must-value="0">可删</button>
+      </span>
+      <span class="tr-panel-hint">${hasBooking ? `已按预订 ${esc(booking.time)} 锁定，锁时字段不生效` : (pinned ? '按锁定时刻排程' : '留空＝跟随前一站顺排')}</span>
     </div>`;
 }
 
@@ -435,14 +455,22 @@ function renderEditor() {
           <span>Day ${d.index}${d.date ? ` <em>${md(d.date)} ${weekday(d.date)}</em>` : ''}</span>
           <span>${d.items.length} 项</span>
         </div>
+        <div class="tr-window">
+          <span class="tr-window-label">⏱ 当天窗口</span>
+          <input type="time" data-window-start="${di}" value="${esc(d.startTime || '09:00')}" aria-label="Day ${d.index} 出发时间">
+          <span class="tr-window-sep">–</span>
+          <input type="time" data-window-end="${di}" value="${esc(d.endTime || '21:00')}" aria-label="Day ${d.index} 收工时间">
+        </div>
         ${feasibilityLine(d)}
         ${d.items.length ? d.items.map((it, ii) => {
           const cf = conflictByItem.get(it.id);
           return `
-          <div class="pl-point tr-item" data-item="${esc(it.id)}">
+          <div class="pl-point tr-item ${view.sel === it.id ? 'is-sel' : ''}" data-item="${esc(it.id)}">
             <span class="pl-dot" style="background:${it.confirm === 'ok' && it.refId ? (meta.cityColors[(pointsById.get(it.refId) || {}).city] || '#546E7A') : '#C9A227'}"></span>
             <button class="tr-name" data-bind="${esc(it.id)}">${esc(itemName(it))}</button>
             ${it.period ? `<span class="tr-chip">${PERIOD_LABEL[it.period]}</span>` : ''}
+            ${it.pinnedStart ? `<span class="tr-chip pin">🔒 ${esc(it.pinnedStart)}</span>` : ''}
+            ${it.mustVisit === false ? '<span class="tr-chip opt">可删</span>' : ''}
             ${it.confirm !== 'ok' ? '<span class="tr-chip warn">待确认</span>' : ''}
             ${cf ? `<span class="tr-chip danger">预订 ${md(cf.itemDate)}</span>` : ''}
             <span class="pl-ptype">${esc(itemType(it))}</span>
@@ -452,7 +480,8 @@ function renderEditor() {
               ${t.days.length > 1 ? `<select class="tr-day-move" name="move-day" data-moveday="${esc(it.id)}" aria-label="移动到某天">${t.days.map((x, xi) => `<option value="${xi}" ${xi === di ? 'selected' : ''}>D${xi + 1}</option>`).join('')}</select>` : ''}
               <button class="tr-icon danger" data-rm="${esc(it.id)}" aria-label="删除">✕</button>
             </span>
-          </div>`;
+          </div>
+          ${view.sel === it.id ? itemPanelHtml(it) : ''}`;
         }).join('') : '<div class="tr-day-empty">这一天还没有安排</div>'}
         <div class="tr-day-ops">
           <button class="pl-btn small" data-add="${di}">＋ 加点位</button>
@@ -467,7 +496,7 @@ function renderEditor() {
     </div>
     ${view.picker ? pickerHtml() : ''}`;
 
-  document.getElementById('tr-back').onclick = () => { view.mode = 'list'; view.picker = null; current = null; render(); };
+  document.getElementById('tr-back').onclick = () => { view.mode = 'list'; view.picker = null; view.sel = null; current = null; render(); };
   const undoBtn = document.getElementById('tr-undo');
   if (undoBtn) undoBtn.onclick = doUndo;
   document.getElementById('tr-md').onclick = () => exportMd(current);
@@ -518,19 +547,42 @@ function renderEditor() {
     const dn = e.target.closest('[data-dn]');
     if (dn) { mutate(trip => moveItemWithinDay(trip, dn.dataset.dn, 1)); return; }
     const rm = e.target.closest('[data-rm]');
-    if (rm) { mutate(trip => removeItem(trip, rm.dataset.rm)); return; }
+    if (rm) { if (view.sel === rm.dataset.rm) view.sel = null; mutate(trip => removeItem(trip, rm.dataset.rm)); return; }
+    const pinClear = e.target.closest('[data-pin-clear]');
+    if (pinClear) { mutate(trip => setItemPinnedStart(trip, pinClear.dataset.pinClear, '')); return; }
+    const must = e.target.closest('[data-must]');
+    if (must) { mutate(trip => setItemMustVisit(trip, must.dataset.must, must.dataset.mustValue === '1')); return; }
     const bind = e.target.closest('[data-bind]');
     if (bind) {
       const it = findItem(bind.dataset.bind);
-      if (it && it.confirm !== 'ok') { view.picker = { mode: 'bind', itemId: it.id, q: '', city: (current.cities || [])[0] || '' }; render(); const q = document.getElementById('tr-q'); if (q) q.focus(); }
-      return;
+      if (it && it.confirm !== 'ok') { view.picker = { mode: 'bind', itemId: it.id, q: '', city: (current.cities || [])[0] || '' }; render(); const q = document.getElementById('tr-q'); if (q) q.focus(); return; }
     }
     const back = e.target.closest('[data-pick-close]');
-    if (back) { view.picker = null; render(); }
+    if (back) { view.picker = null; render(); return; }
+    const row = e.target.closest('[data-item]');
+    if (row) { view.sel = view.sel === row.dataset.item ? null : row.dataset.item; render(); }
   };
   $app.onchange = e => {
     const sel = e.target.closest('[data-moveday]');
-    if (sel) { const to = +sel.value; mutate(trip => moveItemToDay(trip, sel.dataset.moveday, to)); }
+    if (sel) { const to = +sel.value; mutate(trip => moveItemToDay(trip, sel.dataset.moveday, to)); return; }
+    const ws = e.target.closest('[data-window-start]');
+    const we = e.target.closest('[data-window-end]');
+    if (ws || we) {
+      const di = Number(ws ? ws.dataset.windowStart : we.dataset.windowEnd);
+      const day = current.days[di];
+      if (!day) return;
+      const start = ws ? ws.value : (day.startTime || '09:00');
+      const end = we ? we.value : (day.endTime || '21:00');
+      if (!start || !end || end <= start) { toast('收工时间必须晚于出发时间'); render(); return; }
+      mutate(trip => setDayWindow(trip, di, { startTime: start, endTime: end }));
+      return;
+    }
+    const pin = e.target.closest('[data-pin-time]');
+    if (pin) {
+      const v = pin.value;
+      if (v && !/^([01]\d|2[0-3]):[0-5]\d$/.test(v)) { render(); return; }
+      mutate(trip => setItemPinnedStart(trip, pin.dataset.pinTime, v));
+    }
   };
 }
 

@@ -5,7 +5,7 @@ import {
   addDay, addItem, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip,
   itemDateConflicts, joinLocal, moveItemToDay, moveItemWithinDay, normalizeTrip,
   removeDay, removeItem, setDateMode, setDayNote, setDayWindow, setItemMustVisit,
-  shiftTripStart, splitStartLocal, updateTrip,
+  setItemPinnedStart, shiftTripStart, splitStartLocal, updateTrip,
 } from '../src/pages/trip/edit.js';
 import { createDay, createItem, createTrip, validateTrip } from '../src/pages/trip/schema.js';
 
@@ -131,6 +131,21 @@ const keep = (t, label) => { validAll.push({ t, label }); return t; };
   const badMust = setItemMustVisit(must, 'i1', 'no');
   if (badMust.days[0].items[0].mustVisit === false) ok('非布尔 mustVisit 被拒绝');
   else fail('非布尔 mustVisit 被接受');
+  const pinned = keep(setItemPinnedStart(fixture(), 'i1', '10:05'), 'setPinnedStart');
+  if (pinned.days[0].items[0].pinnedStart === '10:05') ok('条目可锁定当天开始时刻');
+  else fail('pinnedStart 未写入');
+  const badPin = setItemPinnedStart(pinned, 'i1', '25:00');
+  if (badPin.days[0].items[0].pinnedStart === '10:05') ok('非法 pinnedStart 被拒绝');
+  else fail('非法 pinnedStart 被接受');
+  const cleared = keep(setItemPinnedStart(pinned, 'i1', ''), 'clearPinnedStart');
+  if (cleared.days[0].items[0].pinnedStart === '') ok('空串可清除锁定时点');
+  else fail('pinnedStart 清除失败');
+  const legacyPin = normalizeTrip({
+    ...fixture(),
+    days: fixture().days.map((d, i) => (i === 0 ? { ...d, items: d.items.map(({ pinnedStart, ...it }) => it) } : d)),
+  });
+  if (legacyPin.days[0].items.every(it => it.pinnedStart === '')) ok('缺 pinnedStart 的旧条目按未锁定处理');
+  else fail('旧条目 pinnedStart 默认值错误');
   const legacyItem = normalizeTrip({
     ...fixture(),
     days: fixture().days.map((d, i) => (i === 0 ? { ...d, items: d.items.map(({ mustVisit, ...it }) => it) } : d)),

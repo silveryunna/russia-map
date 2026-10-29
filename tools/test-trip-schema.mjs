@@ -74,6 +74,14 @@ const idFn = (p) => `${p}${++seq}`;
   const opt = createItem({ mustVisit: false }, idFn);
   if (opt.mustVisit === false) ok('createItem 保留显式 mustVisit=false');
   else fail('createItem 显式可删丢失');
+  if (i.pinnedStart === '') ok('createItem 默认不锁定时刻');
+  else fail('createItem pinnedStart 默认值错误：' + i.pinnedStart);
+  const pinned = createItem({ pinnedStart: '10:05' }, idFn);
+  if (pinned.pinnedStart === '10:05') ok('createItem 保留合法锁定时点');
+  else fail('createItem 锁定时点丢失：' + pinned.pinnedStart);
+  const badPin = createItem({ pinnedStart: '9:05' }, idFn);
+  if (badPin.pinnedStart === '') ok('createItem 非法锁定时点回落空串');
+  else fail('createItem 非法锁定时点未回落：' + badPin.pinnedStart);
 
   const badEnum = createItem({ type: 'nope', flexibility: 'x', plannedStatus: 'y', period: 'z' }, idFn);
   if (badEnum.type === 'visit' && badEnum.flexibility === 'flexible' && badEnum.plannedStatus === 'planned' && badEnum.period === '') ok('createItem 非法枚举回落默认值');
@@ -120,6 +128,7 @@ const idFn = (p) => `${p}${++seq}`;
     ['endTime 不晚于 startTime', mk(t => { t.days[0].startTime = '18:00'; t.days[0].endTime = '09:00'; }), 'range'],
     ['钟点窗口只写一半', mk(t => { delete t.days[0].endTime; }), 'required'],
     ['mustVisit 非布尔', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), mustVisit: 'yes' }); }), 'type'],
+    ['pinnedStart 非法', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), pinnedStart: '25:00' }); }), 'time'],
   ];
   const wrong = [];
   for (const [label, r, code] of cases) {

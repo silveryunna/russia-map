@@ -10,6 +10,7 @@
 //   ItineraryItem.placeNameSnapshot  点位改名/删除后仍能读出当时的名字
 //   ItineraryItem.confirm    ok|needs_confirm（名称迁移歧义待人工确认，不静默丢弃）
 //   ItineraryItem.mustVisit  必去=true（默认）/可删=false；自动减负只动 false 的条目
+//   ItineraryItem.pinnedStart  当天锁定的开始时刻（HH:MM，空串=不锁；预订的绝对 startLocal 优先）
 
 export const TRIP_SCHEMA_VERSION = 2;
 
@@ -111,6 +112,7 @@ export function createItem(input = {}, idFn = defaultId) {
     timeZone: typeof input.timeZone === 'string' ? input.timeZone : '',
     flexibility: FLEXIBILITY.includes(input.flexibility) ? input.flexibility : 'flexible',
     mustVisit: input.mustVisit !== false,
+    pinnedStart: isTimeString(input.pinnedStart) ? input.pinnedStart : '',
     estimatedDuration: duration,
     plannedStatus: PLANNED_STATUS.includes(input.plannedStatus) ? input.plannedStatus : 'planned',
     actualVisitId: typeof input.actualVisitId === 'string' && input.actualVisitId ? input.actualVisitId : null,
@@ -205,6 +207,9 @@ export function validateTrip(trip) {
       if (!PLANNED_STATUS.includes(item.plannedStatus)) err(`${ip}.plannedStatus`, 'enum', 'plannedStatus 非法');
       if (!FLEXIBILITY.includes(item.flexibility)) err(`${ip}.flexibility`, 'enum', 'flexibility 非法');
       if (typeof item.mustVisit !== 'boolean') err(`${ip}.mustVisit`, 'type', 'mustVisit 必须是布尔值');
+      if (item.pinnedStart !== undefined && item.pinnedStart !== '' && !isTimeString(item.pinnedStart)) {
+        err(`${ip}.pinnedStart`, 'time', 'pinnedStart 必须是 HH:MM 或空串');
+      }
       if (!ITEM_PERIODS.includes(item.period)) err(`${ip}.period`, 'enum', `period 非法：${item.period}`);
       if (!CONFIRM_STATUS.includes(item.confirm)) err(`${ip}.confirm`, 'enum', 'confirm 非法');
     });
