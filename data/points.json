@@ -3,6 +3,7 @@
     "id": "p001",
     "name": "红场",
     "name_en": "Red Square",
+    "name_local": "Красная площадь",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "纪念地",
@@ -12,24 +13,52 @@
     "lon": 37.621501,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p002",
     "name": "克里姆林宫",
     "name_en": "Moscow Kremlin",
+    "name_local": "Московский Кремль",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "宫殿庄园",
     "highlight": "实测未入内（“金银珠宝没兴趣”）；教堂广场需购票排队",
     "note": "入内需购票",
     "lat": 55.751621,
-    "lon": 37.618122
+    "lon": 37.618122,
+    "estimatedDuration": 180,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p003",
     "name": "圣瓦西里大教堂",
     "name_en": "Red Square, 7",
+    "name_local": "Храм Василия Блаженного",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "宗教场所",
@@ -39,48 +68,104 @@
     "lon": 37.623162,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 40,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p004",
     "name": "历史博物馆（红砖楼）",
     "name_en": "Red Square, 1",
+    "name_local": "Государственный исторический музей",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "博物馆",
     "highlight": "红砖复兴风格，与红场同框机位；实测仅外观",
     "note": "未入内",
     "lat": 55.755323,
-    "lon": 37.617882
+    "lon": 37.617882,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p005",
     "name": "古姆百货 + 冰淇淋",
     "name_en": "Red Square, 3",
+    "name_local": "ГУМ",
     "city": "莫斯科",
     "cluster": "① 红场核心群",
     "type": "餐饮",
     "highlight": "百年百货拱廊+喷泉；冰淇淋“路过就要吃一个”",
     "note": "冰淇淋 150卢/个，一般需排队",
     "lat": 55.754703,
-    "lon": 37.621438
+    "lon": 37.621438,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p006",
     "name": "莫斯科大剧院（芭蕾）",
     "name_en": "Teatralnaya Square, 1",
+    "name_local": "Большой театр России",
     "city": "莫斯科",
     "cluster": "② 剧院-牧首湖群",
     "type": "演出",
     "highlight": "俄派芭蕾殿堂；《天鹅湖》《胡桃夹子》保留剧目",
     "note": "官网提前1-2月抢票；便宜票几百卢布也有",
     "lat": 55.76013,
-    "lon": 37.618612
+    "lon": 37.618612,
+    "estimatedDuration": 150,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p007",
     "name": "牧首湖 + 布尔加科夫",
     "name_en": "Patriarch's Ponds",
+    "name_local": "Патриаршие пруды",
     "city": "莫斯科",
     "cluster": "② 剧院-牧首湖群",
     "type": "公园自然",
@@ -90,12 +175,26 @@
     "lon": 37.591875,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p008",
     "name": "老阿尔巴特步行街 + 维克多·崔纪念墙（痛哭之墙）",
     "name_en": "Krivoarbatsky Lane",
+    "name_local": "Старый Арбат и стена Виктора Цоя",
     "city": "莫斯科",
     "cluster": "③ 阿尔巴特-河湾文化群",
     "type": "城市记忆",
@@ -105,12 +204,26 @@
     "lon": 37.590131,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 90,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p009",
     "name": "圣母无原罪主教座堂",
     "name_en": "Malaya Gruzinskaya Street, 27/13с1",
+    "name_local": "Собор Непорочного Зачатия Пресвятой Девы Марии",
     "city": "莫斯科",
     "cluster": "③ 阿尔巴特-河湾文化群",
     "type": "宗教场所",
@@ -120,72 +233,156 @@
     "lon": 37.571315,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 40,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p010",
     "name": "普希金国家美术博物馆",
     "name_en": "Volkhonka Street, 12",
+    "name_local": "ГМИИ им. А. С. Пушкина",
     "city": "莫斯科",
     "cluster": "③ 阿尔巴特-河湾文化群",
     "type": "博物馆",
     "highlight": "波提切利《受胎告知》+伦勃朗《阿哈随鲁、哈曼与埃斯贴的盛宴》真迹；古典雕塑翻模",
     "note": "副馆（19-20世纪画廊）与冬宫新馆同源（舒金&莫罗佐夫收藏分割），时间紧二选一",
     "lat": 55.747285,
-    "lon": 37.605423
+    "lon": 37.605423,
+    "estimatedDuration": 150,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p011",
     "name": "果戈里故居",
     "name_en": "Nikitskiy Boulevard, 7А",
+    "name_local": "Дом-музей Н. В. Гоголя",
     "city": "莫斯科",
     "cluster": "④ 文学故居群（林荫道环线）",
     "type": "博物馆",
     "highlight": "焚毁《死魂灵》第二部手稿、1852年辞世之处",
     "note": "闭馆日多为周一/二，出发前查官网",
     "lat": 55.754123,
-    "lon": 37.599814
+    "lon": 37.599814,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p012",
     "name": "高尔基故居",
     "name_en": "Malaya Nikitskaya Street, 6/2с5",
+    "name_local": "Музей-квартира А. М. Горького",
     "city": "莫斯科",
     "cluster": "④ 文学故居群（林荫道环线）",
     "type": "博物馆",
     "highlight": "Shekhtel 新艺术运动杰作（Rabushinsky 宅邸），建筑本身就是看点",
     "note": "闭馆日各异",
     "lat": 55.758158,
-    "lon": 37.596349
+    "lon": 37.596349,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p013",
     "name": "托尔斯泰故居",
     "name_en": "Lva Tolstogo Street, 21с1",
+    "name_local": "Музей-усадьба Л. Н. Толстого в Хамовниках",
     "city": "莫斯科",
     "cluster": "④ 文学故居群（林荫道环线）",
     "type": "博物馆",
     "highlight": "托翁1882-1901年寓所（木楼+花园）；Prechistenka 11 另有托尔斯泰博物馆",
     "note": "闭馆日各异",
     "lat": 55.734167,
-    "lon": 37.585925
+    "lon": 37.585925,
+    "estimatedDuration": 75,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p014",
     "name": "莫斯科河夜游船",
     "name_en": "Kutuzovsky Avenue, 2/1с1",
+    "name_local": "Круиз по Москве-реке",
     "city": "莫斯科",
     "cluster": "⑤ 斯大林七姐妹 City walk",
     "type": "水上巴士",
     "highlight": "蓝调时刻出发：克里姆林宫、彼得大帝雕像、斯大林高楼、救世主大教堂依次亮灯",
     "note": "1.5-2.5小时；冬季有暖气；可同框拍两栋七姐妹",
     "lat": 55.751456,
-    "lon": 37.565489
+    "lon": 37.565489,
+    "estimatedDuration": 150,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p015",
     "name": "俄罗斯科学院“金脑子”",
     "name_en": "Leninsky Avenue, 32А",
+    "name_local": "Президиум РАН («Золотые мозги»)",
     "city": "莫斯科",
     "cluster": "⑥ 航天科学线（列宁大街→VDNKh）",
     "type": "建筑",
@@ -195,12 +392,26 @@
     "lon": 37.57897,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 15,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p016",
     "name": "加加林广场",
     "name_en": "Gagarina Square",
+    "name_local": "Площадь Гагарина",
     "city": "莫斯科",
     "cluster": "⑥ 航天科学线（列宁大街→VDNKh）",
     "type": "科技遗迹",
@@ -210,12 +421,26 @@
     "lon": 37.586394,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p017",
     "name": "莫斯科航天博物馆",
     "name_en": "Mira Avenue, 111",
+    "name_local": "Музей космонавтики",
     "city": "莫斯科",
     "cluster": "⑥ 航天科学线（列宁大街→VDNKh）",
     "type": "博物馆",
@@ -226,12 +451,26 @@
     "tags": [
       "免费",
       "周一闭馆"
-    ]
+    ],
+    "estimatedDuration": 120,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p018",
     "name": "VDNKh 全俄展览中心",
     "name_en": "VDNKh",
+    "name_local": "ВДНХ",
     "city": "莫斯科",
     "cluster": "⑥ 航天科学线（列宁大街→VDNKh）",
     "type": "建筑",
@@ -241,12 +480,26 @@
     "lon": 37.641201,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 180,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p019",
     "name": "胜利广场",
     "name_en": "Kutuzovsky Avenue",
+    "name_local": "Парк Победы на Поклонной горе",
     "city": "莫斯科",
     "cluster": "⑦ 波克隆纳亚山胜利群",
     "type": "纪念地",
@@ -256,12 +509,26 @@
     "lon": 37.518671,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 75,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p020",
     "name": "圣乔治胜利教堂",
     "name_en": "Pobedy Square, 3Б",
+    "name_local": "Храм Святого Георгия Победоносца",
     "city": "莫斯科",
     "cluster": "⑦ 波克隆纳亚山胜利群",
     "type": "宗教场所",
@@ -271,12 +538,26 @@
     "lon": 37.512051,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p021",
     "name": "凯旋门",
     "name_en": "Kutuzovsky Avenue",
+    "name_local": "Триумфальная арка",
     "city": "莫斯科",
     "cluster": "⑦ 波克隆纳亚山胜利群",
     "type": "纪念地",
@@ -286,12 +567,26 @@
     "lon": 37.519989,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 20,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p022",
     "name": "察里津诺庄园（公主换装）",
     "name_en": "Tsaritsyno Museum-Reserve",
+    "name_local": "Музей-заповедник «Царицыно»",
     "city": "莫斯科",
     "cluster": "⑧ 察里津诺群（南线）",
     "type": "宫殿庄园",
@@ -302,12 +597,26 @@
     "tags": [
       "免费",
       "周一闭馆"
-    ]
+    ],
+    "estimatedDuration": 150,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p023",
     "name": "圣母生命之泉圣像教堂",
     "name_en": "Dolskaya Street, 2",
+    "name_local": "Храм иконы Божией Матери «Живоносный Источник»",
     "city": "莫斯科",
     "cluster": "⑧ 察里津诺群（南线）",
     "type": "宗教场所",
@@ -317,7 +626,20 @@
     "lon": 37.68152,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 20,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p024",
@@ -338,6 +660,7 @@
     "id": "p025",
     "name": "特列季亚科夫画廊",
     "name_en": "Lavrushinsky Lane, 10с4",
+    "name_local": "Государственная Третьяковская галерея",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "博物馆",
@@ -347,12 +670,26 @@
     "lon": 37.62022,
     "tags": [
       "周一闭馆"
-    ]
+    ],
+    "estimatedDuration": 150,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p026",
     "name": "武装力量大教堂（库宾卡爱国者公园）",
     "name_en": "2-ya Parkovochnaya alleya",
+    "name_local": "Главный храм Вооружённых сил России",
     "city": "莫斯科州/近郊",
     "cluster": "独立点位",
     "type": "宗教场所",
@@ -363,7 +700,20 @@
     "tags": [
       "免费",
       "需预约"
-    ]
+    ],
+    "estimatedDuration": 120,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p027",
@@ -769,6 +1119,7 @@
     "id": "p057",
     "name": "马雅可夫斯基站",
     "name_en": "Mayakovskaya Metro Station",
+    "name_local": "Станция метро «Маяковская»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -778,12 +1129,26 @@
     "lon": 37.5958,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p058",
     "name": "共青团站",
     "name_en": "Komsomolskaya Metro Station",
+    "name_local": "Станция метро «Комсомольская»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -793,12 +1158,26 @@
     "lon": 37.6559,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p059",
     "name": "革命广场站",
     "name_en": "Ploshchad Revolyutsii Metro Station",
+    "name_local": "Станция метро «Площадь Революции»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -808,12 +1187,26 @@
     "lon": 37.6228,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p060",
     "name": "新村庄站",
     "name_en": "Novoslobodskaya Metro Station",
+    "name_local": "Станция метро «Новослободская»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -823,12 +1216,26 @@
     "lon": 37.6014,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p061",
     "name": "和平大街站",
     "name_en": "Prospekt Mira Metro Station",
+    "name_local": "Станция метро «Проспект Мира»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -838,12 +1245,26 @@
     "lon": 37.6344,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p062",
     "name": "基辅站",
     "name_en": "Kiyevskaya Metro Station",
+    "name_local": "Станция метро «Киевская»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -853,12 +1274,26 @@
     "lon": 37.5645,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p063",
     "name": "塔甘卡站",
     "name_en": "Taganskaya Metro Station",
+    "name_local": "Станция метро «Таганская»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -868,7 +1303,20 @@
     "lon": 37.6529,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
+    ],
+    "confidence": 75
   },
   {
     "id": "p064",
@@ -4350,6 +4798,7 @@
     "id": "p337",
     "name": "白俄罗斯站（Белорусская）",
     "name_en": "Belorusskaya Metro Station",
+    "name_local": "Станция метро «Белорусская»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -4360,6 +4809,18 @@
     "confidence": 100,
     "tags": [
       "地铁站"
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
     ]
   },
   {
@@ -4382,6 +4843,7 @@
     "id": "p339",
     "name": "发电厂站（Электрозаводская）",
     "name_en": "Elektrozavodskaya Metro Station",
+    "name_local": "Станция метро «Электрозаводская»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -4392,12 +4854,25 @@
     "confidence": 100,
     "tags": [
       "地铁站"
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
     ]
   },
   {
     "id": "p340",
     "name": "游击队站（Партизанская）",
     "name_en": "Partizanskaya Metro Station",
+    "name_local": "Станция метро «Партизанская»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -4408,6 +4883,18 @@
     "confidence": 100,
     "tags": [
       "地铁站"
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
     ]
   },
   {
@@ -4478,6 +4965,7 @@
     "id": "p345",
     "name": "胜利公园站（Парк Победы）",
     "name_en": "Park Pobedy Metro Station",
+    "name_local": "Станция метро «Парк Победы»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -4488,12 +4976,25 @@
     "confidence": 100,
     "tags": [
       "地铁站"
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
     ]
   },
   {
     "id": "p346",
     "name": "麻雀山站（Воробьёвы горы）",
     "name_en": "Vorobyovy Gory Metro Station",
+    "name_local": "Станция метро «Воробьёвы горы»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -4504,12 +5005,25 @@
     "confidence": 100,
     "tags": [
       "地铁站"
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
     ]
   },
   {
     "id": "p347",
     "name": "库尔斯克站（Курская）",
     "name_en": "Kurskaya Metro Station",
+    "name_local": "Станция метро «Курская»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -4520,12 +5034,25 @@
     "confidence": 100,
     "tags": [
       "地铁站"
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
     ]
   },
   {
     "id": "p348",
     "name": "文化公园站（Парк Культуры）",
     "name_en": "Park Kultury Metro Station",
+    "name_local": "Станция метро «Парк культуры»",
     "city": "莫斯科",
     "cluster": "⑨ 专题：莫斯科地铁艺术巡礼",
     "type": "地铁站",
@@ -4536,6 +5063,18 @@
     "confidence": 100,
     "tags": [
       "地铁站"
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
     ]
   },
   {
@@ -4622,6 +5161,7 @@
     "id": "p354",
     "name": "布尔加科夫故居博物馆（Большая Садовая 10）",
     "name_en": "Bulgakov Museum, Moscow",
+    "name_local": "Музей М. А. Булгакова",
     "city": "莫斯科",
     "cluster": "④ 文学故居群（林荫道环线）",
     "type": "博物馆",
@@ -4632,12 +5172,25 @@
     "confidence": 100,
     "tags": [
       "文学"
+    ],
+    "estimatedDuration": 90,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
     ]
   },
   {
     "id": "p355",
     "name": "茨维塔耶娃故居博物馆（Борисоглебский пер. 6）",
     "name_en": "Tsvetaeva House Museum",
+    "name_local": "Дом-музей Марины Цветаевой",
     "city": "莫斯科",
     "cluster": "④ 文学故居群（林荫道环线）",
     "type": "博物馆",
@@ -4648,6 +5201,18 @@
     "confidence": 100,
     "tags": [
       "文学"
+    ],
+    "estimatedDuration": 90,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
     ]
   },
   {
@@ -4734,6 +5299,7 @@
     "id": "p368",
     "name": "普希金故居纪念馆（Арбат 53）",
     "name_en": "Pushkin Memorial Apartment, Arbat",
+    "name_local": "Мемориальная квартира А. С. Пушкина на Арбате",
     "city": "莫斯科",
     "cluster": "④ 文学故居群（林荫道环线）",
     "type": "博物馆",
@@ -4744,6 +5310,18 @@
     "confidence": 100,
     "tags": [
       "文学"
+    ],
+    "estimatedDuration": 90,
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "curated",
+        "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-10-29",
+        "reviewAfter": "2027-04-29"
+      }
     ]
   },
   {

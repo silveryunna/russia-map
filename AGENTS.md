@@ -10,6 +10,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 
 - `npm run dev`：Vite（root=`src/`）。`vite.config.js` 的 `devRepoAssets` 插件把仓库根 `data/ content/ photos/` 与白名单根文件映射到站点根，`/api/*` 默认返回 JSON 错误（页面降级规则引擎）；要连真后端用 `DEV_API=http://127.0.0.1:8080 npm run dev`
 - `npm test`：规则引擎 + 计划存储 + Trip 契约/迁移/编辑/存储 + SW 缓存策略 + 坐标变换 + 文档事实（CI 同样跑）
+- `node tools/check-sample-data.mjs ./data`：莫斯科样板数据门槛（动线覆盖的 42 个点位的排程字段、坐标置信度、城市时区；`unknown` 允许但必须显式）。CI 跑，改样板城市点位必跑
 - 计划模块：`src/pages/plan/engine.js`（纯函数，勿引入 DOM/storage）、`src/pages/plan/store.js`（`travel-plans-v1` 信封 + 损坏备份）。改规则逻辑必须同步 `tools/test-plan-engine.mjs`
 - Trip v2 模块（ROADMAP P1）：`src/pages/trip/schema.js`（实体工厂 + `validateTrip`，纯函数）、`src/pages/trip/migrate.js`（旧计划→Trip、打卡→Visit；名称→placeId，歧义进队列，零丢失）、`src/pages/trip/edit.js`（加点位/排序/跨天移动/增删天/改期策略/复制，纯函数且结果必须过 `validateTrip`）、`src/pages/trip/store.js`（IndexedDB/内存驱动、revision 递增、JSON 导入合并、迁移一次性 + 原始数据备份）。改契约或迁移规则必须同步 `tools/test-trip-schema.mjs` / `test-trip-migrate.mjs` / `test-trip-edit.mjs` / `test-trip-store.mjs`
 - 行程页 `plan.html`（`src/pages/plan.js`）已是 Trip v2 编辑器：启动时把旧 `travel-plans-v1` 与 `travel-checkin-v2` 一次性迁入 IndexedDB（`travel-trips`），生成结果经 `migratePlansV1` 转成 Trip；编辑即时落库、内存撤销 30 步。旧 localStorage 数据只读保留，不再写入
@@ -38,7 +39,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 
 ## CI / 监控（GitHub Actions）
 
-- `check.yml`（push 触发）：check-data + 变异测试（29 变异须全捕获）+ 坐标变换 + 计划模块单测 + SW 缓存策略 + 文档事实 + assets ESM 严格解析 + 版本同步检查（改 assets/*.js 必须同提交改 map.html 与 sw.js）+ Playwright 冒烟（地图桌面/手机 + 行程页生成/排序/撤销/刷新恢复截图 artifact）
+- `check.yml`（push 触发）：check-data + 变异测试（32 变异须全捕获）+ 坐标变换 + 计划模块单测 + SW 缓存策略 + 文档事实 + assets ESM 严格解析 + 版本同步检查（改 assets/*.js 必须同提交改 map.html 与 sw.js）+ Playwright 冒烟（地图桌面/手机 + 行程页生成/排序/撤销/刷新恢复截图 artifact）
 - `monitor.yml`（每 6 小时）：探测腾讯云主站/API/NAS/TLS 证书（剩 <14 天告警），故障自动开 issue、恢复自动关闭；仓库 60 天无活动 GitHub 会停定时任务，手动跑一次即可恢复
 - 探针脚本 `tools/site-monitor.mjs` 可本地直接跑（Pages 检查需网络可达 GitHub）
 
@@ -54,7 +55,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 
 ## 数据结构速查
 
-- `data/points.json` 点位：id/name/city/cluster/type/highlight/note/lat/lon/confidence(100精确/75待核)/tags；无坐标用 `pending: true`
+- `data/points.json` 点位：id/name/city/cluster/type/highlight/note/lat/lon/confidence(100精确/75待核)/tags；无坐标用 `pending: true`。排程字段（样板城市强制）：`name_local` / `estimatedDuration`(分钟) / `durationBasis`(estimate|measured) / `openCalendar`（规则对象或显式 `"unknown"`）/ `ticket`（未知也写 `"unknown"`）/ `sources[{type,collectedAt,reviewAfter}]`
 - `data/routes.json` 动线：steps[] 以 `pointId`（`pNNN`）索引点位，`point` 只是展示快照；缺 pointId / id 不存在 / 名称不一致由 check-data 报错。改名或加点后跑 `node tools/migrate-routes-pointid.mjs`（幂等，`--check` 只校验），解析顺序 pointId → 名称兜底
 - `data/ratings.json` 评分：多来源 `{items:{id:{ratings:[...]}}}`；携程来源=问道API环境变量 `WENDAO_API_KEY`（每日30次/令牌）；交通类点位不显示评分
 - 第一方评分（私人米其林）：站长录入写 `data/michelin-manual.json`（`{id:{dims,overall,note,visited}}`），跑 fetch 脚本合并入 ratings.json；维度集按类型：餐饮 口味/性价比/等位/环境，酒店 位置/景观/服务/性价比，景点 出片/清净/可达/票价（全部正向，5=最好）

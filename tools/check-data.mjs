@@ -58,6 +58,26 @@ for (const [i, p] of points.entries()) {
   }
   // url 白名单：只允许 http/https（弹窗直接拼进 href，防 javascript: 注入）
   if (p.url && !/^https?:\/\//i.test(p.url)) err(`${where} url 必须是 http(s) 链接：${p.url}`);
+  // 排程字段（可选；样板城市的完整性由 tools/check-sample-data.mjs 强制）
+  if (p.name_local !== undefined && (typeof p.name_local !== 'string' || !p.name_local.trim())) {
+    err(`${where} name_local 必须是非空字符串`);
+  }
+  if (p.estimatedDuration !== undefined
+    && (!Number.isInteger(p.estimatedDuration) || p.estimatedDuration <= 0 || p.estimatedDuration > 720)) {
+    err(`${where} estimatedDuration 必须是 1–720 的整数分钟`);
+  }
+  if (p.durationBasis !== undefined && !['estimate', 'measured'].includes(p.durationBasis)) {
+    err(`${where} durationBasis 必须是 estimate/measured`);
+  }
+  if (p.openCalendar !== undefined && p.openCalendar !== 'unknown'
+    && (typeof p.openCalendar !== 'object' || p.openCalendar === null || !p.openCalendar.days || !p.openCalendar.open || !p.openCalendar.close)) {
+    err(`${where} openCalendar 必须是 "unknown" 或 {days,open,close[,lastEntry,closed]} 对象`);
+  }
+  if (p.sources !== undefined) {
+    if (!Array.isArray(p.sources) || p.sources.some(s => !s || typeof s !== 'object' || !/^\d{4}-\d{2}-\d{2}$/.test(s.collectedAt || ''))) {
+      err(`${where} sources 必须是带 collectedAt(YYYY-MM-DD) 的对象数组`);
+    }
+  }
 }
 const pend = points.filter(p => p.pending).length;
 ok(`点位 ${points.length} 个（待核 ${pend}），id/name 无重复`);

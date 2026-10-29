@@ -17,7 +17,11 @@ jobs:
       - name: 数据校验
         run: node tools/check-data.mjs ./data
 
-      # 2) 校验器本身不能退化：29 个变异必须全部捕获
+      # 1.5) 莫斯科样板数据契约（ROADMAP 附录 C）：排程字段齐全，unknown 必须显式写出
+      - name: 样板数据契约
+        run: node tools/check-sample-data.mjs ./data
+
+      # 2) 校验器本身不能退化：32 个变异必须全部捕获
       - name: 变异测试
         run: |
           node tools/mutation-test.mjs . mut-report.tsv | tee mut.log

@@ -82,6 +82,22 @@
 
 **坐标系（2026-10 重要）**：全部坐标统一 **WGS84**。腾讯/飞猪等国内图商返回 GCJ-02（火星坐标），直接用会整体偏移 100~500m（三亚曾因此"掉海里"）。转换用 tools/recalibrate-sanya.mjs 的 gcj2wgs()；腾讯 Key 走环境变量 QQ_LBS_KEY。
 
+**排版程字段（可选；样板城市由门槛强制）**：
+
+```json
+{
+  "name_local": "Красная площадь",       // 当地语言原名（问路/导航用）
+  "estimatedDuration": 45,               // 停留时长（分钟），1–720 整数
+  "durationBasis": "estimate",           // estimate=估算 / measured=实测
+  "openCalendar": "unknown",             // 或 { "days": "Mo-Su", "open": "10:00", "close": "18:00", "lastEntry": "17:00", "closed": ["Mo"] }
+  "ticket": "unknown",                   // 票价/预约说明；未知也写 "unknown"，不许留空
+  "sources": [{ "type": "curated", "note": "…", "collectedAt": "2026-10-29", "reviewAfter": "2027-04-29" }]
+}
+```
+
+- `node tools/check-sample-data.mjs ./data [城市]` 是样板数据质量门：检查动线覆盖点位的上述字段、坐标置信度、城市时区，并打印已知开放日历/票价的覆盖率；`unknown` 允许，但必须显式
+- 现有 42 个莫斯科动线点位已按此契约补齐：`estimatedDuration` 为**类型估算**（待实测修正），开放日历与票价全部显式 `unknown`
+
 **文件格式**：UTF-8 + **LF 行尾**（历史为 CRLF，已统一 LF；diff 全文件标红先查行尾）。
 
 ### 3.2 routes.json 动线
