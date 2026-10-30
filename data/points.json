@@ -42,7 +42,12 @@
     "lon": 37.618122,
     "estimatedDuration": 180,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
+    "openCalendar": {
+      "days": "Mo,Tu,We,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "17:00",
+      "lastEntry": "16:30"
+    },
     "ticket": "unknown",
     "sources": [
       {
@@ -50,6 +55,13 @@
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://kreml.ru/en",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "莫斯科克里姆林宫博物馆官网；博物馆 10:00–17:00，周四闭馆；售票处 09:30–16:30"
       }
     ],
     "confidence": 75
@@ -97,14 +109,33 @@
     "lon": 37.617882,
     "estimatedDuration": 30,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo,We,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "19:00",
+      "lastEntry": "18:00"
+    },
+    "ticket": "成人票 700 ₽ 起（不同展览/票种至 2000 ₽）",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://shm.ru/visit/kontakty-i-rezhim-raboty/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "国家历史博物馆官网；周二闭馆；官网周表为周一/三/日 10–19、周四至周六 10–21，此处保守取 19:00"
+      },
+      {
+        "type": "official",
+        "url": "https://shm.ru/visit/tickets/gim/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2026-11-30",
+        "note": "国家历史博物馆票务；官网成人票 700–2000 ₽，按展览/票种"
       }
     ],
     "confidence": 75
@@ -123,7 +154,11 @@
     "lon": 37.621438,
     "estimatedDuration": 60,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "10:00",
+      "close": "22:00"
+    },
     "ticket": "unknown",
     "sources": [
       {
@@ -131,6 +166,13 @@
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://gum.ru/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "古姆百货官网；官网每日 10:00–22:00"
       }
     ],
     "confidence": 75
@@ -262,14 +304,33 @@
     "lon": 37.605423,
     "estimatedDuration": 150,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "11:00",
+      "close": "20:00",
+      "lastEntry": "19:00"
+    },
+    "ticket": "成人 700 ₽，优惠 500 ₽",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://pushkinmuseum.art/visitors/opening_hours/index.php?lang=ru",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "普希金博物馆官网；周一闭馆；官网周二/三 11–20、周四/五 11–21、周六 10–21、周日 10–20，此处保守取 11–20"
+      },
+      {
+        "type": "official",
+        "url": "https://pushkinmuseum.art/visitors/tickets/index.php?lang=ru",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2026-11-30",
+        "note": "普希金博物馆票务；主馆全价票"
       }
     ],
     "confidence": 75

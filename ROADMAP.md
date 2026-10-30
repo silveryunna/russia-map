@@ -545,7 +545,7 @@ P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协
 | 5 旧计划迁移 | ✅ 已接页面 | 打开行程页即一次性迁移 `migratePlansV1`；原始 localStorage 原文备份进 IndexedDB `meta`，校验不过则零写入；歧义/未知名带候选进确认队列，点名字即可人工绑定（同日已有同点位会拒绝并提示） |
 | 6 打卡 → Visit | ✅ 已接页面 | 打开行程页即迁移 `migrateCheckinsToVisits`：次数完整保留（仅最后一次带日期/感想），非法日期标 `unknown`，不伪造；旧 `travel-checkin-v2` 只读保留，地图/清单页暂不受影响 |
 | 7 IndexedDB / 备份 | ✅ 备份+撤销可用 | `src/pages/trip/store.js` 双驱动/`revision`/merge+replace 导入；页面提供整库备份导出、单行程 JSON 导出、导入（覆盖或合并）；编辑器内存撤销 30 步（刷新后清空） |
-| 8 莫斯科样板数据 | 🟡 契约与门槛已建，事实待核实 | 7 条莫斯科动线覆盖 42 个点位：`name_local`（俄文原名）、`estimatedDuration`（类型估算，标 `durationBasis: estimate`）、`openCalendar`/`ticket` 显式 `unknown`、`sources[collectedAt/reviewAfter]`、坐标置信度补齐；门槛 `tools/check-sample-data.mjs`（CI 强制）。仍缺：开放日历与票价的逐条核实（当前已知 0/42）、动线步骤间交通矩阵 |
+| 8 莫斯科样板数据 | 🟡 已核验 4/42 日历、2/42 票价 | 7 条莫斯科动线覆盖 42 个点位：`name_local`（俄文原名）、`estimatedDuration`（类型估算，标 `durationBasis: estimate`）、`sources[collectedAt/reviewAfter]`、坐标置信度补齐；门槛 `tools/check-sample-data.mjs`（CI 强制）。2026-10-31 试点核验：克里姆林宫/古姆/历史博物馆/普希金博物馆开放日历，历史博物馆/普希金门票；其余显式 unknown。仍缺：逐条核实（当前日历 4/42、票价 2/42）、动线步骤间交通矩阵；周内多套营业时间需先扩展 `openCalendar` 模型 |
 
 测试：`tools/test-trip-schema.mjs`（18 项）、`test-trip-migrate.mjs`（25 项）、`test-trip-edit.mjs`（45 项，含"每个操作结果必须过 validateTrip"）、`test-trip-store.mjs`（19 项），已进 `npm test` 与 CI；Playwright 冒烟覆盖行程页生成→排序→撤销→刷新恢复。动线 ID：`test-plan-engine.mjs` 覆盖 pointId 优先/名称兜底/失联回退，check-data 变异测试 29 项含 3 条 pointId 反例。
 

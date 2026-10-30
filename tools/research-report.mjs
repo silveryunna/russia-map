@@ -4,7 +4,7 @@
 import { readFileSync, writeFileSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { summarizeCandidates } from './research-lib.mjs';
+import { queueRemaining, summarizeCandidates } from './research-lib.mjs';
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const args = process.argv.slice(2);
@@ -25,7 +25,7 @@ let queuePending = null;
 const queueFile = arg('--queue');
 if (queueFile) {
   const q = JSON.parse(readFileSync(path.resolve(queueFile), 'utf8'));
-  queuePending = (q.items || []).filter((i) => i.status === 'pending').length;
+  queuePending = queueRemaining(q.items || [], candidates);
 }
 
 const lines = [
@@ -34,7 +34,7 @@ const lines = [
   `- 候选总数：${s.total}`,
   `- verified：${s.byStatus.verified}｜estimated：${s.byStatus.estimated}｜conflict：${s.byStatus.conflict}｜unknown：${s.byStatus.unknown}`,
   `- 已过复核期：${s.expired}`,
-  queuePending === null ? '- 队列：未提供' : `- 队列剩余 pending：${queuePending}`,
+  queuePending === null ? '- 队列：未提供' : `- 队列剩余待补字段：${queuePending}`,
   '',
   '## 按字段',
   ...Object.entries(s.byField).filter(([, n]) => n).map(([f, n]) => `- ${f}：${n}`),

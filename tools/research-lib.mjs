@@ -133,3 +133,14 @@ export function summarizeCandidates(candidates, { today = new Date().toISOString
   }
   return { total: list.length, byStatus, byField, bySource, expired };
 }
+
+// 队列剩余字段：已有候选（任何状态，包括 unknown）的 pointId+field 视为已处理
+export function queueRemaining(queueItems, candidates) {
+  const covered = new Set((Array.isArray(candidates) ? candidates : [])
+    .filter((c) => c && c.pointId && c.field)
+    .map((c) => `${c.pointId}|${c.field}`));
+  return (Array.isArray(queueItems) ? queueItems : []).reduce(
+    (sum, it) => sum + (Array.isArray(it.fields) ? it.fields : []).filter((f) => !covered.has(`${it.pointId}|${f}`)).length,
+    0,
+  );
+}

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // 资料补全流水线质量门：缺口队列、候选事实校验、状态汇总
 import {
-  buildGapQueue, missingFields, summarizeCandidates, validateCandidates,
+  buildGapQueue, missingFields, queueRemaining, summarizeCandidates, validateCandidates,
 } from './research-lib.mjs';
 
 let bad = 0;
@@ -76,6 +76,11 @@ const routes = [
   const s = summarizeCandidates(list, { today: '2026-10-31' });
   assert(s.total === 4 && s.byStatus.verified === 1 && s.bySource.social === 1, '状态与来源计数正确');
   assert(s.expired === 1, '只有非 unknown 且过期的候选计入复核');
+  const queue = [
+    { pointId: 'p1', fields: ['openCalendar', 'ticket'] },
+    { pointId: 'p2', fields: ['ticket'] },
+  ];
+  assert(queueRemaining(queue, [{ pointId: 'p1', field: 'openCalendar' }]) === 2, '队列剩余按 pointId+field 扣减');
 }
 
 if (bad) { console.error(`\n${bad} 项资料管线测试失败`); process.exit(1); }
