@@ -223,5 +223,24 @@ function checkCaps(plan, label) {
   else fail(`超时 note 缺失：${JSON.stringify(plan.note)}`);
 }
 
+// G5) 专题动线前看一步：今天排满不能把明天排空
+{
+  const pts = [
+    P('k1', '核心一', 'A'), P('k2', '核心二', 'B'),
+    P('l1', '专题一', 'C'), P('l2', '专题二', 'C'), P('l3', '专题三', 'C'),
+    P('m1', '周三限定', 'D', '博物馆', { openCalendar: { days: 'We', open: '10:00', close: '18:00' } }),
+  ];
+  const rts = [
+    { day: 'D1', name: '核心线一', city: '莫斯科', steps: [{ pointId: 'k1' }] },
+    { day: 'D2', name: '核心线二', city: '莫斯科', steps: [{ pointId: 'k2' }] },
+    { day: '专题', name: '大专题线', city: '莫斯科', steps: [{ pointId: 'l1' }, { pointId: 'l2' }, { pointId: 'l3' }] },
+    { day: '专题', name: '周三限定线', city: '莫斯科', steps: [{ pointId: 'm1' }] },
+  ];
+  const plan = ruleEngine({ city: '莫斯科', date: '2026-11-16', days: 4 }, { pts, rts });
+  const dayNames = plan.days.map(d => [...d.slots.morning, ...d.slots.afternoon, ...d.slots.evening]);
+  if (dayNames.length === 4 && dayNames[2].includes('周三限定') && dayNames[3].includes('专题一')) ok('专题线前看一步，避免把下一天排空');
+  else fail(`专题线平衡失败：${JSON.stringify(dayNames)}`);
+}
+
 if (bad) { console.error(`\n${bad} 项规则引擎测试失败`); process.exit(1); }
 console.log('\n规则引擎质量门通过');

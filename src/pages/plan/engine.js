@@ -108,10 +108,13 @@ export function ruleEngine(params, data) {
   const dateFor = (index) => (tripStart ? addDays(tripStart, index) : '');
   const skipped = new Map();
   const trimmed = new Map();
-  const isClosedOn = (place, date) => {
+  const closedOn = (place, date) => {
     if (!date || !place || !place.openCalendar || place.openCalendar === 'unknown') return false;
+    return calendarState(place.openCalendar, date).state === 'closed';
+  };
+  const isClosedOn = (place, date) => {
+    if (!closedOn(place, date)) return false;
     const state = calendarState(place.openCalendar, date);
-    if (state.state !== 'closed') return false;
     skipped.set(`${place.id}|${date}`, { id: place.id, name: place.name, date, reason: state.reason || '闭馆' });
     return true;
   };
@@ -128,21 +131,70 @@ export function ruleEngine(params, data) {
     const res = evaluateDay({ day: { id: 'generated', date }, items, places: byId });
     return { ok: res.errors.length === 0, day };
   };
+  const routePtsFor = (route, date, usedSet, record = false) => (route.steps || [])
+    .map(stepPoint)
+    .filter(p => p && !usedSet.has(p.id)
+      && Number.isFinite(p.estimatedDuration) && p.estimatedDuration > 0
+      && Number.isFinite(p.lat) && Number.isFinite(p.lon)
+      && !(record ? isClosedOn(p, date) : closedOn(p, date)));
 
-  // 动线映射为日：先剔除已用点位和当天闭馆点位，再按单日上限截断，溢出点位回到候选池。
-  for (const r of cityRoutes) {
+  const hasDayLabels = cityRoutes.some(r => /^D\d+$/i.test(String(r.day || '')));
+  const isCoreRoute = r => /^D\d+$/i.test(String(r.day || ''));
+  const coreRoutes = hasDayLabels ? cityRoutes.filter(isCoreRoute) : cityRoutes;
+  let supplementary = hasDayLabels ? cityRoutes.filter(r => !isCoreRoute(r)) : [];
+
+  // 核心日线保持原顺序；专题/延伸线在后面的日期里做前看一步的平衡选择：
+  // 今天多排一条，不能把明天排成空天；最后一天仍按原顺序优先。
+  for (const r of coreRoutes) {
     if (days.length >= targetDays) break;
     const date = dateFor(days.length);
-    const routePts = (r.steps || [])
-      .map(stepPoint)
-      .filter(p => p && !used.has(p.id)
-        && Number.isFinite(p.estimatedDuration) && p.estimatedDuration > 0
-        && Number.isFinite(p.lat) && Number.isFinite(p.lon)
-        && !isClosedOn(p, date));
+    const routePts = routePtsFor(r, date, used, true);
     const day = buildDay(routePts);
     if (!day.usedIds.length) continue;
     day.usedIds.forEach(id => used.add(id));
     days.push(mkDay(days.length + 1, day.slots, `参考动线：${r.name} · ${r.tip || r.summary || ''}`));
+  }
+
+  while (days.length < targetDays && supplementary.length) {
+    const date = dateFor(days.length);
+    const lastDay = days.length + 1 >= targetDays;
+    let chosen = null;
+    if (lastDay) {
+      for (const r of supplementary) {
+        const day = buildDay(routePtsFor(r, date, used));
+        if (day.usedIds.length) { chosen = { r, day }; break; }
+      }
+    } else {
+      const nextDate = dateFor(days.length + 1);
+      let best = null;
+      supplementary.forEach((r, index) => {
+        const day = buildDay(routePtsFor(r, date, used));
+        const count = day.usedIds.length;
+        if (!count) return;
+        const usedAfter = new Set([...used, ...day.usedIds]);
+        let nextBest = 0;
+        for (const r2 of supplementary) {
+          if (r2 === r) continue;
+          nextBest = Math.max(nextBest, buildDay(routePtsFor(r2, nextDate, usedAfter)).usedIds.length);
+        }
+        const score = [Math.min(count, nextBest), count + nextBest, count, -index];
+        const better = !best
+          || score[0] > best.score[0]
+          || (score[0] === best.score[0] && score[1] > best.score[1])
+          || (score[0] === best.score[0] && score[1] === best.score[1] && score[2] > best.score[2]);
+        if (better) best = { r, day, score };
+      });
+      chosen = best;
+    }
+    if (!chosen) break;
+    const day = buildDay(routePtsFor(chosen.r, date, used, true));
+    if (!day.usedIds.length) {
+      supplementary = supplementary.filter(r => r !== chosen.r);
+      continue;
+    }
+    day.usedIds.forEach(id => used.add(id));
+    days.push(mkDay(days.length + 1, day.slots, `参考动线：${chosen.r.name} · ${chosen.r.tip || chosen.r.summary || ''}`));
+    supplementary = supplementary.filter(r => r !== chosen.r);
   }
 
   // 剩余点位按点位群聚类补齐；当天闭馆的点位留到次日，不硬排。
