@@ -7,6 +7,7 @@ import { calendarState, evaluateDay } from './feasibility.js';
 export const PLAN_DAYS_MIN = 1;
 export const PLAN_DAYS_MAX = 7; // 与 api/index.php 的 1–7 保持一致
 export const MAX_PER_DAY = 8;
+export const MIN_FILLED_DAY = 4;
 export const SLOT_CAPS = { morning: 3, afternoon: 3, evening: 2 };
 
 export const INTERESTS = {
@@ -158,11 +159,15 @@ export function ruleEngine(params, data) {
   while (days.length < targetDays && supplementary.length) {
     const date = dateFor(days.length);
     const lastDay = days.length + 1 >= targetDays;
+    const usable = (route, day) => {
+      const count = day.usedIds.length;
+      return count > 0 && !(count < 2 && (route.steps || []).length >= 2);
+    };
     let chosen = null;
     if (lastDay) {
       for (const r of supplementary) {
         const day = buildDay(routePtsFor(r, date, used));
-        if (day.usedIds.length) { chosen = { r, day }; break; }
+        if (usable(r, day)) { chosen = { r, day }; break; }
       }
     } else {
       const nextDate = dateFor(days.length + 1);
@@ -170,12 +175,13 @@ export function ruleEngine(params, data) {
       supplementary.forEach((r, index) => {
         const day = buildDay(routePtsFor(r, date, used));
         const count = day.usedIds.length;
-        if (!count) return;
+        if (!usable(r, day)) return;
         const usedAfter = new Set([...used, ...day.usedIds]);
         let nextBest = 0;
         for (const r2 of supplementary) {
           if (r2 === r) continue;
-          nextBest = Math.max(nextBest, buildDay(routePtsFor(r2, nextDate, usedAfter)).usedIds.length);
+          const nextDay = buildDay(routePtsFor(r2, nextDate, usedAfter));
+          if (usable(r2, nextDay)) nextBest = Math.max(nextBest, nextDay.usedIds.length);
         }
         const score = [Math.min(count, nextBest), count + nextBest, count, -index];
         const better = !best
@@ -227,6 +233,40 @@ export function ruleEngine(params, data) {
     built.usedIds.forEach(id => used.add(id));
     days.push(mkDay(days.length + 1, built.slots, ''));
     remaining = next;
+  }
+
+  // 稀疏日补点：只补同一点位群，且必须通过可行性预演；在聚类补齐之后执行，不抢后续日期的内容。
+  const dayPoints = (day) => ['morning', 'afternoon', 'evening']
+    .flatMap(slot => day.slots[slot])
+    .map(name => byName.get(name))
+    .filter(Boolean);
+  const toppedUp = new Map();
+  let changed = true;
+  while (changed) {
+    changed = false;
+    const sparse = days.filter(day => dayPoints(day).length < MIN_FILLED_DAY);
+    for (const day of sparse) {
+      const date = dateFor(day.day - 1);
+      const current = dayPoints(day);
+      const clusters = new Set(current.map(p => p.cluster));
+      const candidate = pool.find(p => p && !used.has(p.id)
+        && clusters.has(p.cluster)
+        && Number.isFinite(p.estimatedDuration) && p.estimatedDuration > 0
+        && Number.isFinite(p.lat) && Number.isFinite(p.lon)
+        && !closedOn(p, date)
+        && fitsDay([...current, p], date).ok);
+      if (!candidate) continue;
+      day.slots = buildDay([...current, candidate]).slots;
+      used.add(candidate.id);
+      const list = toppedUp.get(day.day) || [];
+      list.push(candidate.name);
+      toppedUp.set(day.day, list);
+      changed = true;
+    }
+  }
+  for (const day of days) {
+    const names = toppedUp.get(day.day);
+    if (names && names.length) day.tip = `${day.tip || ''} · 补充：${names.join('、')}`;
   }
 
   const omitted = new Map();

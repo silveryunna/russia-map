@@ -506,7 +506,7 @@ P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协
 |---|---|---|
 | 1 | ✅ | `vite.config.js` 的 `devRepoAssets` 插件（数据/内容/照片映射 + `/api/*` mock/代理 + 路径逃逸拦截）；README 增「本地开发」 |
 | 2 | ✅ | `tools/smoke-test.mjs` 增 plan 全流程探针；`tools/test-plan-engine.mjs`（14 项断言） |
-| 3 | ✅ | 引擎抽成纯函数 `src/pages/plan/engine.js`；跨动线去重 / 单日 8 点与时段上限 / 天数不足返回真实天数 + note；固定日期生成按天过滤闭馆点位（顺延到后续开放日，最终排不上写 note）；核心 D1–D4 保持原顺序，专题/延伸线做前看一步平衡，避免把下一天排空；补充点位用 `evaluateDay()` 预演，超收工/过最后入场就顺延或跳过并写 note；缺 `estimatedDuration`/坐标的点位不进入生成 |
+| 3 | ✅ | 引擎抽成纯函数 `src/pages/plan/engine.js`；跨动线去重 / 单日 8 点与时段上限 / 天数不足返回真实天数 + note；固定日期生成按天过滤闭馆点位（顺延到后续开放日，最终排不上写 note）；核心 D1–D4 保持原顺序，专题/延伸线做前看一步平衡，避免把下一天排空；多步动线只剩 1 点时让位给聚类补齐；稀疏日（`MIN_FILLED_DAY=4`）只补同一点位群且需通过可行性预演；补充点位用 `evaluateDay()` 预演，超收工/过最后入场就顺延或跳过并写 note；缺 `estimatedDuration`/坐标的点位不进入生成 |
 | 4 | ✅ | `src/pages/plan/store.js`（信封 + 损坏备份 + 迁移）；`tools/test-plan-store.mjs`；页面显示恢复告警 |
 | 5 | ✅ | `sw.js` 瓦片白名单改为 OSM/OSM-DE/Esri，明确不缓存高德/腾讯；外壳补齐 9 页；`tools/sw-policy-test.mjs` |
 | 6 | ✅ | AI 失败弹「重试 / 用离线规则 / 取消」，不再静默降级；计划详情与导出标注「站内通道/自定义接口 · 模型」 |
