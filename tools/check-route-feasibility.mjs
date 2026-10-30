@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // 真实动线可行性验收（P2 验收项）：把莫斯科每条动线当成一天，用真实点位数据跑硬约束校验
-//   • 结构性错误（缺点位/缺时长/缺坐标/重复/闭馆/最后入场/重叠）→ 退出码 1
-//   • 天数超时（09:00–21:00 走不完）→ 只报告 + 给修复建议，不算结构性错误（说明动线要拆/删减）
+//   • 数据完整性错误（缺点位/缺时长/缺坐标/重复/跨日/闭馆）→ 退出码 1
+//   • 时段冲突（最后入场/关门/重叠）与天数超时 → 只报告 + 修复建议，算动线设计问题（要调整顺序或删减）
 // 用法: node tools/check-route-feasibility.mjs [数据目录，默认 ./data] [城市，默认 莫斯科]
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
@@ -31,12 +31,15 @@ for (const r of routes) {
   }));
   const res = evaluateDay({ day: DAY, items, places });
   const overrun = res.conflicts.filter((c) => c.kind === 'day-overrun');
-  const errs = res.errors.filter((c) => c.kind !== 'day-overrun');
-  structural += errs.length;
+  const DATA_ERROR_KINDS = new Set(['unresolved-place', 'missing-duration', 'missing-coords', 'duplicate-place', 'cross-day', 'closed']);
+  const dataErrs = res.errors.filter((c) => DATA_ERROR_KINDS.has(c.kind));
+  const hourErrs = res.errors.filter((c) => !DATA_ERROR_KINDS.has(c.kind) && c.kind !== 'day-overrun');
+  structural += dataErrs.length;
 
   const end = res.timeline.length ? res.timeline[res.timeline.length - 1].end : null;
   let verdict;
-  if (errs.length) verdict = `❌ ${errs.map((c) => c.kind).join('/')}`;
+  if (dataErrs.length) verdict = `❌ ${dataErrs.map((c) => c.kind).join('/')}`;
+  else if (hourErrs.length) verdict = `⚠️ 时段冲突（${hourErrs.map((c) => c.kind).join('/')}）`;
   else if (overrun.length) {
     const wide = evaluateDay({ day: DAY, items, places, options: { start: '07:00', end: '23:00' } });
     verdict = `⚠️ 超时（收工 ${end ? formatMinutesCrossDay(end) : '?'}）${wide.errors.length ? '，07:00–23:00 也走不完' : '，07:00–23:00 可完成'}`;

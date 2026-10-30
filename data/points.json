@@ -409,7 +409,34 @@
     "lon": 37.599814,
     "estimatedDuration": 90,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "12:00",
+      "close": "19:00",
+      "weekly": {
+        "Th": {
+          "open": "14:00",
+          "close": "21:00"
+        },
+        "Sa": {
+          "open": "12:00",
+          "close": "18:00"
+        },
+        "Su": {
+          "open": "12:00",
+          "close": "18:00"
+        }
+      },
+      "exceptions": [
+        {
+          "type": "nth-weekday",
+          "weekday": "Tu",
+          "nth": "last",
+          "action": "closed",
+          "note": "最后一个周二卫生日闭馆"
+        }
+      ]
+    },
     "ticket": "unknown",
     "sources": [
       {
@@ -417,6 +444,13 @@
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://www.domgogolya.ru/info/contacts/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "果戈里故居官网；周一闭馆；周二/三/五 12–19，周四 14–21，周六/日 12–18；最后一个周二卫生日闭馆"
       }
     ],
     "confidence": 75
@@ -461,7 +495,38 @@
     "lon": 37.585925,
     "estimatedDuration": 75,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "12:00",
+      "close": "20:00",
+      "weekly": {
+        "We": {
+          "open": "10:00",
+          "close": "18:00"
+        },
+        "Fr": {
+          "open": "10:00",
+          "close": "18:00"
+        },
+        "Sa": {
+          "open": "10:00",
+          "close": "18:00"
+        },
+        "Su": {
+          "open": "10:00",
+          "close": "18:00"
+        }
+      },
+      "exceptions": [
+        {
+          "type": "nth-weekday",
+          "weekday": "Fr",
+          "nth": "last",
+          "action": "closed",
+          "note": "每月最后一个周五闭馆"
+        }
+      ]
+    },
     "ticket": "unknown",
     "sources": [
       {
@@ -469,6 +534,13 @@
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://tolstoymuseum.ru/contacts/addresses-and-schedule/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "托尔斯泰博物馆官网；周一闭馆；周二/四 12–20，周三/五/六/日 10–18；最后一个周五闭馆"
       }
     ],
     "confidence": 75
@@ -575,7 +647,25 @@
     ],
     "estimatedDuration": 120,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
+    "openCalendar": {
+      "days": "Mo,Tu,We,Fr",
+      "open": "10:00",
+      "close": "19:00",
+      "weekly": {
+        "Th": {
+          "open": "10:00",
+          "close": "21:00"
+        },
+        "Sa": {
+          "open": "10:00",
+          "close": "21:00"
+        },
+        "Su": {
+          "open": "10:00",
+          "close": "21:00"
+        }
+      }
+    },
     "ticket": "unknown",
     "sources": [
       {
@@ -583,6 +673,13 @@
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://kosmo-museum.ru/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "莫斯科航天博物馆官网；周一/二/三/五 10–19；周四/六/日 10–21"
       }
     ],
     "confidence": 75
@@ -721,7 +818,21 @@
     ],
     "estimatedDuration": 150,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "18:00",
+      "weekly": {
+        "Fr": {
+          "open": "10:00",
+          "close": "20:00"
+        },
+        "Sa": {
+          "open": "10:00",
+          "close": "20:00"
+        }
+      }
+    },
     "ticket": "unknown",
     "sources": [
       {
@@ -729,6 +840,13 @@
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://tsaritsyno-museum.ru/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "察里津诺庄园官网；周一闭馆；周二至周四/周日 10–18，周五/六 10–20；园区每日 06–24"
       }
     ],
     "confidence": 75
@@ -794,7 +912,12 @@
     ],
     "estimatedDuration": 150,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
+    "openCalendar": {
+      "days": "Tu-Su",
+      "open": "10:00",
+      "close": "21:00",
+      "lastEntry": "20:00"
+    },
     "ticket": "unknown",
     "sources": [
       {
@@ -802,6 +925,13 @@
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://www.tretyakovgallery.ru/for-visitors/museums/istoricheskoe-zdanie/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "特列季亚科夫画廊官网；周一闭馆；周二至周日 10:00–21:00，售票/入场至 20:00"
       }
     ],
     "confidence": 75
