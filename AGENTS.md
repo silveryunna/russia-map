@@ -14,7 +14,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 - `node tools/check-sample-data.mjs ./data`：莫斯科样板数据门槛（动线覆盖的 38 个点位的排程字段、坐标置信度、城市时区；`unknown` 允许但必须显式）。CI 跑，改样板城市点位必跑
 - `node tools/check-city-duration.mjs ./data <城市>`：非 pending 点位必须有坐标、停留时长与依据；CI 对 三亚/哈尔滨/伊宁/圣彼得堡/叶卡捷琳堡/阿拉木图/莫斯科州/其他城市 全量跑，改这些城市点位必跑（莫斯科全量仍有非样板点未补，样板门槛见上一条）
 - `node tools/check-route-feasibility.mjs ./data`：真实动线可行性验收（逐条按一天重排，报告收工时间/未知日历/冲突与修复建议；数据完整性错误才退出 1，最后入场/关门/重叠/超时只报告为动线设计问题）。CI 跑，改莫斯科动线或点位时长后看这里
-- 计划模块：`src/pages/plan/engine.js`（纯函数，勿引入 DOM/storage）、`src/pages/plan/store.js`（`travel-plans-v1` 信封 + 损坏备份）。改规则逻辑必须同步 `tools/test-plan-engine.mjs`
+- 计划模块：`src/pages/plan/engine.js`（纯函数，勿引入 DOM/storage）、`src/pages/plan/store.js`（`travel-plans-v1` 信封 + 损坏备份）。固定日期生成按天检查 `openCalendar`：闭馆点位当天不排、顺延到后续开放日，最终仍排不上的写进 `note`；缺 `estimatedDuration` 的点位不进入生成；无日期行程不按星期过滤。改规则逻辑必须同步 `tools/test-plan-engine.mjs`
 - 可行性引擎（ROADMAP P2）：`src/pages/plan/feasibility.js` 纯函数 `evaluateDay()`/`suggestFixes()`，硬约束含闭馆、最后入场、预订重叠、跨日、重复点位、缺时长/坐标、超收工线；未知开放日历保留宽边界但必定报 `hours-unknown`，**绝不当成"全天开放"**；没有点位的 `meal`/`break` 条目按"就地时间块"排程（不计交通/日历，不切断前后站通行），其他无点位条目仍报未绑定；交通只能是明确标注的估算（步行 ≤1.2km，否则地铁 10 分钟开销 + 30km/h）；跨午夜的时间一律用 `formatMinutesCrossDay()` 显示为「HH:MM（次日）」，不要用 `formatMinutes()` 直接展示可能超过 24:00 的值。改约束或估算必须同步 `tools/test-feasibility.mjs`
 - 时间轴视图：`src/pages/plan/timeline.js` 是纯几何模型（轨道范围/小时刻度/色块/交通与等待/重叠/跨午夜），不碰 DOM；页面只负责渲染与拖动落库。改布局算法必须同步 `tools/test-timeline-view.mjs`
 - 可执行修复：`src/pages/plan/repair.js` 的 `planAutoTrim()` 只删「可删 + 未锁定 + 非固定」条目且按停留从长到短；页面「自动减负」「收工延到」「解锁」「删重复」「移到预订后 / 下一天」「打车优先」都走普通编辑函数与撤销栈。改策略必须同步 `tools/test-repair.mjs`

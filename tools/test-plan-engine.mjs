@@ -13,7 +13,7 @@ const fail = (m) => { console.error('❌ ' + m); bad++; };
 const ok = (m) => console.log('✅ ' + m);
 
 const P = (id, name, cluster, type = '景点', extra = {}) => ({
-  id, name, city: '莫斯科', cluster, type, highlight: '', tags: [], ...extra,
+  id, name, city: '莫斯科', cluster, type, highlight: '', tags: [], estimatedDuration: 60, ...extra,
 });
 
 function allNames(plan) {
@@ -167,6 +167,45 @@ function checkCaps(plan, label) {
   const staleNames = staleDay ? [...staleDay.slots.morning, ...staleDay.slots.afternoon, ...staleDay.slots.evening] : [];
   if (staleNames.includes('圣瓦西里')) ok('pointId 失效时回退名称解析，步骤不丢');
   else fail(`pointId 失效后步骤丢失：动线日 ${JSON.stringify(staleNames)}`);
+}
+
+// G) 固定日期生成尊重开放日历：闭馆点不硬排，次日再排
+{
+  const closedMonday = P('g1', '周一闭馆馆', '文学', '博物馆', { openCalendar: { days: 'Tu-Su', open: '10:00', close: '18:00' } });
+  const openPoint = P('g2', '周一开放点', '文学');
+  const mondayPlan = ruleEngine({ city: '莫斯科', date: '2026-11-16', days: 1 }, { pts: [closedMonday, openPoint], rts: [] });
+  const mondayNames = allNames(mondayPlan);
+  if (!mondayNames.includes('周一闭馆馆') && mondayNames.includes('周一开放点')) ok('固定日期：周一闭馆点不进入周一');
+  else fail(`周一闭馆点被排入：${mondayNames.join('、')}`);
+  if (mondayPlan.note && /已跳过当天闭馆点位/.test(mondayPlan.note) && /周一闭馆馆/.test(mondayPlan.note)) ok('固定日期：被跳过的闭馆点写入 note');
+  else fail(`闭馆点 note 缺失：${JSON.stringify(mondayPlan.note)}`);
+
+  const tuesdayPlan = ruleEngine({ city: '莫斯科', date: '2026-11-17', days: 1 }, { pts: [closedMonday, openPoint], rts: [] });
+  if (allNames(tuesdayPlan).includes('周一闭馆馆')) ok('固定日期：开放日正常排入');
+  else fail('开放日反而被过滤');
+
+  const relative = ruleEngine({ city: '莫斯科', days: 1 }, { pts: [closedMonday], rts: [] });
+  if (allNames(relative).includes('周一闭馆馆')) ok('无日期行程不按星期过滤（保留旧行为）');
+  else fail('无日期行程被错误过滤');
+}
+
+// G2) 当天闭馆点延后到次日，而不是直接丢弃
+{
+  const p1 = P('h1', '周一闭馆馆', 'A', '博物馆', { openCalendar: { days: 'Tu', open: '10:00', close: '18:00' } });
+  const p2 = P('h2', '周一开放点', 'A');
+  const plan = ruleEngine({ city: '莫斯科', date: '2026-11-16', days: 2 }, { pts: [p1, p2], rts: [] });
+  const namesByDay = plan.days.map(d => [...d.slots.morning, ...d.slots.afternoon, ...d.slots.evening]);
+  if (namesByDay.length === 2 && namesByDay[0].includes('周一开放点') && namesByDay[1].includes('周一闭馆馆')) ok('闭馆点顺延到下一个开放日');
+  else fail(`顺延失败：${JSON.stringify(namesByDay)}`);
+}
+
+// G3) 缺少停留时长的点位不进入生成计划（排程无法评估）
+{
+  const pts = [P('i1', '有时长', 'A'), { ...P('i2', '缺时长', 'A'), estimatedDuration: undefined }];
+  const plan = ruleEngine({ city: '莫斯科', days: 1 }, { pts, rts: [] });
+  const names = allNames(plan);
+  if (names.includes('有时长') && !names.includes('缺时长')) ok('缺停留时长点位被排除');
+  else fail(`缺时长点位混入：${names.join('、')}`);
 }
 
 if (bad) { console.error(`\n${bad} 项规则引擎测试失败`); process.exit(1); }
