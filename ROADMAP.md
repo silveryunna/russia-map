@@ -710,6 +710,10 @@ P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协
 | 评分 | 180 天 | 标采集日期，不隐藏来源 |
 | 交通耗时 | 180 天 | 标估算/来源，增加缓冲 |
 | 摄影机位/光线 | 365 天 | 标季节性，提示现场复核 |
+
+### 进度（2026-10-31）
+
+开发期“资料补全流水线”已可用：`tools/research-queue.mjs` 从数据缺口生成队列，`research-validate.mjs` 强制 verified 必须有官方来源（UGC 只能 estimated/conflict），`research-report.mjs` 统计状态与过期复核；研究产物固定写仓库/webroot 之外，不自动改数据。流程与 NAS/Agent-Reach 边界见 `docs/RESEARCH-PIPELINE.md`。admin 数据健康看板、TTL 自动提醒与覆盖/准确率报表仍待做。
 | 签证/入境/支付 | 30 天 | 强提醒，链接官方来源 |
 | 安全/使馆/急救 | 90 天 | 强提醒，展示最后核验时间 |
 
