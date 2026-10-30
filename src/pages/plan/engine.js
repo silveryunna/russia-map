@@ -2,7 +2,7 @@
 // 输出格式仍是 slots:[name]，P1 迁移到 placeId 时只改这一层与渲染层。
 
 import { addDays, isDateString } from '../trip/schema.js';
-import { calendarState } from './feasibility.js';
+import { calendarState, evaluateDay } from './feasibility.js';
 
 export const PLAN_DAYS_MIN = 1;
 export const PLAN_DAYS_MAX = 7; // 与 api/index.php 的 1–7 保持一致
@@ -88,7 +88,8 @@ export function ruleEngine(params, data) {
   const targetDays = clampDays(params.days);
   const interests = Array.isArray(params.interests) ? params.interests : [];
   const cityPts = (data.pts || []).filter(p => !p.pending && p.city === params.city
-    && Number.isFinite(p.estimatedDuration) && p.estimatedDuration > 0);
+    && Number.isFinite(p.estimatedDuration) && p.estimatedDuration > 0
+    && Number.isFinite(p.lat) && Number.isFinite(p.lon));
 
   let pool = cityPts;
   if (interests.length) {
@@ -106,12 +107,26 @@ export function ruleEngine(params, data) {
   const tripStart = isDateString(params.date) ? params.date : '';
   const dateFor = (index) => (tripStart ? addDays(tripStart, index) : '');
   const skipped = new Map();
+  const trimmed = new Map();
   const isClosedOn = (place, date) => {
     if (!date || !place || !place.openCalendar || place.openCalendar === 'unknown') return false;
     const state = calendarState(place.openCalendar, date);
     if (state.state !== 'closed') return false;
     skipped.set(`${place.id}|${date}`, { id: place.id, name: place.name, date, reason: state.reason || '闭馆' });
     return true;
+  };
+  // 用可行性引擎预演一天：开馆等待、通行、收工线都算进去，排不下就留到次日
+  const fitsDay = (points, date) => {
+    const day = buildDay(points);
+    const ordered = day.usedIds.map(id => byId.get(id)).filter(Boolean);
+    if (!ordered.length) return { ok: false, day };
+    const items = ordered.map((p, index) => ({
+      id: `g${index}`, refId: p.id, type: 'visit', order: index, startLocal: '',
+      flexibility: 'flexible', mustVisit: false, estimatedDuration: null,
+      placeNameSnapshot: p.name, plannedStatus: 'planned', confirm: 'ok',
+    }));
+    const res = evaluateDay({ day: { id: 'generated', date }, items, places: byId });
+    return { ok: res.errors.length === 0, day };
   };
 
   // 动线映射为日：先剔除已用点位和当天闭馆点位，再按单日上限截断，溢出点位回到候选池。
@@ -122,6 +137,7 @@ export function ruleEngine(params, data) {
       .map(stepPoint)
       .filter(p => p && !used.has(p.id)
         && Number.isFinite(p.estimatedDuration) && p.estimatedDuration > 0
+        && Number.isFinite(p.lat) && Number.isFinite(p.lon)
         && !isClosedOn(p, date));
     const day = buildDay(routePts);
     if (!day.usedIds.length) continue;
@@ -139,20 +155,25 @@ export function ruleEngine(params, data) {
   let remaining = [...byCluster.values()].sort((a, b) => b.length - a.length).flat();
   while (days.length < targetDays && remaining.length) {
     const date = dateFor(days.length);
-    const candidates = [];
+    const accepted = [];
     const next = [];
     const seen = new Set();
+    let built = null;
     for (const p of remaining) {
       if (!p || used.has(p.id) || seen.has(p.id)) continue;
       if (isClosedOn(p, date)) { next.push(p); continue; }
-      if (candidates.length >= MAX_PER_DAY) { next.push(p); continue; }
+      if (!Number.isFinite(p.estimatedDuration) || p.estimatedDuration <= 0
+        || !Number.isFinite(p.lat) || !Number.isFinite(p.lon)) continue;
+      if (accepted.length >= MAX_PER_DAY) { next.push(p); continue; }
       seen.add(p.id);
-      candidates.push(p);
+      const fit = fitsDay([...accepted, p], date);
+      if (!fit.ok) { trimmed.set(p.id, p.name); next.push(p); continue; }
+      accepted.push(p);
+      built = fit.day;
     }
-    if (!candidates.length) break;
-    const day = buildDay(candidates);
-    day.usedIds.forEach(id => used.add(id));
-    days.push(mkDay(days.length + 1, day.slots, ''));
+    if (!accepted.length || !built) break;
+    built.usedIds.forEach(id => used.add(id));
+    days.push(mkDay(days.length + 1, built.slots, ''));
     remaining = next;
   }
 
@@ -165,11 +186,17 @@ export function ruleEngine(params, data) {
     .slice(0, 3)
     .map(item => `${item.name}（${item.date} ${item.reason}）`)
     .join('、');
+  const trimNote = [...trimmed.entries()]
+    .filter(([id]) => !used.has(id))
+    .slice(0, 3)
+    .map(([, name]) => name)
+    .join('、');
   const note = [
     days.length < targetDays
       ? `可用点位不足，已生成 ${days.length} 天；建议减少天数、补充点位或搭配周边城市`
       : '',
     closedNote ? `已跳过当天闭馆点位：${closedNote}` : '',
+    trimNote ? `部分点位当天排不下已跳过：${trimNote}` : '',
   ].filter(Boolean).join('；');
 
   return {

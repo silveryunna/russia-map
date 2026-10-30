@@ -13,7 +13,8 @@ const fail = (m) => { console.error('❌ ' + m); bad++; };
 const ok = (m) => console.log('✅ ' + m);
 
 const P = (id, name, cluster, type = '景点', extra = {}) => ({
-  id, name, city: '莫斯科', cluster, type, highlight: '', tags: [], estimatedDuration: 60, ...extra,
+  id, name, city: '莫斯科', cluster, type, highlight: '', tags: [],
+  lat: 55.75, lon: 37.61, estimatedDuration: 60, ...extra,
 });
 
 function allNames(plan) {
@@ -206,6 +207,20 @@ function checkCaps(plan, label) {
   const names = allNames(plan);
   if (names.includes('有时长') && !names.includes('缺时长')) ok('缺停留时长点位被排除');
   else fail(`缺时长点位混入：${names.join('、')}`);
+}
+
+// G4) 补充日按可行性预演：放不下的点位不硬塞，写入 note
+{
+  const pts = [
+    P('j1', '长馆一', 'A', '博物馆', { estimatedDuration: 600 }),
+    P('j2', '长馆二', 'A', '博物馆', { estimatedDuration: 600 }),
+  ];
+  const plan = ruleEngine({ city: '莫斯科', date: '2026-11-17', days: 1 }, { pts, rts: [] });
+  const names = allNames(plan);
+  if (names.includes('长馆一') && !names.includes('长馆二')) ok('补充日超收工线的点位被跳过');
+  else fail(`超时点位混入：${names.join('、')}`);
+  if (plan.note && /当天排不下已跳过/.test(plan.note) && /长馆二/.test(plan.note)) ok('超时点位写入 note');
+  else fail(`超时 note 缺失：${JSON.stringify(plan.note)}`);
 }
 
 if (bad) { console.error(`\n${bad} 项规则引擎测试失败`); process.exit(1); }
