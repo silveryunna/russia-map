@@ -24,9 +24,9 @@ jobs:
       # 1.6) 城市排程字段：非 pending 点位必须有坐标、停留时长与依据
       - name: 城市排程字段
         run: |
-          node tools/check-city-duration.mjs ./data 三亚
-          node tools/check-city-duration.mjs ./data 哈尔滨
-          node tools/check-city-duration.mjs ./data 伊宁
+          for city in 三亚 哈尔滨 伊宁 圣彼得堡 叶卡捷琳堡 阿拉木图 莫斯科州/近郊 其他城市; do
+            node tools/check-city-duration.mjs ./data "$city"
+          done
 
       # 2) 校验器本身不能退化：32 个变异必须全部捕获
       - name: 变异测试

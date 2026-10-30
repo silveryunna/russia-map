@@ -728,7 +728,9 @@
     "lon": 37.487621,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p028",
@@ -740,7 +742,9 @@
     "highlight": "东正教圣三一修道院+木建筑氛围，适合拍照",
     "note": "有人觉得比夏宫更值得",
     "lat": 56.310694,
-    "lon": 38.130214
+    "lon": 38.130214,
+    "estimatedDuration": 240,
+    "durationBasis": "estimate"
   },
   {
     "id": "p029",
@@ -752,7 +756,9 @@
     "highlight": "“坐在草坡上远眺像印象画”；俄式田园古城；实测修正：弗拉基米尔可直接跳过，时间全留给苏兹达尔",
     "note": "时间充足建议住一晚",
     "lat": 56.416004,
-    "lon": 40.442115
+    "lon": 40.442115,
+    "estimatedDuration": 300,
+    "durationBasis": "estimate"
   },
   {
     "id": "p030",
@@ -768,7 +774,9 @@
     "tags": [
       "需预约",
       "周一闭馆"
-    ]
+    ],
+    "estimatedDuration": 240,
+    "durationBasis": "estimate"
   },
   {
     "id": "p031",
@@ -780,7 +788,9 @@
     "highlight": "梵高、莫奈《滑铁卢桥》、毕沙罗《蒙马特大街》、马蒂斯——舒金&莫罗佐夫旧藏",
     "note": "700卢（当天票）",
     "lat": 59.937547,
-    "lon": 30.315587
+    "lon": 30.315587,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p032",
@@ -792,7 +802,9 @@
     "highlight": "彼得一世1714年建的俄罗斯第一座博物馆；彼得大帝珍奇柜藏品",
     "note": "周一部分闭馆；解剖标本区介意者慎入",
     "lat": 59.941528,
-    "lon": 30.303677
+    "lon": 30.303677,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p033",
@@ -807,7 +819,9 @@
     "lon": 30.324639,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p034",
@@ -822,7 +836,9 @@
     "lon": 30.325899,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p035",
@@ -834,7 +850,9 @@
     "highlight": "洋葱头马赛克外观；实测时在装修",
     "note": "约700卢（待核）；出行前查装修状态",
     "lat": 59.940097,
-    "lon": 30.328828
+    "lon": 30.328828,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p036",
@@ -849,7 +867,9 @@
     "lon": 30.331473,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p037",
@@ -861,7 +881,9 @@
     "highlight": "“四大穹顶教堂”之一；马赛克+孔雀石柱；登顶环形阶梯复古感拉满",
     "note": "参观700卢（5分）+登顶700卢（4分，景色一般但阶梯值得体验）",
     "lat": 59.934078,
-    "lon": 30.306142
+    "lon": 30.306142,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p038",
@@ -876,7 +898,9 @@
     "lon": 30.308435,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p039",
@@ -891,7 +915,9 @@
     "lon": 30.311686,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p040",
@@ -906,7 +932,9 @@
     "lon": 30.337812,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p041",
@@ -921,7 +949,9 @@
     "lon": 30.3081,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p042",
@@ -933,7 +963,9 @@
     "highlight": "俄派芭蕾最高殿堂之一；实测《睡美人》",
     "note": "最低5000卢起；“山顶”视角也不差；官网提前订",
     "lat": 59.925393,
-    "lon": 30.295836
+    "lon": 30.295836,
+    "estimatedDuration": 150,
+    "durationBasis": "estimate"
   },
   {
     "id": "p043",
@@ -948,7 +980,9 @@
     "lon": 30.36864,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p044",
@@ -960,7 +994,9 @@
     "highlight": "大瀑布喷泉群+芬兰湾景观",
     "note": "实测未去；口碑分歧（T1推荐 vs 花园门票贵避雷）",
     "lat": 59.884512,
-    "lon": 29.909235
+    "lon": 29.909235,
+    "estimatedDuration": 240,
+    "durationBasis": "estimate"
   },
   {
     "id": "p045",
@@ -972,7 +1008,9 @@
     "highlight": "琥珀宫（独占性招牌，禁拍照）；公园森林池塘喂松鼠水鸟",
     "note": "公园票700卢（4分）/全价2600卢（宫殿3.5分）",
     "lat": 59.716045,
-    "lon": 30.395458
+    "lon": 30.395458,
+    "estimatedDuration": 240,
+    "durationBasis": "estimate"
   },
   {
     "id": "p046",
@@ -984,7 +1022,9 @@
     "highlight": "北欧/芬兰遗风老城+维堡城堡，“欧洲感”卖点",
     "note": "一日较赶；冬季小店歇业",
     "lat": 60.715688,
-    "lon": 28.728866
+    "lon": 28.728866,
+    "estimatedDuration": 300,
+    "durationBasis": "estimate"
   },
   {
     "id": "p047",
@@ -999,7 +1039,9 @@
     "lon": 34.26039,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p048",
@@ -1011,7 +1053,9 @@
     "highlight": "“宇宙飞船”式粗野主义杰作（索莫夫设计，1987）；一面白拱立面一面五层巨窗；对岸河滨步道拍整体",
     "note": "有演出时段开放，官网查排期",
     "lat": 58.522416,
-    "lon": 31.264534
+    "lon": 31.264534,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p049",
@@ -1026,7 +1070,9 @@
     "lon": 33.07167,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p050",
@@ -1038,7 +1084,9 @@
     "highlight": "素混凝土螺旋体+外挂楼梯；左螺旋新娘入口/右新郎入口",
     "note": "⚠️不在俄罗斯境内，需高加索段单独安排（有直飞）",
     "lat": 41.685023,
-    "lon": 44.827857
+    "lon": 44.827857,
+    "estimatedDuration": 15,
+    "durationBasis": "estimate"
   },
   {
     "id": "p051",
@@ -1050,7 +1098,9 @@
     "highlight": "陀翁故居博物馆（库兹涅奇内巷5/2），《卡拉马佐夫兄弟》在此完成",
     "note": "爱好者满分向；与雕像/公墓连刷",
     "lat": 59.927369,
-    "lon": 30.35068
+    "lon": 30.35068,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p052",
@@ -1062,7 +1112,9 @@
     "highlight": "陀思妥耶夫斯基与柴可夫斯基安眠处（亚历山大·涅夫斯基大修道院内）",
     "note": "爱好者满分向",
     "lat": 59.922425,
-    "lon": 30.385649
+    "lon": 30.385649,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p053",
@@ -1706,7 +1758,9 @@
     "highlight": "1974 年开建、苏联解体后的 1992 年才启用；64 米反射镜、总高 178 米，至今仍是世界最大射电望远镜之一，可接收 3 亿公里外的太空信号",
     "note": "莫斯科以北约 200 公里卡利亚津（特维尔州）；研究银河系与河外天体、搜寻太空碎片、接收航天器信号，现役有约 20 名常驻人员；内部不开放但外围随便拍，进入该地区后各个方向都能看到这口「大锅盖」；Yandex 地图搜 Радиотелескоп РТ-64",
     "lat": 57.222,
-    "lon": 37.9012
+    "lon": 37.9012,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p093",
@@ -1733,7 +1787,9 @@
     "highlight": "1973–1983 年建造，苏联现代主义代表作；曾接待来自芬兰、德国、瑞典的客船，游人如织",
     "note": "海荣耀广场 1 号（пл. Морской Славы, 1），瓦西里岛西端；疫情与制裁后航线几乎停摆，建筑本体仍值得一看，可远眺芬兰湾",
     "lat": 59.926,
-    "lon": 30.2349
+    "lon": 30.2349,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p095",
@@ -1760,7 +1816,9 @@
     "highlight": "1795 年创立的俄罗斯第一座公共图书馆（俗称 Публичка「公共图书馆」）；主楼面临涅瓦大街与花园街",
     "note": "Садовая 18 / Невский пр. 20；近地铁 Невский проспект / Гостиный двор；新馆在 Фонтанки 沿河街 36 号",
     "lat": 59.93348,
-    "lon": 30.33431
+    "lon": 30.33431,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p097",
@@ -1775,7 +1833,9 @@
     "lon": 30.30447,
     "tags": [
       "需预约"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p098",
@@ -1787,7 +1847,9 @@
     "highlight": "1902–1903 年建成的新艺术风格杰作「叶利谢耶夫兄弟商厦」；落地彩窗玻璃幕墙+挑高食品大厅，涅瓦大街最上镜的建筑之一",
     "note": "Невский пр. 56；近地铁 Невский проспект / Гостиный двор；就在涅瓦大街群动线上，与喀山大教堂隔街相望",
     "lat": 59.93441,
-    "lon": 30.33781
+    "lon": 30.33781,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p099",
@@ -1811,7 +1873,9 @@
     "highlight": "瓦西里岛大道与布格斯基巷交角的牙科诊所外墙：灰蓝底+橙色几何色块+巨大 СТОМАТОЛОГИЯ 字母，圣彼得堡最出片的街头摄影墙之一",
     "note": "Большой пр. В.О., 18（入口在 Бугский пер. 3）；近地铁 Василеостровская；墙面朝布格斯基巷一侧，上午顺光好拍",
     "lat": 59.9392,
-    "lon": 30.2866
+    "lon": 30.2866,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p101",
@@ -1826,7 +1890,9 @@
     "lon": 30.30585,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 40,
+    "durationBasis": "estimate"
   },
   {
     "id": "p102",
@@ -1841,7 +1907,9 @@
     "lon": 30.300099,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 40,
+    "durationBasis": "estimate"
   },
   {
     "id": "p103",
@@ -1856,7 +1924,9 @@
     "lon": 29.777813,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p104",
@@ -1871,7 +1941,9 @@
     "lon": 30.38583,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p105",
@@ -1883,7 +1955,9 @@
     "highlight": "1876 年创立的顶级应用艺术学府，校园本身是博物馆级建筑；馆内应用艺术博物馆的华丽展厅被誉为「欧洲最美校园展厅」",
     "note": "Солянской пер. 13-15；近地铁 Чернышевская；博物馆展厅通常工作日开放（以官网为准）",
     "lat": 59.943266,
-    "lon": 30.340651
+    "lon": 30.340651,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p106",
@@ -1898,7 +1972,9 @@
     "lon": 30.328292,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p107",
@@ -1910,7 +1986,9 @@
     "highlight": "米哈伊洛夫庄园（Михайловская дача）：1858-62 年为米哈伊尔·尼古拉耶维奇大公所建，大/小宫殿以长廊相连，女像柱、凸窗、阳台集一身的折中主义杰作；UNESCO 遗产名录在册却至今未修复，圣彼得堡近郊最著名废墟宫殿",
     "note": "Санкт-Петербургское ш. 109Б（斯特列利纳与彼得宫之间）；波罗的海火车站坐电气小火车至 Михайловская дача 站约 30 分钟再步行 1.5-2 km；现为列大管理学院校园，园区荒凉无照明，建议白天外观观赏、勿入危楼",
     "lat": 59.8623,
-    "lon": 29.9985
+    "lon": 29.9985,
+    "estimatedDuration": 150,
+    "durationBasis": "estimate"
   },
   {
     "id": "p108",
@@ -1922,7 +2000,9 @@
     "highlight": "俄罗斯最大的私人当代艺术博物馆，由 1950 年代斯大林式建筑群改造；馆藏 2800+ 件当代作品，还有互动装置「乌空间」和屋顶景观",
     "note": "29-я линия В.О., 2（瓦西里岛西端）；近地铁 Василеостровская 转公交；周三闭馆",
     "lat": 59.931939,
-    "lon": 30.25174
+    "lon": 30.25174,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p109",
@@ -1934,7 +2014,9 @@
     "highlight": "Музей советских игровых автоматов：收藏 40+ 台仍可投币游玩的苏联街机（海战、公路赛、狙击手等），门票含 15 戈比苏联硬币，玩的就是情怀",
     "note": "Конюшенная пл. 2В；近地铁 Невский проспект；建议官网确认当日开放状态",
     "lat": 59.940087,
-    "lon": 30.326772
+    "lon": 30.326772,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p110",
@@ -1946,7 +2028,9 @@
     "highlight": "Музей Фаберже：舒瓦洛夫宫内，藏有 9 枚帝国复活节彩蛋——全球最重要的法贝热收藏；《加冕彩蛋》《小母鸡彩蛋》等镇馆之宝都在此",
     "note": "наб. реки Фонтанки, 21；近地铁 Гостиный двор / Маяковская；现场窗口通常只卖余票，建议提前官网购票",
     "lat": 59.93472,
-    "lon": 30.343128
+    "lon": 30.343128,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p111",
@@ -1958,7 +2042,9 @@
     "highlight": "Банковский мост：格里鲍耶陀运河上最上镜的小桥，四角金色狮鹫雕像拉着金链；因对岸旧银行（现财经大学）得名",
     "note": "近地铁 Садовая / Спасская；喀山大教堂后院步行 5 分钟；黄昏灯光下狮鹫最出片",
     "lat": 59.932179,
-    "lon": 30.324931
+    "lon": 30.324931,
+    "estimatedDuration": 15,
+    "durationBasis": "estimate"
   },
   {
     "id": "p112",
@@ -1973,7 +2059,9 @@
     "lon": 30.2619,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p113",
@@ -1985,7 +2073,9 @@
     "highlight": "Assy-Turgen Observatory：阿拉木图以东阿西高原 2750 m 处的穹顶群，前苏联 FAI 天体物理研究所；中亚著名暗夜观星地，穹顶+雪山+高原草甸同框",
     "note": "哈萨克斯坦阿拉木图州；需从阿拉木图自驾/包车约 2-3 小时，末段为砂石盘山路（建议 SUV）；夏季是露营观星旺季，昼夜温差大注意保暖",
     "lat": 43.225241,
-    "lon": 77.871638
+    "lon": 77.871638,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p114",
@@ -1997,7 +2087,9 @@
     "highlight": "1928 年由列宁格勒建筑师 P. Оранский 参与设计的 Уралмаш 工业综合体代表作：规划可容纳十万人的模范社会主义城区；旅馆原为职工宿舍、后接待外国专家，锤子与镰刀形平面，四层——一层商场/药房/食堂，二至四层旅馆；灰色阳台+红色立面，内部有雕塑、壁画、壁柱与花槽装饰",
     "note": "ул. Машиностроителей 4, Екатеринбург（乌拉尔马什区）；地铁 1 号线 Уралмаш 站；周边整片都是构成主义住宅群，适合步行扫街",
     "lat": 56.886155,
-    "lon": 60.588635
+    "lon": 60.588635,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p115",
@@ -2063,7 +2155,9 @@
     "lon": 76.95781,
     "tags": [
       "酒店/旅馆"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p120",
@@ -2075,7 +2169,9 @@
     "highlight": "Тәуелсіздік монументі：共和国广场中央，金色武士立于雪豹之上",
     "note": "近年时有围挡修缮，去前留意现场情况",
     "lat": 43.23856,
-    "lon": 76.94542
+    "lon": 76.94542,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p121",
@@ -2087,7 +2183,9 @@
     "highlight": "Акимат г. Алматы：共和国广场4号，苏联时期政府大厦",
     "note": "与独立纪念碑隔广场相望，可一并打卡",
     "lat": 43.23628,
-    "lon": 76.94573
+    "lon": 76.94573,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p122",
@@ -2099,7 +2197,9 @@
     "highlight": "Қазақстан Ұлыттык Орталық Мұражайы：中亚最大博物馆之一，伊塞克金人复制品在此",
     "note": "Самал 1, 44；独立纪念碑东北侧步行可达",
     "lat": 43.23591,
-    "lon": 76.95072
+    "lon": 76.95072,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p123",
@@ -2111,7 +2211,9 @@
     "highlight": "Қабанбай батыр 110：斯大林式古典立面，阿拉木图最重要的剧院",
     "note": "门前广场即江布尔纪念碑；Almaty Theatre 新剧场上演时留意排期",
     "lat": 43.24865,
-    "lon": 76.94579
+    "lon": 76.94579,
+    "estimatedDuration": 150,
+    "durationBasis": "estimate"
   },
   {
     "id": "p124",
@@ -2123,7 +2225,9 @@
     "highlight": "Жамбыл ескерткіші：哈萨克最伟大的民间诗人、游吟歌手立像",
     "note": "位于阿拜歌剧院门前广场；坐标为广场近似位置",
     "lat": 43.2496,
-    "lon": 76.9447
+    "lon": 76.9447,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p125",
@@ -2135,7 +2239,9 @@
     "highlight": "Абай 103：戏剧博物馆设于剧院建筑内，苏联建筑合集打卡点",
     "note": "以哈萨克剧作家阿乌埃佐夫命名",
     "lat": 43.24155,
-    "lon": 76.91791
+    "lon": 76.91791,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p126",
@@ -2147,7 +2253,9 @@
     "highlight": "Каспий университет：Пушкин 85А，苏联时期教学楼",
     "note": "外观拍照即可",
     "lat": 43.24404,
-    "lon": 76.95592
+    "lon": 76.95592,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p127",
@@ -2159,7 +2267,9 @@
     "highlight": "Университет КИМЭП：中亚知名商学院，苏式校园建筑群",
     "note": "外观拍照即可",
     "lat": 43.2416,
-    "lon": 76.95526
+    "lon": 76.95526,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p128",
@@ -2171,7 +2281,9 @@
     "highlight": "Достык 104Б：乘缆车上 Kok-Tobe 山看日落与城市全景，往返约10000坚戈",
     "note": "地铁 Abay 站出步行可达；山顶有露台餐厅与披头士雕像",
     "lat": 43.24245,
-    "lon": 76.95887
+    "lon": 76.95887,
+    "estimatedDuration": 15,
+    "durationBasis": "estimate"
   },
   {
     "id": "p129",
@@ -2183,7 +2295,9 @@
     "highlight": "Достык 104：苏联老电影院，仍在营业",
     "note": "与 Kok-Tobe 缆车下站仅一街之隔",
     "lat": 43.24206,
-    "lon": 76.95766
+    "lon": 76.95766,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p130",
@@ -2195,7 +2309,9 @@
     "highlight": "Almaty Museum of Arts：新开的现当代艺术场馆",
     "note": "Әл-Фараби 方向，城南",
     "lat": 43.22718,
-    "lon": 76.94903
+    "lon": 76.94903,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p131",
@@ -2207,7 +2323,9 @@
     "highlight": "Карасай Батыр 88Б：苏联旧唱片与上世纪70年代旧书极多且便宜，二手书店爱好者狂喜",
     "note": "地图搜 Second-hand book dealer / Букинист",
     "lat": 43.25026,
-    "lon": 76.92688
+    "lon": 76.92688,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p132",
@@ -2219,7 +2337,9 @@
     "highlight": "Дом мод：1986年建，建筑师 Шлегель、Бычков、Пан；现为 Symbat 中心",
     "note": "Жибек Жолы 65А；坐标为街区近似位置",
     "lat": 43.2618,
-    "lon": 76.9352
+    "lon": 76.9352,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p133",
@@ -2231,7 +2351,9 @@
     "highlight": "Khabar 国家电视演播室：1983年 Коржемпо 设计，人称 Сосулька（冰柱），东方传统与现代主义融合",
     "note": "Тимирязев 街一带；坐标为近似位置",
     "lat": 43.235,
-    "lon": 76.9395
+    "lon": 76.9395,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p134",
@@ -2243,7 +2365,9 @@
     "highlight": "Вознесенский собор：纯木结构东正教教堂，世界最高木建筑之一，色彩梦幻",
     "note": "潘菲洛夫公园内；教堂前广场常有人卖苏联时期老物件",
     "lat": 43.25875,
-    "lon": 76.95355
+    "lon": 76.95355,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p135",
@@ -2255,7 +2379,9 @@
     "highlight": "长明火与巨型群雕，纪念1941年莫斯科保卫战中牺牲的哈萨克师28勇士",
     "note": "潘菲洛夫公园东侧，与升天大教堂一并游览",
     "lat": 43.2591,
-    "lon": 76.9542
+    "lon": 76.9542,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p136",
@@ -2267,7 +2393,9 @@
     "highlight": "国防部军事博物馆：Зенкова 24，潘菲洛夫公园内",
     "note": "坐标为公园内近似位置",
     "lat": 43.2583,
-    "lon": 76.9556
+    "lon": 76.9556,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p137",
@@ -2282,7 +2410,9 @@
     "lon": 76.9393,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p138",
@@ -2297,7 +2427,9 @@
     "lon": 76.9175,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p139",
@@ -2312,7 +2444,9 @@
     "lon": 76.8994,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p140",
@@ -2327,7 +2461,9 @@
     "lon": 76.8659,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p141",
@@ -2342,7 +2478,9 @@
     "lon": 76.8307,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p142",
@@ -2354,7 +2492,9 @@
     "highlight": "Дворец бракосочетания：1971年开放，双环形建筑；马赛克与壁画出自肯巴耶夫与齐夫钦斯基之手",
     "note": "пр. Абая 101А，维斯诺夫卡河边；市级建筑文物",
     "lat": 43.2414,
-    "lon": 76.92
+    "lon": 76.92,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p143",
@@ -2366,7 +2506,9 @@
     "highlight": "1964年老电影院 Целинный 改造而成，阿西夫·汗主持重建，2025年开放永久场馆",
     "note": "Масанчи 59；哈萨克斯坦首个私人文化机构",
     "lat": 43.24845,
-    "lon": 76.92915
+    "lon": 76.92915,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p144",
@@ -2378,7 +2520,9 @@
     "highlight": "1970年代初彩色玻璃马赛克，齐夫钦斯基与肯巴耶夫合作，致敬拜科努尔航天辉煌；2018年修复重现",
     "note": "Масанчи 39，阿尔法拉比哈萨克国立学院外墙；Google 地图搜 Eurasia Insurance，2GIS 搜 Казахский национальный колледж им. Аль-Фараби",
     "lat": 43.25218,
-    "lon": 76.92891
+    "lon": 76.92891,
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p145",
@@ -2390,7 +2534,9 @@
     "highlight": "中央石碑象征切尔诺贝利核电站烟囱，两侧浮雕刻画消防员与清理人",
     "note": "拜图尔瑟诺夫公园内，近尼古拉大教堂",
     "lat": 43.24768,
-    "lon": 76.92792
+    "lon": 76.92792,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p146",
@@ -2402,7 +2548,9 @@
     "highlight": "Желтоқсан таңы：纪念1986年阿拉木图十二月事件，哈萨克民族觉醒的重要象征",
     "note": "Желтоксан 街，共和国广场东南方向",
     "lat": 43.23873,
-    "lon": 76.94168
+    "lon": 76.94168,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p147",
@@ -2417,7 +2565,9 @@
     "lon": 76.945,
     "tags": [
       "酒店/旅馆"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p148",
@@ -2432,7 +2582,9 @@
     "lon": 76.9375,
     "tags": [
       "酒店/旅馆"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p149",
@@ -2444,7 +2596,9 @@
     "highlight": "前苏联实验住宅建筑群：每座塔楼由三个圆形结构组成，相互支撑并重新分配重量，目前正常居住使用中",
     "note": "Толе би 278-284，Тастак-3 小区；坐标为街区近似位置",
     "lat": 43.242,
-    "lon": 76.875
+    "lon": 76.875,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p150",
@@ -2456,7 +2610,9 @@
     "highlight": "北郊大市场，淘旧货与本地生活气息的好去处",
     "note": "离市中心7-8公里，打车约2000坚戈；导航 Semirechie Shopping Mall；坐标为市场片区近似位置",
     "lat": 43.3017,
-    "lon": 77.0032
+    "lon": 77.0032,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p151",
@@ -2472,7 +2628,9 @@
     "tags": [
       "需预约",
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p152",
@@ -2484,7 +2642,9 @@
     "highlight": "Французский дом：пр. Назарбаева 148，苏联时期建筑",
     "note": "近地铁 Abay 站；坐标为街区近似位置",
     "lat": 43.2415,
-    "lon": 76.912
+    "lon": 76.912,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p153",
@@ -2496,7 +2656,9 @@
     "highlight": "1985-1995年建，建筑师 Монтахаев；原为列宁博物馆分馆，后改为总统在阿拉木图的官邸",
     "note": "ул. Ганди 10；2022年1月事件中严重受损后修复；坐标为街道近似位置",
     "lat": 43.2327,
-    "lon": 76.9457
+    "lon": 76.9457,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p154",
@@ -2508,7 +2670,9 @@
     "highlight": "пр. Достык 44：苏式公寓立面，苏联建筑合集打卡点",
     "note": "坐标为街区近似位置",
     "lat": 43.2463,
-    "lon": 76.9568
+    "lon": 76.9568,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p155",
@@ -2520,7 +2684,9 @@
     "highlight": "登顶俯瞰蓝色斯莫尔尼大教堂，背后为市长办公地点，视野惊艳",
     "note": "地址：Rastrelli Square, 1；容纳人数不多，建议错峰登顶",
     "lat": 59.948852,
-    "lon": 30.395558
+    "lon": 30.395558,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p156",
@@ -2532,7 +2698,9 @@
     "highlight": "市民强烈推荐，可同时看到两座教堂和百年书店，视野开阔",
     "note": "地址：Nevsky Prospekt, 33（City Duma Tower）",
     "lat": 59.938676,
-    "lon": 30.314494
+    "lon": 30.314494,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p157",
@@ -2544,7 +2712,9 @@
     "highlight": "陀翁博物馆附近可登顶教堂，市区观景好去处",
     "note": "地址：Vladimirsky Prospekt 20；距陀思妥耶夫斯基博物馆步行约 3 分钟",
     "lat": 59.928181,
-    "lon": 30.348459
+    "lon": 30.348459,
+    "estimatedDuration": 40,
+    "durationBasis": "estimate"
   },
   {
     "id": "p158",
@@ -4265,7 +4435,9 @@
     "confidence": 100,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p300",
@@ -4281,7 +4453,9 @@
     "confidence": 100,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p302",
@@ -4294,7 +4468,9 @@
     "note": "仅周三至周日开门（实测口径；旧资料为周一至五）；票价不到 20 元人民币；有非常详细的英文语音讲解，认真听可待约 3 小时。",
     "lat": 59.9481445,
     "lon": 30.3534476,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p303",
@@ -4340,7 +4516,9 @@
     "tags": [
       "免费",
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p306",
@@ -4353,7 +4531,9 @@
     "note": "外观打卡。",
     "lat": 59.9294536,
     "lon": 30.3438113,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p307",
@@ -4366,7 +4546,9 @@
     "note": "以现场演出排期为准。",
     "lat": 59.9291572,
     "lon": 30.3592638,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p308",
@@ -4379,7 +4561,9 @@
     "note": "每周一、周二闭馆。",
     "lat": 59.9294913,
     "lon": 30.3586166,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p309",
@@ -4408,7 +4592,9 @@
     "note": "以演出排期为准。",
     "lat": 59.9519471,
     "lon": 30.3012968,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p311",
@@ -4424,7 +4610,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p312",
@@ -4440,7 +4628,9 @@
     "confidence": 75,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p313",
@@ -4456,7 +4646,9 @@
     "confidence": 75,
     "tags": [
       "免费"
-    ]
+    ],
+    "estimatedDuration": 15,
+    "durationBasis": "estimate"
   },
   {
     "id": "p314",
@@ -4469,7 +4661,9 @@
     "note": "饮料酒水约 300–500 卢布，有小食。",
     "lat": 59.9360767,
     "lon": 30.3547737,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p315",
@@ -4669,7 +4863,9 @@
     "note": "外观打卡。",
     "lat": 43.2374798,
     "lon": 76.9574617,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p328",
@@ -4682,7 +4878,9 @@
     "note": "外观打卡。",
     "lat": 43.2362819,
     "lon": 76.9457276,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 15,
+    "durationBasis": "estimate"
   },
   {
     "id": "p329",
@@ -4695,7 +4893,9 @@
     "note": "24 小时运营；伊宁跨国大巴下车点。",
     "lat": 43.2448148,
     "lon": 76.8583226,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p330",
@@ -4721,7 +4921,9 @@
     "note": "外观打卡；有演出时段入内。",
     "lat": 43.2415518,
     "lon": 76.917908,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p332",
@@ -4760,7 +4962,9 @@
     "note": "外观打卡；有演出时段入内。",
     "lat": 43.2391841,
     "lon": 76.9172843,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p335",
@@ -4792,7 +4996,9 @@
     "confidence": 100,
     "tags": [
       "交通枢纽"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p337",
@@ -5338,7 +5544,9 @@
     "confidence": 100,
     "tags": [
       "文学"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p363",
@@ -5354,7 +5562,9 @@
     "confidence": 100,
     "tags": [
       "文学"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p364",
@@ -5371,7 +5581,9 @@
     "tags": [
       "文学",
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p365",
@@ -5388,7 +5600,9 @@
     "tags": [
       "文学",
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p366",
@@ -5404,7 +5618,9 @@
     "confidence": 100,
     "tags": [
       "文学"
-    ]
+    ],
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p367",
@@ -5420,7 +5636,9 @@
     "confidence": 100,
     "tags": [
       "文学"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p393",
@@ -5436,7 +5654,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p369",
@@ -5452,7 +5672,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p370",
@@ -5468,7 +5690,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p371",
@@ -5484,7 +5708,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p372",
@@ -5500,7 +5726,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p373",
@@ -5516,7 +5744,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p374",
@@ -5532,7 +5762,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p375",
@@ -5548,7 +5780,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p376",
@@ -5564,7 +5798,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p377",
@@ -5580,7 +5816,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p378",
@@ -5596,7 +5834,9 @@
     "confidence": 100,
     "tags": [
       "City Walk"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p379",
@@ -5612,7 +5852,9 @@
     "confidence": 100,
     "tags": [
       "City Walk"
-    ]
+    ],
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p380",
@@ -5628,7 +5870,9 @@
     "confidence": 100,
     "tags": [
       "City Walk"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p381",
@@ -5645,7 +5889,9 @@
     "tags": [
       "City Walk",
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p382",
@@ -5661,7 +5907,9 @@
     "confidence": 100,
     "tags": [
       "City Walk"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p383",
@@ -5677,7 +5925,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p384",
@@ -5693,7 +5943,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p385",
@@ -5709,7 +5961,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p386",
@@ -5725,7 +5979,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p387",
@@ -5741,7 +5997,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p388",
@@ -5757,7 +6015,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p389",
@@ -5773,7 +6033,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p390",
@@ -5789,7 +6051,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p391",
@@ -5805,7 +6069,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p392",
@@ -5818,7 +6084,9 @@
     "note": "ул. Рубинштейна, 13",
     "lat": 59.929454,
     "lon": 30.343811,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p394",
@@ -5834,7 +6102,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p395",
@@ -5850,7 +6120,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p396",
@@ -5866,7 +6138,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p397",
@@ -5882,7 +6156,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p398",
@@ -5898,7 +6174,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p399",
@@ -5914,7 +6192,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p400",
@@ -5930,7 +6210,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p401",
@@ -5946,7 +6228,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p402",
@@ -5962,7 +6246,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p403",
@@ -5975,7 +6261,9 @@
     "note": "ул. Ленсовета, 12；地铁 Московская 站转公交可达，与皇村（普希金市）同方向可顺游；免费",
     "lat": 59.856948,
     "lon": 30.330896,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p404",
@@ -6285,7 +6573,9 @@
     "note": "火车约4小时/大巴5小时；以利亚教堂5-9月开放",
     "lat": 57.626388,
     "lon": 39.893371,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 300,
+    "durationBasis": "estimate"
   },
   {
     "id": "p426",
@@ -6407,7 +6697,9 @@
     "note": "打车定位 Medeu Cable Station（канатная дорога Медеу-Шымбулак）；市区12/21路公交直达；缆车一段往返4000₸/单程2500₸、二段露天4500₸；洋葱穿衣+硬壳雨衣必备（下山半路突遇暴雨是常态），登山杖墨镜水粮充电宝",
     "lat": 43.145515,
     "lon": 77.066158,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 240,
+    "durationBasis": "estimate"
   },
   {
     "id": "p434",
@@ -6420,7 +6712,9 @@
     "note": "Верхняя Пышма, ул. Александра Козицына 4В；叶卡捷琳堡以北约20公里，与市区可安排同日",
     "lat": 56.960153,
     "lon": 60.582785,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p435",
@@ -6436,7 +6730,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p436",
@@ -6452,7 +6748,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p437",
@@ -6468,7 +6766,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p438",
@@ -6481,7 +6781,9 @@
     "note": "проспект Космонавтов；地铁1号线沿线下穿",
     "lat": 56.901394,
     "lon": 60.613932,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p439",
@@ -6494,7 +6796,9 @@
     "note": "ул. Стахановская 1",
     "lat": 56.89013,
     "lon": 60.592191,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p440",
@@ -6510,7 +6814,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p441",
@@ -6526,7 +6832,9 @@
     "confidence": 100,
     "tags": [
       "酒店/旅馆"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p442",
@@ -6539,7 +6847,9 @@
     "note": "пр. Орджоникидзе（乌拉尔机械厂区）",
     "lat": 56.88986,
     "lon": 60.591182,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p443",
@@ -6552,7 +6862,9 @@
     "note": "ул. Машиностроителей 15",
     "lat": 56.885839,
     "lon": 60.594948,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p444",
@@ -6565,7 +6877,9 @@
     "note": "ул. Машиностроителей 17",
     "lat": 56.884712,
     "lon": 60.592649,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p445",
@@ -6581,7 +6895,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "estimatedDuration": 10,
+    "durationBasis": "estimate"
   },
   {
     "id": "p446",
@@ -6594,7 +6910,9 @@
     "note": "Вокзальная 22",
     "lat": 56.858502,
     "lon": 60.605366,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p447",
@@ -6607,7 +6925,9 @@
     "note": "ул. Бориса Ельцина 3",
     "lat": 56.844876,
     "lon": 60.591167,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p448",
@@ -6620,7 +6940,9 @@
     "note": "ул. Царская 10；与文学区公园、谢瓦斯季亚诺夫宅邸步行圈",
     "lat": 56.844394,
     "lon": 60.608971,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p449",
@@ -6633,7 +6955,9 @@
     "note": "ул. 8 Марта 46",
     "lat": 56.828978,
     "lon": 60.59963,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p450",
@@ -6646,7 +6970,9 @@
     "note": "пр. Ленина 24А",
     "lat": 56.837198,
     "lon": 60.597583,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p451",
@@ -6659,7 +6985,9 @@
     "note": "ул. 8 Марта 8Б",
     "lat": 56.836731,
     "lon": 60.598653,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p452",
@@ -6675,7 +7003,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p453",
@@ -6688,7 +7018,9 @@
     "note": "ул. 8 Марта 17А",
     "lat": 56.837102,
     "lon": 60.599067,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p454",
@@ -6701,7 +7033,9 @@
     "note": "ул. Царская 4",
     "lat": 56.842998,
     "lon": 60.60868,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p455",
@@ -6714,7 +7048,9 @@
     "note": "пр. Ленина 35",
     "lat": 56.839198,
     "lon": 60.606096,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p456",
@@ -6727,7 +7063,9 @@
     "note": "площадь Труда（劳动广场）",
     "lat": 56.838248,
     "lon": 60.606589,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p457",
@@ -6743,7 +7081,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p458",
@@ -6756,7 +7096,9 @@
     "note": "пр. Ленина 46А",
     "lat": 56.838799,
     "lon": 60.616629,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 150,
+    "durationBasis": "estimate"
   },
   {
     "id": "p459",
@@ -6769,7 +7111,9 @@
     "note": "ул. Малышева 51",
     "lat": 56.836106,
     "lon": 60.614604,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p460",
@@ -6782,7 +7126,9 @@
     "note": "ул. Малышева 51；与维索茨基大厦同楼",
     "lat": 56.836106,
     "lon": 60.614604,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p461",
@@ -6798,7 +7144,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p462",
@@ -6814,7 +7162,9 @@
     "confidence": 100,
     "tags": [
       "机场"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p463",
@@ -7364,7 +7714,9 @@
     "note": "пр. Жибек Жолы 53；建议早上去，深度游可留2小时",
     "lat": 43.263676,
     "lon": 76.955197,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p500",
@@ -7390,7 +7742,9 @@
     "note": "пр. Жибек Жолы 步行街段；与绿巴扎、乐器博物馆步行圈串联",
     "lat": 43.2605,
     "lon": 76.946031,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p502",
@@ -7406,7 +7760,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p503",
@@ -7422,7 +7778,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p504",
@@ -7435,7 +7793,9 @@
     "note": "пр. Аль-Фараби 沿线",
     "lat": 43.194475,
     "lon": 76.883873,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p505",
@@ -7448,7 +7808,9 @@
     "note": "ул. Зенкова 24А（潘菲洛夫公园内）",
     "lat": 43.259478,
     "lon": 76.95687,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p506",
@@ -7461,7 +7823,9 @@
     "note": "ул. Пушкина 16；非穆斯林可外观，入内注意着装",
     "lat": 43.268305,
     "lon": 76.953086,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p507",
@@ -7500,7 +7864,9 @@
     "note": "ул. Гоголя 58",
     "lat": 43.259649,
     "lon": 76.943486,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p510",
@@ -7513,7 +7879,9 @@
     "note": "与 AUYL 餐厅、阿拉套国家公园缆车同区，可安排同一天",
     "lat": 43.157177,
     "lon": 77.059414,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p511",
@@ -7526,7 +7894,9 @@
     "note": "市区以东约200公里，07:00 SUV 长途驱车；与 Saty 小镇串联两日游",
     "lat": 43.324995,
     "lon": 79.058576,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 300,
+    "durationBasis": "estimate"
   },
   {
     "id": "p512",
@@ -7539,7 +7909,9 @@
     "note": "恰伦峡谷→科尔赛湖/卡因迪湖的中转站",
     "lat": 43.070591,
     "lon": 78.408775,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p513",
@@ -7552,7 +7924,9 @@
     "note": "08:00 从 Saty 出发前往；进湖区换乘当地四驱车",
     "lat": 42.932,
     "lon": 78.3123,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 180,
+    "durationBasis": "estimate"
   },
   {
     "id": "p514",
@@ -7565,7 +7939,9 @@
     "note": "距 Saty 约12公里土路，需当地四驱车",
     "lat": 42.987,
     "lon": 78.4645,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 180,
+    "durationBasis": "estimate"
   },
   {
     "id": "p515",
@@ -7578,7 +7954,9 @@
     "note": "市区以南约15公里；山区天气多变，行前查路况",
     "lat": 43.051035,
     "lon": 76.985393,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 180,
+    "durationBasis": "estimate"
   },
   {
     "id": "p516",
@@ -7762,7 +8140,9 @@
     "note": "恰伦大峡谷东南方向途中；与恰伦/卡因迪/科尔赛同线串联",
     "lat": 43.246992,
     "lon": 78.897722,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p528",
@@ -7775,7 +8155,9 @@
     "note": "距霍尔果斯口岸约30公里",
     "lat": 44.165665,
     "lon": 80.002739,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p529",
@@ -7788,7 +8170,9 @@
     "note": "车次不是每天都有！提前在哈萨克斯坦铁路官网查；列车上无餐车；官网可手动选铺位",
     "lat": 45.2549,
     "lon": 82.4956,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p530",
@@ -7801,7 +8185,9 @@
     "note": "пр. Абылай Хана 1；恰伦/湖泊线回城后可衔接",
     "lat": 43.27376,
     "lon": 76.939088,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p531",
