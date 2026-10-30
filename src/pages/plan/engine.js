@@ -218,17 +218,25 @@ export function ruleEngine(params, data) {
         const date = dateFor(day.day - 1);
         const current = dayPoints(day);
         const clusters = new Set(current.map(p => p.cluster));
-        const candidate = pool.find(p => p && !used.has(p.id)
+        const candidates = pool.filter(p => p && !used.has(p.id)
           && clusters.has(p.cluster)
           && Number.isFinite(p.estimatedDuration) && p.estimatedDuration > 0
           && Number.isFinite(p.lat) && Number.isFinite(p.lon)
-          && !closedOn(p, date)
-          && fitsDay([...current, p], date).ok);
-        if (!candidate) continue;
-        day.slots = buildDay([...current, candidate]).slots;
-        used.add(candidate.id);
+          && !closedOn(p, date));
+        let picked = null;
+        for (const p of candidates) {
+          for (let index = current.length; index >= 0; index -= 1) {
+            const trial = [...current.slice(0, index), p, ...current.slice(index)];
+            const fit = fitsDay(trial, date);
+            if (fit.ok) { picked = { p, day: fit.day }; break; }
+          }
+          if (picked) break;
+        }
+        if (!picked) continue;
+        day.slots = picked.day.slots;
+        used.add(picked.p.id);
         const list = toppedUp.get(day.day) || [];
-        list.push(candidate.name);
+        list.push(picked.p.name);
         toppedUp.set(day.day, list);
         changed = true;
       }
