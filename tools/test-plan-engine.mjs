@@ -245,8 +245,8 @@ function checkCaps(plan, label) {
 // G6) 稀疏动线日补点：只补同一点位群，且必须通过可行性预演
 {
   const pts = [
-    P('n1', '核心A1', 'A'), P('n2', '核心A2', 'A'), P('n3', '补A1', 'A'), P('n4', '补A2', 'A'),
-    P('o1', '核心B1', 'B'), P('o2', '核心B2', 'B'), P('o3', '补B1', 'B'), P('o4', '补B2', 'B'),
+    P('n1', '核心A1', 'A'), P('n2', '核心A2', 'A'), P('n3', '补A1', 'A'), P('n4', '补A2', 'A'), P('n5', '补A3', 'A'),
+    P('o1', '核心B1', 'B'), P('o2', '核心B2', 'B'), P('o3', '补B1', 'B'), P('o4', '补B2', 'B'), P('o5', '补B3', 'B'),
   ];
   const rts = [
     { day: 'D1', name: 'A线', city: '莫斯科', steps: [{ pointId: 'n1' }, { pointId: 'n2' }] },
@@ -254,7 +254,7 @@ function checkCaps(plan, label) {
   ];
   const plan = ruleEngine({ city: '莫斯科', days: 2 }, { pts, rts });
   const counts = plan.days.map(d => ['morning', 'afternoon', 'evening'].reduce((n, s) => n + d.slots[s].length, 0));
-  if (counts.join() === '4,4') ok('稀疏动线日补到 4 个点位');
+  if (counts.join() === '5,5') ok('稀疏动线日补到 5 个点位');
   else fail(`补点失败：${counts.join()}`);
 }
 

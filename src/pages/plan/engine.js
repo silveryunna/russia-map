@@ -7,7 +7,7 @@ import { calendarState, evaluateDay } from './feasibility.js';
 export const PLAN_DAYS_MIN = 1;
 export const PLAN_DAYS_MAX = 7; // 与 api/index.php 的 1–7 保持一致
 export const MAX_PER_DAY = 8;
-export const MIN_FILLED_DAY = 4;
+export const MIN_FILLED_DAY = 5;
 export const SLOT_CAPS = { morning: 3, afternoon: 3, evening: 2 };
 
 export const INTERESTS = {
@@ -203,6 +203,39 @@ export function ruleEngine(params, data) {
     supplementary = supplementary.filter(r => r !== chosen.r);
   }
 
+  // 稀疏日补点：动线日优先补同群点位，聚类补齐后再补一次；不跨点位群硬凑。
+  const dayPoints = (day) => ['morning', 'afternoon', 'evening']
+    .flatMap(slot => day.slots[slot])
+    .map(name => byName.get(name))
+    .filter(Boolean);
+  const toppedUp = new Map();
+  const topUp = () => {
+    let changed = true;
+    while (changed) {
+      changed = false;
+      const sparse = days.filter(day => dayPoints(day).length < MIN_FILLED_DAY);
+      for (const day of sparse) {
+        const date = dateFor(day.day - 1);
+        const current = dayPoints(day);
+        const clusters = new Set(current.map(p => p.cluster));
+        const candidate = pool.find(p => p && !used.has(p.id)
+          && clusters.has(p.cluster)
+          && Number.isFinite(p.estimatedDuration) && p.estimatedDuration > 0
+          && Number.isFinite(p.lat) && Number.isFinite(p.lon)
+          && !closedOn(p, date)
+          && fitsDay([...current, p], date).ok);
+        if (!candidate) continue;
+        day.slots = buildDay([...current, candidate]).slots;
+        used.add(candidate.id);
+        const list = toppedUp.get(day.day) || [];
+        list.push(candidate.name);
+        toppedUp.set(day.day, list);
+        changed = true;
+      }
+    }
+  };
+  topUp();
+
   // 剩余点位按点位群聚类补齐；当天闭馆的点位留到次日，不硬排。
   const byCluster = new Map();
   for (const p of pool) {
@@ -234,36 +267,7 @@ export function ruleEngine(params, data) {
     days.push(mkDay(days.length + 1, built.slots, ''));
     remaining = next;
   }
-
-  // 稀疏日补点：只补同一点位群，且必须通过可行性预演；在聚类补齐之后执行，不抢后续日期的内容。
-  const dayPoints = (day) => ['morning', 'afternoon', 'evening']
-    .flatMap(slot => day.slots[slot])
-    .map(name => byName.get(name))
-    .filter(Boolean);
-  const toppedUp = new Map();
-  let changed = true;
-  while (changed) {
-    changed = false;
-    const sparse = days.filter(day => dayPoints(day).length < MIN_FILLED_DAY);
-    for (const day of sparse) {
-      const date = dateFor(day.day - 1);
-      const current = dayPoints(day);
-      const clusters = new Set(current.map(p => p.cluster));
-      const candidate = pool.find(p => p && !used.has(p.id)
-        && clusters.has(p.cluster)
-        && Number.isFinite(p.estimatedDuration) && p.estimatedDuration > 0
-        && Number.isFinite(p.lat) && Number.isFinite(p.lon)
-        && !closedOn(p, date)
-        && fitsDay([...current, p], date).ok);
-      if (!candidate) continue;
-      day.slots = buildDay([...current, candidate]).slots;
-      used.add(candidate.id);
-      const list = toppedUp.get(day.day) || [];
-      list.push(candidate.name);
-      toppedUp.set(day.day, list);
-      changed = true;
-    }
-  }
+  topUp();
   for (const day of days) {
     const names = toppedUp.get(day.day);
     if (names && names.length) day.tip = `${day.tip || ''} · 补充：${names.join('、')}`;
