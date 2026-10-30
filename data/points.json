@@ -464,12 +464,25 @@
     "cluster": "④ 文学故居群（林荫道环线）",
     "type": "博物馆",
     "highlight": "Shekhtel 新艺术运动杰作（Rabushinsky 宅邸），建筑本身就是看点",
-    "note": "闭馆日各异",
+    "note": "周一、周二休息；周三至周日 10:00-18:00（17:30 停止入场）；每月最后一个周四卫生日",
     "lat": 55.758158,
     "lon": 37.596349,
     "estimatedDuration": 90,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
+    "openCalendar": {
+      "days": "We,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "18:00",
+      "exceptions": [
+        {
+          "type": "nth-weekday",
+          "weekday": "Th",
+          "nth": "last",
+          "action": "closed",
+          "note": "每月最后一个周四卫生日"
+        }
+      ]
+    },
     "ticket": "unknown",
     "sources": [
       {
@@ -477,6 +490,13 @@
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://museum.imli.ru/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "高尔基博物馆（ИМЛИ РАН）官网排期页：周三至周日 10:00–18:00，17:30 停止入场；周一、周二闭馆；每月最后一个周四卫生日；票价 PDF 字体编码不可读，票价仍待复核"
       }
     ],
     "confidence": 75
@@ -548,25 +568,43 @@
   {
     "id": "p014",
     "name": "莫斯科河夜游船",
-    "name_en": "Kutuzovsky Avenue, 2/1с1",
+    "name_en": "Moscow River Cruise (Radisson Royal Flotilla)",
     "name_local": "Круиз по Москве-реке",
     "city": "莫斯科",
     "cluster": "⑤ 斯大林七姐妹 City walk",
     "type": "水上巴士",
     "highlight": "蓝调时刻出发：克里姆林宫、彼得大帝雕像、斯大林高楼、救世主大教堂依次亮灯",
-    "note": "1.5-2.5小时；冬季有暖气；可同框拍两栋七姐妹",
+    "note": "全年每日巡航，2.5 小时；主厅成人 2400–2700 ₽；冬季有暖气；可同框拍两栋七姐妹",
     "lat": 55.751456,
     "lon": 37.565489,
     "estimatedDuration": 150,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "13:00",
+      "close": "23:30"
+    },
+    "ticket": "成人 2400–2700 ₽，儿童 1900–2200 ₽（主厅）",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://www.radisson-cruise.ru/about/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "Radisson Royal 船队官网：全年每日巡航，2.5 小时，乌克兰饭店码头出发；班次约 13:00–21:00，末班返程约 23:30，冬季班次可能减少"
+      },
+      {
+        "type": "official",
+        "url": "https://www.radisson-cruise.ru/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2026-11-30",
+        "note": "官网主厅票价：成人 2400–2700 ₽，儿童 1900–2200 ₽；不同舱位另计"
       }
     ],
     "confidence": 75
@@ -833,7 +871,7 @@
         }
       }
     },
-    "ticket": "unknown",
+    "ticket": "宫殿博物馆成人 900 ₽，优惠 540 ₽；公园免费",
     "sources": [
       {
         "type": "curated",
@@ -847,6 +885,13 @@
         "collectedAt": "2026-10-31",
         "reviewAfter": "2027-01-29",
         "note": "察里津诺庄园官网；周一闭馆；周二至周四/周日 10–18，周五/六 10–20；园区每日 06–24"
+      },
+      {
+        "type": "official",
+        "url": "https://tsaritsyno-museum.ru/the_museum/prices-and-benefits",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2026-11-30",
+        "note": "官网票价页：宫殿博物馆成人 900 ₽，优惠 540 ₽；公园免费"
       }
     ],
     "confidence": 75
@@ -5632,14 +5677,31 @@
     ],
     "estimatedDuration": 90,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Tu,We,Fr,Sa,Su",
+      "open": "12:00",
+      "close": "19:00",
+      "weekly": {
+        "Th": {
+          "open": "14:00",
+          "close": "21:00"
+        }
+      }
+    },
+    "ticket": "成人 500 ₽，优惠 250 ₽",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://bulgakovmuseum.ru/visit",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "布尔加科夫博物馆官网：周一闭馆；周二/三/五/六/日 12:00–19:00，周四 14:00–21:00；成人 500 ₽，优惠 250 ₽"
       }
     ]
   },
@@ -5652,7 +5714,7 @@
     "cluster": "④ 文学故居群（林荫道环线）",
     "type": "博物馆",
     "highlight": "白银时代女诗人故居；六层顶楼公寓，专题展+生前物品；文学生涯大半在此度过",
-    "note": "周一休息；周二/三/五/六/日 12:00-18:30，周四 12:00-20:30；Борисоглебский пер., 6",
+    "note": "周一休息；周二/三/五/六/日 12:00-19:00，周四 12:00-21:00；Борисоглебский пер., 6",
     "lat": 55.754193,
     "lon": 37.590066,
     "confidence": 100,
@@ -5661,14 +5723,31 @@
     ],
     "estimatedDuration": 90,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Tu,We,Fr,Sa,Su",
+      "open": "12:00",
+      "close": "19:00",
+      "weekly": {
+        "Th": {
+          "open": "12:00",
+          "close": "21:00"
+        }
+      }
+    },
+    "ticket": "成人 400 ₽，优惠 200 ₽",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://dommuseum.ru/contacts",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "茨维塔耶娃故居博物馆官网：周一闭馆；周二至周日 12:00–19:00，周四 12:00–21:00；成人 400 ₽，优惠 200 ₽"
       }
     ]
   },
@@ -5761,7 +5840,7 @@
     "cluster": "④ 文学故居群（林荫道环线）",
     "type": "博物馆",
     "highlight": "普希金新婚仅三个月的住所（1831），诗人在此步入婚姻与创作的转折期；阿尔巴特大街文眼",
-    "note": "周一休息；周三/五/六/日 10:00-18:00，周四 13:00-21:00；ул. Арбат, 53",
+    "note": "周一、周二休息；周三/五/六/日 10:00-18:00，周四 13:00-21:00；ул. Арбат, 53",
     "lat": 55.747535,
     "lon": 37.58588,
     "confidence": 100,
@@ -5770,14 +5849,38 @@
     ],
     "estimatedDuration": 90,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "We,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "18:00",
+      "weekly": {
+        "Th": {
+          "open": "13:00",
+          "close": "21:00"
+        }
+      }
+    },
+    "ticket": "成人 400 ₽，优惠 200 ₽",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://pushkinmuseum.ru/filialy/memorialnaya-kvartira-a-s-pushkina-na-arbate/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "普希金博物馆官网分馆页：周三/五/六/日 10:00–18:00，周四 13:00–21:00，周一、周二闭馆"
+      },
+      {
+        "type": "official",
+        "url": "https://pushkinmuseum.ru/posetitelyam/stoimost-biletov/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2026-11-30",
+        "note": "普希金博物馆票价页：分馆成人 400 ₽，优惠 200 ₽"
       }
     ]
   },
