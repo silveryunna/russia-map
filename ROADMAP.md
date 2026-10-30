@@ -539,13 +539,13 @@ P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协
 | 工作项 | 状态 | 落到哪里 |
 |---|---|---|
 | 1 schema + 版本 | ✅ 契约+校验+页面已接 | `src/pages/trip/schema.js`：Trip/Day/Item/Visit 工厂 + 枚举 + 日期工具 + `validateTrip`（反例覆盖非法枚举、日期不连续、天数与跨度不一致、重复 id、visit 缺 placeId 未标记）；落库前一律再校验 |
-| 2 placeId 迁移 | ✅ 计划与动线两侧完成 | `src/pages/trip/migrate.js`：名称精确匹配 → `refId`；同名进歧义队列（带候选 id）；未知名保留 `placeNameSnapshot` + `needs_confirm`，零丢弃。动线：`data/routes.json` 28 条 / 129 个点位步骤全部带 `pointId`（`point` 降为展示快照），`tools/migrate-routes-pointid.mjs` 幂等迁移 + `--check`，check-data 强校验缺失/失联/名称不一致；引擎与地图解析 `pointId` 优先、名称兜底 |
+| 2 placeId 迁移 | ✅ 计划与动线两侧完成 | `src/pages/trip/migrate.js`：名称精确匹配 → `refId`；同名进歧义队列（带候选 id）；未知名保留 `placeNameSnapshot` + `needs_confirm`，零丢弃。动线：`data/routes.json` 28 条 / 128 个点位步骤全部带 `pointId`（`point` 降为展示快照），`tools/migrate-routes-pointid.mjs` 幂等迁移 + `--check`，check-data 强校验缺失/失联/名称不一致；引擎与地图解析 `pointId` 优先、名称兜底 |
 | 3 Trip CRUD / 加点位 / 排序 | ✅ 页面可用（2026-10-29） | `src/pages/plan.js`：新建/复制/删除/编辑；`trip/edit.js` 提供加点位、上下移、跨天移、增删天（删天点位并入相邻天）；点位从搜索面板按城市挑选 |
 | 4 无日期 / 改期 / 多城 | ✅ 改期策略已落地 | 新建可留空日期（`dateMode: relative`，页面可随时落成具体日期）；`shiftTripStart` 支持 `shift_all`（含绝对时刻预订整体平移）与 `keep_bookings`（预订保留原日期，冲突逐条显式提示）；`cities[]` + `TripDay.city` 多城市扩展位 |
 | 5 旧计划迁移 | ✅ 已接页面 | 打开行程页即一次性迁移 `migratePlansV1`；原始 localStorage 原文备份进 IndexedDB `meta`，校验不过则零写入；歧义/未知名带候选进确认队列，点名字即可人工绑定（同日已有同点位会拒绝并提示） |
 | 6 打卡 → Visit | ✅ 已接页面 | 打开行程页即迁移 `migrateCheckinsToVisits`：次数完整保留（仅最后一次带日期/感想），非法日期标 `unknown`，不伪造；旧 `travel-checkin-v2` 只读保留，地图/清单页暂不受影响 |
 | 7 IndexedDB / 备份 | ✅ 备份+撤销可用 | `src/pages/trip/store.js` 双驱动/`revision`/merge+replace 导入；页面提供整库备份导出、单行程 JSON 导出、导入（覆盖或合并）；编辑器内存撤销 30 步（刷新后清空） |
-| 8 莫斯科样板数据 | 🟡 已核验 10/42 日历、2/42 票价 | 7 条莫斯科动线覆盖 42 个点位：`name_local`、`estimatedDuration`（类型估算）、`sources[collectedAt/reviewAfter]`、坐标置信度补齐；门槛 `tools/check-sample-data.mjs`。2026-10-31 核验：克里姆林宫/古姆/历史博物馆/普希金博物馆/圣瓦西里/特列季亚科夫/航天博物馆/察里津诺/托尔斯泰故居/果戈里故居开放日历（支持 weekly/exceptions），历史博物馆/普希金门票；其余显式 unknown。仍缺：逐条核实（日历 10/42、票价 2/42）、动线步骤间交通矩阵；D2/D4 在真实闭馆时间下出现时段冲突，需要调整动线顺序或删减 |
+| 8 莫斯科样板数据 | 🟡 已核验 9/38 日历、2/38 票价 | 7 条莫斯科动线覆盖 38 个点位：`name_local`、`estimatedDuration`（类型估算）、`sources[collectedAt/reviewAfter]`、坐标置信度补齐；门槛 `tools/check-sample-data.mjs`。2026-10-31 核验：克里姆林宫/古姆/历史博物馆/普希金博物馆/圣瓦西里/特列季亚科夫/航天博物馆/察里津诺/果戈里故居开放日历（支持 weekly/exceptions），历史博物馆/普希金门票；其余显式 unknown。2026-11-01 动线重排：D1 精简为红场核心+克里姆林宫+特列季亚科夫（晚间演出/游船改为另排），D2 改为 4 个地铁站+普希金/果戈里/主教座堂/傍晚阿尔巴特，D4 把察里津诺放到库宾卡之前；`check-route-feasibility` 7 条全部可行（验收日 2026-11-11）。仍缺：逐条核实（日历 9/38、票价 2/38）、动线步骤间交通矩阵；托尔斯泰故居日历保留但已不在样板动线内 |
 
 测试：`tools/test-trip-schema.mjs`（18 项）、`test-trip-migrate.mjs`（25 项）、`test-trip-edit.mjs`（45 项，含"每个操作结果必须过 validateTrip"）、`test-trip-store.mjs`（19 项），已进 `npm test` 与 CI；Playwright 冒烟覆盖行程页生成→排序→撤销→刷新恢复。动线 ID：`test-plan-engine.mjs` 覆盖 pointId 优先/名称兜底/失联回退，check-data 变异测试 29 项含 3 条 pointId 反例。
 

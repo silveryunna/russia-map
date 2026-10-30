@@ -11,7 +11,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 - `npm run dev`：Vite（root=`src/`）。`vite.config.js` 的 `devRepoAssets` 插件把仓库根 `data/ content/ photos/` 与白名单根文件映射到站点根，`/api/*` 默认返回 JSON 错误（页面降级规则引擎）；要连真后端用 `DEV_API=http://127.0.0.1:8080 npm run dev`
 - `npm test`：规则引擎 + 计划存储 + Trip 契约/迁移/编辑/存储 + 可行性引擎 + 时间轴视图 + 可执行修复 + 软目标 + Plan B + 顺序求解 + 打车费率表 + 资料补全管线 + 样板/城市排程数据契约 + SW 缓存策略 + 坐标变换 + 文档事实（CI 同样跑）
 - 资料补全（开发后台/NAS）：`tools/research-queue.mjs` 从 data 缺口生成队列，`research-validate.mjs` 校验候选事实（verified 必须 official，UGC 只能线索），`research-report.mjs` 出状态/过期报告。研究产物只能写仓库与 webroot 之外；Agent-Reach 只做发现，不自动改数据、不进 CI。流程与安全边界见 `docs/RESEARCH-PIPELINE.md`
-- `node tools/check-sample-data.mjs ./data`：莫斯科样板数据门槛（动线覆盖的 42 个点位的排程字段、坐标置信度、城市时区；`unknown` 允许但必须显式）。CI 跑，改样板城市点位必跑
+- `node tools/check-sample-data.mjs ./data`：莫斯科样板数据门槛（动线覆盖的 38 个点位的排程字段、坐标置信度、城市时区；`unknown` 允许但必须显式）。CI 跑，改样板城市点位必跑
 - `node tools/check-city-duration.mjs ./data <城市>`：非 pending 点位必须有坐标、停留时长与依据；CI 对 三亚/哈尔滨/伊宁/圣彼得堡/叶卡捷琳堡/阿拉木图/莫斯科州/其他城市 全量跑，改这些城市点位必跑（莫斯科全量仍有非样板点未补，样板门槛见上一条）
 - `node tools/check-route-feasibility.mjs ./data`：真实动线可行性验收（逐条按一天重排，报告收工时间/未知日历/冲突与修复建议；数据完整性错误才退出 1，最后入场/关门/重叠/超时只报告为动线设计问题）。CI 跑，改莫斯科动线或点位时长后看这里
 - 计划模块：`src/pages/plan/engine.js`（纯函数，勿引入 DOM/storage）、`src/pages/plan/store.js`（`travel-plans-v1` 信封 + 损坏备份）。改规则逻辑必须同步 `tools/test-plan-engine.mjs`
