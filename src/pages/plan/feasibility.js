@@ -103,27 +103,90 @@ export function weekdayKey(dateStr) {
   return WEEKDAYS[new Date(t).getUTCDay()];
 }
 
-// 返回 { state:'open'|'closed'|'unknown', open, close, lastEntry, reason }
+function nthWeekdayMatch(dateStr, weekday, nth) {
+  if (weekdayKey(dateStr) !== weekday) return false;
+  const [year, month] = dateStr.split('-').map(Number);
+  const day = Number(dateStr.slice(8, 10));
+  if (nth === 'last') {
+    const dim = new Date(Date.UTC(year, month, 0)).getUTCDate();
+    return day + 7 > dim;
+  }
+  return Math.ceil(day / 7) === Number(nth);
+}
+
+function exceptionMatches(ex, dateStr) {
+  if (!ex || typeof ex !== 'object') return false;
+  if (ex.type === 'date') return ex.date === dateStr;
+  if (ex.type === 'date-range') return ex.from <= dateStr && dateStr <= ex.to;
+  if (ex.type === 'nth-weekday') return nthWeekdayMatch(dateStr, ex.weekday, ex.nth);
+  return false;
+}
+
+function hoursFrom(primary, fallback) {
+  const open = parseMinutes(primary && primary.open);
+  const close = parseMinutes(primary && primary.close);
+  const lastEntry = parseMinutes(primary && primary.lastEntry);
+  return {
+    open: open === null ? fallback.open : open,
+    close: close === null ? fallback.close : close,
+    lastEntry: lastEntry === null ? fallback.lastEntry : lastEntry,
+  };
+}
+
+// 返回 { state:'open'|'closed'|'unknown', open, close, lastEntry, reason, exceptionsUnresolved? }
+// weekly 按星期覆盖默认时段；exceptions 支持 date / date-range / nth-weekday（1–5 或 last）
 export function calendarState(calendar, dateStr) {
   if (!calendar || calendar === 'unknown' || typeof calendar !== 'object') {
     return { state: 'unknown', open: null, close: null, lastEntry: null, reason: '开放日历未知' };
   }
   const wd = weekdayKey(dateStr);
+  const exceptions = Array.isArray(calendar.exceptions) ? calendar.exceptions : [];
+  const weeklyUnresolved = !wd && calendar.weekly && typeof calendar.weekly === 'object'
+    && Object.keys(calendar.weekly).length > 0;
+  const exceptionsUnresolved = !wd && (exceptions.length > 0 || weeklyUnresolved);
   const closedDays = parseDays(calendar.closed);
   const openDays = parseDays(calendar.days || 'Mo-Su');
-  if (wd && closedDays.includes(wd)) return { state: 'closed', open: null, close: null, lastEntry: null, reason: `${wd} 闭馆` };
-  if (wd && !openDays.includes(wd)) return { state: 'closed', open: null, close: null, lastEntry: null, reason: `${wd} 不开放` };
-  const open = parseMinutes(calendar.open);
-  const close = parseMinutes(calendar.close);
-  if (open === null || close === null) {
+  const baseOpen = parseMinutes(calendar.open);
+  const baseClose = parseMinutes(calendar.close);
+  const baseLast = parseMinutes(calendar.lastEntry);
+
+  let state = 'open';
+  let reason = '';
+  if (wd) {
+    if (closedDays.includes(wd)) { state = 'closed'; reason = `${wd} 闭馆`; }
+    else if (!openDays.includes(wd)) { state = 'closed'; reason = `${wd} 不开放`; }
+  }
+
+  const weekly = wd && calendar.weekly && typeof calendar.weekly[wd] === 'object' ? calendar.weekly[wd] : null;
+  let hours = hoursFrom(weekly, { open: baseOpen, close: baseClose, lastEntry: baseLast });
+
+  if (wd) {
+    const ex = exceptions.find((e) => exceptionMatches(e, dateStr));
+    if (ex) {
+      if (ex.action === 'closed') {
+        state = 'closed';
+        reason = ex.note || '特殊闭馆';
+      } else if (ex.action === 'open') {
+        state = 'open';
+        hours = hoursFrom(ex, hours);
+        reason = ex.note || '特殊开放';
+      }
+    }
+  }
+
+  if (state === 'closed') {
+    return { state: 'closed', open: null, close: null, lastEntry: null, reason, exceptionsUnresolved: false };
+  }
+  if (hours.open === null || hours.close === null) {
     return { state: 'unknown', open: null, close: null, lastEntry: null, reason: '开放时间格式不可用' };
   }
   return {
     state: 'open',
-    open,
-    close,
-    lastEntry: parseMinutes(calendar.lastEntry),
-    reason: `${calendar.open}–${calendar.close}`,
+    open: hours.open,
+    close: hours.close,
+    lastEntry: hours.lastEntry,
+    reason: reason || `${formatMinutes(hours.open)}–${formatMinutes(hours.close)}`,
+    exceptionsUnresolved,
   };
 }
 
@@ -276,6 +339,9 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       } else if (cal.state === 'closed') {
         push('closed', 'error', item.id, `「${name}」${cal.reason}，${date || '当天'}去不了`, { reason: cal.reason });
       } else {
+        if (cal.exceptionsUnresolved) {
+          push('calendar-exceptions', 'warn', item.id, `「${name}」缺少日期，周内/特殊闭馆例外未校验（按默认时段排程）`);
+        }
         if (arrive < cal.open) {
           wait += cal.open - arrive;
           push('before-open', 'warn', item.id, `「${name}」${formatMinutes(cal.open)} 才开门，需等待 ${cal.open - arrive} 分钟`, { opens: formatMinutes(cal.open) });

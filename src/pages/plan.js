@@ -385,7 +385,7 @@ async function doGenerate(src) {
 const FEAS_LABEL = {
   'day-overrun': '超出收工线', closed: '闭馆', 'after-last-entry': '过最后入场', 'after-close': '会跨闭馆',
   overlap: '与预订重叠', 'cross-day': '跨日预订', 'duplicate-place': '重复点位', 'missing-duration': '缺时长',
-  'unresolved-place': '未绑定', 'missing-coords': '缺坐标',
+  'unresolved-place': '未绑定', 'missing-coords': '缺坐标', 'calendar-exceptions': '特殊闭馆未校验',
 };
 
 // 每天一条可行性结论：硬冲突才标红，unknown 只作为提示（绝不假装"全天开放"）

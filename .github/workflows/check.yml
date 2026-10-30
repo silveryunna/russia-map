@@ -28,7 +28,7 @@ jobs:
             node tools/check-city-duration.mjs ./data "$city"
           done
 
-      # 2) 校验器本身不能退化：32 个变异必须全部捕获
+      # 2) 校验器本身不能退化：35 个变异必须全部捕获
       - name: 变异测试
         run: |
           node tools/mutation-test.mjs . mut-report.tsv | tee mut.log

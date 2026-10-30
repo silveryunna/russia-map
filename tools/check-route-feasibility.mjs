@@ -17,8 +17,8 @@ const points = read('points.json');
 const routes = read('routes.json').filter((r) => r.city === city);
 const places = new Map(points.map((p) => [p.id, p]));
 
-// 固定验收日（周二）：开放日历一旦补齐，这里能立刻反映"周几闭馆"的差别
-const DAY = { id: 'acceptance', date: '2026-11-10' };
+// 固定验收日（周三，避开历史博物馆周二闭馆与圣瓦西里每月第一个周三）
+const DAY = { id: 'acceptance', date: '2026-11-11' };
 
 let structural = 0;
 const rows = [];

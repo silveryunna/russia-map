@@ -55,7 +55,7 @@ DEV_API=http://127.0.0.1:8080 npm run dev
 ```bash
 npm test           # 规则引擎 + 计划存储 + Trip 契约/迁移/存储 + SW 缓存策略 + 坐标变换 + 文档事实
 node tools/check-data.mjs ./data
-node tools/mutation-test.mjs     # 校验器变异测试（32 个变异须全捕获）
+node tools/mutation-test.mjs     # 校验器变异测试（35 个变异须全捕获）
 node tools/check-doc-facts.mjs   # README/AGENTS 里的数字是否与代码一致
 ```
 

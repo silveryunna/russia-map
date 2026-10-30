@@ -545,7 +545,7 @@ P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协
 | 5 旧计划迁移 | ✅ 已接页面 | 打开行程页即一次性迁移 `migratePlansV1`；原始 localStorage 原文备份进 IndexedDB `meta`，校验不过则零写入；歧义/未知名带候选进确认队列，点名字即可人工绑定（同日已有同点位会拒绝并提示） |
 | 6 打卡 → Visit | ✅ 已接页面 | 打开行程页即迁移 `migrateCheckinsToVisits`：次数完整保留（仅最后一次带日期/感想），非法日期标 `unknown`，不伪造；旧 `travel-checkin-v2` 只读保留，地图/清单页暂不受影响 |
 | 7 IndexedDB / 备份 | ✅ 备份+撤销可用 | `src/pages/trip/store.js` 双驱动/`revision`/merge+replace 导入；页面提供整库备份导出、单行程 JSON 导出、导入（覆盖或合并）；编辑器内存撤销 30 步（刷新后清空） |
-| 8 莫斯科样板数据 | 🟡 已核验 4/42 日历、2/42 票价 | 7 条莫斯科动线覆盖 42 个点位：`name_local`（俄文原名）、`estimatedDuration`（类型估算，标 `durationBasis: estimate`）、`sources[collectedAt/reviewAfter]`、坐标置信度补齐；门槛 `tools/check-sample-data.mjs`（CI 强制）。2026-10-31 试点核验：克里姆林宫/古姆/历史博物馆/普希金博物馆开放日历，历史博物馆/普希金门票；其余显式 unknown。仍缺：逐条核实（当前日历 4/42、票价 2/42）、动线步骤间交通矩阵；周内多套营业时间需先扩展 `openCalendar` 模型 |
+| 8 莫斯科样板数据 | 🟡 已核验 5/42 日历、2/42 票价 | 7 条莫斯科动线覆盖 42 个点位：`name_local`、`estimatedDuration`（类型估算）、`sources[collectedAt/reviewAfter]`、坐标置信度补齐；门槛 `tools/check-sample-data.mjs`。2026-10-31 试点核验：克里姆林宫/古姆/历史博物馆/普希金博物馆/圣瓦西里开放日历（后三者用 `weekly`/`exceptions` 表达周内差异与每月第一个周三），历史博物馆/普希金门票；其余显式 unknown。仍缺：逐条核实（当前日历 5/42、票价 2/42）、动线步骤间交通矩阵；部分官方票务页/站点暂不可达 |
 
 测试：`tools/test-trip-schema.mjs`（18 项）、`test-trip-migrate.mjs`（25 项）、`test-trip-edit.mjs`（45 项，含"每个操作结果必须过 validateTrip"）、`test-trip-store.mjs`（19 项），已进 `npm test` 与 CI；Playwright 冒烟覆盖行程页生成→排序→撤销→刷新恢复。动线 ID：`test-plan-engine.mjs` 覆盖 pointId 优先/名称兜底/失联回退，check-data 变异测试 29 项含 3 条 pointId 反例。
 
@@ -595,11 +595,11 @@ P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协
 | 2/3 交通段 | 🟡 估算已明示，矩阵待建 | 步行 ≤1.2km 按 80m/min，超出按地铁 10 分钟固定开销 + 30km/h 估算，结果一律打"估算"标签；莫斯科真实矩阵（工作项 3）尚未建立 |
 | 1 时间线编辑器 | ✅ 真实编辑页已具备原型能力 | 列表/时间轴双视图：时间轴按当天窗口绘制色块、交通与等待、超时区与「次日」标签；拖动色块锁定时刻、双击解锁、点块打开锁时/必去/删除面板，重叠块双列并排，未排程条目单列展示；条目面板可就地 ±15 分钟改停留（可恢复点位默认）、一键插入 60 分钟午餐（就近 12:30 试排）与 20 分钟休息预留（type=meal/break、可删） |
 | 5 软目标 | 🟡 度量 + 顺序求解已接 | `src/pages/plan/soft.js` 输出事实：折返、地铁/打车段、兴趣命中、12:00–15:00 摄影点、最长连续活动、收工留白。编辑页每天一条软目标行；「✨ 优化顺序」用确定性插入式局部搜索，按 硬错误 → 时段倒置（1000/次）→ 折返（60/次）→ 正午摄影（30/次）→ 通行分钟 → 打车费用（按城市 scoreUnit 折算，未配置城市不计）→ 超长连续 排序，只动可动 visit，错误数不得增加。尚未做跨天分配、多目标自动择优生成 |
-| 6 独立校验器 | ✅ 独立工具 | `tools/check-route-feasibility.mjs` 用同一纯函数对 28 条真实动线逐条重算（验收日 2026-11-10，09:00–21:00），不依赖页面 |
+| 6 独立校验器 | ✅ 独立工具 | `tools/check-route-feasibility.mjs` 用同一纯函数对 28 条真实动线逐条重算（验收日 2026-11-11 周三，09:00–21:00），不依赖页面 |
 
 真实动线验收结果（当前数据）：D1 市中心经典线预计收工 23:28（建议去掉克里姆林宫 180m）、D2 预计 21:47（建议去掉大剧院 150m）；D3/D4 与三条专题线通过；结构性错误 0。结论是"数据与动线需要取舍"，不是引擎不可用。
 
-测试：`tools/test-feasibility.mjs`（58 项：解析/日历/通行估算/打车口径与城市费率/当天窗口/锁定时刻/跨午夜显示/餐食休息预留/各类硬约束/修复建议/确定性/空白天）、`tools/test-timeline-view.mjs`（17 项：轨道范围/刻度/块/交通等待/重叠/跨日/空白天/餐食休息/打车）、`tools/test-repair.mjs`（5 项：自动减负的删除边界）、`tools/test-soft.mjs`（8 项：折返/换乘/打车/连续活动/留白/摄影/兴趣）、`tools/test-alternatives.mjs`（7 项：Plan B 排序与过滤）、`tools/test-solver.mjs`（10 项：改进/确定性/固定项/时段序/费用折算）、`tools/test-fare-table.mjs`（6 项：城市覆盖/币种/元数据/未知城市）、`tools/check-city-duration.mjs ./data <城市>`（CI 覆盖 三亚/哈尔滨/伊宁/圣彼得堡/叶卡捷琳堡/阿拉木图/莫斯科州/其他城市 的非 pending 点位），已进 `npm test` 与 CI；`tools/check-route-feasibility.mjs ./data` 在 CI 里做真实数据回归。
+测试：`tools/test-feasibility.mjs`（71 项：解析/日历周表与例外/通行估算/打车口径与城市费率/当天窗口/锁定时刻/跨午夜显示/餐食休息预留/各类硬约束/修复建议/确定性/空白天）、`tools/test-timeline-view.mjs`（17 项：轨道范围/刻度/块/交通等待/重叠/跨日/空白天/餐食休息/打车）、`tools/test-repair.mjs`（5 项：自动减负的删除边界）、`tools/test-soft.mjs`（8 项：折返/换乘/打车/连续活动/留白/摄影/兴趣）、`tools/test-alternatives.mjs`（7 项：Plan B 排序与过滤）、`tools/test-solver.mjs`（10 项：改进/确定性/固定项/时段序/费用折算）、`tools/test-fare-table.mjs`（6 项：城市覆盖/币种/元数据/未知城市）、`tools/check-city-duration.mjs ./data <城市>`（CI 覆盖 三亚/哈尔滨/伊宁/圣彼得堡/叶卡捷琳堡/阿拉木图/莫斯科州/其他城市 的非 pending 点位），已进 `npm test` 与 CI；`tools/check-route-feasibility.mjs ./data` 在 CI 里做真实数据回归。
 
 ### 技术策略
 

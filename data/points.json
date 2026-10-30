@@ -83,7 +83,21 @@
     ],
     "estimatedDuration": 40,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "11:00",
+      "close": "17:00",
+      "lastEntry": "16:00",
+      "exceptions": [
+        {
+          "type": "nth-weekday",
+          "weekday": "We",
+          "nth": 1,
+          "action": "closed",
+          "note": "每月第一个周三闭馆"
+        }
+      ]
+    },
     "ticket": "unknown",
     "sources": [
       {
@@ -91,6 +105,13 @@
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://shm.ru/museum/hvb/",
+        "collectedAt": "2026-10-31",
+        "reviewAfter": "2027-01-29",
+        "note": "圣瓦西里大教堂官网页；官网 11–17、每月第一个周三闭馆；已用 exceptions 表达"
       }
     ],
     "confidence": 75
@@ -113,7 +134,24 @@
       "days": "Mo,We,Th,Fr,Sa,Su",
       "open": "10:00",
       "close": "19:00",
-      "lastEntry": "18:00"
+      "lastEntry": "18:00",
+      "weekly": {
+        "Th": {
+          "open": "10:00",
+          "close": "21:00",
+          "lastEntry": "20:00"
+        },
+        "Fr": {
+          "open": "10:00",
+          "close": "21:00",
+          "lastEntry": "20:00"
+        },
+        "Sa": {
+          "open": "10:00",
+          "close": "21:00",
+          "lastEntry": "20:00"
+        }
+      }
     },
     "ticket": "成人票 700 ₽ 起（不同展览/票种至 2000 ₽）",
     "sources": [
@@ -308,7 +346,29 @@
       "days": "Tu,We,Th,Fr,Sa,Su",
       "open": "11:00",
       "close": "20:00",
-      "lastEntry": "19:00"
+      "lastEntry": "19:00",
+      "weekly": {
+        "Th": {
+          "open": "11:00",
+          "close": "21:00",
+          "lastEntry": "20:00"
+        },
+        "Fr": {
+          "open": "11:00",
+          "close": "21:00",
+          "lastEntry": "20:00"
+        },
+        "Sa": {
+          "open": "10:00",
+          "close": "21:00",
+          "lastEntry": "20:00"
+        },
+        "Su": {
+          "open": "10:00",
+          "close": "20:00",
+          "lastEntry": "19:00"
+        }
+      }
     },
     "ticket": "成人 700 ₽，优惠 500 ₽",
     "sources": [

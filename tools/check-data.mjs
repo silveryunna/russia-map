@@ -21,6 +21,81 @@ if (!Array.isArray(points) || !points.length) err('points.json 不是非空数�
 
 // type 受控词表：单一来源 tools/type-vocab.mjs（改词表只改那里，两边自动同源）
 const TYPE_VOCAB = new Set(TYPE_VOCAB_LIST);
+const WEEKDAYS = new Set(['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']);
+const CLOCK_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+
+const isClock = (s) => typeof s === 'string' && CLOCK_RE.test(s);
+const isDate = (s) => {
+  if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
+  const t = Date.parse(s + 'T00:00:00Z');
+  return Number.isFinite(t) && new Date(t).toISOString().slice(0, 10) === s;
+};
+
+function checkHours(obj, where, required = true) {
+  const hasOpen = obj.open !== undefined;
+  const hasClose = obj.close !== undefined;
+  if (required && (!hasOpen || !hasClose)) { err(`${where} 需要 open 与 close`); return; }
+  if (!required && hasOpen !== hasClose) { err(`${where} open/close 必须同时提供`); return; }
+  if (!hasOpen && !hasClose) return;
+  if (!isClock(obj.open) || !isClock(obj.close)) { err(`${where} open/close 必须是 HH:MM`); return; }
+  if (obj.close <= obj.open) err(`${where} close 必须晚于 open`);
+  if (obj.lastEntry !== undefined && (!isClock(obj.lastEntry) || obj.lastEntry > obj.close)) {
+    err(`${where} lastEntry 必须是 HH:MM 且不晚于 close`);
+  }
+}
+
+function validateCalendar(calendar, where) {
+  if (!calendar || typeof calendar !== 'object' || Array.isArray(calendar)) {
+    return err(`${where} openCalendar 必须是 "unknown" 或对象`);
+  }
+  const daysOk = Array.isArray(calendar.days)
+    ? calendar.days.every((d) => WEEKDAYS.has(d))
+    : typeof calendar.days === 'string';
+  if (!daysOk) err(`${where} openCalendar.days 必须是星期字符串或数组`);
+  if (!calendar.days || !isClock(calendar.open) || !isClock(calendar.close)) {
+    return err(`${where} openCalendar 需要 days/open/close（HH:MM）`);
+  }
+  if (calendar.close <= calendar.open) err(`${where} openCalendar.close 必须晚于 open`);
+  if (calendar.lastEntry !== undefined) checkHours(calendar, where);
+
+  if (calendar.weekly !== undefined) {
+    if (!calendar.weekly || typeof calendar.weekly !== 'object' || Array.isArray(calendar.weekly)) {
+      err(`${where} openCalendar.weekly 必须是对象`);
+    } else {
+      for (const [wd, hours] of Object.entries(calendar.weekly)) {
+        const wp = `${where}.weekly.${wd}`;
+        if (!WEEKDAYS.has(wd)) err(`${wp} 星期非法`);
+        if (!hours || typeof hours !== 'object' || Array.isArray(hours)) { err(`${wp} 必须是对象`); continue; }
+        checkHours(hours, wp);
+      }
+    }
+  }
+
+  if (calendar.exceptions !== undefined) {
+    if (!Array.isArray(calendar.exceptions)) {
+      err(`${where} openCalendar.exceptions 必须是数组`);
+    } else {
+      calendar.exceptions.forEach((ex, i) => {
+        const ep = `${where}.exceptions[${i}]`;
+        if (!ex || typeof ex !== 'object' || Array.isArray(ex)) { err(`${ep} 不是对象`); return; }
+        if (!['date', 'date-range', 'nth-weekday'].includes(ex.type)) err(`${ep}.type 非法`);
+        if (!['closed', 'open'].includes(ex.action)) err(`${ep}.action 必须是 closed/open`);
+        if (ex.note !== undefined && typeof ex.note !== 'string') err(`${ep}.note 必须是字符串`);
+        if (ex.type === 'date' && !isDate(ex.date)) err(`${ep}.date 非法`);
+        if (ex.type === 'date-range' && (!isDate(ex.from) || !isDate(ex.to) || ex.from > ex.to)) {
+          err(`${ep} from/to 非法或 from 晚于 to`);
+        }
+        if (ex.type === 'nth-weekday') {
+          if (!WEEKDAYS.has(ex.weekday)) err(`${ep}.weekday 非法`);
+          if (!(ex.nth === 'last' || (Number.isInteger(ex.nth) && ex.nth >= 1 && ex.nth <= 5))) {
+            err(`${ep}.nth 必须是 1–5 或 "last"`);
+          }
+        }
+        if (ex.action === 'open') checkHours(ex, ep, false);
+      });
+    }
+  }
+}
 
 const ids = new Map(), names = new Map();
 for (const [i, p] of points.entries()) {
@@ -69,10 +144,7 @@ for (const [i, p] of points.entries()) {
   if (p.durationBasis !== undefined && !['estimate', 'measured'].includes(p.durationBasis)) {
     err(`${where} durationBasis 必须是 estimate/measured`);
   }
-  if (p.openCalendar !== undefined && p.openCalendar !== 'unknown'
-    && (typeof p.openCalendar !== 'object' || p.openCalendar === null || !p.openCalendar.days || !p.openCalendar.open || !p.openCalendar.close)) {
-    err(`${where} openCalendar 必须是 "unknown" 或 {days,open,close[,lastEntry,closed]} 对象`);
-  }
+  if (p.openCalendar !== undefined && p.openCalendar !== 'unknown') validateCalendar(p.openCalendar, where);
   if (p.sources !== undefined) {
     if (!Array.isArray(p.sources) || p.sources.some(s => !s || typeof s !== 'object' || !/^\d{4}-\d{2}-\d{2}$/.test(s.collectedAt || ''))) {
       err(`${where} sources 必须是带 collectedAt(YYYY-MM-DD) 的对象数组`);

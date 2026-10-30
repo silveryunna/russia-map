@@ -52,6 +52,65 @@ const it = (id, refId, extra = {}) => ({
   assert(unk.state === 'unknown', 'unknown 日历保持 unknown（不当成全天开放）');
 }
 
+// ── 1.1) 开放日历：周覆盖与例外 ──
+{
+  const pushkin = {
+    days: 'Tu-Su', open: '11:00', close: '20:00', lastEntry: '19:00',
+    weekly: {
+      Th: { open: '11:00', close: '21:00', lastEntry: '20:00' },
+      Sa: { open: '10:00', close: '21:00', lastEntry: '20:00' },
+    },
+  };
+  assert(calendarState(pushkin, '2026-11-10').close === 1200, '周表默认时段（周二 20:00）');
+  assert(calendarState(pushkin, '2026-11-12').close === 1260 && calendarState(pushkin, '2026-11-12').lastEntry === 1200,
+    'weekly 覆盖星期四 21:00/20:00');
+  assert(calendarState(pushkin, '2026-11-14').open === 600 && calendarState(pushkin, '2026-11-14').close === 1260,
+    'weekly 覆盖星期六 10:00–21:00');
+  assert(calendarState(pushkin, '2026-11-09').state === 'closed', '周表闭馆日（周一）');
+
+  const basil = {
+    days: 'Mo-Su', open: '11:00', close: '17:00', lastEntry: '16:00',
+    exceptions: [{ type: 'nth-weekday', weekday: 'We', nth: 1, action: 'closed', note: '每月第一个周三闭馆' }],
+  };
+  assert(calendarState(basil, '2026-11-04').state === 'closed', '每月第一个周三闭馆');
+  assert(calendarState(basil, '2026-11-11').state === 'open', '第二个周三正常开放');
+  assert(calendarState(basil, '').exceptionsUnresolved === true, '无日期时标记特殊闭馆未校验');
+
+  const holiday = {
+    days: 'Mo-Su', open: '10:00', close: '18:00',
+    exceptions: [
+      { type: 'date', date: '2026-11-04', action: 'closed' },
+      { type: 'date-range', from: '2026-12-31', to: '2027-01-02', action: 'closed' },
+    ],
+  };
+  assert(calendarState(holiday, '2026-11-04').state === 'closed' && calendarState(holiday, '2026-11-05').state === 'open',
+    '指定日期例外');
+  assert(calendarState(holiday, '2027-01-01').state === 'closed' && calendarState(holiday, '2027-01-03').state === 'open',
+    '日期区间例外');
+
+  const lastTue = {
+    days: 'Mo-Su', open: '12:00', close: '19:00',
+    exceptions: [{ type: 'nth-weekday', weekday: 'Tu', nth: 'last', action: 'closed' }],
+  };
+  assert(calendarState(lastTue, '2026-11-24').state === 'closed' && calendarState(lastTue, '2026-11-17').state === 'open',
+    '最后一个星期二例外');
+
+  const specialOpen = {
+    days: 'Mo-Su', open: '10:00', close: '18:00',
+    exceptions: [{ type: 'date', date: '2026-11-04', action: 'open', open: '12:00', close: '20:00', lastEntry: '19:00' }],
+  };
+  const ex = calendarState(specialOpen, '2026-11-04');
+  assert(ex.state === 'open' && ex.open === 720 && ex.close === 1200 && ex.lastEntry === 1140, '例外可覆盖为特殊开放时段');
+
+  const basilPlace = new Map([['pb', P('pb', '圣瓦西里', 55.752, 37.623, { estimatedDuration: 60, openCalendar: basil })]]);
+  const firstWed = evaluateDay({ day: { id: 'd', date: '2026-11-04' }, items: [it('i1', 'pb')], places: basilPlace });
+  const secondWed = evaluateDay({ day: { id: 'd', date: '2026-11-11' }, items: [it('i1', 'pb')], places: basilPlace });
+  assert(firstWed.conflicts.some((c) => c.kind === 'closed') && secondWed.feasible, '引擎按例外判断闭馆');
+  const relative = evaluateDay({ day: { id: 'd', date: '' }, items: [it('i1', 'pb')], places: basilPlace });
+  assert(relative.conflicts.some((c) => c.kind === 'calendar-exceptions' && c.severity === 'warn'),
+    '无日期时引擎给出特殊闭馆未校验提示');
+}
+
 // ── 2) 交通估算：步行/地铁/同点 ──
 {
   const a = { id: 'a', lat: 55.7558, lon: 37.6173 };
