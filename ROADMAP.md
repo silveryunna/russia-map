@@ -599,7 +599,7 @@ P0 未全绿，不进入 Trip v2；不在旧计划结构上继续加预算、协
 
 真实动线验收结果（当前数据）：D1 市中心经典线预计收工 23:28（建议去掉克里姆林宫 180m）、D2 预计 21:47（建议去掉大剧院 150m）；D3/D4 与三条专题线通过；结构性错误 0。结论是"数据与动线需要取舍"，不是引擎不可用。
 
-测试：`tools/test-feasibility.mjs`（58 项：解析/日历/通行估算/打车口径与城市费率/当天窗口/锁定时刻/跨午夜显示/餐食休息预留/各类硬约束/修复建议/确定性/空白天）、`tools/test-timeline-view.mjs`（17 项：轨道范围/刻度/块/交通等待/重叠/跨日/空白天/餐食休息/打车）、`tools/test-repair.mjs`（5 项：自动减负的删除边界）、`tools/test-soft.mjs`（8 项：折返/换乘/打车/连续活动/留白/摄影/兴趣）、`tools/test-alternatives.mjs`（7 项：Plan B 排序与过滤）、`tools/test-solver.mjs`（10 项：改进/确定性/固定项/时段序/费用折算）、`tools/test-fare-table.mjs`（6 项：城市覆盖/币种/元数据/未知城市）、`tools/check-city-duration.mjs ./data 三亚`（三亚 86 个可排程点位均有坐标/停留时长/依据），已进 `npm test` 与 CI；`tools/check-route-feasibility.mjs ./data` 在 CI 里做真实数据回归。
+测试：`tools/test-feasibility.mjs`（58 项：解析/日历/通行估算/打车口径与城市费率/当天窗口/锁定时刻/跨午夜显示/餐食休息预留/各类硬约束/修复建议/确定性/空白天）、`tools/test-timeline-view.mjs`（17 项：轨道范围/刻度/块/交通等待/重叠/跨日/空白天/餐食休息/打车）、`tools/test-repair.mjs`（5 项：自动减负的删除边界）、`tools/test-soft.mjs`（8 项：折返/换乘/打车/连续活动/留白/摄影/兴趣）、`tools/test-alternatives.mjs`（7 项：Plan B 排序与过滤）、`tools/test-solver.mjs`（10 项：改进/确定性/固定项/时段序/费用折算）、`tools/test-fare-table.mjs`（6 项：城市覆盖/币种/元数据/未知城市）、`tools/check-city-duration.mjs ./data 三亚|哈尔滨|伊宁`（三亚 86 / 哈尔滨 35 / 伊宁 21 个可排程点位均有坐标/停留时长/依据），已进 `npm test` 与 CI；`tools/check-route-feasibility.mjs ./data` 在 CI 里做真实数据回归。
 
 ### 技术策略
 

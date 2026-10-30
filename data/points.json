@@ -6827,7 +6827,9 @@
     "note": "道里区索菲亚广场；周边建筑艺术广场全天候开放",
     "lat": 45.768195,
     "lon": 126.621277,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p464",
@@ -6840,7 +6842,9 @@
     "note": "道里区；北起防洪塔南至经纬街；老鼎丰/马迭尔沿线",
     "lat": 45.771899,
     "lon": 126.612911,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p465",
@@ -6853,7 +6857,9 @@
     "note": "道里区斯大林公园西端；江边日落机位",
     "lat": 45.778685,
     "lon": 126.611324,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p466",
@@ -6866,7 +6872,9 @@
     "note": "道里区江畔；桥头堡完整，低头可见江水",
     "lat": 45.782466,
     "lon": 126.619932,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p467",
@@ -6879,7 +6887,9 @@
     "note": "道里区通江街82号；外观全天可看",
     "lat": 45.769722,
     "lon": 126.60913,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p468",
@@ -6892,7 +6902,9 @@
     "note": "道里区通江街（红霞街转角）；外观打卡",
     "lat": 45.771141,
     "lon": 126.608049,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p469",
@@ -6905,7 +6917,9 @@
     "note": "道里区西五道街36号（原眼科医院老楼）；外观为主",
     "lat": 45.772888,
     "lon": 126.614413,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p470",
@@ -6921,7 +6935,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p471",
@@ -6934,7 +6950,9 @@
     "note": "道里区红专街25-1号；地铁2号线中央大街站步行900米",
     "lat": 45.770366,
     "lon": 126.608558,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p473",
@@ -6950,7 +6968,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p474",
@@ -6966,7 +6986,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p475",
@@ -6979,7 +7001,9 @@
     "note": "道里区经纬四道街30号（文保资料亦记24号）；现为学会办公，外观参观",
     "lat": 45.76442,
     "lon": 126.611642,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p476",
@@ -6992,7 +7016,9 @@
     "note": "道里区中央大街32号；沿街商铺，外观打卡；勿与南岗民益街85号东省特别区行政长官公署混淆",
     "lat": 45.76687,
     "lon": 126.613956,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p477",
@@ -7005,7 +7031,9 @@
     "note": "南岗区果戈里大街181号（比乐街交口）；原为西洋药店，哈尔滨市保护建筑",
     "lat": 45.758395,
     "lon": 126.639161,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 20,
+    "durationBasis": "estimate"
   },
   {
     "id": "p478",
@@ -7018,7 +7046,9 @@
     "note": "南岗区士课街47号（革新街交口）；免费开放",
     "lat": 45.748941,
     "lon": 126.653371,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p479",
@@ -7031,7 +7061,9 @@
     "note": "南岗区东大直街（果戈里大街口）；黄绿俄式立面",
     "lat": 45.758996,
     "lon": 126.639995,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p480",
@@ -7044,7 +7076,9 @@
     "note": "南岗区东大直街268号；外观常年可看",
     "lat": 45.761844,
     "lon": 126.64488,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p481",
@@ -7057,7 +7091,9 @@
     "note": "南岗区东大直街252号（圣母帡幪教堂东侧紧邻，两教堂可同打卡）",
     "lat": 45.76247,
     "lon": 126.645552,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p482",
@@ -7070,7 +7106,9 @@
     "note": "南岗区果戈里大街295号；小火车5-10月运营约20元",
     "lat": 45.758853,
     "lon": 126.649934,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p483",
@@ -7083,7 +7121,9 @@
     "note": "南岗区吉林街52号（紧邻秋林公司步行170米）；二类保护建筑",
     "lat": 45.761118,
     "lon": 126.640704,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 20,
+    "durationBasis": "estimate"
   },
   {
     "id": "p484",
@@ -7096,7 +7136,9 @@
     "note": "南岗区颐园街1号；持身份证免费参观，人少管理完善",
     "lat": 45.755,
     "lon": 126.64,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p485",
@@ -7109,7 +7151,9 @@
     "note": "南岗区红军街63号（博物馆转盘道旁）；周二-周日9:00-11:30免费，仅上午开放，周一闭馆",
     "lat": 45.756733,
     "lon": 126.636816,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 20,
+    "durationBasis": "estimate"
   },
   {
     "id": "p486",
@@ -7122,7 +7166,9 @@
     "note": "南岗区红军街50号；外观即打卡点",
     "lat": 45.75564,
     "lon": 126.635134,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p487",
@@ -7135,7 +7181,9 @@
     "note": "道外区南直路326号；免费凭身份证，周一闭馆9:00-17:00",
     "lat": 45.762975,
     "lon": 126.698795,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p488",
@@ -7148,7 +7196,9 @@
     "note": "南岗区铁路街；外观打卡",
     "lat": 45.760042,
     "lon": 126.625446,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p489",
@@ -7161,7 +7211,9 @@
     "note": "香坊区通站街；与霍尔瓦特将军府同区可串联",
     "lat": 45.719523,
     "lon": 126.673214,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 20,
+    "durationBasis": "estimate"
   },
   {
     "id": "p490",
@@ -7174,7 +7226,9 @@
     "note": "南岗区花园街历史文化街区（联发街—北京街—海关街—海城街合围）",
     "lat": 45.762266,
     "lon": 126.648849,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p491",
@@ -7187,7 +7241,9 @@
     "note": "南岗区联发街1号",
     "lat": 45.750768,
     "lon": 126.635,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p492",
@@ -7200,7 +7256,9 @@
     "note": "南岗区红军街38号（博物馆转盘旁）；文保单位",
     "lat": 45.754717,
     "lon": 126.637685,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p493",
@@ -7216,7 +7274,9 @@
     "note": "南岗区红军街85号（火车站对面）；与一街之隔的黄房子形成阶层对照",
     "lat": 45.7605,
     "lon": 126.6275,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p494",
@@ -7229,7 +7289,9 @@
     "note": "香坊区卫生街副22号（近香坊站）；外观打卡",
     "lat": 45.719443,
     "lon": 126.678214,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p495",
@@ -7242,7 +7304,9 @@
     "note": "道里区爱建（近人民广场地铁站）；免费",
     "lat": 45.760196,
     "lon": 126.595352,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p496",
@@ -7255,7 +7319,9 @@
     "note": "呼兰区南二道街（长寿胡同）；与文庙隔条马路",
     "lat": 45.974001,
     "lon": 126.601331,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 75,
+    "durationBasis": "estimate"
   },
   {
     "id": "p497",
@@ -7268,7 +7334,9 @@
     "note": "呼兰区；围栏围起只能绕行外观；坐标待核实",
     "lat": 45.981968,
     "lon": 126.6002,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p498",
@@ -7281,7 +7349,9 @@
     "note": "呼兰区（毗邻萧红故居片区）；坐标待核实",
     "lat": 45.971191,
     "lon": 126.605328,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 40,
+    "durationBasis": "estimate"
   },
   {
     "id": "p499",
@@ -7521,7 +7591,9 @@
     "note": "街区免费漫游；与俄罗斯风情街、亚历山大博物馆串联",
     "lat": 43.931445,
     "lon": 81.3064,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 120,
+    "durationBasis": "estimate"
   },
   {
     "id": "p517",
@@ -7534,7 +7606,9 @@
     "note": "环湖自驾或区间车；湖边风大备外套",
     "lat": 44.608256,
     "lon": 81.180576,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 240,
+    "durationBasis": "estimate"
   },
   {
     "id": "p518",
@@ -7547,7 +7621,9 @@
     "note": "G30 果子沟出口；坐标为入口区近似位置",
     "lat": 44.53,
     "lon": 81.442,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p519",
@@ -7560,7 +7636,9 @@
     "note": "连霍高速果子沟段；沿途观景台停车注意安全",
     "lat": 44.47032,
     "lon": 81.140324,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p520",
@@ -7573,7 +7651,9 @@
     "note": "博乐市金光大道",
     "lat": 44.90175,
     "lon": 82.110926,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p521",
@@ -7589,7 +7669,9 @@
     "confidence": 100,
     "tags": [
       "机场"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p522",
@@ -7602,7 +7684,9 @@
     "note": "多斯特克方向；客运站提前电话订票（工作人员加微信）；过关需拿行李下车排队查验",
     "lat": 45.17027,
     "lon": 82.570456,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p523",
@@ -7615,7 +7699,9 @@
     "note": "口岸限定区域需带护照；与霍尔果斯国际客运站分设两处",
     "lat": 44.211865,
     "lon": 80.402995,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p524",
@@ -7628,7 +7714,9 @@
     "note": "G218 口岸区；车次以当日公告为准",
     "lat": 44.159791,
     "lon": 80.422236,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p525",
@@ -7641,7 +7729,9 @@
     "note": "北广场进站；跨境行程建议提前2-3天查票",
     "lat": 43.839412,
     "lon": 87.526205,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p526",
@@ -7657,7 +7747,9 @@
     "confidence": 100,
     "tags": [
       "机场"
-    ]
+    ],
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p527",
@@ -8653,7 +8745,9 @@
     "note": "高德POI名\"伊犁国际大巴扎\"；砍价友好，周边美食多",
     "lat": 43.910201,
     "lon": 81.322149,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 90,
+    "durationBasis": "estimate"
   },
   {
     "id": "p586",
@@ -8667,7 +8761,9 @@
     "lat": 43.908548,
     "lon": 81.324152,
     "confidence": 100,
-    "hours": "仅周六礼拜日开放"
+    "hours": "仅周六礼拜日开放",
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p587",
@@ -8680,7 +8776,9 @@
     "note": "门票10元/人；20:30后停止入内；高德无此POI，坐标待提供",
     "lat": 43.90948,
     "lon": 81.331038,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate"
   },
   {
     "id": "p588",
@@ -8693,7 +8791,9 @@
     "note": "高德无独立POI，坐标为解放南路路域近似；遗址公园施工中，开放状态以现场为准",
     "lat": 43.90953,
     "lon": 81.315701,
-    "confidence": 75
+    "confidence": 75,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p589",
@@ -8706,7 +8806,9 @@
     "note": "不对外开放；跟保安说明是入住客人可入内参观",
     "lat": 43.921419,
     "lon": 81.328181,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p590",
@@ -8719,7 +8821,9 @@
     "note": "周日做礼拜时段尊重宗教仪式",
     "lat": 43.927531,
     "lon": 81.300798,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p591",
@@ -8732,7 +8836,9 @@
     "note": "",
     "lat": 43.9293,
     "lon": 81.300263,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p592",
@@ -8745,7 +8851,9 @@
     "note": "高德无此POI，坐标待提供",
     "lat": 43.93266585918609,
     "lon": 81.30680330690139,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p593",
@@ -8759,7 +8867,9 @@
     "lat": 43.932148,
     "lon": 81.3013,
     "confidence": 100,
-    "ticket": "30r/人，含讲解+演奏"
+    "ticket": "30r/人，含讲解+演奏",
+    "estimatedDuration": 45,
+    "durationBasis": "estimate"
   },
   {
     "id": "p594",
@@ -8772,7 +8882,9 @@
     "note": "人民公园旁；目前维修中暂不开放",
     "lat": 43.916722,
     "lon": 81.291434,
-    "confidence": 100
+    "confidence": 100,
+    "estimatedDuration": 30,
+    "durationBasis": "estimate"
   },
   {
     "id": "p595",
