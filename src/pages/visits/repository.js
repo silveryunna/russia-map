@@ -40,6 +40,7 @@ export function projectVisits(visits) {
   const byPlace = new Map();
   for (const visit of Array.isArray(visits) ? visits : []) {
     if (!visit || typeof visit.placeId !== 'string' || !visit.placeId) continue;
+    if (visit.status === 'skipped') continue; // M1：行中跳过只留痕，不计入打卡
     if (!byPlace.has(visit.placeId)) byPlace.set(visit.placeId, []);
     byPlace.get(visit.placeId).push(visit);
   }

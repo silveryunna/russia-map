@@ -23,7 +23,11 @@ export const PLANNED_STATUS = ['planned', 'done', 'skipped', 'moved'];
 export const FLEXIBILITY = ['fixed', 'flexible', 'optional'];
 export const CONFIRM_STATUS = ['ok', 'needs_confirm'];
 export const VISIT_SOURCES = ['manual', 'legacy-checkin', 'plan'];
+export const VISIT_STATUS = ['visited', 'skipped'];
 export const DAY_TRANSPORT_MODES = ['transit', 'taxi'];
+// M1：行中执行的事实记录
+export const CHANGE_KINDS = ['generate', 'edit', 'reorder', 'move', 'resize', 'trim', 'repair', 'replace', 'complete', 'skip', 'arrive', 'undo', 'import', 'note'];
+export const LEG_MODES = ['walk', 'transit', 'taxi', 'other'];
 // 新字段对旧数据保持"缺失按默认"兼容，因此不升 schemaVersion：旧备份与旧 IndexedDB 记录仍可读写
 export const DAY_TIME_DEFAULTS = { startTime: '09:00', endTime: '21:00' };
 
@@ -158,7 +162,43 @@ export function createVisit(input = {}, idFn = defaultId, now = Date.now()) {
     note: typeof input.note === 'string' ? input.note.slice(0, 500) : '',
     countIndex: count,
     source: VISIT_SOURCES.includes(input.source) ? input.source : 'manual',
+    // M1：行中执行扩展（旧数据缺失按默认 visited / 空串，不升 schemaVersion）
+    status: VISIT_STATUS.includes(input.status) ? input.status : 'visited',
+    actualStart: isLocalTimeValue(input.actualStart) ? input.actualStart : '',
+    actualEnd: isLocalTimeValue(input.actualEnd) ? input.actualEnd : '',
+    reason: typeof input.reason === 'string' ? input.reason.slice(0, 200) : '',
     createdAt: Number.isFinite(input.createdAt) ? input.createdAt : now,
+  };
+}
+
+// M1 ChangeEvent：每次编辑/执行的审计记录。原计划不被覆盖——before/after 只是
+// 该次变更的人读摘要与受影响面，不是完整快照（完整快照走 exportAll 备份）。
+export function createChangeEvent(input = {}, idFn = defaultId, now = Date.now()) {
+  return {
+    id: input.id || idFn('e'),
+    tripId: typeof input.tripId === 'string' && input.tripId ? input.tripId : '',
+    at: Number.isFinite(input.at) ? input.at : now,
+    kind: CHANGE_KINDS.includes(input.kind) ? input.kind : 'edit',
+    summary: typeof input.summary === 'string' ? input.summary.slice(0, 300) : '',
+    reason: typeof input.reason === 'string' ? input.reason.slice(0, 200) : '',
+    affected: Array.isArray(input.affected) ? input.affected.filter(x => typeof x === 'string' && x).slice(0, 100) : [],
+    before: input.before && typeof input.before === 'object' ? input.before : null,
+    after: input.after && typeof input.after === 'object' ? input.after : null,
+  };
+}
+
+// M1 实际交通段：行中「到达」打点时回收的第一方实测通行数据。
+export function createTransitLeg(input = {}, idFn = defaultId, now = Date.now()) {
+  return {
+    id: input.id || idFn('l'),
+    tripId: typeof input.tripId === 'string' && input.tripId ? input.tripId : '',
+    dayId: typeof input.dayId === 'string' && input.dayId ? input.dayId : '',
+    fromItemId: typeof input.fromItemId === 'string' && input.fromItemId ? input.fromItemId : '',
+    toItemId: typeof input.toItemId === 'string' && input.toItemId ? input.toItemId : '',
+    mode: LEG_MODES.includes(input.mode) ? input.mode : 'other',
+    plannedMinutes: Number.isFinite(input.plannedMinutes) && input.plannedMinutes >= 0 ? Math.round(input.plannedMinutes) : null,
+    actualMinutes: Number.isFinite(input.actualMinutes) && input.actualMinutes >= 0 ? Math.round(input.actualMinutes) : null,
+    at: Number.isFinite(input.at) ? input.at : now,
   };
 }
 
@@ -274,6 +314,39 @@ export function validateVisit(visit) {
   if (typeof visit.placeId !== 'string' || !visit.placeId) errors.push({ path: 'placeId', code: 'required', message: '缺少 placeId' });
   if (visit.date && !isDateString(visit.date)) errors.push({ path: 'date', code: 'date', message: 'date 非法' });
   if (visit.tripId !== null && visit.tripId !== undefined && typeof visit.tripId !== 'string') errors.push({ path: 'tripId', code: 'type', message: 'tripId 必须是字符串或 null' });
+  if (visit.status !== undefined && !VISIT_STATUS.includes(visit.status)) errors.push({ path: 'status', code: 'enum', message: `status 非法：${visit.status}` });
+  if (visit.actualStart !== undefined && visit.actualStart !== '' && !isLocalTimeValue(visit.actualStart)) errors.push({ path: 'actualStart', code: 'time', message: 'actualStart 必须是 HH:MM、YYYY-MM-DDTHH:MM 或空串' });
+  if (visit.actualEnd !== undefined && visit.actualEnd !== '' && !isLocalTimeValue(visit.actualEnd)) errors.push({ path: 'actualEnd', code: 'time', message: 'actualEnd 必须是 HH:MM、YYYY-MM-DDTHH:MM 或空串' });
+  if (visit.reason !== undefined && typeof visit.reason !== 'string') errors.push({ path: 'reason', code: 'type', message: 'reason 必须是字符串' });
+  return { ok: errors.length === 0, errors };
+}
+
+export function validateChangeEvent(event) {
+  const errors = [];
+  if (!event || typeof event !== 'object') return { ok: false, errors: [{ path: '', code: 'not_object', message: 'ChangeEvent 不是对象' }] };
+  if (typeof event.id !== 'string' || !event.id) errors.push({ path: 'id', code: 'required', message: '缺少事件 id' });
+  if (typeof event.tripId !== 'string' || !event.tripId) errors.push({ path: 'tripId', code: 'required', message: '缺少 tripId' });
+  if (!CHANGE_KINDS.includes(event.kind)) errors.push({ path: 'kind', code: 'enum', message: `kind 非法：${event.kind}` });
+  if (!Number.isFinite(event.at)) errors.push({ path: 'at', code: 'type', message: 'at 必须是时间戳' });
+  if (event.summary !== undefined && typeof event.summary !== 'string') errors.push({ path: 'summary', code: 'type', message: 'summary 必须是字符串' });
+  if (event.affected !== undefined && !Array.isArray(event.affected)) errors.push({ path: 'affected', code: 'type', message: 'affected 必须是数组' });
+  return { ok: errors.length === 0, errors };
+}
+
+export function validateTransitLeg(leg) {
+  const errors = [];
+  if (!leg || typeof leg !== 'object') return { ok: false, errors: [{ path: '', code: 'not_object', message: 'TransitLeg 不是对象' }] };
+  if (typeof leg.id !== 'string' || !leg.id) errors.push({ path: 'id', code: 'required', message: '缺少 id' });
+  if (!LEG_MODES.includes(leg.mode)) errors.push({ path: 'mode', code: 'enum', message: `mode 非法：${leg.mode}` });
+  if (leg.plannedMinutes !== null && leg.plannedMinutes !== undefined
+    && (!Number.isInteger(leg.plannedMinutes) || leg.plannedMinutes < 0)) {
+    errors.push({ path: 'plannedMinutes', code: 'type', message: 'plannedMinutes 必须是非负整数或 null' });
+  }
+  if (leg.actualMinutes !== null && leg.actualMinutes !== undefined
+    && (!Number.isInteger(leg.actualMinutes) || leg.actualMinutes < 0)) {
+    errors.push({ path: 'actualMinutes', code: 'type', message: 'actualMinutes 必须是非负整数或 null' });
+  }
+  if (!Number.isFinite(leg.at)) errors.push({ path: 'at', code: 'type', message: 'at 必须是时间戳' });
   return { ok: errors.length === 0, errors };
 }
 

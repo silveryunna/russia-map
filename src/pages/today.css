@@ -1,0 +1,73 @@
+/* 今日执行（Today）页样式：移动端优先，行中单手可操作 */
+#today-app {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 12px 14px 64px;
+  font-size: 15px;
+  color: #2b2b2b;
+}
+.td-toolbar { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin-bottom: 10px; }
+.td-toolbar select, .td-toolbar input[type="date"] {
+  font: inherit; padding: 6px 10px; border: 1px solid #d8cfc0; border-radius: 8px; background: #fff;
+}
+.td-muted { color: #8a8378; font-size: 13px; }
+.td-card {
+  background: #fff; border: 1px solid #e7dfd2; border-radius: 14px;
+  padding: 14px 16px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(60, 40, 20, 0.06);
+}
+.td-card h2 { font-size: 16px; margin: 0 0 8px; }
+.td-verdict { font-size: 13px; margin-top: 6px; }
+.td-verdict.is-warn { color: #9a6a00; }
+.td-verdict.is-bad { color: #b71c1c; }
+
+.td-now { border: 2px solid #B71C1C; }
+.td-now .td-label { color: #B71C1C; font-weight: 700; font-size: 13px; letter-spacing: 0.05em; }
+.td-now .td-name { font-size: 20px; font-weight: 700; margin: 4px 0 2px; }
+.td-now .td-time { color: #6b6357; margin-bottom: 10px; }
+
+.td-actions { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.td-btn {
+  font: inherit; border: 1px solid #d8cfc0; background: #f8f5ee; border-radius: 10px;
+  padding: 10px 14px; cursor: pointer; min-height: 44px;
+}
+.td-btn.primary { background: #B71C1C; border-color: #B71C1C; color: #fff; font-weight: 700; }
+.td-btn.warn { background: #fff8e1; border-color: #e0c97a; }
+.td-btn:active { transform: scale(0.97); }
+.td-btn:disabled { opacity: 0.45; cursor: default; }
+
+.td-progress { display: flex; gap: 12px; font-size: 13px; color: #6b6357; flex-wrap: wrap; }
+.td-buffer { font-weight: 700; }
+.td-buffer.tight { color: #b71c1c; }
+.td-buffer.ok { color: #2e7d32; }
+
+.td-row {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 4px; border-top: 1px dashed #e7dfd2;
+}
+.td-row:first-of-type { border-top: none; }
+.td-row .td-time { width: 88px; flex: none; font-variant-numeric: tabular-nums; color: #6b6357; font-size: 13px; padding-top: 2px; }
+.td-row .td-body { flex: 1; min-width: 0; }
+.td-row .td-name { font-weight: 600; }
+.td-row .td-sub { font-size: 12.5px; color: #8a8378; margin-top: 2px; }
+.td-row.is-done { opacity: 0.55; }
+.td-row.is-done .td-name { text-decoration: line-through; }
+.td-row.is-skipped { opacity: 0.55; }
+.td-row.is-current { background: #fdf3f2; border-radius: 10px; padding-left: 8px; padding-right: 8px; }
+.td-row.is-unscheduled .td-name::after { content: " · 未排程"; color: #b71c1c; font-size: 12px; font-weight: 400; }
+.td-row-actions { display: flex; gap: 6px; flex: none; }
+.td-row-actions .td-btn { padding: 6px 10px; min-height: 36px; font-size: 13px; }
+.td-flag { display: inline-block; font-size: 11px; border-radius: 6px; padding: 1px 6px; margin-right: 4px; background: #f2ecdf; color: #7a6b4f; }
+.td-flag.unknown { background: #fff3cd; color: #8a6d00; }
+.td-flag.estimate { background: #e8eef7; color: #41608a; }
+
+.td-task { padding: 8px 4px; border-top: 1px dashed #e7dfd2; font-size: 14px; }
+.td-task .td-impact { font-size: 12px; margin-right: 6px; }
+.td-event { padding: 6px 4px; border-top: 1px dashed #eee6d8; font-size: 13px; color: #6b6357; }
+.td-event .td-event-time { font-variant-numeric: tabular-nums; margin-right: 8px; color: #a39a8b; }
+.td-emergency { background: #fff8e1; border-color: #e0c97a; white-space: pre-wrap; }
+.td-toast {
+  position: fixed; left: 50%; bottom: 24px; transform: translateX(-50%);
+  background: #32302c; color: #fff; padding: 10px 18px; border-radius: 10px;
+  font-size: 14px; opacity: 0; transition: opacity 0.25s; pointer-events: none; z-index: 50;
+}
+.td-toast.show { opacity: 1; }

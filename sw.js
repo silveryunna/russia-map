@@ -17,6 +17,7 @@ const SHELL_ASSETS = [
   './notes.html',
   './album.html',
   './plan.html',
+  './today.html',
   './friend.html',
   './account.html',
   './admin.html',

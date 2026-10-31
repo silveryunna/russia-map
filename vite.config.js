@@ -96,6 +96,7 @@ export default defineConfig({
         account: resolve(ROOT, 'src/account.html'),
         friend: resolve(ROOT, 'src/friend.html'),
         plan: resolve(ROOT, 'src/plan.html'),
+        today: resolve(ROOT, 'src/today.html'),
       },
     },
   },

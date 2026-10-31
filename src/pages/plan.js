@@ -13,7 +13,8 @@ import { loadPlans } from './plan/store.js';
 import { loadCheckins } from '../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
 import { migratePlansV1 } from './trip/migrate.js';
-import { tripItemCount } from './trip/schema.js';
+import { createChangeEvent, tripItemCount } from './trip/schema.js';
+import { diffTrips, summarizeDiff } from './trip/execution.js';
 import {
   addDay, addPlaceToDay, bindItemPlace, countNeedsConfirm, duplicateTrip, insertItemAt,
   itemDateConflicts, moveItemAfter, moveItemToDay, moveItemWithinDay, removeDay, removeItem,
@@ -369,6 +370,7 @@ async function doGenerate(src) {
     await refreshTrips();
     current = saved.trip;
     undoStack = [];
+    try { await store.saveEvent(createChangeEvent({ tripId: current.id, at: Date.now(), kind: 'generate', summary: `生成行程（${sourceLabel(current)}）` })); } catch { /* 日志失败不影响生成 */ }
     view.mode = 'editor';
     view.sel = null;
     render();
@@ -689,6 +691,7 @@ function renderEditor() {
     <div class="pl-head">
       <button class="pl-btn small" id="tr-back">← 全部行程</button>
       <div class="tr-head-ops">
+        <a class="pl-btn small" href="./today.html">📍 今日执行</a>
         <button class="pl-btn small" id="tr-layout">${view.layout === 'timeline' ? '☰ 列表' : '🗓 时间轴'}</button>
         <button class="pl-btn small" id="tr-undo" ${undoStack.length ? '' : 'disabled'}>↶ 撤销</button>
         <button class="pl-btn small" id="tr-md">导出 MD</button>
@@ -1079,7 +1082,25 @@ async function pickPlace(placeId) {
   if (q) q.focus();
 }
 
-/* ---------- 落库 / 撤销 ---------- */
+/* ---------- 落库 / 撤销 / 变更日志 ---------- */
+// M1：每次编辑留 ChangeEvent（Diff 摘要 + 受影响条目），日志失败不影响编辑本身
+async function logChange(kind, before, after) {
+  try {
+    if (!before || !after || !store) return;
+    const diff = diffTrips(before, after);
+    const summary = summarizeDiff(diff);
+    if (summary === '无可见变更') return;
+    let k = kind;
+    if (!k) {
+      if (diff.changed.some(c => c.moved)) k = 'move';
+      else if (diff.reordered) k = 'reorder';
+      else k = 'edit';
+    }
+    const affected = [...diff.added, ...diff.removed, ...diff.changed].map(x => x.id).slice(0, 50);
+    await store.saveEvent(createChangeEvent({ tripId: after.id, at: Date.now(), kind: k, summary, affected }));
+  } catch { /* 变更日志失败不阻断编辑 */ }
+}
+
 async function persistTrip(next) {
   const r = await store.saveTrip(next);
   if (!r.ok) {
@@ -1098,6 +1119,7 @@ async function mutate(fn) {
   if (await persistTrip(next)) {
     undoStack.push(before);
     if (undoStack.length > 30) undoStack.shift();
+    logChange(null, JSON.parse(before), current);
     await refreshTrips();
     render();
   }
@@ -1108,6 +1130,7 @@ async function applyTrip(next) {
   if (await persistTrip(next)) {
     undoStack.push(before);
     if (undoStack.length > 30) undoStack.shift();
+    logChange(null, JSON.parse(before), current);
     await refreshTrips();
     render();
   }
@@ -1116,7 +1139,9 @@ async function applyTrip(next) {
 async function doUndo() {
   const snap = undoStack.pop();
   if (!snap) return;
+  const before = JSON.stringify(current);
   if (await persistTrip(JSON.parse(snap))) {
+    logChange('undo', JSON.parse(before), current);
     await refreshTrips();
     render();
     toast('已撤销上一步');

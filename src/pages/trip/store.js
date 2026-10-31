@@ -2,12 +2,12 @@
 // 纯逻辑与驱动分离：修订号、导入合并、迁移一次性都由这里保证，驱动只管读写。
 // 数据保留原则：删行程不删 Visit（解绑 tripId 留档），导入冲突保留高 revision。
 
-import { TRIP_SCHEMA_VERSION, validateTrip, validateVisit } from './schema.js';
+import { TRIP_SCHEMA_VERSION, validateChangeEvent, validateTransitLeg, validateTrip, validateVisit } from './schema.js';
 import { migrateCheckinsToVisits, migratePlansV1 } from './migrate.js';
 
 export const TRIP_DB_NAME = 'travel-trips';
-export const TRIP_DB_VERSION = 1;
-export const TRIP_STORES = ['trips', 'visits', 'meta'];
+export const TRIP_DB_VERSION = 2;
+export const TRIP_STORES = ['trips', 'visits', 'events', 'legs', 'meta'];
 export const META_PLANS_MIGRATED = 'migrate:travel-plans-v1';
 export const META_CHECKINS_MIGRATED = 'migrate:travel-checkin-v2';
 export const META_PLANS_BACKUP = 'backup:travel-plans-v1';
@@ -18,7 +18,7 @@ const clone = v => (v === undefined ? v : JSON.parse(JSON.stringify(v)));
 const keyOf = (store, rec) => (store === 'meta' ? rec.k : rec.id);
 
 export function createMemoryDriver(seed = {}) {
-  const data = { trips: new Map(), visits: new Map(), meta: new Map() };
+  const data = Object.fromEntries(TRIP_STORES.map(name => [name, new Map()]));
   for (const store of TRIP_STORES) {
     for (const rec of Array.isArray(seed[store]) ? seed[store] : []) {
       if (rec && keyOf(store, rec)) data[store].set(keyOf(store, rec), clone(rec));
@@ -141,6 +141,21 @@ const revisionConflict = (current) => ({
   current,
 });
 
+// saveTrip 与 applyExecution 共用的乐观 revision 检查：冲突返回 {conflict}，否则就地 bump revision
+function prepareIncomingTrip(existing, incoming, stamp) {
+  if (existing) {
+    if (incoming.revision !== existing.revision) return { conflict: existing };
+    incoming.revision = existing.revision + 1;
+    incoming.createdAt = Number.isFinite(existing.createdAt) ? existing.createdAt : stamp;
+  } else {
+    if (incoming.revision !== 1) return { conflict: null };
+    incoming.revision = 1;
+    if (!Number.isFinite(incoming.createdAt)) incoming.createdAt = stamp;
+  }
+  incoming.updatedAt = stamp;
+  return { ok: true };
+}
+
 let storeClientSeq = 0;
 function defaultIdSafe() {
   const cryptoApi = globalThis.crypto;
@@ -208,21 +223,56 @@ export async function openTripStore({ driver = createMemoryDriver(), now = () =>
     incoming.schemaVersion = TRIP_SCHEMA_VERSION;
     return enqueueWrite(() => transact(['trips'], async (tx) => {
       const existing = await tx.get('trips', incoming.id);
-      if (existing) {
-        if (incoming.revision !== existing.revision) return revisionConflict(existing);
-        incoming.revision = existing.revision + 1;
-        incoming.createdAt = Number.isFinite(existing.createdAt) ? existing.createdAt : now();
-      } else {
-        if (incoming.revision !== 1) return revisionConflict(null);
-        incoming.revision = 1;
-        if (!Number.isFinite(incoming.createdAt)) incoming.createdAt = now();
-      }
-      incoming.updatedAt = now();
+      const prepared = prepareIncomingTrip(existing, incoming, now());
+      if (prepared.conflict !== undefined) return revisionConflict(prepared.conflict);
       const check = validateTrip(incoming);
       if (!check.ok) return { ok: false, errors: check.errors };
       await tx.put('trips', incoming);
       notify('trips', { id: incoming.id, revision: incoming.revision });
       return { ok: true, trip: incoming };
+    }));
+  }
+
+  // M1 行中执行落库：Trip 修订 + Visit + ChangeEvent（+可选 TransitLeg）一个事务原子写入。
+  // trip 为 null 时只写事实记录（如"到达"打点的 leg+event，不改行程）。
+  async function applyExecution({ trip = null, visit = null, event = null, leg = null } = {}) {
+    if (!trip && !visit && !event && !leg) return { ok: false, errors: [{ path: '', code: 'empty', message: '没有要写入的内容' }] };
+    const incomingTrip = trip ? clone(trip) : null;
+    if (incomingTrip) incomingTrip.schemaVersion = TRIP_SCHEMA_VERSION;
+    const incomingVisit = visit ? clone(visit) : null;
+    const incomingEvent = event ? clone(event) : null;
+    const incomingLeg = leg ? clone(leg) : null;
+    if (incomingTrip) {
+      const check = validateTrip(incomingTrip);
+      if (!check.ok) return { ok: false, errors: check.errors };
+    }
+    if (incomingVisit) {
+      const check = validateVisit(incomingVisit);
+      if (!check.ok) return { ok: false, errors: check.errors };
+    }
+    if (incomingEvent) {
+      const check = validateChangeEvent(incomingEvent);
+      if (!check.ok) return { ok: false, errors: check.errors };
+    }
+    if (incomingLeg) {
+      const check = validateTransitLeg(incomingLeg);
+      if (!check.ok) return { ok: false, errors: check.errors };
+    }
+    return enqueueWrite(() => transact(['trips', 'visits', 'events', 'legs'], async (tx) => {
+      if (incomingTrip) {
+        const existing = await tx.get('trips', incomingTrip.id);
+        const prepared = prepareIncomingTrip(existing, incomingTrip, now());
+        if (prepared.conflict !== undefined) return revisionConflict(prepared.conflict);
+        await tx.put('trips', incomingTrip);
+      }
+      if (incomingVisit) await tx.put('visits', incomingVisit);
+      if (incomingEvent) await tx.put('events', incomingEvent);
+      if (incomingLeg) await tx.put('legs', incomingLeg);
+      notify('execution', {
+        tripId: incomingTrip ? incomingTrip.id : (incomingEvent ? incomingEvent.tripId : null),
+        savedTrip: !!incomingTrip, visit: !!incomingVisit, event: !!incomingEvent, leg: !!incomingLeg,
+      });
+      return { ok: true, trip: incomingTrip };
     }));
   }
 
@@ -299,43 +349,92 @@ export async function openTripStore({ driver = createMemoryDriver(), now = () =>
     }));
   }
 
+  async function saveEvent(event) {
+    const incoming = clone(event);
+    const check = validateChangeEvent(incoming);
+    if (!check.ok) return { ok: false, errors: check.errors };
+    return enqueueWrite(async () => {
+      await driver.put('events', incoming);
+      notify('events', { id: incoming.id, tripId: incoming.tripId, kind: incoming.kind });
+      return { ok: true, event: incoming };
+    });
+  }
+
+  async function listEvents(filter = {}) {
+    const events = await driver.getAll('events');
+    return events
+      .filter(e => (filter.tripId === undefined || e.tripId === filter.tripId))
+      .sort((a, b) => (b.at || 0) - (a.at || 0));
+  }
+
+  async function saveLeg(leg) {
+    const incoming = clone(leg);
+    const check = validateTransitLeg(incoming);
+    if (!check.ok) return { ok: false, errors: check.errors };
+    return enqueueWrite(async () => {
+      await driver.put('legs', incoming);
+      notify('legs', { id: incoming.id, tripId: incoming.tripId });
+      return { ok: true, leg: incoming };
+    });
+  }
+
+  async function listLegs(filter = {}) {
+    const legs = await driver.getAll('legs');
+    return legs.filter(l =>
+      (filter.tripId === undefined || l.tripId === filter.tripId)
+      && (filter.dayId === undefined || l.dayId === filter.dayId));
+  }
+
   async function exportAll() {
     return {
       schemaVersion: TRIP_SCHEMA_VERSION,
       exportedAt: now(),
       trips: await driver.getAll('trips'),
       visits: await driver.getAll('visits'),
+      events: await driver.getAll('events'),
+      legs: await driver.getAll('legs'),
     };
   }
 
   // mode=merge：同 id 保留 revision 更高的一方；同 revision 异文显式冲突。replace/merge 都在一个事务内完成。
+  // events/legs 是追加型记录：同 id 同内容跳过，异文记冲突；旧备份没有 events/legs 字段时按空数组兼容。
   async function importAll(payload, { mode = 'merge' } = {}) {
     const trips = Array.isArray(payload && payload.trips) ? payload.trips : null;
     const visits = Array.isArray(payload && payload.visits) ? payload.visits : null;
+    const events = Array.isArray(payload && payload.events) ? payload.events : [];
+    const legs = Array.isArray(payload && payload.legs) ? payload.legs : [];
     if (!trips || !visits) return { ok: false, error: '备份文件缺少 trips/visits 数组' };
 
     const badTrips = trips.map(validateTrip).filter(r => !r.ok);
     const badVisits = visits.map(validateVisit).filter(r => !r.ok);
-    if (badTrips.length || badVisits.length) {
-      return { ok: false, error: '备份数据未通过校验', tripErrors: badTrips.map(r => r.errors), visitErrors: badVisits.map(r => r.errors) };
+    const badEvents = events.map(validateChangeEvent).filter(r => !r.ok);
+    const badLegs = legs.map(validateTransitLeg).filter(r => !r.ok);
+    if (badTrips.length || badVisits.length || badEvents.length || badLegs.length) {
+      return { ok: false, error: '备份数据未通过校验', tripErrors: badTrips.map(r => r.errors), visitErrors: badVisits.map(r => r.errors), eventErrors: badEvents.map(r => r.errors), legErrors: badLegs.map(r => r.errors) };
     }
 
     try {
-      return await enqueueWrite(() => transact(['trips', 'visits'], async (tx) => {
+      return await enqueueWrite(() => transact(['trips', 'visits', 'events', 'legs'], async (tx) => {
         if (mode === 'replace') {
           await tx.clear('trips');
           await tx.clear('visits');
+          await tx.clear('events');
+          await tx.clear('legs');
           for (const t of trips) await tx.put('trips', t);
           for (const v of visits) await tx.put('visits', v);
-          notify('import', { mode: 'replace', trips: trips.length, visits: visits.length });
+          for (const e of events) await tx.put('events', e);
+          for (const l of legs) await tx.put('legs', l);
+          notify('import', { mode: 'replace', trips: trips.length, visits: visits.length, events: events.length, legs: legs.length });
           return {
             ok: true, added: trips.length, updated: 0, skipped: 0,
             conflicts: 0, conflictItems: [], visitsAdded: visits.length, visitsSkipped: 0, visitConflicts: 0, visitConflictItems: [],
+            eventsAdded: events.length, legsAdded: legs.length,
           };
         }
 
         let added = 0; let updated = 0; let skipped = 0; let conflicts = 0;
         let visitsAdded = 0; let visitsSkipped = 0; let visitConflicts = 0;
+        let eventsAdded = 0; let legsAdded = 0; let recordConflicts = 0;
         const conflictItems = [];
         const visitConflictItems = [];
         for (const t of trips) {
@@ -358,8 +457,18 @@ export async function openTripStore({ driver = createMemoryDriver(), now = () =>
             visitConflictItems.push({ id: v.id });
           }
         }
-        notify('import', { mode: 'merge', added, updated, skipped, conflicts, visitsAdded, visitsSkipped, visitConflicts });
-        return { ok: true, added, updated, skipped, conflicts, conflictItems, visitsAdded, visitsSkipped, visitConflicts, visitConflictItems };
+        for (const e of events) {
+          const cur = await tx.get('events', e.id);
+          if (!cur) { await tx.put('events', e); eventsAdded += 1; }
+          else if (stableStringify(e) !== stableStringify(cur)) recordConflicts += 1;
+        }
+        for (const l of legs) {
+          const cur = await tx.get('legs', l.id);
+          if (!cur) { await tx.put('legs', l); legsAdded += 1; }
+          else if (stableStringify(l) !== stableStringify(cur)) recordConflicts += 1;
+        }
+        notify('import', { mode: 'merge', added, updated, skipped, conflicts, visitsAdded, visitsSkipped, visitConflicts, eventsAdded, legsAdded });
+        return { ok: true, added, updated, skipped, conflicts, conflictItems, visitsAdded, visitsSkipped, visitConflicts, visitConflictItems, eventsAdded, legsAdded, recordConflicts };
       }));
     } catch (err) {
       return { ok: false, error: `导入失败，已回滚：${err && err.message ? err.message : '未知错误'}` };
@@ -433,11 +542,16 @@ export async function openTripStore({ driver = createMemoryDriver(), now = () =>
     listTrips,
     getTrip,
     saveTrip,
+    applyExecution,
     deleteTrip,
     listVisits,
     saveVisit,
     deleteVisitsByPlace,
     replaceVisitsForPlace,
+    saveEvent,
+    listEvents,
+    saveLeg,
+    listLegs,
     exportAll,
     importAll,
     migrateLegacy,

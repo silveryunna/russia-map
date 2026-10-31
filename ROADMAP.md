@@ -251,13 +251,15 @@ TransitLeg {
 
 ### 工作项
 
-1. **Today 模式**：当前/下一项、预计缓冲、导航外跳、核验事项、紧急信息。
-2. 一键“到达/完成/跳过”，可补实际开始/结束与原因；支持离线写入。
-3. **ChangeEvent**：记录编辑前后、原因、时间和影响项；原计划不被覆盖。
-4. **行程 Diff**：展示变更对后续时刻、预订、费用和离线包的影响。
-5. 最小离线能力：Trip JSON、点位摘要、SVG/GeoJSON、GPX/KML、核验清单。
-6. 将本次 Trip 的 unknown 转为按影响排序的“出发前核验任务”。
-7. 回收实际 Visit 与实际 TransitLeg，形成第一方实测数据。
+1. **Today 模式**：当前/下一项、预计缓冲、导航外跳、核验事项、紧急信息。✅ `today.html`：当前/下一项卡片、缓冲=下一项到场−路上−现在、OSM 导航外跳、出发前核验区、紧急信息卡（trip.notes/day.note）。
+2. 一键“到达/完成/跳过”，可补实际开始/结束与原因；支持离线写入。✅ 完成记 `actualEnd`（本地时刻）、跳过记 `reason`、到达回收实际 TransitLeg；`applyExecution()` 单事务原子落库（revision 冲突整笔回滚），全部走 IndexedDB 天然离线。
+3. **ChangeEvent**：记录编辑前后、原因、时间和影响项；原计划不被覆盖。✅ `events` store（DB v2）；plan.js 编辑/撤销/生成经 `logChange()` 自动记录（Diff 摘要 + 受影响条目），执行动作自带事件。
+4. **行程 Diff**：展示变更对后续时刻、预订、费用和离线包的影响。✅ `diffTrips()/summarizeDiff()`（增删改/移动/重排/行程字段），已接入变更日志；对费用/离线包版本的联动展示待后续。
+5. 最小离线能力：Trip JSON、点位摘要、SVG/GeoJSON、GPX/KML、核验清单。✅（SVG 未做，GeoJSON/GPX/KML/JSON/清单 MD/摘要 MD 已上线；today.html 已进 SW 外壳）。
+6. 将本次 Trip 的 unknown 转为按影响排序的“出发前核验任务”。✅ `verificationTasks()`：开放时间 unknown（必去=高）、缺停留、门票 unknown、资料过期；去重并按影响+天序排序。
+7. 回收实际 Visit 与实际 TransitLeg，形成第一方实测数据。✅ `legs` store + `executionReport()`（通行误差如实呈现）；累积足够数据后再反哺默认值。
+
+> 实施状态（2026-11-01）：领域层与 UI 首版完成并有回归（`tools/test-trip-execution.mjs` / `test-trip-offline.mjs`）；**现场验收（2 天实地/高仿真）未做，M1 保持开放**。
 
 ### 现场验收（2 天实地或高仿真）
 
