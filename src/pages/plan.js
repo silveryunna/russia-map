@@ -396,13 +396,18 @@ function feasibilityLine(d, res) {
   const warns = res.conflicts.filter(c => c.severity === 'warn' && c.kind !== 'hours-unknown');
   const lead = errs[0] || warns[0];
   const unknown = res.stats.unknownHours;
+  const legs = res.timeline.filter(t => t.transitSource === 'matrix' || t.transitSource === 'estimate');
+  const measured = legs.filter(t => t.transitSource === 'matrix').length;
   const start = formatMinutesCrossDay(res.timeline[0].arrive);
   const end = formatMinutesCrossDay(res.timeline[res.timeline.length - 1].end);
   const dwell = (res.stats.dwellMinutes / 60).toFixed(1);
   const chips = errs.slice(0, 3).map(c => `<span class="tr-chip danger">${FEAS_LABEL[c.kind] || c.kind}</span>`).join('')
     + (errs.length > 3 ? `<span class="tr-chip danger">+${errs.length - 3}</span>` : '')
     + (warns.length ? `<span class="tr-chip warn">${warns.length} 条提示</span>` : '')
-    + (unknown ? `<span class="tr-chip">${unknown} 处开放时间未知</span>` : '');
+    + (unknown ? `<span class="tr-chip">${unknown} 处开放时间未知</span>` : '')
+    + (legs.length
+      ? `<span class="tr-chip" title="实测=命中 2GIS 真实路线；其余为直线距离 + 速度假设的估算">🧭 通行 ${measured}/${legs.length} 段实测</span>`
+      : '');
   return `<div class="tr-feas ${errs.length ? 'is-bad' : warns.length ? 'is-warn' : ''}">
       <span>⏱ 预计 ${start}–${end} · 停留 ${dwell}h · 通行 ${res.stats.transitMinutes}m</span>
       <span>${lead ? `${errs.length ? '⚠️' : '🔔'} ${lead.message}` : '✅ 硬约束通过'}</span>
