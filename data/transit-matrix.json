@@ -1,0 +1,162 @@
+{
+  "schemaVersion": 1,
+  "city": "莫斯科",
+  "provider": "2gis",
+  "providerNote": "2GIS Routing API：walking 为步行路线，car 为实时路况驾车路线；car 不代表地铁耗时",
+  "collectedAt": "2026-10-31",
+  "reviewAfter": "2027-01-29",
+  "entries": [
+    {
+      "from": "p001",
+      "to": "p002",
+      "mode": "walking",
+      "minutes": 17,
+      "meters": 1306,
+      "straightMeters": 304
+    },
+    {
+      "from": "p002",
+      "to": "p004",
+      "mode": "walking",
+      "minutes": 13,
+      "meters": 1004,
+      "straightMeters": 412
+    },
+    {
+      "from": "p004",
+      "to": "p005",
+      "mode": "walking",
+      "minutes": 5,
+      "meters": 389,
+      "straightMeters": 233
+    },
+    {
+      "from": "p005",
+      "to": "p003",
+      "mode": "walking",
+      "minutes": 6,
+      "meters": 458,
+      "straightMeters": 270
+    },
+    {
+      "from": "p003",
+      "to": "p025",
+      "mode": "car",
+      "minutes": 8,
+      "meters": 2630,
+      "straightMeters": 1249
+    },
+    {
+      "from": "p058",
+      "to": "p060",
+      "mode": "car",
+      "minutes": 12,
+      "meters": 4557,
+      "straightMeters": 3439
+    },
+    {
+      "from": "p060",
+      "to": "p337",
+      "mode": "car",
+      "minutes": 8,
+      "meters": 2252,
+      "straightMeters": 1220
+    },
+    {
+      "from": "p337",
+      "to": "p057",
+      "mode": "walking",
+      "minutes": 17,
+      "meters": 1282,
+      "straightMeters": 1198
+    },
+    {
+      "from": "p057",
+      "to": "p010",
+      "mode": "car",
+      "minutes": 9,
+      "meters": 3676,
+      "straightMeters": 2575
+    },
+    {
+      "from": "p010",
+      "to": "p011",
+      "mode": "walking",
+      "minutes": 14,
+      "meters": 1048,
+      "straightMeters": 837
+    },
+    {
+      "from": "p011",
+      "to": "p009",
+      "mode": "car",
+      "minutes": 15,
+      "meters": 4755,
+      "straightMeters": 2299
+    },
+    {
+      "from": "p009",
+      "to": "p008",
+      "mode": "car",
+      "minutes": 15,
+      "meters": 5238,
+      "straightMeters": 2434
+    },
+    {
+      "from": "p015",
+      "to": "p016",
+      "mode": "walking",
+      "minutes": 15,
+      "meters": 1087,
+      "straightMeters": 632
+    },
+    {
+      "from": "p016",
+      "to": "p017",
+      "mode": "car",
+      "minutes": 37,
+      "meters": 19084,
+      "straightMeters": 13304
+    },
+    {
+      "from": "p017",
+      "to": "p018",
+      "mode": "walking",
+      "minutes": 7,
+      "meters": 532,
+      "straightMeters": 223
+    },
+    {
+      "from": "p020",
+      "to": "p019",
+      "mode": "walking",
+      "minutes": 11,
+      "meters": 835,
+      "straightMeters": 625
+    },
+    {
+      "from": "p019",
+      "to": "p021",
+      "mode": "walking",
+      "minutes": 1,
+      "meters": 91,
+      "straightMeters": 86
+    },
+    {
+      "from": "p021",
+      "to": "p022",
+      "mode": "car",
+      "minutes": 42,
+      "meters": 22936,
+      "straightMeters": 16451
+    },
+    {
+      "from": "p022",
+      "to": "p023",
+      "mode": "walking",
+      "minutes": 12,
+      "meters": 864,
+      "straightMeters": 497
+    }
+  ]
+}

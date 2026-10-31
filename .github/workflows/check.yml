@@ -64,6 +64,7 @@ jobs:
           node tools/test-fare-table.mjs
           node tools/check-route-feasibility.mjs ./data
           node tools/test-generated-plan.mjs ./data
+          node tools/test-transit-matrix.mjs ./data
           node tools/test-research.mjs
 
       # 2.8) SW 缓存策略：外壳覆盖全部页面 + 瓦片白名单与实际底图一致

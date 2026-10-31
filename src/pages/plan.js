@@ -2,6 +2,7 @@ import '../shared/base.css';
 import './plan.css';
 import { INTERESTS, PLAN_DAYS_MAX, clampDays, ruleEngine } from './plan/engine.js';
 import { evaluateDay, formatMinutes, formatMinutesCrossDay } from './plan/feasibility.js';
+import { indexTransitMatrix } from './plan/transit-matrix.js';
 import { buildDayRail } from './plan/timeline.js';
 import { planAutoTrim } from './plan/repair.js';
 import { evaluateSoft } from './plan/soft.js';
@@ -36,7 +37,7 @@ const TYPE_LABEL = { visit: '景点', transit: '交通', lodging: '住宿', meal
 const PERIOD_LABEL = { morning: '上午', afternoon: '下午', evening: '晚上', '': '' };
 
 let meta = { cities: [], cityColors: {} };
-let cache = { pts: [], rts: [] };
+let cache = { pts: [], rts: [], matrix: null };
 let pointsById = new Map();
 let store = null;
 let storeWarn = '';
@@ -520,7 +521,7 @@ function addLunch(di) {
     const trial = [...day.items.slice(0, idx), { ...patch }, ...day.items.slice(idx)];
     const res = evaluateDay({
       day: { id: day.id, date: day.date }, items: trial, places: pointsById,
-      options: { start: day.startTime, end: day.endTime },
+      options: { start: day.startTime, end: day.endTime, matrix: cache.matrix },
     });
     const row = res.timeline.find(t => t.itemId === id);
     if (!row) continue;
@@ -604,7 +605,7 @@ function fixBar(d, di, res) {
     if ((d.transportMode || 'transit') !== 'taxi') {
       const taxi = evaluateDay({
         day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
-        options: { start: d.startTime, end: d.endTime, transportMode: 'taxi', taxiFare: dayFare(d) },
+        options: { start: d.startTime, end: d.endTime, transportMode: 'taxi', taxiFare: dayFare(d), matrix: cache.matrix },
       });
       const saved = res.stats.transitMinutes - taxi.stats.transitMinutes;
       if (saved > 0) {
@@ -669,7 +670,7 @@ function renderEditor() {
   const pending = countNeedsConfirm(t);
   const dayRes = new Map(t.days.map(d => [d.id, evaluateDay({
     day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
-    options: { start: d.startTime, end: d.endTime, transportMode: d.transportMode || 'transit', taxiFare: dayFare(d) },
+    options: { start: d.startTime, end: d.endTime, transportMode: d.transportMode || 'transit', taxiFare: dayFare(d), matrix: cache.matrix },
   })]));
   const tripInterests = Array.isArray(t.origin && t.origin.interests) ? t.origin.interests : [];
   $app.innerHTML = `
@@ -1189,14 +1190,16 @@ async function runMigration() {
 }
 
 (async () => {
-  const [pts, rts, mt] = await Promise.all([
+  const [pts, rts, mt, trs] = await Promise.all([
     fetch('./data/points.json').then(r => r.json()),
     fetch('./data/routes.json').then(r => r.json()),
     fetch('./data/meta.json').then(r => r.json()),
+    fetch('./data/transit-matrix.json').then(r => (r.ok ? r.json() : null)).catch(() => null),
     loadAiInfo(),
   ]);
   cache.pts = Array.isArray(pts) ? pts : (pts.points || []);
   cache.rts = Array.isArray(rts) ? rts : (rts.routes || []);
+  cache.matrix = indexTransitMatrix(trs);
   meta = mt;
   pointsById = new Map(cache.pts.map(p => [p.id, p]));
   await bootStore();

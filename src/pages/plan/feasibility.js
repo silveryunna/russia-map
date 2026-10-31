@@ -6,6 +6,7 @@
 
 // 打车费用估算来自城市费率表；工具/无城市上下文时默认莫斯科口径
 import { TAXI_FARES } from './fare-table.js';
+import { lookupTransitLeg } from './transit-matrix.js';
 
 export const TRANSIT = {
   walkSpeedMPerMin: 80,      // 4.8 km/h，城市步行含找路
@@ -52,6 +53,24 @@ export function distanceMeters(a, b) {
 export function estimateLeg(from, to, options = {}) {
   if (!from || !to) return null;
   if (from.id && to.id && from.id === to.id) return { meters: 0, minutes: 0, mode: 'walk', source: 'estimate' };
+  const matrixMode = options.mode === 'taxi' ? 'car' : 'walking';
+  const real = options.matrix ? lookupTransitLeg(options.matrix, from.id, to.id, matrixMode) : null;
+  if (real) {
+    const base = {
+      meters: real.meters,
+      minutes: real.minutes,
+      mode: matrixMode === 'car' ? 'taxi' : 'walk',
+      source: 'matrix',
+      provider: real.provider,
+      collectedAt: real.collectedAt,
+    };
+    if (matrixMode !== 'car') return base;
+    const fare = Object.prototype.hasOwnProperty.call(options, 'fare') ? options.fare : TAXI_FARES['莫斯科'];
+    if (!fare) return base;
+    const step = fare.roundTo || 1;
+    const cost = Math.max(fare.minimum, Math.round((fare.base + fare.perKm * (real.meters / 1000)) / step) * step);
+    return { ...base, cost, currency: fare.currency };
+  }
   const meters = distanceMeters(from, to);
   if (meters === null) return null;
   if (meters <= TRANSIT.walkRadiusMeters) {
@@ -263,7 +282,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       const closesLoop = item === lastResolvable && firstResolvable && seen.size >= 2
         && placeOf(places, firstResolvable.refId)?.id === place.id;
       if (closesLoop) {
-        const leg = prevPlace ? estimateLeg(prevPlace, place, { mode: transportMode, fare: taxiFareOption }) : null;
+        const leg = prevPlace ? estimateLeg(prevPlace, place, { mode: transportMode, fare: taxiFareOption, matrix: options.matrix }) : null;
         if (leg) {
           transit += leg.minutes;
           if (leg.mode === 'taxi') {
@@ -294,7 +313,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       continue;
     }
 
-    const leg = place && prevPlace ? estimateLeg(prevPlace, place, { mode: transportMode, fare: taxiFareOption }) : null;
+    const leg = place && prevPlace ? estimateLeg(prevPlace, place, { mode: transportMode, fare: taxiFareOption, matrix: options.matrix }) : null;
     if (place && prevPlace && !leg) {
       push('missing-coords', 'error', item.id, `「${name}」或上一站没有坐标，无法估算通行时间`);
       continue;
