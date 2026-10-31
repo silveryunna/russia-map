@@ -83,10 +83,11 @@ function mkDay(n, slots, tip) {
 
 /**
  * @param {{city:string,date?:string,days:number,interests?:string[]}} params
- * @param {{pts:Array,rts:Array}} data
+ * @param {{pts:Array,rts:Array,matrix?:object}} data
  */
 export function ruleEngine(params, data) {
   const targetDays = clampDays(params.days);
+  const matrix = data.matrix || null;
   const interests = Array.isArray(params.interests) ? params.interests : [];
   const cityPts = (data.pts || []).filter(p => !p.pending && p.city === params.city
     && Number.isFinite(p.estimatedDuration) && p.estimatedDuration > 0
@@ -129,8 +130,28 @@ export function ruleEngine(params, data) {
       flexibility: 'flexible', mustVisit: false, estimatedDuration: null,
       placeNameSnapshot: p.name, plannedStatus: 'planned', confirm: 'ok',
     }));
-    const res = evaluateDay({ day: { id: 'generated', date }, items, places: byId });
+    const res = evaluateDay({ day: { id: 'generated', date }, items, places: byId, options: { matrix } });
     return { ok: res.errors.length === 0, day, end: res.timeline.length ? res.timeline.at(-1).end : null };
+  };
+  // 动线顺序只是参考：实测通行时间可能让后面的点迟到，先试单点前移，再退化为尾部裁剪。
+  const fitRouteDay = (points, date) => {
+    const direct = fitsDay(points, date);
+    if (direct.ok || points.length < 2) return { ...direct, points };
+    for (let from = 0; from < points.length; from += 1) {
+      for (let to = 0; to < points.length; to += 1) {
+        if (from === to) continue;
+        const trial = [...points];
+        const [moved] = trial.splice(from, 1);
+        trial.splice(to, 0, moved);
+        const fit = fitsDay(trial, date);
+        if (fit.ok) return { ...fit, points: trial, reordered: true };
+      }
+    }
+    for (let n = points.length - 1; n >= 1; n -= 1) {
+      const fit = fitsDay(points.slice(0, n), date);
+      if (fit.ok) return { ...fit, points: points.slice(0, n), dropped: points.slice(n) };
+    }
+    return { ...direct, points };
   };
   const routePtsFor = (route, date, usedSet, record = false) => (route.steps || [])
     .map(stepPoint)
@@ -170,8 +191,9 @@ export function ruleEngine(params, data) {
         const points = routePtsFor(r, date, used);
         const day = buildDay(points);
         if (!usable(r, day)) continue;
-        const fit = fitsDay(points, date);
-        options.push({ r, points, day, end: fit.end ?? 0 });
+        const fit = fitRouteDay(points, date);
+        if (!fit.ok) continue;
+        options.push({ r, points: fit.points, day: fit.day, end: fit.end ?? 0 });
       }
       const short = options.filter(o => o.end < 14 * 60).sort((a, b) => a.end - b.end)[0];
       let approved = short || null;
@@ -220,22 +242,28 @@ export function ruleEngine(params, data) {
       const primary = routePtsFor(chosen.r, date, used, true);
       const secondary = routePtsFor(chosen.paired, date, used, true);
       const room = MAX_PER_DAY - secondary.length;
-      const day = buildDay([...primary.slice(0, room), ...secondary]);
-      if (day.usedIds.length) {
+      const placed = fitRouteDay([...primary.slice(0, room), ...secondary], date);
+      const day = placed.day;
+      if (placed.dropped) placed.dropped.forEach(p => trimmed.set(p.id, p.name));
+      if (placed.ok && day.usedIds.length) {
         day.usedIds.forEach(id => used.add(id));
-        days.push(mkDay(days.length + 1, day.slots, `参考动线：${chosen.r.name} + ${chosen.paired.name}（半日线配对）`));
+        const orderNote = placed.reordered ? '（按实测通行调整顺序）' : '';
+        days.push(mkDay(days.length + 1, day.slots, `参考动线：${chosen.r.name} + ${chosen.paired.name}（半日线配对）${orderNote}`));
         supplementary = supplementary.filter(r => r !== chosen.r && r !== chosen.paired);
         continue;
       }
       chosen = { r: chosen.r };
     }
-    const day = buildDay(routePtsFor(chosen.r, date, used, true));
-    if (!day.usedIds.length) {
+    const placed = fitRouteDay(routePtsFor(chosen.r, date, used, true), date);
+    const day = placed.day;
+    if (placed.dropped) placed.dropped.forEach(p => trimmed.set(p.id, p.name));
+    if (!placed.ok || !day.usedIds.length) {
       supplementary = supplementary.filter(r => r !== chosen.r);
       continue;
     }
     day.usedIds.forEach(id => used.add(id));
-    days.push(mkDay(days.length + 1, day.slots, `参考动线：${chosen.r.name} · ${chosen.r.tip || chosen.r.summary || ''}`));
+    const orderNote = placed.reordered ? '（按实测通行调整顺序）' : '';
+    days.push(mkDay(days.length + 1, day.slots, `参考动线：${chosen.r.name} · ${chosen.r.tip || chosen.r.summary || ''}${orderNote}`));
     supplementary = supplementary.filter(r => r !== chosen.r);
   }
 

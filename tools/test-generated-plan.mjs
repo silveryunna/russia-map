@@ -8,6 +8,7 @@ import { MIN_FILLED_DAY, PLAN_DAYS_MAX, ruleEngine } from '../src/pages/plan/eng
 import { addDays } from '../src/pages/trip/schema.js';
 import { migratePlansV1 } from '../src/pages/trip/migrate.js';
 import { evaluateDay, formatMinutesCrossDay, weekdayKey } from '../src/pages/plan/feasibility.js';
+import { indexTransitMatrix } from '../src/pages/plan/transit-matrix.js';
 
 const dir = resolve(process.argv[2] || './data');
 const start = process.argv[3] || '2026-11-09';
@@ -15,6 +16,8 @@ const minPoints = Math.max(1, MIN_FILLED_DAY - 1);
 const points = JSON.parse(readFileSync(resolve(dir, 'points.json'), 'utf8'));
 const routes = JSON.parse(readFileSync(resolve(dir, 'routes.json'), 'utf8'));
 const places = new Map(points.map((p) => [p.id, p]));
+let matrix = null;
+try { matrix = indexTransitMatrix(JSON.parse(readFileSync(resolve(dir, 'transit-matrix.json'), 'utf8'))); } catch { matrix = null; }
 
 let bad = 0;
 const fail = (message) => { console.error(`❌ ${message}`); bad += 1; };
@@ -22,7 +25,7 @@ const starts = Array.from({ length: 7 }, (_, i) => addDays(start, i));
 
 for (const date of starts) {
   for (let dayCount = 1; dayCount <= PLAN_DAYS_MAX; dayCount += 1) {
-    const plan = ruleEngine({ city: '莫斯科', date, days: dayCount }, { pts: points, rts: routes });
+    const plan = ruleEngine({ city: '莫斯科', date, days: dayCount }, { pts: points, rts: routes, matrix });
     const trip = migratePlansV1({ plans: [plan], points }).trips[0];
     if (!trip || trip.days.length !== dayCount) {
       fail(`${date} ${dayCount} 天：期望 ${dayCount} 天，实际 ${trip ? trip.days.length : 0} 天`);
@@ -33,7 +36,7 @@ for (const date of starts) {
     let latestEnd = null;
     for (const day of trip.days) {
       const items = [...day.items].sort((a, b) => a.order - b.order);
-      const result = evaluateDay({ day, items, places });
+      const result = evaluateDay({ day, items, places, options: { matrix } });
       counts.push(items.length);
       if (result.timeline.length) {
         const end = result.timeline[result.timeline.length - 1].end;

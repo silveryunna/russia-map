@@ -5,8 +5,8 @@ function isTrimmable(item) {
   return !!item && item.mustVisit !== true && item.flexibility !== 'fixed' && !item.pinnedStart;
 }
 
-export function planAutoTrim({ day, items, places, maxDrops = 12 } = {}) {
-  const options = { start: day && day.startTime, end: day && day.endTime };
+export function planAutoTrim({ day, items, places, maxDrops = 12, matrix = null } = {}) {
+  const options = { start: day && day.startTime, end: day && day.endTime, matrix };
   const evaluate = (list) => evaluateDay({
     day: { id: day && day.id, date: day && day.date }, items: list, places, options,
   });

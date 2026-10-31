@@ -353,7 +353,7 @@ async function doGenerate(src) {
           points: cache.pts.filter(p => p.city === f.city),
           routes: cache.rts.filter(r => r.city === f.city),
         })
-      : ruleEngine(f, { pts: cache.pts, rts: cache.rts });
+      : ruleEngine(f, { pts: cache.pts, rts: cache.rts, matrix: cache.matrix });
     if (!Array.isArray(plan.interests)) plan.interests = Array.isArray(f.interests) ? f.interests : [];
     const mig = migratePlansV1({ plans: [plan], points: cache.pts });
     const trip = mig.trips[0];
@@ -853,7 +853,7 @@ function renderEditor() {
       const di = +trim.dataset.trim;
       const d = current.days[di];
       if (!d) return;
-      const plan = planAutoTrim({ day: d, items: d.items, places: pointsById });
+      const plan = planAutoTrim({ day: d, items: d.items, places: pointsById, matrix: cache.matrix });
       if (!plan.dropIds.length) { toast('没有可删条目：把某条设为「可删」，或延长收工'); return; }
       mutate(trip => plan.dropIds.reduce((t, id) => removeItem(t, id), trip));
       toast(`已移除 ${plan.dropIds.length} 项${plan.resolved ? '，硬约束通过' : '，仍超时'}`);
@@ -891,7 +891,7 @@ function renderEditor() {
       const d = current.days[di];
       if (!d) return;
       const r = optimizeDayOrder({
-        day: d, items: d.items, places: pointsById, interests: tripInterests, taxiFare: dayFare(d),
+        day: d, items: d.items, places: pointsById, interests: tripInterests, taxiFare: dayFare(d), matrix: cache.matrix,
       });
       if (!r.improved) { toast('当前顺序在折返/通行/摄影/时段上已是最优'); return; }
       mutate(trip => reorderDay(trip, di, r.order));

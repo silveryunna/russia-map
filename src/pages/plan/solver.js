@@ -39,7 +39,7 @@ export function softScore({ day, result, soft, taxiFare = null }) {
     + (Math.max(0, (soft.longestStretchMinutes || 0) - 240) * 0.5);
 }
 
-export function optimizeDayOrder({ day, items, places, interests = [], maxPasses = 2, taxiFare = null } = {}) {
+export function optimizeDayOrder({ day, items, places, interests = [], maxPasses = 2, taxiFare = null, matrix = null } = {}) {
   const base = Array.isArray(items) ? items : [];
   const evaluate = (list) => {
     const result = evaluateDay({
@@ -51,6 +51,7 @@ export function optimizeDayOrder({ day, items, places, interests = [], maxPasses
         end: day && day.endTime,
         transportMode: day && day.transportMode === 'taxi' ? 'taxi' : 'transit',
         taxiFare,
+        matrix,
       },
     });
     const soft = evaluateSoft({ day, result, items: list, places, interests });

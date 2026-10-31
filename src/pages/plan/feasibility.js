@@ -1,7 +1,7 @@
 // 确定性可行性引擎（纯函数，无 DOM / storage / fetch）
 // 只回答"这一天这样走是否走得完、卡在哪"，不替用户美化结论：
 //   • 开放日历 unknown 时按宽边界（不限制）处理，但每处都标记 unknown，绝不当作"全天开放"
-//   • 交通段一律标 source:'estimate'（直线距离 + 速度假设），真实矩阵接入前不冒充实测
+//   • 交通段默认标 source:'estimate'（直线距离 + 速度假设）；命中 data/transit-matrix.json 时用真实 walking/car 时长并标 source:'matrix'
 //   • 冲突分 error / warn：error 才判不可行；每条不可行结论都必须能给出至少一个可执行修复
 
 // 打车费用估算来自城市费率表；工具/无城市上下文时默认莫斯科口径

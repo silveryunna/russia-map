@@ -8,6 +8,7 @@ import { resolve } from 'node:path';
 import {
   DEFAULT_DAY, evaluateDay, formatMinutesCrossDay, suggestFixes, weekdayKey,
 } from '../src/pages/plan/feasibility.js';
+import { indexTransitMatrix } from '../src/pages/plan/transit-matrix.js';
 
 const dir = resolve(process.argv[2] || './data');
 const city = process.argv[3] || '莫斯科';
@@ -16,6 +17,8 @@ const read = (f) => JSON.parse(readFileSync(resolve(dir, f), 'utf8'));
 const points = read('points.json');
 const routes = read('routes.json').filter((r) => r.city === city);
 const places = new Map(points.map((p) => [p.id, p]));
+let matrix = null;
+try { matrix = indexTransitMatrix(read('transit-matrix.json')); } catch { matrix = null; }
 
 // 固定验收日（周三，避开历史博物馆周二闭馆与圣瓦西里每月第一个周三）
 const DAY = { id: 'acceptance', date: '2026-11-11' };
@@ -29,7 +32,7 @@ for (const r of routes) {
     startLocal: '', flexibility: 'flexible', mustVisit: false,
     estimatedDuration: null, placeNameSnapshot: '', plannedStatus: 'planned', confirm: 'ok',
   }));
-  const res = evaluateDay({ day: DAY, items, places });
+  const res = evaluateDay({ day: DAY, items, places, options: { matrix } });
   const overrun = res.conflicts.filter((c) => c.kind === 'day-overrun');
   const DATA_ERROR_KINDS = new Set(['unresolved-place', 'missing-duration', 'missing-coords', 'duplicate-place', 'cross-day', 'closed']);
   const dataErrs = res.errors.filter((c) => DATA_ERROR_KINDS.has(c.kind));
@@ -41,7 +44,7 @@ for (const r of routes) {
   if (dataErrs.length) verdict = `❌ ${dataErrs.map((c) => c.kind).join('/')}`;
   else if (hourErrs.length) verdict = `⚠️ 时段冲突（${hourErrs.map((c) => c.kind).join('/')}）`;
   else if (overrun.length) {
-    const wide = evaluateDay({ day: DAY, items, places, options: { start: '07:00', end: '23:00' } });
+    const wide = evaluateDay({ day: DAY, items, places, options: { start: '07:00', end: '23:00', matrix } });
     verdict = `⚠️ 超时（收工 ${end ? formatMinutesCrossDay(end) : '?'}）${wide.errors.length ? '，07:00–23:00 也走不完' : '，07:00–23:00 可完成'}`;
   } else verdict = '✅ 可行';
 
