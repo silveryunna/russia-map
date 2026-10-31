@@ -19,8 +19,8 @@ const WAIT = args.includes('--wait');
 const mIdx = args.indexOf('-m');
 const MSG = mIdx >= 0 ? args[mIdx + 1] : null;
 
-// 发布时同步回仓库根的文件集合：9 个入口 HTML + sw.js + assets/ 产物
-const HTML_FILES = ['index.html', 'map.html', 'list.html', 'album.html', 'notes.html', 'plan.html', 'friend.html', 'account.html', 'admin.html'];
+// 发布时同步回仓库根的文件集合：入口 HTML（assemble 后从 site-out 动态枚举，新增页面无需改这里）+ sw.js + assets/ 产物
+let HTML_FILES = [];
 const ASSETS_KEEP = new Set(['tdt-key.js', 'tdt-key.example.js']); // 豁免：非构建产物，不入 git/不上线
 
 const run = (cmd, cmdArgs, opt = {}) =>
@@ -59,6 +59,9 @@ step(3, 'vite build + assemble');
 run('npm', ['run', 'build'], { stdio: 'inherit', shell: process.platform === 'win32' });
 run('node', ['tools/assemble.mjs'], { stdio: 'inherit' });
 
+// 入口 HTML 以 site-out 为准（site-out 是唯一事实源）
+HTML_FILES = readdirSync(join(ROOT, 'site-out')).filter((f) => f.endsWith('.html'));
+
 // ── 4) 产物同步回仓库根（site-out → /） ──
 step(4, '同步 site-out → 仓库根');
 for (const f of [...HTML_FILES, 'sw.js']) copyFileSync(join(ROOT, 'site-out', f), join(ROOT, f));
@@ -70,7 +73,7 @@ for (const f of readdirSync(assetsDir)) {
 for (const f of readdirSync(join(ROOT, 'site-out', 'assets'))) {
   if (!ASSETS_KEEP.has(f)) copyFileSync(join(ROOT, 'site-out', 'assets', f), join(assetsDir, f));
 }
-console.log('✅ 9 个 HTML + sw.js + assets/ 已同步');
+console.log(`✅ ${HTML_FILES.length} 个 HTML + sw.js + assets/ 已同步`);
 
 // ── 5) ESM 严格解析自检（白屏事故防线，CI 也会再查一遍） ──
 step(5, 'ESM 严格解析');
