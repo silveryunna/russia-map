@@ -146,7 +146,7 @@ export function ruleEngine(params, data) {
     return (a.end ?? 0) < (b.end ?? 0);
   };
   const orderKey = (points) => points.map(p => p.id).join(',');
-  // 动线顺序只是参考：实测通行可能让后面的点迟到，先用单点移动找等待最短且不丢点的顺序，
+  // 动线顺序只是参考：第三方路线可能让后面的点迟到，先用单点移动找等待最短且不丢点的顺序，
   // 全都不行才退化为尾部裁剪。
   const fitRouteDay = (points, date) => {
     const direct = fitsDay(points, date);
@@ -264,7 +264,7 @@ export function ruleEngine(params, data) {
       if (placed.dropped) placed.dropped.forEach(p => trimmed.set(p.id, p.name));
       if (placed.ok && day.usedIds.length) {
         day.usedIds.forEach(id => used.add(id));
-        const orderNote = placed.reordered ? '（按实测通行调整顺序）' : '';
+        const orderNote = placed.reordered ? '（按第三方路线调整顺序）' : '';
         days.push(mkDay(days.length + 1, day.slots, `参考动线：${chosen.r.name} + ${chosen.paired.name}（半日线配对）${orderNote}`));
         supplementary = supplementary.filter(r => r !== chosen.r && r !== chosen.paired);
         continue;
@@ -279,7 +279,7 @@ export function ruleEngine(params, data) {
       continue;
     }
     day.usedIds.forEach(id => used.add(id));
-    const orderNote = placed.reordered ? '（按实测通行调整顺序）' : '';
+    const orderNote = placed.reordered ? '（按第三方路线调整顺序）' : '';
     days.push(mkDay(days.length + 1, day.slots, `参考动线：${chosen.r.name} · ${chosen.r.tip || chosen.r.summary || ''}${orderNote}`));
     supplementary = supplementary.filter(r => r !== chosen.r);
   }

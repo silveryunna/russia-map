@@ -3,7 +3,8 @@ import './notes2.css';
 // 旅行笔记 v2：足迹仪表盘 + 打卡清单 + 笔记（打卡状态 v2：次数/日期/感想）
 
 import { marked } from 'marked';
-import { loadCheckins, hasCheckin, toggleCheckin, updateCheckin, totalVisits } from '../modules/checkin.js';
+import { hasCheckin, totalVisits } from '../modules/checkin.js';
+import { openVisitRepository } from './visits/repository.js';
 
 marked.setOptions({ gfm: true, breaks: true });
 
@@ -14,7 +15,8 @@ const COUNTRY_ORDER = { '中国': 0, '俄罗斯': 1, '哈萨克斯坦': 2, '其�
 const FLAG = { '中国': '🇨🇳', '俄罗斯': '🇷🇺', '哈萨克斯坦': '🇰🇿', '其他': '🌍' };
 
 let points = [], meta = { cities: [], cityColors: {} }, notes = [];
-let checked = loadCheckins();
+let visitRepo = null;
+let checked = {};
 let collapsed = new Set();
 let query = '';
 let openNote = null;
@@ -189,7 +191,7 @@ function render() {
   }
 }
 
-$app.addEventListener('click', e => {
+$app.addEventListener('click', async e => {
   const editBtn = e.target.closest('[data-edit]');
   if (editBtn) {
     e.preventDefault();
@@ -204,7 +206,7 @@ $app.addEventListener('click', e => {
     const id = saveBtn.dataset.save;
     const box = $app.querySelector(`[data-editor="${CSS.escape(id)}"]`);
     const get = f => box?.querySelector(`[data-f="${f}"]`)?.value ?? '';
-    updateCheckin(checked, id, { last: get('last'), n: get('n'), note: get('note') });
+    checked = await visitRepo.update(id, { last: get('last'), n: get('n'), note: get('note') });
     editing = null;
     render();
     return;
@@ -224,20 +226,29 @@ $app.addEventListener('click', e => {
     return;
   }
 });
-$app.addEventListener('change', e => {
+$app.addEventListener('change', async e => {
   const cb = e.target.closest('input[data-check]');
-  if (!cb) return;
-  toggleCheckin(checked, cb.dataset.check);
+  if (!cb || !visitRepo) return;
+  await visitRepo.toggle(cb.dataset.check);
+  checked = visitRepo.getCheckins();
   if (editing && editing !== cb.dataset.check) editing = null;
   render();
 });
 
 (async () => {
-  const [pts, mt, idx] = await Promise.all([
+  const [repo, pts, mt, idx] = await Promise.all([
+    openVisitRepository({
+      onChange: (next) => {
+        checked = next;
+        if (points.length) render();
+      },
+    }),
     fetch('./data/points.json').then(r => r.json()),
     fetch('./data/meta.json').then(r => r.json()),
     fetch('./content/notes/index.json').then(r => r.ok ? r.json() : []),
   ]);
+  visitRepo = repo;
+  checked = visitRepo.getCheckins();
   points = pts; meta = mt; notes = idx;
   render();
 })().catch(err => {

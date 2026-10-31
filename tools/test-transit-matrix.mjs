@@ -67,10 +67,10 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
   if (walk && walk.source === 'matrix' && walk.minutes === 7 && walk.meters === 300 && walk.mode === 'walk') ok('estimateLeg 使用真实步行矩阵');
   else fail(`步行矩阵未生效：${JSON.stringify(walk)}`);
   const taxi = estimateLeg(a, b, { matrix: index, mode: 'taxi' });
-  if (taxi && taxi.source === 'matrix' && taxi.minutes === 9 && taxi.mode === 'taxi' && taxi.cost > 0 && taxi.currency === 'RUB') ok('estimateLeg 使用真实驾车矩阵并按费率计费');
+  if (taxi && taxi.source === 'matrix' && taxi.sourceKind === 'third-party-route' && taxi.minutes === 14 && taxi.mode === 'taxi' && taxi.cost > 0 && taxi.currency === 'RUB') ok('estimateLeg 使用真实驾车矩阵并补统一门到门开销');
   else fail(`驾车矩阵未生效：${JSON.stringify(taxi)}`);
   const fallback = estimateLeg(a, b, {});
-  if (fallback && fallback.source === 'estimate') ok('矩阵缺失时回退估算');
+  if (fallback && fallback.source === 'estimate' && fallback.sourceKind === 'model-estimate') ok('矩阵缺失时回退估算');
   else fail('矩阵缺失未回退估算');
 }
 

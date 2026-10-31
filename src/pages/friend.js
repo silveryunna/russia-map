@@ -4,6 +4,7 @@ import './friend.css';
 // 朋友投稿页：传照片 / 写笔记 / 打卡（需管理员在 account.html 开的账号）
 
 import { loadCheckins, hasCheckin } from '../modules/checkin.js';
+import { openVisitRepository } from './visits/repository.js';
 import { AI_MODELS, modelInfo } from '../modules/ai-models.js';
 
 const $app = document.getElementById('friend-app');
@@ -16,6 +17,7 @@ const newIdem = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toSt
 let token = localStorage.getItem(LS) || '';
 let me = null;
 let points = [];
+let checkins = {};
 let tab = 'photo';
 let myItems = [];
 
@@ -139,9 +141,10 @@ async function renderAISettings(body) {
 async function renderMain() {
   $app.innerHTML = `<div class="pl-empty">加载中…</div>`;
   try {
-    [points, myItems] = await Promise.all([
+    [points, myItems, checkins] = await Promise.all([
       fetch('./data/points.json').then(r => r.json()),
       api('my', undefined, 'GET').catch(() => ({ items: [] })),
+      openVisitRepository().then(repo => repo.getCheckins()).catch(() => loadCheckins()),
     ]);
   } catch (e) {
     $app.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}<br><button class="pl-btn" id="fr-retry">重试</button></div>`;
@@ -237,7 +240,7 @@ function renderNote(body) {
 }
 
 function renderCheckin(body) {
-  const ckMap = loadCheckins();
+  const ckMap = checkins || {};
   body.innerHTML = `
     <div class="card fr-form">
       <label>搜索点位 <input id="ck-q" placeholder="如：中央大街 / 红场"></label>

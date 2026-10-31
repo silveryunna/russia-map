@@ -389,28 +389,35 @@ const FEAS_LABEL = {
   'unresolved-place': '未绑定', 'missing-coords': '缺坐标', 'calendar-exceptions': '特殊闭馆未校验',
 };
 
-// 每天一条可行性结论：硬冲突才标红，unknown 只作为提示（绝不假装"全天开放"）
+// 每天一条双轴结论：结构是否可排 + 证据有多少仍待核/估算
 function feasibilityLine(d, res) {
   if (!res || res.empty) return '';
   const errs = res.errors;
   const warns = res.conflicts.filter(c => c.severity === 'warn' && c.kind !== 'hours-unknown');
   const lead = errs[0] || warns[0];
-  const unknown = res.stats.unknownHours;
+  const unknown = res.evidence ? res.evidence.unknownFacts : res.stats.unknownHours;
+  const stale = res.evidence ? res.evidence.staleFacts : 0;
   const legs = res.timeline.filter(t => t.transitSource === 'matrix' || t.transitSource === 'estimate');
-  const measured = legs.filter(t => t.transitSource === 'matrix').length;
+  const thirdParty = legs.filter(t => t.transitSourceKind === 'third-party-route' || t.transitSource === 'matrix').length;
+  const estimated = legs.length - thirdParty;
   const start = formatMinutesCrossDay(res.timeline[0].arrive);
   const end = formatMinutesCrossDay(res.timeline[res.timeline.length - 1].end);
   const dwell = (res.stats.dwellMinutes / 60).toFixed(1);
+  const conditional = res.structural === 'conditional';
   const chips = errs.slice(0, 3).map(c => `<span class="tr-chip danger">${FEAS_LABEL[c.kind] || c.kind}</span>`).join('')
     + (errs.length > 3 ? `<span class="tr-chip danger">+${errs.length - 3}</span>` : '')
     + (warns.length ? `<span class="tr-chip warn">${warns.length} 条提示</span>` : '')
-    + (unknown ? `<span class="tr-chip">${unknown} 处开放时间未知</span>` : '')
+    + (unknown ? `<span class="tr-chip warn">${unknown} 处开放时间待核</span>` : '')
+    + (stale ? `<span class="tr-chip warn">${stale} 处资料待复核</span>` : '')
     + (legs.length
-      ? `<span class="tr-chip" title="实测=命中 2GIS 真实路线；其余为直线距离 + 速度假设的估算">🧭 通行 ${measured}/${legs.length} 段实测</span>`
+      ? `<span class="tr-chip" title="第三方路线=命中 2GIS 路线；模型估算=直线距离 + 速度假设">🧭 ${thirdParty}/${legs.length} 段第三方路线${estimated ? ` · ${estimated} 段估算` : ''}</span>`
       : '');
-  return `<div class="tr-feas ${errs.length ? 'is-bad' : warns.length ? 'is-warn' : ''}">
+  const verdict = lead
+    ? `${errs.length ? '⚠️' : '🔔'} ${lead.message}`
+    : conditional ? '⚠️ 条件式可排（仍有待核事实或估算段）' : '✅ 结构可行，证据充分';
+  return `<div class="tr-feas ${errs.length ? 'is-bad' : warns.length || conditional ? 'is-warn' : ''}">
       <span>⏱ 预计 ${start}–${end} · 停留 ${dwell}h · 通行 ${res.stats.transitMinutes}m</span>
-      <span>${lead ? `${errs.length ? '⚠️' : '🔔'} ${lead.message}` : '✅ 硬约束通过'}</span>
+      <span>${verdict}</span>
       ${chips ? `<div class="tr-feas-chips">${chips}</div>` : ''}
     </div>`;
 }

@@ -292,7 +292,7 @@ function checkCaps(plan, label) {
   const plan = ruleEngine({ city: '莫斯科', date: '2026-11-17', days: 2 }, { pts, rts });
   const day2 = plan.days[1];
   const names = day2 ? [...day2.slots.morning, ...day2.slots.afternoon, ...day2.slots.evening] : [];
-  if (names[0] === '上午馆' && /按实测通行调整顺序/.test(day2 ? day2.tip : '')) ok('专题日按开门等待择优重排');
+  if (names[0] === '上午馆' && /按第三方路线调整顺序/.test(day2 ? day2.tip : '')) ok('专题日按开门等待择优重排');
   else fail(`专题日重排失败：${JSON.stringify(names)} / ${day2 ? day2.tip : '无第二天'}`);
 }
 

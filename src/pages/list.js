@@ -1,19 +1,20 @@
 import '../shared/base.css';
 import './list.css';
 import { renderIcpFooter } from '../shared/icp-footer.js';
-import { loadCheckins, toggleCheckin } from '../modules/checkin.js';
+import { openVisitRepository } from './visits/repository.js';
 
-// ===== 打卡清单页：与地图页共享同一份数据与打卡状态（travel-checkin-v2）=====
+// ===== 打卡清单页：与地图/笔记共享同一个 Visit repository =====
 
 const app = document.getElementById('list-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
 let points = [], meta = { cityColors: {}, cities: [] };
+let visitRepo = null;
 const state = {
   query: '',
   collapsed: new Set(),
   tagFilter: new Set(),   // 标签筛选（多选 = 并集）
-  checked: new Set(Object.keys(loadCheckins())),
+  checked: new Set(),
 };
 
 const geoPoints = () => points.filter(p => !p.pending);
@@ -148,12 +149,11 @@ app.addEventListener('input', (e) => {
   input.setSelectionRange(pos, pos);
 });
 
-app.addEventListener('change', (e) => {
-  const name = e.target.dataset?.check;
-  if (!name) return;
-  const o = loadCheckins();
-  toggleCheckin(o, name);
-  state.checked = new Set(Object.keys(o));
+app.addEventListener('change', async (e) => {
+  const id = e.target.dataset?.check;
+  if (!id || !visitRepo) return;
+  await visitRepo.toggle(id);
+  state.checked = new Set(Object.keys(visitRepo.getCheckins()));
   render();
 });
 
@@ -177,10 +177,17 @@ app.addEventListener('click', (e) => {
 });
 
 async function main() {
-  [points, meta] = await Promise.all([
+  [visitRepo, points, meta] = await Promise.all([
+    openVisitRepository({
+      onChange: (checkins) => {
+        state.checked = new Set(Object.keys(checkins));
+        if (points.length) render();
+      },
+    }),
     fetch('./data/points.json').then(r => r.json()),
     fetch('./data/meta.json').then(r => r.json()),
   ]);
+  state.checked = new Set(Object.keys(visitRepo.getCheckins()));
   render();
 }
 

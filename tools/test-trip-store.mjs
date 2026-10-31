@@ -45,6 +45,20 @@ const points = [
   const got = await store.getTrip('t1');
   if (got.title === '改名后' && got.updatedAt === clock && got.createdAt === 1) ok('更新覆盖标题且保留 createdAt');
   else fail('更新结果错误：' + JSON.stringify(got));
+
+  const stale = { ...makeTrip('t1', '过期标签页'), revision: s1.trip.revision, createdAt: s1.trip.createdAt };
+  const staleSave = await store.saveTrip(stale);
+  if (!staleSave.ok && staleSave.code === 'revision-conflict' && (await store.getTrip('t1')).title === '改名后') {
+    ok('陈旧 revision 保存被拒绝且不覆盖新内容');
+  } else fail('陈旧 revision 未冲突：' + JSON.stringify(staleSave));
+
+  const concurrentA = { ...makeTrip('t1', '并发 A'), revision: got.revision, createdAt: got.createdAt };
+  const concurrentB = { ...makeTrip('t1', '并发 B'), revision: got.revision, createdAt: got.createdAt };
+  const [ra, rb] = await Promise.all([store.saveTrip(concurrentA), store.saveTrip(concurrentB)]);
+  const results = [ra, rb];
+  if (results.filter(r => r.ok).length === 1 && results.some(r => !r.ok && r.code === 'revision-conflict')) {
+    ok('同基线并发保存：一个成功，另一个显式 revision 冲突');
+  } else fail('并发保存未串行仲裁：' + JSON.stringify(results));
 }
 
 // 2) 列表排序
@@ -78,6 +92,8 @@ const points = [
 {
   const store = await openTripStore({ driver: createMemoryDriver(), now });
   await store.saveTrip(makeTrip('t1'));
+  const localBase = await store.getTrip('t1');
+  await store.saveTrip(localBase); // 本地已到 revision 2，用于验证低 revision 不覆盖
   await store.saveVisit(createVisit({ id: 'v1', placeId: 'p1', tripId: 't1' }));
 
   const exported = await store.exportAll();
@@ -88,10 +104,11 @@ const points = [
   const newer = { ...makeTrip('t2', '新行程'), revision: 1 };
   const r = await store.importAll({
     trips: [older, newer],
-    visits: [createVisit({ id: 'v1', placeId: 'p1' }), createVisit({ id: 'v2', placeId: 'p3' })],
+    visits: [exported.visits[0], createVisit({ id: 'v2', placeId: 'p3' })],
   });
   const t1 = await store.getTrip('t1');
-  if (r.ok && r.added === 1 && r.updated === 0 && r.skipped === 1 && r.visitsAdded === 1 && r.visitsSkipped === 1) ok('merge 导入：新增/跳过/去重计数正确');
+  if (r.ok && r.added === 1 && r.updated === 0 && r.skipped === 1 && r.conflicts === 0
+    && r.visitsAdded === 1 && r.visitsSkipped === 1 && r.visitConflicts === 0) ok('merge 导入：新增/跳过/去重计数正确');
   else fail('merge 导入计数错误：' + JSON.stringify(r));
   if (t1.title === '莫斯科 1 日' && (await store.getTrip('t2'))) ok('低 revision 不覆盖本地，新 id 正常写入');
   else fail('merge 覆盖策略错误：' + t1.title);
@@ -100,6 +117,13 @@ const points = [
   const r2 = await store.importAll({ trips: [higher], visits: [] });
   if (r2.ok && r2.updated === 1 && (await store.getTrip('t1')).title === '远端更新') ok('高 revision 覆盖本地');
   else fail('高 revision 未覆盖：' + JSON.stringify(r2));
+
+  const sameRevisionChanged = { ...(await store.getTrip('t1')), title: '同号异文' };
+  const sameRev = await store.importAll({ trips: [sameRevisionChanged], visits: [] });
+  if (sameRev.ok && sameRev.conflicts === 1 && sameRev.conflictItems?.[0]?.id === 't1'
+    && (await store.getTrip('t1')).title === '远端更新') {
+    ok('同 revision 不同内容显式报冲突且不覆盖');
+  } else fail('同 revision 冲突未捕获：' + JSON.stringify(sameRev));
 
   const badPayload = await store.importAll({ trips: [{ id: 'x' }], visits: [] });
   if (!badPayload.ok && badPayload.error) ok('非法备份拒绝导入');
@@ -110,7 +134,34 @@ const points = [
   else fail('replace 导入错误：' + JSON.stringify(r3));
 }
 
-// 5) 迁移：一次性、备份、歧义保留、幂等
+// 5) replace 导入必须原子：中途失败时保留原库
+{
+  const baseDriver = createMemoryDriver();
+  const store = await openTripStore({ driver: baseDriver, now });
+  await store.saveTrip(makeTrip('keep', '原行程'));
+  await store.saveVisit(createVisit({ id: 'v_keep', placeId: 'p1', tripId: 'keep' }));
+
+  let writes = 0;
+  const flaky = {
+    ...baseDriver,
+    async put(storeName, rec) {
+      writes += 1;
+      if (writes === 2) throw new Error('模拟磁盘写入失败');
+      return baseDriver.put(storeName, rec);
+    },
+  };
+  const flakyStore = await openTripStore({ driver: flaky, now });
+  const before = await flakyStore.exportAll();
+  const r = await flakyStore.importAll({
+    trips: [makeTrip('n1'), makeTrip('n2')],
+    visits: [createVisit({ id: 'v_new', placeId: 'p2' })],
+  }, { mode: 'replace' });
+  const after = await flakyStore.exportAll();
+  if (!r.ok && r.error && JSON.stringify(after) === JSON.stringify(before)) ok('replace 导入中途失败：返回错误且原库零变化');
+  else fail('replace 原子性失败：' + JSON.stringify({ r, before, after }));
+}
+
+// 6) 迁移：一次性、备份、歧义保留、幂等
 {
   const plans = [{
     id: 'p9', name: '莫斯科 1 日', city: '莫斯科', date: '2026-11-01', source: 'rule',

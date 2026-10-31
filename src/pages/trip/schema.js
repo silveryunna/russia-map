@@ -29,6 +29,7 @@ export const DAY_TIME_DEFAULTS = { startTime: '09:00', endTime: '21:00' };
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
+const LOCAL_DATE_TIME_RE = /^(\d{4}-\d{2}-\d{2})T([01]\d|2[0-3]):[0-5]\d$/;
 
 export function isDateString(s) {
   if (typeof s !== 'string' || !DATE_RE.test(s)) return false;
@@ -38,6 +39,25 @@ export function isDateString(s) {
 
 export function isTimeString(s) {
   return typeof s === 'string' && TIME_RE.test(s);
+}
+
+export function isLocalTimeValue(s) {
+  if (s === '') return true;
+  if (isTimeString(s)) return true;
+  if (typeof s !== 'string') return false;
+  const match = s.match(LOCAL_DATE_TIME_RE);
+  return !!match && isDateString(match[1]);
+}
+
+export function isTimeZoneString(s) {
+  if (s === '') return true;
+  if (typeof s !== 'string') return false;
+  try {
+    new Intl.DateTimeFormat('en-US', { timeZone: s });
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 // 纯日期加减（UTC 归一，避开夏令时）；非法输入返回空串而不是抛错
@@ -118,7 +138,7 @@ export function createItem(input = {}, idFn = defaultId) {
     pinnedStart: isTimeString(input.pinnedStart) ? input.pinnedStart : '',
     estimatedDuration: duration,
     plannedStatus: PLANNED_STATUS.includes(input.plannedStatus) ? input.plannedStatus : 'planned',
-    actualVisitId: typeof input.actualVisitId === 'string' && input.actualVisitId ? input.actualVisitId : null,
+    actualVisitId: input.actualVisitId === undefined || input.actualVisitId === null || input.actualVisitId === '' ? null : input.actualVisitId,
     notes: typeof input.notes === 'string' ? input.notes : '',
     period: ITEM_PERIODS.includes(input.period) ? input.period : '',
     placeNameSnapshot: typeof input.placeNameSnapshot === 'string' ? input.placeNameSnapshot : '',
@@ -156,10 +176,14 @@ export function validateTrip(trip) {
   if (!DATE_MODES.includes(trip.dateMode)) err('dateMode', 'enum', `dateMode 非法：${trip.dateMode}`);
   if (!Array.isArray(trip.cities)) err('cities', 'type', 'cities 必须是数组');
   if (!Array.isArray(trip.days)) err('days', 'type', 'days 必须是数组');
+  if (trip.homeTimeZone !== undefined && !isTimeZoneString(trip.homeTimeZone)) {
+    err('homeTimeZone', 'timezone', 'homeTimeZone 必须是合法 IANA 时区或空串');
+  }
 
   if (trip.dateMode === 'fixed') {
     if (!isDateString(trip.startDate)) err('startDate', 'date', '固定日期行程必须有合法 startDate');
-    if (trip.endDate && !isDateString(trip.endDate)) err('endDate', 'date', 'endDate 非法');
+    if (!trip.endDate) err('endDate', 'required', '固定日期行程必须有 endDate');
+    else if (!isDateString(trip.endDate)) err('endDate', 'date', 'endDate 非法');
     if (isDateString(trip.startDate) && isDateString(trip.endDate) && diffDays(trip.startDate, trip.endDate) < 0) {
       err('endDate', 'range', 'endDate 早于 startDate');
     }
@@ -180,7 +204,8 @@ export function validateTrip(trip) {
     else if (dayIds.has(day.id)) err(`${p}.id`, 'duplicate', `day id 重复：${day.id}`);
     else dayIds.add(day.id);
     if (!Number.isInteger(day.index) || day.index !== di + 1) err(`${p}.index`, 'sequence', 'day.index 必须等于序号');
-    if (day.date && !isDateString(day.date)) err(`${p}.date`, 'date', 'day.date 非法');
+    if (trip.dateMode === 'fixed' && !day.date) err(`${p}.date`, 'required', '固定日期行程的每一天必须有日期');
+    else if (day.date && !isDateString(day.date)) err(`${p}.date`, 'date', 'day.date 非法');
     if (isDateString(trip.startDate) && day.date && day.date !== addDays(trip.startDate, di)) {
       err(`${p}.date`, 'range', 'day.date 与出发日期不连续');
     }
@@ -207,6 +232,19 @@ export function validateTrip(trip) {
       if (!ITEM_TYPES.includes(item.type)) err(`${ip}.type`, 'enum', `item 类型非法：${item.type}`);
       if (!Number.isInteger(item.order) || item.order < 0) err(`${ip}.order`, 'type', 'order 必须是非负整数');
       if (item.refId !== null && item.refId !== undefined && typeof item.refId !== 'string') err(`${ip}.refId`, 'type', 'refId 必须是字符串或 null');
+      if (item.startLocal !== undefined && !isLocalTimeValue(item.startLocal)) {
+        err(`${ip}.startLocal`, 'time', 'startLocal 必须是 HH:MM、YYYY-MM-DDTHH:MM 或空串');
+      }
+      if (item.endLocal !== undefined && !isLocalTimeValue(item.endLocal)) {
+        err(`${ip}.endLocal`, 'time', 'endLocal 必须是 HH:MM、YYYY-MM-DDTHH:MM 或空串');
+      }
+      if (item.timeZone !== undefined && !isTimeZoneString(item.timeZone)) {
+        err(`${ip}.timeZone`, 'timezone', 'timeZone 必须是合法 IANA 时区或空串');
+      }
+      if (item.actualVisitId !== undefined && item.actualVisitId !== null
+        && (typeof item.actualVisitId !== 'string' || !item.actualVisitId)) {
+        err(`${ip}.actualVisitId`, 'type', 'actualVisitId 必须是非空字符串或 null');
+      }
       if (item.type === 'visit' && !item.refId && item.confirm !== 'needs_confirm') {
         err(`${ip}.refId`, 'ref', 'visit 没有 placeId 时必须标记 needs_confirm');
       }

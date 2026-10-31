@@ -132,6 +132,8 @@ const idFn = (p) => `${p}${++seq}`;
     ['空标题', mk(t => { t.title = '  '; }), 'required'],
     ['非法 status', mk(t => { t.status = 'flying'; }), 'enum'],
     ['固定日期缺 startDate', mk(t => { t.startDate = ''; }), 'date'],
+    ['固定日期缺 endDate', mk(t => { t.endDate = ''; }), 'required'],
+    ['固定日期缺 Day 日期', mk(t => { t.days[0].date = ''; }), 'required'],
     ['endDate 早于 startDate', mk(t => { t.endDate = '2026-10-31'; }), 'range'],
     ['天数与跨度不一致', mk(t => { t.endDate = '2026-11-05'; }), 'range'],
     ['day.index 非连续', mk(t => { t.days[0].index = 2; }), 'sequence'],
@@ -140,6 +142,10 @@ const idFn = (p) => `${p}${++seq}`;
     ['startTime 格式非法', mk(t => { t.days[0].startTime = '9:00'; }), 'time'],
     ['endTime 不晚于 startTime', mk(t => { t.days[0].startTime = '18:00'; t.days[0].endTime = '09:00'; }), 'range'],
     ['钟点窗口只写一半', mk(t => { delete t.days[0].endTime; }), 'required'],
+    ['startLocal 非法', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), startLocal: 'not-a-time' }); }), 'time'],
+    ['endLocal 非法', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), endLocal: '2026-11-01 12:00' }); }), 'time'],
+    ['timeZone 非法', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), startLocal: '2026-11-01T10:00', timeZone: 'Not/AZone' }); }), 'timezone'],
+    ['actualVisitId 非法', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), actualVisitId: 7 }); }), 'type'],
     ['mustVisit 非布尔', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), mustVisit: 'yes' }); }), 'type'],
     ['pinnedStart 非法', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), pinnedStart: '25:00' }); }), 'time'],
     ['estimatedDuration 为 0', mk(t => { t.days[0].items.push({ ...createItem({ type: 'visit', refId: 'p1', order: 0 }, idFn), estimatedDuration: 0 }); }), 'duration'],
@@ -152,6 +158,24 @@ const idFn = (p) => `${p}${++seq}`;
   }
   if (!wrong.length) ok(`${cases.length} 个校验反例全部捕获`);
   else fail('校验反例漏报：\n  ' + wrong.join('\n  '));
+
+  const localTime = mk(t => {
+    t.days[0].items.push({
+      ...createItem({ type: 'reservation', refId: null, order: 0 }, idFn),
+      startLocal: '10:00', endLocal: '12:00', timeZone: '', actualVisitId: null,
+    });
+  });
+  if (localTime.ok) ok('HH:MM 本地时间窗口通过校验');
+  else fail('HH:MM 合法窗口未通过：' + JSON.stringify(localTime.errors));
+
+  const absoluteTime = mk(t => {
+    t.days[0].items.push({
+      ...createItem({ type: 'reservation', refId: null, order: 0 }, idFn),
+      startLocal: '2026-11-01T10:00', endLocal: '2026-11-01T12:00', timeZone: 'Europe/Moscow', actualVisitId: 'v1',
+    });
+  });
+  if (absoluteTime.ok) ok('YYYY-MM-DDTHH:MM 与合法 IANA 时区通过校验');
+  else fail('绝对时间合法窗口未通过：' + JSON.stringify(absoluteTime.errors));
 
   const legacy = mk(t => { delete t.days[0].startTime; delete t.days[0].endTime; });
   if (legacy.ok) ok('旧数据缺钟点窗口仍通过校验（按默认 09:00–21:00 处理）');

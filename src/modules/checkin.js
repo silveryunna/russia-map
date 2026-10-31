@@ -1,7 +1,8 @@
 // 打卡状态 v2：{ id: { n: 打卡次数, last: 'YYYY-MM-DD', note: '一句话感想(可空)' } }
 // 兼容迁移：旧版 travel-checkin-v1（id 数组）首次读取时自动升级
 export const CHECKIN_KEY = 'travel-checkin-v2';
-const LEGACY_KEY = 'travel-checkin-v1';
+export const LEGACY_CHECKIN_KEY = 'travel-checkin-v1';
+const LEGACY_KEY = LEGACY_CHECKIN_KEY;
 
 export function loadCheckins() {
   try {

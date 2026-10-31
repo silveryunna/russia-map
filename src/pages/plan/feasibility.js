@@ -52,15 +52,16 @@ export function distanceMeters(a, b) {
 // 两站之间的通行估算；options.mode='taxi' 时用打车口径（省进出站时间，费用未知）
 export function estimateLeg(from, to, options = {}) {
   if (!from || !to) return null;
-  if (from.id && to.id && from.id === to.id) return { meters: 0, minutes: 0, mode: 'walk', source: 'estimate' };
+  if (from.id && to.id && from.id === to.id) return { meters: 0, minutes: 0, mode: 'walk', source: 'estimate', sourceKind: 'model-estimate' };
   const matrixMode = options.mode === 'taxi' ? 'car' : 'walking';
   const real = options.matrix ? lookupTransitLeg(options.matrix, from.id, to.id, matrixMode) : null;
   if (real) {
     const base = {
       meters: real.meters,
-      minutes: real.minutes,
+      minutes: real.minutes + (matrixMode === 'car' ? TRANSIT.taxiOverheadMinutes : 0),
       mode: matrixMode === 'car' ? 'taxi' : 'walk',
       source: 'matrix',
+      sourceKind: 'third-party-route',
       provider: real.provider,
       collectedAt: real.collectedAt,
     };
@@ -74,7 +75,7 @@ export function estimateLeg(from, to, options = {}) {
   const meters = distanceMeters(from, to);
   if (meters === null) return null;
   if (meters <= TRANSIT.walkRadiusMeters) {
-    return { meters, minutes: Math.ceil(meters / TRANSIT.walkSpeedMPerMin), mode: 'walk', source: 'estimate' };
+    return { meters, minutes: Math.ceil(meters / TRANSIT.walkSpeedMPerMin), mode: 'walk', source: 'estimate', sourceKind: 'model-estimate' };
   }
   if (options.mode === 'taxi') {
     const base = {
@@ -82,6 +83,7 @@ export function estimateLeg(from, to, options = {}) {
       minutes: TRANSIT.taxiOverheadMinutes + Math.ceil(meters / TRANSIT.metroMPerMin),
       mode: 'taxi',
       source: 'estimate',
+      sourceKind: 'model-estimate',
     };
     const fare = Object.prototype.hasOwnProperty.call(options, 'fare') ? options.fare : TAXI_FARES['莫斯科'];
     if (!fare) return base;
@@ -94,6 +96,7 @@ export function estimateLeg(from, to, options = {}) {
     minutes: TRANSIT.metroOverheadMinutes + Math.ceil(meters / TRANSIT.metroMPerMin),
     mode: 'metro',
     source: 'estimate',
+    sourceKind: 'model-estimate',
   };
 }
 
@@ -230,6 +233,13 @@ const BLOCK_ONLY_TYPES = new Set(['meal', 'break']);
 function placeOf(places, id) {
   if (!places) return null;
   return places instanceof Map ? places.get(id) || null : places[id] || null;
+}
+
+function hasStaleSource(place, date) {
+  if (!place || !Array.isArray(place.sources) || !/^\d{4}-\d{2}-\d{2}$/.test(date || '')) return false;
+  return place.sources.some(source => typeof source?.reviewAfter === 'string'
+    && /^\d{4}-\d{2}-\d{2}$/.test(source.reviewAfter)
+    && source.reviewAfter < date);
 }
 
 /**
@@ -392,6 +402,9 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       transitMinutes: legMinutes,
       mode: leg ? leg.mode : 'none',
       transitSource: leg ? leg.source : 'none',
+      transitSourceKind: leg ? leg.sourceKind : 'none',
+      durationSource: Number.isFinite(item.estimatedDuration) ? 'custom'
+        : (place && place.durationBasis === 'measured' ? 'first-party-measured' : 'model-estimate'),
       cost: leg && leg.mode === 'taxi' ? leg.cost || 0 : 0,
       currency: leg && leg.mode === 'taxi' ? leg.currency || '' : '',
       calendar: cal.state,
@@ -407,9 +420,35 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
 
   const errors = conflicts.filter((c) => c.severity === 'error');
   const totalMinutes = timeline.length ? timeline[timeline.length - 1].end - timeline[0].arrive + (timeline[0].arrive - dayStart) : 0;
+  const placeRows = timeline.filter((t) => t.placeId);
+  const routeLegs = timeline.filter((t) => t.transitSource === 'matrix' || t.transitSource === 'estimate');
+  const thirdPartyLegs = routeLegs.filter((t) => t.transitSourceKind === 'third-party-route').length;
+  const firstPartyLegs = routeLegs.filter((t) => t.transitSourceKind === 'first-party-measured').length;
+  const estimatedLegs = routeLegs.filter((t) => t.transitSourceKind === 'model-estimate').length;
+  const measuredDurations = placeRows.filter((t) => t.durationSource === 'first-party-measured').length;
+  const unknownHours = placeRows.filter((t) => t.calendar === 'unknown').length;
+  const knownHours = placeRows.filter((t) => t.calendar === 'open' || t.calendar === 'closed').length;
+  const staleFacts = placeRows.filter((t) => hasStaleSource(placeOf(places, t.placeId), date)).length;
+  const measuredDurationCoverage = placeRows.length ? measuredDurations / placeRows.length : 0;
+  const thirdPartyRouteCoverage = routeLegs.length ? thirdPartyLegs / routeLegs.length : 0;
+  const firstPartyRouteCoverage = routeLegs.length ? firstPartyLegs / routeLegs.length : 0;
+  const estimatedLegCoverage = routeLegs.length ? estimatedLegs / routeLegs.length : 0;
+  const evidence = {
+    verifiedFacts: knownHours + thirdPartyLegs + firstPartyLegs + measuredDurations,
+    unknownFacts: unknownHours,
+    staleFacts,
+    measuredDurationCoverage,
+    thirdPartyRouteCoverage,
+    firstPartyRouteCoverage,
+    estimatedLegCoverage,
+  };
+  const conditional = evidence.unknownFacts > 0 || evidence.staleFacts > 0
+    || evidence.estimatedLegCoverage > 0 || (placeRows.length > 0 && evidence.measuredDurationCoverage < 1);
 
   return {
     feasible: errors.length === 0 && timeline.length > 0,
+    structural: timeline.length === 0 ? 'empty' : errors.length ? 'infeasible' : conditional ? 'conditional' : 'feasible',
+    evidence,
     empty: timeline.length === 0,
     conflicts,
     errors,
@@ -422,7 +461,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       taxiCurrency,
       totalMinutes,
       places: timeline.filter((t) => t.placeId).length,
-      unknownHours: timeline.filter((t) => t.calendar === 'unknown').length,
+      unknownHours,
     },
   };
 }

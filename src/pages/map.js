@@ -19,7 +19,7 @@ import { navLinks, navHref } from './map/nav.js';
 import { drawOverlays, rebuildOverlays } from './map/overlays.js';
 import { initPlayer, playRoute, stopPlay } from './map/player.js';
 import { initLayers, countryOf, sortCities, COUNTRY_STYLE } from './map/layers.js';
-import { loadCheckins, toggleCheckin } from '../modules/checkin.js';
+import { openVisitRepository } from './visits/repository.js';
 
 // 兼容只认全局 L 的老插件（leaflet.markercluster 的 UMD 内部引用自由变量 L）
 window.L = L;
@@ -209,6 +209,7 @@ let pointByName = new Map();   // 动线 steps 的 point 名称快照索引（po
 let pointById = new Map();
 
 let map, clusterGroup, routesGroup;
+let visitRepo = null;
 const markerById = new Map();
 let suppressFit = false;  // 手动飞向点位后，阻止本次重新 fitBounds
 let lastFitKey = '';      // 上次 fitBounds 的视图钥匙
@@ -909,12 +910,11 @@ function bindEvents() {
     });
   })();
 
-  body.addEventListener('change', (e) => {
+  body.addEventListener('change', async (e) => {
     const id = e.target.dataset?.check;
-    if (!id) return;
-    const o = loadCheckins();
-    toggleCheckin(o, id);
-    state.checked = new Set(Object.keys(o));
+    if (!id || !visitRepo) return;
+    await visitRepo.toggle(id);
+    state.checked = new Set(Object.keys(visitRepo.getCheckins()));
     refreshMarkers(); renderSidebar(); renderChrome();
   });
 
@@ -1005,11 +1005,15 @@ async function main() {
   // markercluster 的 UMD 引用全局 L，须在设置 window.L 后动态加载
   await import('leaflet.markercluster');
 
-  // 打卡 v2：{ id: { n, last, note } }，兼容旧版 id 数组（modules/checkin.js 内部迁移）
-  state.checked = new Set(Object.keys(loadCheckins()));
-
+  // Visit repository 启动时会做一次性迁移；之后 travel-checkin-v2 只是派生缓存
   let overlays = [];
-  [points, routes, meta, overlays] = await Promise.all([
+  [visitRepo, points, routes, meta, overlays] = await Promise.all([
+    openVisitRepository({
+      onChange: (checkins) => {
+        state.checked = new Set(Object.keys(checkins));
+        if (map) { refreshMarkers(); renderSidebar(); renderChrome(); }
+      },
+    }),
     fetch('./data/points.json').then(r => r.json()),
     fetch('./data/routes.json').then(r => r.json()),
     fetch('./data/meta.json').then(r => r.json()),
@@ -1017,6 +1021,7 @@ async function main() {
     fetch('./data/china-boundary.json').then(r => r.json()).then(d => (window.__chinaBoundary__ = d)),
     fetch('./data/ratings.json').then(r => r.json()).catch(() => ({ items: {} })).then(d => (window.__ratings__ = d)),
   ]);
+  state.checked = new Set(Object.keys(visitRepo.getCheckins()));
   window.__overlaysData__ = overlays || [];
   pointByName = new Map(points.map(p => [p.name, p]));
   pointById = new Map(points.map(p => [p.id, p]));

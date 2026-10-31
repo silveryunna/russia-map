@@ -5,6 +5,7 @@ import {
   DEFAULT_DAY, calendarState, distanceMeters, estimateLeg, evaluateDay, formatMinutes,
   formatMinutesCrossDay, parseDays, parseMinutes, suggestFixes, weekdayKey,
 } from '../src/pages/plan/feasibility.js';
+import { indexTransitMatrix } from '../src/pages/plan/transit-matrix.js';
 
 let bad = 0;
 const fail = (m) => { console.error('❌ ' + m); bad++; };
@@ -138,6 +139,33 @@ const it = (id, refId, extra = {}) => ({
   assert(r.stats.unknownHours === 2 && r.errors.length === 0, '未知开放时间只是 warn，不阻断可行性');
   assert(r.conflicts.some((c) => c.kind === 'hours-unknown' && /不等于全天开放/.test(c.message)),
     'unknown 明确提示"不等于全天开放"');
+  assert(r.structural === 'conditional' && r.evidence.unknownFacts === 2,
+    '只有 unknown 的日子输出 conditional，而不是无条件绿色');
+  assert(r.evidence.thirdPartyRouteCoverage === 0 && r.evidence.estimatedLegCoverage === 1,
+    '证据报告区分第三方路线与模型估算');
+}
+
+// ── 3.0.1) 证据报告：已知日历 + 第三方路线 + 第一方停留 → feasible ──
+{
+  const known = new Map([
+    ['k1', P('k1', '实测 A', 55.75, 37.61, {
+      estimatedDuration: 60, durationBasis: 'measured',
+      openCalendar: { days: 'Mo-Su', open: '09:00', close: '20:00' },
+    })],
+    ['k2', P('k2', '实测 B', 55.751, 37.611, {
+      estimatedDuration: 60, durationBasis: 'measured',
+      openCalendar: { days: 'Mo-Su', open: '09:00', close: '20:00' },
+    })],
+  ]);
+  const matrix = indexTransitMatrix({ provider: '2gis', collectedAt: '2026-10-31', entries: [
+    { from: 'k1', to: 'k2', mode: 'walking', minutes: 3, meters: 120 },
+  ] });
+  const r = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' }, items: [it('i1', 'k1'), it('i2', 'k2')], places: known,
+    options: { matrix },
+  });
+  assert(r.structural === 'feasible' && r.evidence.unknownFacts === 0 && r.evidence.measuredDurationCoverage === 1
+    && r.evidence.thirdPartyRouteCoverage === 1, '证据充分的日子才显示无条件 feasible');
 }
 
 // ── 3.1) 当天钟点窗口（TripDay.startTime/endTime 传入 options）──

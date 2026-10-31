@@ -46,8 +46,11 @@ for (const r of routes) {
   else if (overrun.length) {
     const wide = evaluateDay({ day: DAY, items, places, options: { start: '07:00', end: '23:00', matrix } });
     verdict = `⚠️ 超时（收工 ${end ? formatMinutesCrossDay(end) : '?'}）${wide.errors.length ? '，07:00–23:00 也走不完' : '，07:00–23:00 可完成'}`;
-  } else verdict = '✅ 可行';
+  } else if (res.structural === 'conditional') verdict = '⚠️ 条件式可排';
+  else verdict = '✅ 可行';
 
+  const legs = res.timeline.filter((t) => t.transitSource === 'matrix' || t.transitSource === 'estimate');
+  const thirdParty = legs.filter((t) => t.transitSourceKind === 'third-party-route').length;
   rows.push({
     route: `${r.day || ''} ${r.name}`.trim(),
     steps: `${res.timeline.length}/${steps.length}`,
@@ -55,6 +58,7 @@ for (const r of routes) {
     transit: `${res.stats.transitMinutes}m`,
     end: end ? formatMinutesCrossDay(end) : '-',
     unknown: `${res.stats.unknownHours}/${res.timeline.length}`,
+    routeEvidence: legs.length ? `${thirdParty}/${legs.length}` : '-',
     verdict,
     res, items,
   });
@@ -62,9 +66,9 @@ for (const r of routes) {
 
 const pad = (s, n) => String(s).padEnd(n);
 console.log(`\n${city}动线可行性验收（验收日 ${DAY.date} ${weekdayKey(DAY.date)}，时间窗 ${DEFAULT_DAY.start}–${DEFAULT_DAY.end}）\n`);
-console.log(pad('动线', 30) + pad('点位', 8) + pad('停留', 8) + pad('通行', 8) + pad('结束', 14) + pad('未知日历', 10) + '结论');
+console.log(pad('动线', 30) + pad('点位', 8) + pad('停留', 8) + pad('通行', 8) + pad('结束', 14) + pad('未知日历', 10) + pad('第三方路线', 12) + '结论');
 for (const r of rows) {
-  console.log(pad(r.route, 30) + pad(r.steps, 8) + pad(r.dwell, 8) + pad(r.transit, 8) + pad(r.end, 14) + pad(r.unknown, 10) + r.verdict);
+  console.log(pad(r.route, 30) + pad(r.steps, 8) + pad(r.dwell, 8) + pad(r.transit, 8) + pad(r.end, 14) + pad(r.unknown, 10) + pad(r.routeEvidence, 12) + r.verdict);
 }
 
 for (const r of rows) {
@@ -76,7 +80,8 @@ for (const r of rows) {
 }
 
 const warnOnly = rows.filter((r) => !r.res.errors.length && r.res.conflicts.some((c) => c.severity === 'warn')).length;
-console.log(`\n合计 ${rows.length} 条动线：${rows.filter((r) => !r.res.errors.length).length} 条无硬冲突，${warnOnly} 条仅有提示，${structural} 处结构性错误`);
+const conditional = rows.filter((r) => r.res.structural === 'conditional').length;
+console.log(`\n合计 ${rows.length} 条动线：${rows.filter((r) => !r.res.errors.length).length} 条无硬冲突，${conditional} 条条件式可排，${warnOnly} 条仅有提示，${structural} 处结构性错误`);
 
 if (structural) {
   console.error('\n结构性错误必须先在 data/ 修复（缺点位/时长/坐标或日期不对）');
