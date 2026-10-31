@@ -51,10 +51,11 @@ async function probePlan(name, viewport, shot) {
     localStorage.removeItem('travel-checkin-v2');
     // 只清已存在的库：不带版本号 open 一个不存在的库会凭空建出「没有任何 object store 的 v1 空库」，
     // 之后应用 open(name, 1) 不再触发 upgrade，trips store 永远建不起来 —— CI 冒烟随机挂的根因。
+    // 版本号也不能写死：M1 已把库升到 v2（events/legs），传 1 会抛 VersionError。
     const known = await indexedDB.databases();
     if (!known.some(d => d.name === 'travel-trips')) return;
     const db = await new Promise(res => {
-      const r = indexedDB.open('travel-trips', 1);
+      const r = indexedDB.open('travel-trips');
       r.onsuccess = () => res(r.result);
       r.onerror = () => res(null);
       r.onblocked = () => res(null);
@@ -78,7 +79,7 @@ async function probePlan(name, viewport, shot) {
   const readTrips = () => page.evaluate(async () => {
     const known = await indexedDB.databases();
     if (!known.some(d => d.name === 'travel-trips')) return [];
-    const db = await new Promise((res, rej) => { const r = indexedDB.open('travel-trips', 1); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
+    const db = await new Promise((res, rej) => { const r = indexedDB.open('travel-trips'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
     if (!db.objectStoreNames.contains('trips')) { db.close(); return []; }
     const list = await new Promise((res, rej) => {
       const t = db.transaction('trips', 'readonly');

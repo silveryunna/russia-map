@@ -1140,11 +1140,20 @@ async function doUndo() {
   const snap = undoStack.pop();
   if (!snap) return;
   const before = JSON.stringify(current);
-  if (await persistTrip(JSON.parse(snap))) {
+  const restored = JSON.parse(snap);
+  // 撤销写回的是「旧内容 + 新 revision」：必须沿用当前 revision，
+  // 否则 M0 的乐观锁会把撤销当成过期写入直接拒绝（revision-conflict），
+  // 表现为点了撤销毫无反应、按钮一直可点。
+  if (Number.isInteger(current.revision)) restored.revision = current.revision;
+  if (await persistTrip(restored)) {
     logChange('undo', JSON.parse(before), current);
     await refreshTrips();
     render();
     toast('已撤销上一步');
+  } else {
+    // 保存失败（例如另一个标签页已经改过）时把快照放回，避免一次失败吞掉一步历史
+    undoStack.push(snap);
+    if (undoStack.length > 30) undoStack.shift();
   }
 }
 
