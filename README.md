@@ -1,6 +1,6 @@
 # 牛马打工人的旅行笔记
 
-个人旅行记录网站：**互动地图打卡 · 每日动线 · 旅行笔记 · 相册 · AI 日程计划**。
+个人旅行记录网站：**互动地图打卡 · 每日动线 · 旅行笔记 · 相册 · AI 日程计划 · 行中执行**。
 
 线上地址：<https://julyyunna.art>（PWA，可"添加到主屏幕"离线使用）
 
@@ -13,6 +13,7 @@
 - 📝 **旅行笔记**（`notes.html`）：Markdown 笔记
 - 📷 **相册**（`album.html`）：旅行照片（内容筹备中）
 - 🤖 **行程计划**（`plan.html`）：规则引擎离线生成 / AI 生成，生成后逐日编辑（加点位、排序、改期、撤销），数据存在本机 IndexedDB，可导出 JSON 备份与 Markdown
+- 📍 **今日执行**（`today.html`）：行中看当前/下一项、缓冲倒计时、完成/跳过/到达打卡、核验清单、变更日志与离线包导出，飞行模式可用
 - 👥 **朋友投稿 / 协作管理**（`friend.html` / `account.html`）：朋友可提交点位与笔记，管理员审核
 
 ## 技术栈
@@ -25,7 +26,7 @@
 ## 仓库结构速览
 
 ```
-index/map/list/notes/album/plan/friend/account/admin .html   九个页面（构建产物，源头在 src/）
+index/map/list/notes/album/plan/today/friend/account/admin .html   十个页面（构建产物，源头在 src/）
 src/               页面源码与共享模块（Vite 构建入口，改这里）
 assets/            前端 JS/CSS（hash 命名的构建产物，禁止手改）
 data/              points/routes/ratings 等 JSON 数据（626 点位）
@@ -86,6 +87,9 @@ node tools/deploy-check.mjs data/          # 提交/部署前防覆盖检查
 | 文档 | 读者 | 内容 |
 |---|---|---|
 | `README.md`（本文） | 人类 | 项目介绍与上手 |
+| `ROADMAP.md` | 人类 | v4 执行基线（已完成项与阶段定义） |
+| `docs/PLATFORM-STRATEGY-2026-11.md` | 人类 | 战略层：市场调研、六仓对标、路线图 v5 |
+| `docs/AUDIT-2026-11-01.md` | 人类 | 第二轮深度审计的证据与结论 |
 | `AGENTS.md` | AI 助手 | 硬性规则与数据契约 |
 | `MAINTENANCE.md` | AI 助手/维护者 | 完整维护知识与踩坑记录 |
 | `REMOTE-DEV.md` | 远程开发者 | NAS · frp 隧道 · SSH 跳板接入 |
@@ -93,4 +97,14 @@ node tools/deploy-check.mjs data/          # 提交/部署前防覆盖检查
 
 ## 许可
 
-个人项目，内容（文字/照片/数据）版权归站长所有；代码仅供学习参考。
+自 2026-11-01 起采用分层许可（此前为"保留所有权利"）：
+
+| 范围 | 许可证 | 说明 |
+|---|---|---|
+| 代码（`src/` `tools/` `api/` 等，不含 `data/`、`content/`） | [MIT](LICENSE) | 可自由使用、修改、分发，保留版权声明 |
+| 数据（`data/`：点位 / 动线 / 评分 / 交通矩阵 / 事实） | [CC BY-NC-SA 4.0](LICENSE-DATA) | 署名 + 非商业 + 相同方式共享；商业使用需单独授权 |
+| 文字内容（`content/`：笔记与手册） | [CC BY 4.0](LICENSE-CONTENT) | 署名即可转载，含商业用途 |
+| 照片（`photos/`） | 归上传者所有 | 未经上传者同意不得转载；侵权可联系下架 |
+| 第三方参考仓库 | 见 [THIRD-PARTY.md](THIRD-PARTY.md) | 仅作架构参考，未复制代码 |
+
+数据是长期人工核验的成果：欢迎非商业引用（请署名并标注核验日期），商业使用（含 API、训练、二次分发）请先联系授权。

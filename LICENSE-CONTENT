@@ -1,0 +1,22 @@
+# 文字内容许可：CC BY 4.0
+
+本仓库 `content/` 目录（笔记、城市手册、路线说明等 Markdown 文本）采用
+**知识共享 署名 4.0 国际许可协议（CC BY 4.0）**。
+
+- 协议全文：https://creativecommons.org/licenses/by/4.0/legalcode.zh-hans
+- 人类可读摘要：https://creativecommons.org/licenses/by/4.0/deed.zh-hans
+
+## 你可以
+
+- 以任何媒介复制、发行、改编本内容，**包括商业用途**。
+
+只要遵守下列条款：
+
+- **署名**：注明作者与来源（本仓库地址），附协议链接，并标明是否作了修改。
+- 不得施加法律术语或技术措施限制他人行使本许可授予的权利。
+
+## 不覆盖
+
+- `photos/`：照片版权归上传者所有，未经上传者同意不得转载或商用。
+- `data/`：见 LICENSE-DATA（非商业）。
+- 代码：见 LICENSE（MIT）。

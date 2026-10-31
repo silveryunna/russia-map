@@ -9,7 +9,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 ## 本地开发 / 质量门
 
 - `npm run dev`：Vite（root=`src/`）。`vite.config.js` 的 `devRepoAssets` 插件把仓库根 `data/ content/ photos/` 与白名单根文件映射到站点根，`/api/*` 默认返回 JSON 错误（页面降级规则引擎）；要连真后端用 `DEV_API=http://127.0.0.1:8080 npm run dev`
-- `npm test`：规则引擎 + 计划存储 + Trip 契约/迁移/编辑/存储 + Visit repository（唯一打卡事实源）+ M1 行中执行（Today 计算/完成/跳过/到达/Diff/核验任务/applyExecution 原子落库）+ M1 离线包（GeoJSON/GPX/KML/清单）+ 可行性引擎 + 时间轴视图 + 可执行修复 + 软目标 + Plan B + 顺序求解 + 打车费率表 + 生成计划平衡回归（7 起始星期 × 1–7 天）+ 交通矩阵 + 交通矩阵异常复核 + 资料补全管线 + 样板/城市排程数据契约 + SW 缓存策略 + 坐标变换 + 文档事实（CI 同样跑）
+- `npm test`：规则引擎 + 计划存储 + Trip 契约/迁移/编辑/存储 + Visit repository（唯一打卡事实源）+ M1 行中执行（Today 计算/完成/跳过/到达/Diff/核验任务/applyExecution 原子落库）+ M1 离线包（GeoJSON/GPX/KML/清单）+ 可行性引擎 + 时间轴视图 + 可执行修复 + 软目标 + Plan B + 顺序求解 + 打车费率表 + 生成计划平衡回归（7 起始星期 × 1–7 天）+ 交通矩阵 + 交通矩阵异常复核 + 资料补全管线 + 样板/城市排程数据契约 + SW 缓存策略 + 坐标变换 + 埋点骨架 + CI 一致性 + 文档事实（CI 同样跑）
 - 资料补全（开发后台/NAS）：`tools/research-queue.mjs` 从 data 缺口生成队列，`research-validate.mjs` 校验候选事实（verified 必须 official，UGC 只能线索），`research-report.mjs` 出状态/过期报告。研究产物只能写仓库与 webroot 之外；Agent-Reach 只做发现，不自动改数据、不进 CI。流程与安全边界见 `docs/RESEARCH-PIPELINE.md`
 - `node tools/check-sample-data.mjs ./data`：莫斯科样板数据门槛（动线覆盖的 38 个点位的排程字段、坐标置信度、城市时区；`unknown` 允许但必须显式）。CI 跑，改样板城市点位必跑
 - `node tools/check-city-duration.mjs ./data <城市>`：非 pending 点位必须有坐标、停留时长与依据；CI 对 三亚/哈尔滨/伊宁/圣彼得堡/叶卡捷琳堡/阿拉木图/莫斯科州/其他城市 全量跑，改这些城市点位必跑（莫斯科全量仍有非样板点未补，样板门槛见上一条）
@@ -51,7 +51,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 
 ## CI / 监控（GitHub Actions）
 
-- `check.yml`（push 触发）：check-data + 样板数据契约 + 城市排程字段（三亚/哈尔滨/伊宁/圣彼得堡/叶卡捷琳堡/阿拉木图/莫斯科州/其他城市）+ 变异测试（35 变异须全捕获）+ 坐标变换 + 计划模块单测 + Trip v2 单测 + 可行性/时间轴/修复/软目标/Plan B/顺序求解/费率表/生成计划平衡/交通矩阵/资料管线单测与真实动线验收 + SW 缓存策略 + 文档事实 + assets ESM 严格解析 + 版本同步检查（改 assets/*.js 必须同提交改 map.html 与 sw.js）+ Playwright 冒烟（地图桌面/手机 + 行程页生成/排序/撤销/时间轴拖拽/午餐/休息/交通切换/刷新恢复截图 artifact）
+- `check.yml`（push 触发）：check-data + 样板数据契约 + 城市排程字段（三亚/哈尔滨/伊宁/圣彼得堡/叶卡捷琳堡/阿拉木图/莫斯科州/其他城市）+ 变异测试（35 变异须全捕获）+ 坐标变换 + 计划模块单测 + Trip v2 单测 + 打卡/行中执行/离线包单测 + 可行性/时间轴/修复/软目标/Plan B/顺序求解/费率表/生成计划平衡/交通矩阵/交通矩阵异常/路由可行性/资料管线单测 + SW 缓存策略 + 埋点骨架 + 文档事实 + CI 一致性（清单从 package.json 派生）+ assets ESM 严格解析 + 版本同步检查（改 assets/*.js 必须同提交改 map.html 与 sw.js）+ Playwright 冒烟（地图桌面/手机 + 行程页生成/排序/撤销/时间轴拖拽/午餐/休息/交通切换/刷新恢复截图 artifact）
 - `monitor.yml`（每 6 小时）：探测腾讯云主站/API/NAS/TLS 证书（剩 <14 天告警），故障自动开 issue、恢复自动关闭；仓库 60 天无活动 GitHub 会停定时任务，手动跑一次即可恢复
 - 探针脚本 `tools/site-monitor.mjs` 可本地直接跑（Pages 检查需网络可达 GitHub）
 
@@ -64,6 +64,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 - 服务器 `/tools/` 已被 nginx 封禁（404），属安全策略，勿解除
 - 两台电脑都会打开本仓库：同一时刻只一个会话改数据，改完 commit+部署再换边；改 `src/` 必须经 `npm run publish` 把产物一起带上（CI 有 src/产物一致性检查，分叉会红）
 - 部署/提交前必跑：`node tools/deploy-check.mjs data/`（防未提交覆盖、防落后远端）；每台机器一次 `git config core.hooksPath .githooks` 启用提交前校验
+- 许可证分层（2026-11-01 起）：代码 MIT（`LICENSE`）、`data/` CC BY-NC-SA 4.0（`LICENSE-DATA`）、`content/` CC BY 4.0（`LICENSE-CONTENT`）、照片归上传者。参考仓库的许可红线见 `THIRD-PARTY.md`：**禁止把 AGPL（TREK）或无许可证（FloatTrip）仓库的代码复制进来**；新增依赖/数据源必须同步更新该文件
 
 ## 数据结构速查
 
