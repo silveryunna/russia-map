@@ -124,7 +124,6 @@ export function completeItem(trip, itemId, { at, actualStart = '', actualEnd = '
   const next = clone(trip);
   const nextItem = findItem(next, itemId).item;
   nextItem.plannedStatus = 'done';
-  nextItem.actualVisitId = item.refId ? (visitId || nextItem.actualVisitId) : nextItem.actualVisitId;
   let visit = null;
   if (item.refId) {
     visit = createVisit({
@@ -141,6 +140,9 @@ export function completeItem(trip, itemId, { at, actualStart = '', actualEnd = '
       actualEnd,
       createdAt: stamp,
     }, idFn, stamp);
+    // 链接必须取「实际创建出来的 Visit id」：页面调用时通常不传 idFn，
+    // 旧的 `visitId || 原值` 会得到 undefined，条目永远不回链到打卡记录。
+    nextItem.actualVisitId = visit.id;
   }
   const event = createChangeEvent({
     tripId: trip.id,
@@ -164,7 +166,6 @@ export function skipItem(trip, itemId, { reason = '', at, existingVisits = [], i
   const next = clone(trip);
   const nextItem = findItem(next, itemId).item;
   nextItem.plannedStatus = 'skipped';
-  nextItem.actualVisitId = item.refId ? (visitId || nextItem.actualVisitId) : nextItem.actualVisitId;
   let visit = null;
   if (item.refId) {
     visit = createVisit({
@@ -180,6 +181,8 @@ export function skipItem(trip, itemId, { reason = '', at, existingVisits = [], i
       reason,
       createdAt: stamp,
     }, idFn, stamp);
+    // 同 completeItem：回链用创建出来的 Visit id
+    nextItem.actualVisitId = visit.id;
   }
   const event = createChangeEvent({
     tripId: trip.id,

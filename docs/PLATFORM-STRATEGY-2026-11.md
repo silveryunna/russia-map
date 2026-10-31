@@ -1342,6 +1342,8 @@ src/pages/plan/
 
 **每步都必须跑 `npm test` + 冒烟 + 手动点一遍主路径。** 不要一次重写。
 
+**W2 实际进度（2026-11-02）**：第 1 周和第 2 周的目标一起做完了——`io.js`（90 行）、`ai.js`（134 行）、`format.js`（69 行）、`list.js`（99 行）、`generate.js`（147 行）已抽出，`plan.js` 从 1,258 降到 948 行（目标 <950）。剩余 `editor.js` / `inspector.js` / `state.js` 仍是后续工作：编辑器的渲染与事件接线还留在组装根里，因为它们共享 `current` / `view` / `undoStack` 三份可变状态，抽之前应先把状态收进一个显式对象（§7.8 的 `state.js`），否则只是把闭包换个地方放。抽出的模块全部改成工厂 + 依赖注入，因此第一次有了不依赖浏览器的单测（`test-plan-format` / `test-plan-io` / `test-plan-ai`，共 90 项断言）。
+
 ### 7.9 技术选型：明确"不改"的清单
 
 | 项 | 决定 | 理由 |
@@ -1475,7 +1477,7 @@ P0 收口
 | 周 | 主题 | 产出物 | 验收 | 预计 |
 |---|---|---|---|---:|
 | **W1** | 收口 | `tools/check-ci-parity.mjs`；4 个漏跑门进 CI；README 页面清单修正；LICENSE 三选一落地；埋点骨架 `src/shared/telemetry.js` | CI 与 `npm test` 完全一致；`check-doc-facts` 删掉手写数组；LICENSE 文件存在 | 12h |
-| **W2** | 拆分 + 手机 | `plan/io.js`、`plan/ai.js` 抽出；`smoke-test.mjs` 增加 390×844 的 plan + today | `plan.js` < 950 行；手机冒烟 2 条通过 | 14h |
+| **W2** | 拆分 + 手机 ✅ | `plan/{format,ai,io,list,generate}.js` 抽出（`plan.js` 1,258 → 948 行）；`smoke-test.mjs` 增加 390×844 plan + today | `plan.js` < 950 行；冒烟 27 → 46 条，手机 plan + today 全过 | 14h |
 | **W3** | 事实地基 | `data/facts/moscow.json` schema；`tools/evidence-coverage.mjs`；莫斯科 Top 40 事实采集（第 1 批 20 个） | CLI 能报告覆盖率/过期数；20 个点位有官方来源 | 13h |
 | **W4** | 事实采集 | Top 40 第 2 批 20 个；admin 只读覆盖率看板 | Top 40 开放时间 100%；票价 100%；来源 100% | 14h |
 | **W5** | 证据链 UI | 可信度带（四计数）+ 核验清单（按影响排序）+ `evidence.js` 纯函数 + 单测 | 莫斯科 3 日行程显示正确的 4 个计数；清单按 `impactMinutes` 降序 | 14h |

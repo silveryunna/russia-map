@@ -1,4 +1,6 @@
-// Playwright 页面冒烟测试（CI 专用）：加载 map.html（桌面+手机）与 plan.html（Trip v2 生成→编辑→刷新恢复）
+// Playwright 页面冒烟测试（CI 专用）：
+//   map.html（桌面+手机）· plan.html 生成→编辑→撤销→时间轴→刷新恢复（桌面）·
+//   plan.html 手机布局 · today.html 行中执行（完成→Visit 落库）
 // CI: SMOKE_DEPS=/tmp/smoke node tools/smoke-test.mjs
 // 依赖 playwright 不在仓库内安装，CI 里装到 /tmp/smoke 后通过 SMOKE_DEPS 指向
 import { createRequire } from 'node:module';
@@ -10,6 +12,76 @@ let fail = 0;
 const ok = (name, cond, extra = '') => { console.log((cond ? 'PASS' : 'FAIL') + ' ' + name + (extra ? ' | ' + extra : '')); if (!cond) fail++; };
 
 const browser = await chromium.launch();
+
+// 轮询直到条件成立：首次注册 SW 后页面可能自动刷新，waitForFunction 会因上下文销毁抛错
+async function waitUntil(fn, timeout = 30000, step = 300) {
+  const t0 = Date.now();
+  let last;
+  while (Date.now() - t0 < timeout) {
+    try { last = await fn(); if (last) return last; } catch { /* 上下文销毁，重试 */ }
+    await new Promise(r => setTimeout(r, step));
+  }
+  return last;
+}
+
+// 读取 IndexedDB 里某个 object store 的全部记录（版本号跟随应用，不写死）
+const readStore = (page, storeName) => page.evaluate(async (name) => {
+  const known = await indexedDB.databases();
+  if (!known.some(d => d.name === 'travel-trips')) return [];
+  const db = await new Promise((res) => {
+    const r = indexedDB.open('travel-trips');
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => res(null);
+    r.onblocked = () => res(null);
+  });
+  if (!db) return [];
+  if (!db.objectStoreNames.contains(name)) { db.close(); return []; }
+  const list = await new Promise((res) => {
+    const t = db.transaction(name, 'readonly');
+    const r = t.objectStore(name).getAll();
+    r.onsuccess = () => res(r.result);
+    r.onerror = () => res([]);
+  });
+  db.close();
+  return list;
+}, storeName);
+
+// 清空本地计划与数据库；只清已存在的库，且不传版本号（M1 已升到 v2，写死 1 会抛 VersionError）
+async function resetLocal(page) {
+  await page.evaluate(async () => {
+    localStorage.removeItem('travel-plans-v1');
+    localStorage.removeItem('travel-checkin-v2');
+    const known = await indexedDB.databases();
+    if (!known.some(d => d.name === 'travel-trips')) return;
+    const db = await new Promise(res => {
+      const r = indexedDB.open('travel-trips');
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => res(null);
+      r.onblocked = () => res(null);
+    });
+    if (!db) return;
+    const names = [...db.objectStoreNames];
+    if (names.length) {
+      await new Promise(res => {
+        const t = db.transaction(names, 'readwrite');
+        names.forEach(n => t.objectStore(n).clear());
+        t.oncomplete = res;
+        t.onerror = res;
+      });
+    }
+    db.close();
+  });
+}
+
+// 在已打开的行程页里走一遍"新建 → 规则引擎生成"
+async function generateTrip(page, date = '2026-11-01') {
+  await page.waitForSelector('#pl-new', { timeout: 30000 });
+  await page.click('#pl-new');
+  await page.waitForSelector('#pl-gen-rule', { timeout: 15000 });
+  await page.fill('#pl-date', date);
+  await page.click('#pl-gen-rule');
+  await page.waitForSelector('.pl-day', { timeout: 25000 });
+}
 
 async function probe(name, viewport, shot) {
   const page = await browser.newPage({ viewport });
@@ -46,50 +118,12 @@ async function probePlan(name, viewport, shot) {
   await page.goto(`${BASE}/plan.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
 
   // 清空旧计划与本地数据库（直接清 store，避免 deleteDatabase 被已打开的连接阻塞）
-  await page.evaluate(async () => {
-    localStorage.removeItem('travel-plans-v1');
-    localStorage.removeItem('travel-checkin-v2');
-    // 只清已存在的库：不带版本号 open 一个不存在的库会凭空建出「没有任何 object store 的 v1 空库」，
-    // 之后应用 open(name, 1) 不再触发 upgrade，trips store 永远建不起来 —— CI 冒烟随机挂的根因。
-    // 版本号也不能写死：M1 已把库升到 v2（events/legs），传 1 会抛 VersionError。
-    const known = await indexedDB.databases();
-    if (!known.some(d => d.name === 'travel-trips')) return;
-    const db = await new Promise(res => {
-      const r = indexedDB.open('travel-trips');
-      r.onsuccess = () => res(r.result);
-      r.onerror = () => res(null);
-      r.onblocked = () => res(null);
-    });
-    if (!db) return;
-    const names = [...db.objectStoreNames];
-    if (names.length) {
-      await new Promise(res => {
-        const t = db.transaction(names, 'readwrite');
-        names.forEach(n => t.objectStore(n).clear());
-        t.oncomplete = res;
-        t.onerror = res;
-      });
-    }
-    db.close();
-  });
+  await resetLocal(page);
   await page.reload({ waitUntil: 'domcontentloaded' });
   await page.waitForSelector('#pl-new', { timeout: 30000 });
   ok(`${name} 行程页渲染`, true);
 
-  const readTrips = () => page.evaluate(async () => {
-    const known = await indexedDB.databases();
-    if (!known.some(d => d.name === 'travel-trips')) return [];
-    const db = await new Promise((res, rej) => { const r = indexedDB.open('travel-trips'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); });
-    if (!db.objectStoreNames.contains('trips')) { db.close(); return []; }
-    const list = await new Promise((res, rej) => {
-      const t = db.transaction('trips', 'readonly');
-      const r = t.objectStore('trips').getAll();
-      r.onsuccess = () => res(r.result);
-      r.onerror = () => rej(r.error);
-    });
-    db.close();
-    return list;
-  });
+  const readTrips = () => readStore(page, 'trips');
 
   await page.click('#pl-new');
   await page.waitForSelector('#pl-gen-rule', { timeout: 15000 });
@@ -196,9 +230,110 @@ async function probePlan(name, viewport, shot) {
   await page.close();
 }
 
+// 手机行程页（390×844）：小屏最容易出的问题是横向溢出与开关按钮够不到。
+// 完整编辑链路仍在桌面探针里跑，这里只验"能不能看、能不能生成、时间轴能不能开"。
+async function probePlanMobile(name, viewport, shot) {
+  const page = await browser.newPage({ viewport });
+  const errors = [];
+  page.on('pageerror', e => errors.push('pageerror: ' + e.message));
+  page.on('console', m => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
+  const overflow = () => page.evaluate(() => Math.round(document.documentElement.scrollWidth - window.innerWidth));
+
+  await page.goto(`${BASE}/plan.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await resetLocal(page);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await page.waitForSelector('#pl-new', { timeout: 30000 });
+  ok(`${name} 行程列表无横向溢出`, await overflow() <= 1, `${await overflow()}px`);
+
+  await page.click('#pl-new');
+  await page.waitForSelector('#pl-gen-rule', { timeout: 15000 });
+  ok(`${name} 新建表单无横向溢出`, await overflow() <= 1, `${await overflow()}px`);
+
+  await page.fill('#pl-date', '2026-11-01');
+  await page.click('#pl-gen-rule');
+  await page.waitForSelector('.pl-day', { timeout: 25000 });
+  const items = await page.locator('.tr-item').count();
+  ok(`${name} 小屏可生成并渲染行程`, items > 0, `${items} 项`);
+  ok(`${name} 编辑器无横向溢出`, await overflow() <= 1, `${await overflow()}px`);
+
+  await page.click('#tr-layout');
+  await page.waitForSelector('.tl-block', { timeout: 10000 });
+  const blocks = await page.locator('.tl-block').count();
+  ok(`${name} 小屏时间轴可切换`, blocks === items, `${blocks} 块 / ${items} 项`);
+  ok(`${name} 时间轴无横向溢出`, await overflow() <= 1, `${await overflow()}px`);
+
+  const fatal = errors.filter(e => /SyntaxError|JSON\.parse|is not defined/i.test(e));
+  ok(`${name} 行程页无致命 JS 错误`, fatal.length === 0, fatal[0] || '');
+  if (errors.length) console.log(`  [${name} 行程页全部 console 错误]`, JSON.stringify(errors.slice(0, 5)));
+  await page.screenshot({ path: shot, fullPage: false });
+  await page.close();
+}
+
+// 今日执行页（M1 最关键、此前 0 覆盖）：空态 → 生成行程 → 自动打开 → 完成一项 → Visit/事件落库
+async function probeToday(name, viewport, shot) {
+  const page = await browser.newPage({ viewport });
+  const errors = [];
+  page.on('pageerror', e => errors.push('pageerror: ' + e.message));
+  page.on('console', m => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
+
+  await page.goto(`${BASE}/today.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await resetLocal(page);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  const painted = await waitUntil(() => page.evaluate(() => {
+    const el = document.querySelector('#today-app');
+    return !!el && el.textContent.trim().length > 0;
+  }));
+  ok(`${name} 今日页空态可渲染`, !!painted);
+  const emptyText = (await page.textContent('#today-app').catch(() => '')) || '';
+  ok(`${name} 无行程时引导去计划页`, /还没有行程/.test(emptyText), emptyText.trim().slice(0, 40));
+
+  // 同一个 context 里生成一份行程，再回今日页
+  await page.goto(`${BASE}/plan.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  await generateTrip(page);
+  const stored = await readStore(page, 'trips');
+  ok(`${name} 准备数据：行程已落库`, stored.length === 1, `${stored.length} 份`);
+
+  await page.goto(`${BASE}/today.html`, { waitUntil: 'domcontentloaded', timeout: 30000 });
+  const rows = await waitUntil(async () => {
+    const n = await page.locator('.td-row').count();
+    return n > 0 ? n : 0;
+  }, 25000);
+  ok(`${name} 今日页自动打开唯一行程`, rows > 0, `${rows} 项`);
+  ok(`${name} 当前/下一项卡片`, await page.locator('.td-now').count() === 1, '');
+  ok(`${name} 工具栏可切行程与日期`,
+    await page.locator('#td-trip').count() === 1 && await page.locator('#td-day').count() === 1, '');
+  ok(`${name} 今日页无横向溢出`,
+    await page.evaluate(() => Math.round(document.documentElement.scrollWidth - window.innerWidth)) <= 1, '');
+
+  // 完成一项：必须同时落 Visit、回写 actualVisitId、记 ChangeEvent
+  const doneBtn = page.locator('[data-act="done"]').first();
+  if (await doneBtn.count()) {
+    await doneBtn.click();
+    await page.waitForTimeout(1500);
+    const visits = await readStore(page, 'visits');
+    ok(`${name} 完成写入 Visit`, visits.length >= 1, `${visits.length} 条`);
+    ok(`${name} Visit 标记为已到访`, visits.some(v => v.status === 'visited'), visits[0] ? visits[0].status : '');
+    const after = await readStore(page, 'trips');
+    const bound = (after[0] ? after[0].days.flatMap(d => d.items) : []).some(i => i.actualVisitId);
+    ok(`${name} 行程回写 actualVisitId`, bound, '');
+    const events = await readStore(page, 'events');
+    ok(`${name} 变更日志记录完成事件`, events.some(e => e.kind === 'complete'), `${events.length} 条`);
+  } else {
+    ok(`${name} 完成按钮可点`, false, '没有找到 [data-act="done"]');
+  }
+
+  const fatal = errors.filter(e => /SyntaxError|JSON\.parse|is not defined/i.test(e));
+  ok(`${name} 今日页无致命 JS 错误`, fatal.length === 0, fatal[0] || '');
+  if (errors.length) console.log(`  [${name} 今日页全部 console 错误]`, JSON.stringify(errors.slice(0, 5)));
+  await page.screenshot({ path: shot, fullPage: false });
+  await page.close();
+}
+
 await probe('桌面', { width: 1280, height: 800 }, 'smoke-desktop.png');
 await probe('手机', { width: 390, height: 844 }, 'smoke-mobile.png');
 await probePlan('桌面', { width: 1280, height: 800 }, 'smoke-plan-desktop.png');
+await probePlanMobile('手机', { width: 390, height: 844 }, 'smoke-plan-mobile.png');
+await probeToday('手机', { width: 390, height: 844 }, 'smoke-today-mobile.png');
 await browser.close();
 console.log(fail ? `\n${fail} 项失败` : '\n全部通过');
 process.exit(fail ? 1 : 0);

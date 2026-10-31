@@ -143,6 +143,17 @@ function makeTrip() {
   if (!again.ok) ok('重复完成被拒绝（幂等）');
   else fail('重复完成未被拒绝');
 
+  // 页面调用时不传 idFn（today.js 的真实调用方式）：条目仍必须回链到实际创建的 Visit
+  // —— 旧实现用 `visitId || 原值`，没有 idFn 时得到 undefined，链接被静默丢掉。
+  const noIdFn = completeItem(makeTrip(), 'i1', { at: now(), actualEnd: '10:02' });
+  if (noIdFn.ok && noIdFn.visit && noIdFn.trip.days[0].items.find(i => i.id === 'i1').actualVisitId === noIdFn.visit.id) {
+    ok('不传 idFn 时条目仍回链到 Visit');
+  } else fail('不传 idFn 时 actualVisitId 未建立链接：' + JSON.stringify({ item: noIdFn.trip?.days?.[0]?.items?.[0], visit: noIdFn.visit }));
+  const skipNoIdFn = skipItem(makeTrip(), 'i2', { reason: '' });
+  if (skipNoIdFn.ok && skipNoIdFn.trip.days[0].items.find(i => i.id === 'i2').actualVisitId === skipNoIdFn.visit.id) {
+    ok('跳过（不传 idFn）同样回链到 Visit');
+  } else fail('跳过路径的 actualVisitId 未建立链接');
+
   // 无点位条目（午餐）完成不产生 Visit，但有事件
   const meal = completeItem(done.trip, 'i4', { at: now(), idFn, now });
   if (meal.ok && !meal.visit && meal.event.kind === 'complete') ok('无点位条目完成只记事件');

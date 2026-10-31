@@ -39,10 +39,14 @@ jobs:
         run: node tools/coords-test.mjs
 
       # 2.6) 计划模块：规则引擎（跨动线去重/单日上限/天数一致）+ localStorage 容错
+      #      W2 拆分后新增：format / io / ai 三个抽出模块的口径与请求契约
       - name: 计划模块测试
         run: |
           node tools/test-plan-engine.mjs
           node tools/test-plan-store.mjs
+          node tools/test-plan-format.mjs
+          node tools/test-plan-io.mjs
+          node tools/test-plan-ai.mjs
 
       # 2.7) Trip v2：schema 契约、旧计划/打卡迁移（零丢失 + 歧义队列）、编辑操作、存储与导入
       - name: Trip v2 测试
