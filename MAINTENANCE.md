@@ -425,6 +425,19 @@ proxy_set_header User-Agent "";      # 清空 UA，天地图 WAF 才放行
 **残留风险**：天地图侧是按 IP 的，若瓦片请求量突增仍可能触发其 WAF（返回 418/403）。
 届时先确认不是我们自己的 UA 问题，再考虑加缓存层。
 
+### 7.11 CI 冒烟随机挂：测试脚本自己造了一个空 IndexedDB（2026-10-31）
+
+现象：`smoke` job 的「启动静态服务并冒烟」在 4–5 秒内退出码 1，`check` 全绿；同一批提交有时过（run 201）有时挂（run 199/200/202/203），看起来像环境抖动。
+
+真因在测试脚本，不是产品也不是环境：`tools/smoke-test.mjs` 为了清库执行了不带版本号的
+`indexedDB.open('travel-trips')`。若应用自己的 `open(name, 1)` 还没跑完，这句会**凭空创建一版没有任何 object store 的 v1 空库**；随后应用的 upgrade 回调不再触发（版本相同），`trips` store 永远建不起来，`db.transaction('trips')` 直接抛 `NotFoundError`。是否命中取决于页面加载与脚本的竞速，所以表现为「随机失败」。
+
+复现方式（本地一次就中，比读 CI 日志快）：仓库外装 `playwright@1.49.1` + `npx playwright install chromium`，用静态服务起仓库根目录，再 `SMOKE_DEPS=<目录> node tools/smoke-test.mjs`。Windows 上 `python -m http.server` 不可靠，用 Node 静态服务。
+
+修法：脚本只在 `indexedDB.databases()` 里确认库已存在时才打开并清理，且一律带版本号 `open('travel-trips', 1)`；读取行程前先 `objectStoreNames.contains('trips')`，缺 store 就当空列表（断言会明确报「0 份」而不是崩栈）。
+
+**教训**：测试脚本对存储的「清理」动作不能创建状态。凡是 `indexedDB.open` / 建表 / 建目录这类操作，先确认对象存在，否则会掩盖或制造被测系统真实的生命周期问题。
+
 ---
 
 ## 8. 常用校验命令（Git Bash）
