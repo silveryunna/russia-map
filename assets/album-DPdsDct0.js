@@ -1,4 +1,4 @@
-import"./base-BJw1lW7I.js";import{n as e,t}from"./sw-register-DDL0-JvC.js";var n=document.getElementById(`album-app`),r=e=>String(e??``).replace(/[&<>"']/g,e=>({"&":`&amp;`,"<":`&lt;`,">":`&gt;`,'"':`&quot;`,"'":`&#39;`})[e]),i=[],a=-1;function o(){if(!i.length){n.innerHTML=`
+import"./base-BJw1lW7I.js";import{t as e}from"./icp-footer-Crs5Jn1v.js";import{t}from"./sw-register-Buwh9M9Z.js";var n=document.getElementById(`album-app`),r=e=>String(e??``).replace(/[&<>"']/g,e=>({"&":`&amp;`,"<":`&lt;`,">":`&gt;`,'"':`&quot;`,"'":`&#39;`})[e]),i=[],a=-1;function o(){if(!i.length){n.innerHTML=`
       <div class="album-empty">
         <p>📷 相册还是空的</p>
         <p class="ae-tip">把照片放到 <code>photos/</code> 目录，<br>并在 <code>photos/index.json</code> 中登记即可展示。</p>

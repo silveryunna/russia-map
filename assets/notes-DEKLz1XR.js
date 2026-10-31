@@ -1,13 +1,13 @@
-import"./base-BJw1lW7I.js";import{_ as e,y as t}from"./store-Bt48rB0P.js";import{t as n}from"./repository-Dn0WJPPe.js";import{t as r}from"./marked.esm-HaWzKJJ6.js";r.setOptions({gfm:!0,breaks:!0});var i=document.getElementById(`notes-app`),a=e=>String(e??``).replace(/[&<>"']/g,e=>({"&":`&amp;`,"<":`&lt;`,">":`&gt;`,'"':`&quot;`,"'":`&#39;`})[e]),o=e=>({莫斯科:`俄罗斯`,"莫斯科州/近郊":`俄罗斯`,圣彼得堡:`俄罗斯`,叶卡捷琳堡:`俄罗斯`,阿拉木图:`哈萨克斯坦`,哈尔滨:`中国`,伊宁:`中国`,三亚:`中国`})[e]||`其他`,s={中国:0,俄罗斯:1,哈萨克斯坦:2,其他:3},c={中国:`🇨🇳`,俄罗斯:`🇷🇺`,哈萨克斯坦:`🇰🇿`,其他:`🌍`},l=[],u={cities:[],cityColors:{}},d=[],f=null,p={},m=new Set,h=``,g=null,_=null,v=()=>l.filter(e=>!e.pending),y=t=>e(p,t);function b(e){let t=2*Math.PI*34;return`<svg viewBox="0 0 84 84" class="ring">
+import"./base-BJw1lW7I.js";import{a as e,r as t}from"./checkin-44ePzKVA.js";import{t as n}from"./repository-Ca4uC0Jv.js";import{t as r}from"./marked.esm-HaWzKJJ6.js";r.setOptions({gfm:!0,breaks:!0});var i=document.getElementById(`notes-app`),a=e=>String(e??``).replace(/[&<>"']/g,e=>({"&":`&amp;`,"<":`&lt;`,">":`&gt;`,'"':`&quot;`,"'":`&#39;`})[e]),o=e=>({莫斯科:`俄罗斯`,"莫斯科州/近郊":`俄罗斯`,圣彼得堡:`俄罗斯`,叶卡捷琳堡:`俄罗斯`,阿拉木图:`哈萨克斯坦`,哈尔滨:`中国`,伊宁:`中国`,三亚:`中国`})[e]||`其他`,s={中国:0,俄罗斯:1,哈萨克斯坦:2,其他:3},c={中国:`🇨🇳`,俄罗斯:`🇷🇺`,哈萨克斯坦:`🇰🇿`,其他:`🌍`},l=[],u={cities:[],cityColors:{}},d=[],f=null,p={},m=new Set,h=``,g=null,_=null,v=()=>l.filter(e=>!e.pending),y=e=>t(p,e);function b(e){let t=2*Math.PI*34;return`<svg viewBox="0 0 84 84" class="ring">
     <circle cx="42" cy="42" r="34" class="ring-bg"/>
     <circle cx="42" cy="42" r="34" class="ring-fg" stroke-dasharray="${(e*t).toFixed(1)} ${t.toFixed(1)}"/>
     <text x="42" y="40" class="ring-num">${Math.round(e*100)}%</text>
     <text x="42" y="54" class="ring-lbl">完成度</text>
-  </svg>`}function x(){let e=v(),n=e.filter(e=>y(e.id)),r=l.length-e.length,i=t(p),d={};for(let t of e){let e=o(t.city);d[e]=d[e]||{total:0,done:0},d[e].total++,y(t.id)&&d[e].done++}let f=Object.keys(d).sort((e,t)=>s[e]-s[t]);return`<section class="dash card">
+  </svg>`}function x(){let t=v(),n=t.filter(e=>y(e.id)),r=l.length-t.length,i=e(p),d={};for(let e of t){let t=o(e.city);d[t]=d[t]||{total:0,done:0},d[t].total++,y(e.id)&&d[t].done++}let f=Object.keys(d).sort((e,t)=>s[e]-s[t]);return`<section class="dash card">
     <div class="dash-top">
-      ${b(e.length?n.length/e.length:0)}
+      ${b(t.length?n.length/t.length:0)}
       <div class="dash-nums">
-        <div class="dn-row"><b>${e.length}</b><span>点位</span></div>
+        <div class="dn-row"><b>${t.length}</b><span>点位</span></div>
         <div class="dn-row"><b class="dn-done">${n.length}</b><span>已打卡</span></div>
         <div class="dn-row"><b>${i}</b><span>累计次数</span></div>
         <div class="dn-row"><b>${r}</b><span>待核</span></div>
@@ -17,8 +17,8 @@ import"./base-BJw1lW7I.js";import{_ as e,y as t}from"./store-Bt48rB0P.js";import
       ${f.map(e=>`<span class="cc-chip">${c[e]} ${a(e)} <b>${d[e].done}</b>/${d[e].total}</span>`).join(``)}
     </div>
     <div class="dash-cities">
-      ${[...u.cities].sort((e,t)=>{let n=s[o(e)],r=s[o(t)];return n===r?u.cities.indexOf(e)-u.cities.indexOf(t):n-r}).filter(t=>e.some(e=>e.city===t)).map(t=>{let n=e.filter(e=>e.city===t),r=n.filter(e=>y(e.id)).length,i=u.cityColors[t]||`#546E7A`;return`<div class="dc-row">
-          <span class="dc-name">${a(t)}</span>
+      ${[...u.cities].sort((e,t)=>{let n=s[o(e)],r=s[o(t)];return n===r?u.cities.indexOf(e)-u.cities.indexOf(t):n-r}).filter(e=>t.some(t=>t.city===e)).map(e=>{let n=t.filter(t=>t.city===e),r=n.filter(e=>y(e.id)).length,i=u.cityColors[e]||`#546E7A`;return`<div class="dc-row">
+          <span class="dc-name">${a(e)}</span>
           <span class="dc-bar"><i style="width:${n.length?Math.round(r/n.length*100):0}%;background:${i}"></i></span>
           <span class="dc-num">${r}/${n.length}</span>
         </div>`}).join(``)}

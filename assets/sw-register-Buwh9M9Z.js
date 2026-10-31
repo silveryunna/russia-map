@@ -1,0 +1,1 @@
+function e(){`serviceWorker`in navigator&&(navigator.serviceWorker.addEventListener(`message`,e=>{e.data?.type===`sw-activated`&&(window.__swUpdatePending__=!0,window.dispatchEvent(new Event(`sw-update`)))}),window.addEventListener(`load`,()=>{navigator.serviceWorker.register(`./sw.js`).then(e=>e.update()).catch(()=>{})}))}export{e as t};

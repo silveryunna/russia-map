@@ -1,0 +1,1 @@
+async function e(){try{let e=await(await fetch(`./data/site.json`)).json(),t=document.getElementById(`icp-link`);t&&e.icp&&(t.textContent=e.icp,t.style.display=``)}catch{}}export{e as t};
