@@ -258,5 +258,25 @@ function checkCaps(plan, label) {
   else fail(`补点失败：${counts.join()}`);
 }
 
+// G7) 最后一天半日线配对：短动线 + 另一条动线，拼成完整一天
+{
+  const pts = [
+    P('u1', '核心一', 'A'), P('u2', '核心二', 'B'),
+    ...Array.from({ length: 8 }, (_, i) => P(`v${i}`, `地铁${i + 1}`, 'M', '地铁站', { estimatedDuration: 10 })),
+    ...Array.from({ length: 3 }, (_, i) => P(`w${i}`, `文学${i + 1}`, 'L', '博物馆', { estimatedDuration: 90 })),
+  ];
+  const rts = [
+    { day: 'D1', name: '核心线一', city: '莫斯科', steps: [{ pointId: 'u1' }] },
+    { day: 'D2', name: '核心线二', city: '莫斯科', steps: [{ pointId: 'u2' }] },
+    { day: '专题', name: '半日地铁线', city: '莫斯科', steps: Array.from({ length: 8 }, (_, i) => ({ pointId: `v${i}` })) },
+    { day: '专题', name: '半日文学线', city: '莫斯科', steps: Array.from({ length: 3 }, (_, i) => ({ pointId: `w${i}` })) },
+  ];
+  const plan = ruleEngine({ city: '莫斯科', days: 3 }, { pts, rts });
+  const last = plan.days[2];
+  const names = last ? [...last.slots.morning, ...last.slots.afternoon, ...last.slots.evening] : [];
+  if (plan.days.length === 3 && names.length === 8 && /半日线配对/.test(last.tip)) ok('最后一天半日线配对成 8 项');
+  else fail(`半日线配对失败：${plan.days.length} 天 / ${names.length} 项 / ${last ? last.tip : '无'}`);
+}
+
 if (bad) { console.error(`\n${bad} 项规则引擎测试失败`); process.exit(1); }
 console.log('\n规则引擎质量门通过');

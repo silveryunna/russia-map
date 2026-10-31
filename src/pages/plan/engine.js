@@ -130,7 +130,7 @@ export function ruleEngine(params, data) {
       placeNameSnapshot: p.name, plannedStatus: 'planned', confirm: 'ok',
     }));
     const res = evaluateDay({ day: { id: 'generated', date }, items, places: byId });
-    return { ok: res.errors.length === 0, day };
+    return { ok: res.errors.length === 0, day, end: res.timeline.length ? res.timeline.at(-1).end : null };
   };
   const routePtsFor = (route, date, usedSet, record = false) => (route.steps || [])
     .map(stepPoint)
@@ -165,10 +165,33 @@ export function ruleEngine(params, data) {
     };
     let chosen = null;
     if (lastDay) {
+      const options = [];
       for (const r of supplementary) {
-        const day = buildDay(routePtsFor(r, date, used));
-        if (usable(r, day)) { chosen = { r, day }; break; }
+        const points = routePtsFor(r, date, used);
+        const day = buildDay(points);
+        if (!usable(r, day)) continue;
+        const fit = fitsDay(points, date);
+        options.push({ r, points, day, end: fit.end ?? 0 });
       }
+      const short = options.filter(o => o.end < 14 * 60).sort((a, b) => a.end - b.end)[0];
+      let approved = short || null;
+      if (short) {
+        for (const other of options) {
+          if (other.r === short.r) continue;
+          const room = MAX_PER_DAY - other.points.length;
+          if (room < 1) continue;
+          const combined = [...short.points.slice(0, room), ...other.points];
+          const fit = fitsDay(combined, date);
+          if (fit.ok && (fit.end ?? 0) > short.end) {
+            approved = { r: short.r, day: fit.day, paired: other.r };
+            break;
+          }
+        }
+      }
+      if (!approved) {
+        approved = options.sort((a, b) => b.end - a.end || b.day.usedIds.length - a.day.usedIds.length)[0] || null;
+      }
+      if (approved) chosen = approved;
     } else {
       const nextDate = dateFor(days.length + 1);
       let best = null;
@@ -193,6 +216,19 @@ export function ruleEngine(params, data) {
       chosen = best;
     }
     if (!chosen) break;
+    if (chosen.paired) {
+      const primary = routePtsFor(chosen.r, date, used, true);
+      const secondary = routePtsFor(chosen.paired, date, used, true);
+      const room = MAX_PER_DAY - secondary.length;
+      const day = buildDay([...primary.slice(0, room), ...secondary]);
+      if (day.usedIds.length) {
+        day.usedIds.forEach(id => used.add(id));
+        days.push(mkDay(days.length + 1, day.slots, `参考动线：${chosen.r.name} + ${chosen.paired.name}（半日线配对）`));
+        supplementary = supplementary.filter(r => r !== chosen.r && r !== chosen.paired);
+        continue;
+      }
+      chosen = { r: chosen.r };
+    }
     const day = buildDay(routePtsFor(chosen.r, date, used, true));
     if (!day.usedIds.length) {
       supplementary = supplementary.filter(r => r !== chosen.r);
