@@ -131,22 +131,39 @@ export function ruleEngine(params, data) {
       placeNameSnapshot: p.name, plannedStatus: 'planned', confirm: 'ok',
     }));
     const res = evaluateDay({ day: { id: 'generated', date }, items, places: byId, options: { matrix } });
-    return { ok: res.errors.length === 0, day, end: res.timeline.length ? res.timeline.at(-1).end : null };
+    return {
+      ok: res.errors.length === 0,
+      day,
+      end: res.timeline.length ? res.timeline.at(-1).end : null,
+      wait: res.stats?.waitMinutes || 0,
+    };
   };
-  // 动线顺序只是参考：实测通行时间可能让后面的点迟到，先试单点前移，再退化为尾部裁剪。
+  // 同一天里“先到却等 3 小时开门”不是可行就等于好；等待更短、收工更早的顺序优先。
+  const betterFit = (a, b) => {
+    if (!b) return true;
+    const aw = a.wait ?? 0, bw = b.wait ?? 0;
+    if (aw !== bw) return aw < bw;
+    return (a.end ?? 0) < (b.end ?? 0);
+  };
+  const orderKey = (points) => points.map(p => p.id).join(',');
+  // 动线顺序只是参考：实测通行可能让后面的点迟到，先用单点移动找等待最短且不丢点的顺序，
+  // 全都不行才退化为尾部裁剪。
   const fitRouteDay = (points, date) => {
     const direct = fitsDay(points, date);
-    if (direct.ok || points.length < 2) return { ...direct, points };
-    for (let from = 0; from < points.length; from += 1) {
-      for (let to = 0; to < points.length; to += 1) {
-        if (from === to) continue;
-        const trial = [...points];
-        const [moved] = trial.splice(from, 1);
-        trial.splice(to, 0, moved);
-        const fit = fitsDay(trial, date);
-        if (fit.ok) return { ...fit, points: trial, reordered: true };
+    let best = direct.ok ? { ...direct, points } : null;
+    if (points.length >= 2) {
+      for (let from = 0; from < points.length; from += 1) {
+        for (let to = 0; to < points.length; to += 1) {
+          if (from === to) continue;
+          const trial = [...points];
+          const [moved] = trial.splice(from, 1);
+          trial.splice(to, 0, moved);
+          const fit = fitsDay(trial, date);
+          if (fit.ok && betterFit(fit, best)) best = { ...fit, points: trial };
+        }
       }
     }
+    if (best) return { ...best, reordered: orderKey(best.points) !== orderKey(points) };
     for (let n = points.length - 1; n >= 1; n -= 1) {
       const fit = fitsDay(points.slice(0, n), date);
       if (fit.ok) return { ...fit, points: points.slice(0, n), dropped: points.slice(n) };
@@ -289,12 +306,12 @@ export function ruleEngine(params, data) {
           && !closedOn(p, date));
         let picked = null;
         for (const p of candidates) {
-          for (let index = current.length; index >= 0; index -= 1) {
+          for (let index = 0; index <= current.length; index += 1) {
             const trial = [...current.slice(0, index), p, ...current.slice(index)];
             const fit = fitsDay(trial, date);
-            if (fit.ok) { picked = { p, day: fit.day }; break; }
+            if (!fit.ok) continue;
+            if (betterFit(fit, picked)) picked = { p, day: fit.day, wait: fit.wait, end: fit.end };
           }
-          if (picked) break;
         }
         if (!picked) continue;
         day.slots = picked.day.slots;

@@ -278,5 +278,37 @@ function checkCaps(plan, label) {
   else fail(`半日线配对失败：${plan.days.length} 天 / ${names.length} 项 / ${last ? last.tip : '无'}`);
 }
 
+// H1) 专题日顺序择优：等到中午才开门的动线顺序只是参考，重排后必须标注
+{
+  const pts = [
+    P('h1', '核心点', 'C'),
+    P('h2', '午后馆', 'L', '博物馆', { estimatedDuration: 120, openCalendar: { days: 'We', open: '12:00', close: '20:00' } }),
+    P('h3', '上午馆', 'L', '博物馆', { estimatedDuration: 120, openCalendar: { days: 'We', open: '09:00', close: '20:00' } }),
+  ];
+  const rts = [
+    { day: 'D1', name: '核心线', city: '莫斯科', steps: [{ pointId: 'h1' }] },
+    { day: '专题', name: '文学线', city: '莫斯科', steps: [{ pointId: 'h2' }, { pointId: 'h3' }] },
+  ];
+  const plan = ruleEngine({ city: '莫斯科', date: '2026-11-17', days: 2 }, { pts, rts });
+  const day2 = plan.days[1];
+  const names = day2 ? [...day2.slots.morning, ...day2.slots.afternoon, ...day2.slots.evening] : [];
+  if (names[0] === '上午馆' && /按实测通行调整顺序/.test(day2 ? day2.tip : '')) ok('专题日按开门等待择优重排');
+  else fail(`专题日重排失败：${JSON.stringify(names)} / ${day2 ? day2.tip : '无第二天'}`);
+}
+
+// H2) 稀疏日补点位置择优：补进去的点要能消掉开头的开门等待
+{
+  const pts = [
+    P('i1', '午后馆', 'L', '博物馆', { estimatedDuration: 120, openCalendar: { days: 'Tu', open: '12:00', close: '20:00' } }),
+    P('i2', '上午馆', 'L', '博物馆', { estimatedDuration: 120, openCalendar: { days: 'Tu', open: '09:00', close: '20:00' } }),
+    P('i3', '另一馆', 'L', '博物馆', { estimatedDuration: 120, openCalendar: { days: 'Tu', open: '09:00', close: '20:00' } }),
+  ];
+  const rts = [{ day: 'D1', name: '单点线', city: '莫斯科', steps: [{ pointId: 'i1' }] }];
+  const plan = ruleEngine({ city: '莫斯科', date: '2026-11-17', days: 1 }, { pts, rts });
+  const names = allNames(plan);
+  if (names[0] !== '午后馆' && names.includes('上午馆') && names.includes('另一馆')) ok('稀疏日补点不再让全天从开门等待开始');
+  else fail(`补点位置失败：${JSON.stringify(names)}`);
+}
+
 if (bad) { console.error(`\n${bad} 项规则引擎测试失败`); process.exit(1); }
 console.log('\n规则引擎质量门通过');
