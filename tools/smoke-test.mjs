@@ -271,7 +271,11 @@ async function probePlanMobile(name, viewport, shot) {
 
 // 今日执行页（M1 最关键、此前 0 覆盖）：空态 → 生成行程 → 自动打开 → 完成一项 → Visit/事件落库
 async function probeToday(name, viewport, shot) {
-  const page = await browser.newPage({ viewport });
+  const page = await browser.newPage({ viewport, timezoneId: 'UTC' });
+  // 固定时钟：CI runner 跑在 UTC，如果真实时间落在行程收工线之后，
+  // 「当前/下一项」会正确地变成空（今天全部完成），冒烟就随运行时刻随机挂。
+  // 这里把页面时间钉在行程第一天上午 10:00（UTC），与本用例固定日期 2026-11-01 对齐。
+  await page.clock.setFixedTime(new Date('2026-11-01T10:00:00Z'));
   const errors = [];
   page.on('pageerror', e => errors.push('pageerror: ' + e.message));
   page.on('console', m => { if (m.type() === 'error') errors.push('console: ' + m.text()); });
