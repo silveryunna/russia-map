@@ -1671,8 +1671,13 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:30",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
@@ -1748,8 +1753,13 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:30",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
@@ -1777,8 +1787,13 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:30",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
@@ -1806,8 +1821,13 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:30",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
@@ -5677,8 +5697,13 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:30",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
@@ -5706,8 +5731,13 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:25",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
@@ -5799,8 +5829,13 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:25",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
@@ -5828,8 +5863,13 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:30",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
@@ -5857,8 +5897,13 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:30",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
@@ -5886,8 +5931,13 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:30",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",

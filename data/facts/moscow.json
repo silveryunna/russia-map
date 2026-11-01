@@ -1093,6 +1093,296 @@
       "collectedAt": "2026-10-31",
       "reviewAfter": "2026-11-30",
       "note": "普希金博物馆票价页：分馆成人 400 ₽，优惠 200 ₽"
+    },
+    {
+      "pointId": "p059",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页正文：全部车站每日 05:30–01:00 开放；页内逐站时间表（列提前开站的车站）未出现革命广场站，按正文默认 05:30–01:00；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p059",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
+      "pointId": "p061",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页正文：全部车站每日 05:30–01:00 开放；页内逐站时间表（列提前开站的车站）未出现和平大街站，按正文默认 05:30–01:00；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p061",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
+      "pointId": "p062",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页正文：全部车站每日 05:30–01:00 开放；页内逐站时间表（列提前开站的车站）未出现基辅站，按正文默认 05:30–01:00；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p062",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
+      "pointId": "p063",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页正文：全部车站每日 05:30–01:00 开放；页内逐站时间表（列提前开站的车站）未出现塔甘卡站，按正文默认 05:30–01:00；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p063",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
+      "pointId": "p339",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页正文：全部车站每日 05:30–01:00 开放；页内逐站时间表（列提前开站的车站）未出现发电厂站，按正文默认 05:30–01:00；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p339",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
+      "pointId": "p340",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:25",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页正文：全部车站每日 05:30–01:00 开放；页内逐站时间表单列游击队站 05:25 开、01:00 关，按该表覆盖默认 05:30；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p340",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
+      "pointId": "p345",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:25",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页正文：全部车站每日 05:30–01:00 开放；页内逐站时间表单列胜利公园站 05:25 开、01:00 关，按该表覆盖默认 05:30；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p345",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
+      "pointId": "p346",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页正文：全部车站每日 05:30–01:00 开放；页内逐站时间表（列提前开站的车站）未出现麻雀山站，按正文默认 05:30–01:00；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p346",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
+      "pointId": "p347",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页正文：全部车站每日 05:30–01:00 开放；页内逐站时间表（列提前开站的车站）未出现库尔斯克站，按正文默认 05:30–01:00；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p347",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
+      "pointId": "p348",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页正文：全部车站每日 05:30–01:00 开放；页内逐站时间表（列提前开站的车站）未出现文化公园站，按正文默认 05:30–01:00；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p348",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
     }
   ]
 }
