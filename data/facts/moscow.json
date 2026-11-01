@@ -1,7 +1,7 @@
 {
   "city": "莫斯科",
   "schemaVersion": 1,
-  "updatedAt": "2026-11-01",
+  "updatedAt": "2026-11-02",
   "note": "事实账本：points.json 是消费口径，本文件记录每个字段的来源、状态与复核日期。verified 只能来自 official 来源；estimated 是站内估算；unknown 是合法终态。过期不落库，由 src/pages/plan/facts.js 在读取时按 reviewAfter 计算。与 points.json 的值必须一致，由 tools/check-facts.mjs 交叉校验。",
   "facts": [
     {
@@ -1406,6 +1406,179 @@
       "collectedAt": "2026-11-01",
       "reviewAfter": "2027-04-29",
       "note": "东正教教区教堂参观不售票，官网无票价页（只有奉献/ требы 说明）；按 estimated 记录，特殊活动以现场为准"
+    },
+    {
+      "pointId": "p054",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "17:00",
+        "lastEntry": "16:30",
+        "exceptions": [
+          {
+            "type": "date-range",
+            "from": "2026-05-01",
+            "to": "2026-09-30",
+            "action": "open",
+            "open": "10:00",
+            "close": "18:00",
+            "lastEntry": "17:30",
+            "note": "夏季（5月1日–9月30日）延长至 18:00、кассы 9:30 起；冬季（10月1日起）10:00–17:00"
+          }
+        ]
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://kreml.ru/ru",
+      "sourceLabel": "莫斯科克里姆林宫博物馆官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "克里姆林宫博物馆（教堂广场建筑群）冬季（10月1日起）10:00–17:00、кассы 9:30–16:30、周四闭馆；夏季至 18:00。门票需在克里姆林宫博物馆票务系统购买（教堂广场通票含圣母升天/天使长/圣母诞生等教堂，票价随季节浮动，本批未取到官方静态价目不记 ticket）。本点为教堂广场上的圣母升天大教堂。"
+    },
+    {
+      "pointId": "p055",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "17:00",
+        "lastEntry": "16:30",
+        "exceptions": [
+          {
+            "type": "date-range",
+            "from": "2026-05-01",
+            "to": "2026-09-30",
+            "action": "open",
+            "open": "10:00",
+            "close": "18:00",
+            "lastEntry": "17:30",
+            "note": "夏季（5月1日–9月30日）延长至 18:00、кассы 9:30 起；冬季（10月1日起）10:00–17:00"
+          }
+        ]
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://kreml.ru/ru",
+      "sourceLabel": "莫斯科克里姆林宫博物馆官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "克里姆林宫博物馆（教堂广场建筑群）冬季（10月1日起）10:00–17:00、кассы 9:30–16:30、周四闭馆；夏季至 18:00。门票需在克里姆林宫博物馆票务系统购买（教堂广场通票含圣母升天/天使长/圣母诞生等教堂，票价随季节浮动，本批未取到官方静态价目不记 ticket）。本点为教堂广场上的天使长大教堂。"
+    },
+    {
+      "pointId": "p056",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "17:00",
+        "lastEntry": "16:30",
+        "exceptions": [
+          {
+            "type": "date-range",
+            "from": "2026-05-01",
+            "to": "2026-09-30",
+            "action": "open",
+            "open": "10:00",
+            "close": "18:00",
+            "lastEntry": "17:30",
+            "note": "夏季（5月1日–9月30日）延长至 18:00、кассы 9:30 起；冬季（10月1日起）10:00–17:00"
+          }
+        ]
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://kreml.ru/ru",
+      "sourceLabel": "莫斯科克里姆林宫博物馆官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "克里姆林宫博物馆（教堂广场建筑群）冬季（10月1日起）10:00–17:00、кассы 9:30–16:30、周四闭馆；夏季至 18:00。门票需在克里姆林宫博物馆票务系统购买（教堂广场通票含圣母升天/天使长/圣母诞生等教堂，票价随季节浮动，本批未取到官方静态价目不记 ticket）。本点为教堂广场上的圣母诞生教堂（门廊教堂）。"
+    },
+    {
+      "pointId": "p412",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "10:00",
+        "close": "18:00",
+        "weekly": {
+          "Mo": {
+            "open": "13:00",
+            "close": "18:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://xxc.ru/contacts/",
+      "sourceLabel": "基督救世主大教堂官网「Контакты」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：Кафедральный соборный храм 10:00–18:00（周一 13:00 起）； Преображенская церковь 07:00–17:00；桥顶观景台与教堂博物馆有独立作息与票价"
+    },
+    {
+      "pointId": "p412",
+      "field": "ticket",
+      "value": "免费（教堂自由捐献；登顶与博物馆另购）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "教堂大厅免费（官网设捐献入口），按 estimated 记录；登穹顶观景台与教堂博物馆（作家维克多·瓦斯涅佐夫画廊）另购票"
+    },
+    {
+      "pointId": "p075",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "18:00",
+        "lastEntry": "17:30"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://kuskovo.ru/posetitelyam/rezhim-raboty-muzeya/",
+      "sourceLabel": "库斯科沃庄园博物馆官网「Режим работы」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：周一闭馆、每月最后一个周二卫生日；规则式公园 10:00–18:00（вход до 17:30），意大利馆等室内展馆 10:00–16:00（вход до 15:30），大石头暖房 10:00–18:00"
+    },
+    {
+      "pointId": "p075",
+      "field": "ticket",
+      "value": "公园 100 ₽（优惠 50 ₽）；宫殿与展馆另购 300–1700 ₽",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://kuskovo.ru/posetitelyam/stoimost_biletov/",
+      "sourceLabel": "库斯科沃庄园博物馆官网「Билеты」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网价目（*全票/**优惠票/***免费）：公园 100/50 ₽；各展馆 300/200 ₽；主宫殿 900/600 ₽；全场联票 1700/1250 ₽；购买展馆票无需另购公园票；优惠票仅现场购买"
+    },
+    {
+      "pointId": "p421",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "麻雀山观景台为开放高地观景点，常态全天可通行；没有官方时刻表，故标 estimated"
+    },
+    {
+      "pointId": "p421",
+      "field": "ticket",
+      "value": "免费（露天观景台）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "露天免费，按 estimated 记录；与莫大主楼、大马戏团同线"
     }
   ]
 }
