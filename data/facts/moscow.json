@@ -1673,6 +1673,34 @@
       "collectedAt": "2026-11-02",
       "reviewAfter": "2027-01-30",
       "note": "官网：无自由参观、按讲解场次购票；俄/独联体公民 1300–1400 ₽（工作日）/1900–2000 ₽（周末），学生/пенсионеры 750–1100 ₽；外国公民与个体场次价格更高（官网 EN 页口径 2300–4500 ₽；2026-08 第三方核价外国游客 3200 ₽ 起）；可开场前 10 分钟在票房购票"
+    },
+    {
+      "pointId": "p413",
+      "field": "openCalendar",
+      "value": {
+        "days": "We,Th,Fr,Sa,Su",
+        "open": "09:30",
+        "close": "17:00"
+      },
+      "status": "conflict",
+      "sourceType": "official",
+      "sourceUrl": "https://novodev.msk.ru/",
+      "sourceLabel": "新圣女修道院官网（статус：conflict——两个官方源不一致）",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "两个官方源冲突：修道院官网（novodev.msk.ru）写周三至周日 09:30–17:00（周一、周二不开放）；修道院教堂博物馆站（ndmmuseum.ru）写「每日 09:30–17:30」；第三方导览称周二外每日开放。points.json 按修道院官网（场地管理方）口径记账，出行前电话 +7 915 188-90-66 复核"
+    },
+    {
+      "pointId": "p413",
+      "field": "ticket",
+      "value": "博物馆展 500 ₽；外国游客（含入园）1000 ₽；讲解 1000 ₽（外国游客 1500 ₽）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://novodev.msk.ru/%D0%BF%D1%80%D0%B5%D0%B9%D1%81%D0%BA%D1%83%D1%80%D0%B0%D0%BD%D1%82",
+      "sourceLabel": "新圣女修道院官网「ПРЕЙСКУРАНТ」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网价目：博物馆展成人 500 ₽（优惠 300 ₽）；外国游客入园+博物馆 1000 ₽；讲解 1000 ₽/人（外国游客 1500 ₽、5 人以下按整团计）；优惠人群（含残疾 I/II 级、老兵）博物馆展免费、多子女家庭周日免费"
     }
   ]
 }
