@@ -1167,7 +1167,27 @@
       "周一闭馆"
     ],
     "estimatedDuration": 240,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "11:00",
+      "close": "18:00",
+      "weekly": {
+        "Tu": {
+          "open": "11:00",
+          "close": "20:00"
+        },
+        "Fr": {
+          "open": "11:00",
+          "close": "20:00"
+        },
+        "Sa": {
+          "open": "11:00",
+          "close": "20:00"
+        }
+      }
+    },
+    "ticket": "1200 ₽（11:00–16:00 场次）／700 ₽（16:00 起场次）／500 ₽（18:00 起场次，仅周二/五/六）"
   },
   {
     "id": "p031",
@@ -1181,7 +1201,27 @@
     "lat": 59.937547,
     "lon": 30.315587,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "11:00",
+      "close": "18:00",
+      "weekly": {
+        "Tu": {
+          "open": "11:00",
+          "close": "20:00"
+        },
+        "Fr": {
+          "open": "11:00",
+          "close": "20:00"
+        },
+        "Sa": {
+          "open": "11:00",
+          "close": "20:00"
+        }
+      }
+    },
+    "ticket": "700 ₽（与主馆门票分开购买）"
   },
   {
     "id": "p032",
@@ -1212,7 +1252,9 @@
       "免费"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "免费"
   },
   {
     "id": "p034",
@@ -1243,7 +1285,14 @@
     "lat": 59.940097,
     "lon": 30.328828,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo,Tu,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "18:00",
+      "lastEntry": "17:30"
+    },
+    "ticket": "700 ₽（成人票）"
   },
   {
     "id": "p036",
@@ -1274,7 +1323,14 @@
     "lat": 59.934078,
     "lon": 30.306142,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo,Tu,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "18:00",
+      "lastEntry": "17:30"
+    },
+    "ticket": "700 ₽（参观）＋700 ₽（登顶观景台，无优惠）"
   },
   {
     "id": "p038",
@@ -1308,7 +1364,27 @@
       "免费"
     ],
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo,Tu,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "18:00",
+      "weekly": {
+        "Tu": {
+          "open": "10:00",
+          "close": "17:00"
+        },
+        "Sa": {
+          "open": "10:00",
+          "close": "17:45"
+        },
+        "Su": {
+          "open": "11:00",
+          "close": "18:00"
+        }
+      }
+    },
+    "ticket": "1500 ₽（3 日联票含大教堂与监狱）／大教堂单买 1000 ₽／登岛免费"
   },
   {
     "id": "p040",

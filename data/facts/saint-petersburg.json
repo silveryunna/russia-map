@@ -1,0 +1,215 @@
+{
+  "city": "圣彼得堡",
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-01",
+  "note": "圣彼得堡事实账本：动线核心点位优先，来源以各馆官网为准。",
+  "facts": [
+    {
+      "pointId": "p030",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "11:00",
+        "close": "18:00",
+        "weekly": {
+          "Tu": {
+            "open": "11:00",
+            "close": "20:00"
+          },
+          "Fr": {
+            "open": "11:00",
+            "close": "20:00"
+          },
+          "Sa": {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.hermitagemuseum.org/visitus?lng=ru",
+      "sourceLabel": "艾尔米塔什官网「Главный музейный комплекс」页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网：周三/四/日 11:00–18:00，周二/五/六 11:00–20:00；周一、1月1日、5月9日闭馆；按场次入场，开馆前1小时停售当日票"
+    },
+    {
+      "pointId": "p030",
+      "field": "ticket",
+      "value": "1200 ₽（11:00–16:00 场次）／700 ₽（16:00 起场次）／500 ₽（18:00 起场次，仅周二/五/六）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.hermitagemuseum.org/tickets",
+      "sourceLabel": "艾尔米塔什官网票务页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "2026-07-14 起分时段定价（官网新闻 new_210_26）：周二/五/六 11:00 场 1200 ₽、16:00 场 700 ₽、18:00 场 500 ₽；周三/四/日 1200/700 ₽；14 岁以下免费；官网建议提前 1–4 周网购分时段票"
+    },
+    {
+      "pointId": "p031",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "11:00",
+        "close": "18:00",
+        "weekly": {
+          "Tu": {
+            "open": "11:00",
+            "close": "20:00"
+          },
+          "Fr": {
+            "open": "11:00",
+            "close": "20:00"
+          },
+          "Sa": {
+            "open": "11:00",
+            "close": "20:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.hermitagemuseum.org/visitus/general-staff?lng=ru",
+      "sourceLabel": "艾尔米塔什官网「Главный штаб」页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "总参谋部大楼为艾尔米塔什独立馆舍，官网作息与主馆一致：周三/四/日 11:00–18:00，周二/五/六 11:00–20:00，周一闭馆"
+    },
+    {
+      "pointId": "p031",
+      "field": "ticket",
+      "value": "700 ₽（与主馆门票分开购买）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.hermitagemuseum.org/tickets",
+      "sourceLabel": "艾尔米塔什官网票务页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网票务页：Главный штаб – 700 рублей；舒金与莫罗佐夫现代艺术收藏在此馆，与主馆分票"
+    },
+    {
+      "pointId": "p035",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo,Tu,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "18:00",
+        "lastEntry": "17:30"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.cathedral.ru/ru/visitors/time",
+      "sourceLabel": "圣以撒大教堂博物馆官网「Расписание работы музея」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "Спас на Крови：10:00–18:00（售票至 17:30）；周三与 1 月 1 日闭馆；5 月 1 日–9 月 30 日夜场 18:00–21:30（售票至 21:00）"
+    },
+    {
+      "pointId": "p035",
+      "field": "ticket",
+      "value": "700 ₽（成人票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.cathedral.ru/ru/visitors/prices",
+      "sourceLabel": "圣以撒大教堂博物馆官网「Стоимость посещения」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网票价表：Спас на крови 全价 700 ₽；ISIC 330 ₽、7–18 岁 300 ₽；夜场票 800 ₽"
+    },
+    {
+      "pointId": "p037",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo,Tu,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "18:00",
+        "lastEntry": "17:30"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.cathedral.ru/ru/visitors/time",
+      "sourceLabel": "圣以撒大教堂博物馆官网「Расписание работы музея」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "Исаакиевский собор：10:00–18:00（售票至 17:30）；周三与 1 月 1 日闭馆；5–9 月夜场 18:00–21:30。колоннада（登顶）10:00–18:00，10 月 1 日–4 月 30 日每月第三个周三不开放（正文周三本就不开，指对持票游客额外关闭，以官网为准）"
+    },
+    {
+      "pointId": "p037",
+      "field": "ticket",
+      "value": "700 ₽（参观）＋700 ₽（登顶观景台，无优惠）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.cathedral.ru/ru/visitors/prices",
+      "sourceLabel": "圣以撒大教堂博物馆官网「Стоимость посещения」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网票价表：Исаакиевский собор 全价 700 ₽；обзорная площадка колоннады 700 ₽（无优惠）；Часовня-музей 100 ₽；夜场 800 ₽"
+    },
+    {
+      "pointId": "p039",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo,Tu,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "18:00",
+        "weekly": {
+          "Tu": {
+            "open": "10:00",
+            "close": "17:00"
+          },
+          "Sa": {
+            "open": "10:00",
+            "close": "17:45"
+          },
+          "Su": {
+            "open": "11:00",
+            "close": "18:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.spbmuseum.ru/themuseum/visitors/regis.php",
+      "sourceLabel": "圣彼得堡历史博物馆官网「Режим работы」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "Петропавловский собор：周二 10:00–17:00、周六 10:00–17:45、周日 11:00–18:00、其余开放日 10:00–18:00，周三闭馆；Заячий остров 06:00–20:30（21:00 清场）、围墙内展区 09:50–19:30（20:00 清场）——按付费展馆（大教堂）日历记账，仅登岛散步不受周三闭馆限制"
+    },
+    {
+      "pointId": "p039",
+      "field": "ticket",
+      "value": "1500 ₽（3 日联票含大教堂与监狱）／大教堂单买 1000 ₽／登岛免费",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.spbmuseum.ru/themuseum/visitors/cost.php",
+      "sourceLabel": "圣彼得堡历史博物馆官网「Стоимость билетов」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网：Единый билет（3 日历日，含大教堂+监狱+历史展）1500 ₽；Петропавловский собор 单票 1000 ₽；Тюрьма Трубецкого бастиона 500 ₽；Вход на территорию крепости 免费"
+    },
+    {
+      "pointId": "p033",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "official",
+      "sourceUrl": "https://kazansky-spb.ru/texts/contacts",
+      "sourceLabel": "喀山大教堂教区官网「Контакты」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "教区官网只公布礼拜时刻与联系方式，没有对外开放时段；保持 unknown 而不是猜测"
+    },
+    {
+      "pointId": "p033",
+      "field": "ticket",
+      "value": "免费",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "喀山大教堂免费参观（东正教教堂惯例），官网无票价页，按 estimated 记录"
+    }
+  ]
+}
