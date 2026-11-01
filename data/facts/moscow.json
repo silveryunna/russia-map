@@ -1383,6 +1383,29 @@
       "collectedAt": "2026-11-01",
       "reviewAfter": "2027-01-29",
       "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
+      "pointId": "p023",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "official",
+      "sourceUrl": "https://spring-life.ru/kontakty/",
+      "sourceLabel": "教堂官网「Контакты」页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "教堂官网只公布礼拜时刻与联系电话，没有对外开放时段；附属教堂页对其他小堂写明「每日开放」，主教堂未写，故保持 unknown。所在察里津诺公园官方开放 06:00–24:00（tsaritsyno-museum.ru），但公园开放不等于教堂开门"
+    },
+    {
+      "pointId": "p023",
+      "field": "ticket",
+      "value": "免费（教堂参观无需门票）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "东正教教区教堂参观不售票，官网无票价页（只有奉献/ требы 说明）；按 estimated 记录，特殊活动以现场为准"
     }
   ]
 }
