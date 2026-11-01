@@ -830,6 +830,181 @@
       "collectedAt": "2026-11-02",
       "reviewAfter": "2027-01-30",
       "note": "岸边外观免费；登舰参观博物馆需另购门票（本批未取到官方票价，不写入 verified）"
+    },
+    {
+      "pointId": "p052",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "09:30",
+        "close": "21:00",
+        "weekly": {
+          "Th": {
+            "open": "09:30",
+            "close": "18:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://gmgs.ru/work_time",
+      "sourceLabel": "城市雕塑博物馆官网「Часы работы」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "Некрополь мастеров искусств（季赫温公墓）：09:30–21:00（售票至 20:30），周四 09:30–18:00（售票至 17:30），一周七天开放"
+    },
+    {
+      "pointId": "p052",
+      "field": "ticket",
+      "value": "200 ₽（优惠票 150 ₽）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://gmgs.ru/ticket_price",
+      "sourceLabel": "城市雕塑博物馆官网「Стоимость билетов и услуг」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：Некрополь мастеров искусств 门票 200 руб.，льготный 150 руб.；与十八世纪名人墓苑联票 400 руб."
+    },
+    {
+      "pointId": "p366",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo,Tu,Th,Fr,Sa,Su",
+        "open": "11:00",
+        "close": "18:00",
+        "lastEntry": "17:00",
+        "weekly": {
+          "Tu": {
+            "open": "11:00",
+            "close": "17:00",
+            "lastEntry": "16:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.spbmuseum.ru/themuseum/visitors/regis.php",
+      "sourceLabel": "圣彼得堡历史博物馆官网「Режим работы」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "Музей-квартира А.А. Блока：每日（除周二、周三）11:00–18:00，周二 11:00–17:00，周三闭馆；касса 提前一小时停售"
+    },
+    {
+      "pointId": "p366",
+      "field": "ticket",
+      "value": "250 ₽（成人）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.spbmuseum.ru/themuseum/visitors/cost.php",
+      "sourceLabel": "圣彼得堡历史博物馆官网「Стоимость билетов」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：Музей-квартира А.А. Блока 成人 250 ₽；每月第三个周四 18 岁以下与学生免费"
+    },
+    {
+      "pointId": "p364",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "12:00",
+        "close": "23:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://litcafe.su/",
+      "sourceLabel": "文学咖啡馆官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：Наш ресторан работает для вас ежедневно с 12:00 до 23:00；晚间 19:00–23:00 有现场音乐与诗歌节目；二楼为普希金专座历史厅"
+    },
+    {
+      "pointId": "p364",
+      "field": "ticket",
+      "value": "无门票（餐饮消费自理）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "餐厅自由进出无门票，按 estimated 记录；演出时段建议订位"
+    },
+    {
+      "pointId": "p365",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "11:30",
+        "close": "23:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://vsobaka.ru/",
+      "sourceLabel": "流浪狗艺术咖啡馆官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网页脚：Ежедневно 11:30–23:00；地下室艺术空间常有演出（音乐会/朗诵），演出票另购"
+    },
+    {
+      "pointId": "p365",
+      "field": "ticket",
+      "value": "无门票（演出/餐饮另计）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "咖啡馆自由进出无门票；演出票按场次 1000–2900 ₽ 浮动（票务平台观测），消费型场所按 estimated 记录"
+    },
+    {
+      "pointId": "p367",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "陀思妥耶夫斯基雕像位于弗拉基米尔广场（陀地铁站4号口旁），露天开放，常态全天可观赏；没有官方时刻表，故标 estimated"
+    },
+    {
+      "pointId": "p367",
+      "field": "ticket",
+      "value": "免费（露天雕像外观）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "外观免费，按 estimated 记录"
+    },
+    {
+      "pointId": "p046",
+      "field": "openCalendar",
+      "value": {
+        "days": "We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "18:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://vyborgmuseum.org/",
+      "sourceLabel": "维堡联合博物馆官网（ВВыборгский объединённый музей-заповедник）",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "维堡城堡博物馆：周三至周日 10:00–18:00，周一/周二闭馆（维堡市政府门户同步公布）；城堡岛夏季每日 09:00–20:00 开放（官网：Замок 09:00–19:30、圣奥拉夫塔每日 9:15–19:30）；冬季营业缩短，出行前复核"
+    },
+    {
+      "pointId": "p041",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "涅瓦河游船由多家运营商按班次承运（无单一官方时刻表）；开桥为夜间通航现象（通常 01:00–05:00 分桥进行）、白夜约 5 月底–7 月中；属季节性/班次制体验，记 unknown 不编排固定时段"
     }
   ]
 }

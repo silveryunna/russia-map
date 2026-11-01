@@ -1443,7 +1443,8 @@
       "免费"
     ],
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": "unknown"
   },
   {
     "id": "p042",
@@ -1543,7 +1544,12 @@
     "lat": 60.715688,
     "lon": 28.728866,
     "estimatedDuration": 300,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "We,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "18:00"
+    }
   },
   {
     "id": "p047",
@@ -1655,7 +1661,19 @@
     "lat": 59.922425,
     "lon": 30.385649,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "09:30",
+      "close": "21:00",
+      "weekly": {
+        "Th": {
+          "open": "09:30",
+          "close": "18:00"
+        }
+      }
+    },
+    "ticket": "200 ₽（优惠票 150 ₽）"
   },
   {
     "id": "p053",
@@ -6538,7 +6556,13 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "12:00",
+      "close": "23:00"
+    },
+    "ticket": "无门票（餐饮消费自理）"
   },
   {
     "id": "p365",
@@ -6557,7 +6581,13 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "11:30",
+      "close": "23:00"
+    },
+    "ticket": "无门票（演出/餐饮另计）"
   },
   {
     "id": "p366",
@@ -6575,7 +6605,21 @@
       "文学"
     ],
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo,Tu,Th,Fr,Sa,Su",
+      "open": "11:00",
+      "close": "18:00",
+      "lastEntry": "17:00",
+      "weekly": {
+        "Tu": {
+          "open": "11:00",
+          "close": "17:00",
+          "lastEntry": "16:00"
+        }
+      }
+    },
+    "ticket": "250 ₽（成人）"
   },
   {
     "id": "p367",
@@ -6593,7 +6637,11 @@
       "文学"
     ],
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（露天雕像外观）"
   },
   {
     "id": "p393",
