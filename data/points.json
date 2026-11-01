@@ -1235,7 +1235,14 @@
     "lat": 59.941528,
     "lon": 30.303677,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "18:00",
+      "lastEntry": "17:00"
+    },
+    "ticket": "500 ₽（成人票）／300 ₽（学生、пенсионеры）"
   },
   {
     "id": "p033",
@@ -1477,7 +1484,14 @@
     "lat": 59.716045,
     "lon": 30.395458,
     "estimatedDuration": 240,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo,We,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "18:00",
+      "lastEntry": "17:00"
+    },
+    "ticket": "2200 ₽（外国游客基准价，含叶卡捷琳娜公园门票）／1200 ₽（俄与欧亚经济联盟公民优惠价）"
   },
   {
     "id": "p046",
@@ -2728,7 +2742,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:30",
+      "close": "00:55",
+      "crossDay": true
+    },
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
   },
   {
     "id": "p113",
@@ -6487,7 +6508,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:43",
+      "close": "00:50",
+      "crossDay": true
+    },
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
   },
   {
     "id": "p369",
@@ -6505,7 +6533,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:30",
+      "close": "00:57",
+      "crossDay": true
+    },
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
   },
   {
     "id": "p370",
@@ -6523,7 +6558,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:40",
+      "close": "00:45",
+      "crossDay": true
+    },
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
   },
   {
     "id": "p371",
@@ -6541,7 +6583,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:34",
+      "close": "00:50",
+      "crossDay": true
+    },
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
   },
   {
     "id": "p372",
@@ -6559,7 +6608,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:38",
+      "close": "00:50",
+      "crossDay": true
+    },
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
   },
   {
     "id": "p373",
@@ -6577,7 +6633,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:35",
+      "close": "00:45",
+      "crossDay": true
+    },
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
   },
   {
     "id": "p374",
@@ -6595,7 +6658,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:29",
+      "close": "00:50",
+      "crossDay": true
+    },
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
   },
   {
     "id": "p375",
@@ -6631,7 +6701,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:36",
+      "close": "00:51",
+      "crossDay": true
+    },
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
   },
   {
     "id": "p377",
@@ -6649,7 +6726,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:35",
+      "close": "00:42",
+      "crossDay": true
+    },
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
   },
   {
     "id": "p378",

@@ -210,6 +210,354 @@
       "collectedAt": "2026-11-01",
       "reviewAfter": "2027-04-29",
       "note": "喀山大教堂免费参观（东正教教堂惯例），官网无票价页，按 estimated 记录"
+    },
+    {
+      "pointId": "p112",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "00:55",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/rejimrabotystancii.html",
+      "sourceLabel": "圣彼得堡地铁官网「Режим работы станций」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网逐站表（2026-10-01 起生效）：Кировский завод 开站 05:30，停止进站 00:39，末班出站 00:55；换乘通道 00:15 关闭"
+    },
+    {
+      "pointId": "p112",
+      "field": "ticket",
+      "value": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/tariffs2026.html",
+      "sourceLabel": "圣彼得堡地铁官网「Стоимость проезда с 01.01.2026」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "2026-01-01 起按 Комитет по тарифам 29.12.2025 №343-р：жетон 单程 95 руб.，闸机刷银行卡同样 95 руб.，Единый билет（ЕБ）钱包按 65 руб./次扣费；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p393",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:43",
+        "close": "00:50",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/rejimrabotystancii.html",
+      "sourceLabel": "圣彼得堡地铁官网「Режим работы станций」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网逐站表（2026-10-01 起生效）：Адмиралтейская 开站 05:43，停止进站 00:24，末班出站 00:50；换乘通道 00:15 关闭"
+    },
+    {
+      "pointId": "p393",
+      "field": "ticket",
+      "value": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/tariffs2026.html",
+      "sourceLabel": "圣彼得堡地铁官网「Стоимость проезда с 01.01.2026」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "2026-01-01 起按 Комитет по тарифам 29.12.2025 №343-р：жетон 单程 95 руб.，闸机刷银行卡同样 95 руб.，Единый билет（ЕБ）钱包按 65 руб./次扣费；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p369",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "00:57",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/rejimrabotystancii.html",
+      "sourceLabel": "圣彼得堡地铁官网「Режим работы станций」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网逐站表（2026-10-01 起生效）：Автово 开站 05:30，停止进站 00:42，末班出站 00:57；换乘通道 00:15 关闭"
+    },
+    {
+      "pointId": "p369",
+      "field": "ticket",
+      "value": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/tariffs2026.html",
+      "sourceLabel": "圣彼得堡地铁官网「Стоимость проезда с 01.01.2026」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "2026-01-01 起按 Комитет по тарифам 29.12.2025 №343-р：жетон 单程 95 руб.，闸机刷银行卡同样 95 руб.，Единый билет（ЕБ）钱包按 65 руб./次扣费；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p370",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:40",
+        "close": "00:45",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/rejimrabotystancii.html",
+      "sourceLabel": "圣彼得堡地铁官网「Режим работы станций」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网逐站表（2026-10-01 起生效）：Площадь Восстания 开站 05:40，停止进站 00:24，末班出站 00:45；换乘通道 00:15 关闭；两个站厅时刻相同"
+    },
+    {
+      "pointId": "p370",
+      "field": "ticket",
+      "value": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/tariffs2026.html",
+      "sourceLabel": "圣彼得堡地铁官网「Стоимость проезда с 01.01.2026」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "2026-01-01 起按 Комитет по тарифам 29.12.2025 №343-р：жетон 单程 95 руб.，闸机刷银行卡同样 95 руб.，Единый билет（ЕБ）钱包按 65 руб./次扣费；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p371",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:34",
+        "close": "00:50",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/rejimrabotystancii.html",
+      "sourceLabel": "圣彼得堡地铁官网「Режим работы станций」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网逐站表（2026-10-01 起生效）：Спортивная 开站 05:34，停止进站 00:26，末班出站 00:50；换乘通道 00:15 关闭；两个站厅：5:42/0:30 与 5:34/0:26，取最早开站与最晚停检"
+    },
+    {
+      "pointId": "p371",
+      "field": "ticket",
+      "value": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/tariffs2026.html",
+      "sourceLabel": "圣彼得堡地铁官网「Стоимость проезда с 01.01.2026」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "2026-01-01 起按 Комитет по тарифам 29.12.2025 №343-р：жетон 单程 95 руб.，闸机刷银行卡同样 95 руб.，Единый билет（ЕБ）钱包按 65 руб./次扣费；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p372",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:38",
+        "close": "00:50",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/rejimrabotystancii.html",
+      "sourceLabel": "圣彼得堡地铁官网「Режим работы станций」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网逐站表（2026-10-01 起生效）：Звенигородская 开站 05:38，停止进站 00:23，末班出站 00:50；换乘通道 00:15 关闭"
+    },
+    {
+      "pointId": "p372",
+      "field": "ticket",
+      "value": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/tariffs2026.html",
+      "sourceLabel": "圣彼得堡地铁官网「Стоимость проезда с 01.01.2026」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "2026-01-01 起按 Комитет по тарифам 29.12.2025 №343-р：жетон 单程 95 руб.，闸机刷银行卡同样 95 руб.，Единый билет（ЕБ）钱包按 65 руб./次扣费；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p373",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:35",
+        "close": "00:45",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/rejimrabotystancii.html",
+      "sourceLabel": "圣彼得堡地铁官网「Режим работы станций」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网逐站表（2026-10-01 起生效）：Обводный канал 开站 05:35，停止进站 00:24，末班出站 00:45；换乘通道 00:15 关闭"
+    },
+    {
+      "pointId": "p373",
+      "field": "ticket",
+      "value": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/tariffs2026.html",
+      "sourceLabel": "圣彼得堡地铁官网「Стоимость проезда с 01.01.2026」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "2026-01-01 起按 Комитет по тарифам 29.12.2025 №343-р：жетон 单程 95 руб.，闸机刷银行卡同样 95 руб.，Единый билет（ЕБ）钱包按 65 руб./次扣费；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p374",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:29",
+        "close": "00:50",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/rejimrabotystancii.html",
+      "sourceLabel": "圣彼得堡地铁官网「Режим работы станций」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网逐站表（2026-10-01 起生效）：Международная 开站 05:29，停止进站 00:32，末班出站 00:50；换乘通道 00:15 关闭"
+    },
+    {
+      "pointId": "p374",
+      "field": "ticket",
+      "value": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/tariffs2026.html",
+      "sourceLabel": "圣彼得堡地铁官网「Стоимость проезда с 01.01.2026」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "2026-01-01 起按 Комитет по тарифам 29.12.2025 №343-р：жетон 单程 95 руб.，闸机刷银行卡同样 95 руб.，Единый билет（ЕБ）钱包按 65 руб./次扣费；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p376",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:36",
+        "close": "00:51",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/rejimrabotystancii.html",
+      "sourceLabel": "圣彼得堡地铁官网「Режим работы станций」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网逐站表（2026-10-01 起生效）：Нарвская 开站 05:36，停止进站 00:36，末班出站 00:51；换乘通道 00:15 关闭"
+    },
+    {
+      "pointId": "p376",
+      "field": "ticket",
+      "value": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/tariffs2026.html",
+      "sourceLabel": "圣彼得堡地铁官网「Стоимость проезда с 01.01.2026」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "2026-01-01 起按 Комитет по тарифам 29.12.2025 №343-р：жетон 单程 95 руб.，闸机刷银行卡同样 95 руб.，Единый билет（ЕБ）钱包按 65 руб./次扣费；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p377",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:35",
+        "close": "00:42",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/rejimrabotystancii.html",
+      "sourceLabel": "圣彼得堡地铁官网「Режим работы станций」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网逐站表（2026-10-01 起生效）：Чернышевская 开站 05:35，停止进站 00:27，末班出站 00:42；换乘通道 00:15 关闭"
+    },
+    {
+      "pointId": "p377",
+      "field": "ticket",
+      "value": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro.spb.ru/tariffs2026.html",
+      "sourceLabel": "圣彼得堡地铁官网「Стоимость проезда с 01.01.2026」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "2026-01-01 起按 Комитет по тарифам 29.12.2025 №343-р：жетон 单程 95 руб.，闸机刷银行卡同样 95 руб.，Единый билет（ЕБ）钱包按 65 руб./次扣费；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p032",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "18:00",
+        "lastEntry": "17:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.kunstkamera.ru/museum/visitors_info/",
+      "sourceLabel": "Kunstkamera 官网「Время работы музея」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "周二至周日 10:00–18:00，17:00 停止入场；周一、每月最后一个周二（卫生日）、1月1日、5月9日、12月31日闭馆；10月21日–11月8日连开无休息日"
+    },
+    {
+      "pointId": "p032",
+      "field": "ticket",
+      "value": "500 ₽（成人票）／300 ₽（学生、пенсионеры）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.kunstkamera.ru/museum/visitors_info3/",
+      "sourceLabel": "Kunstkamera 官网「Билеты и услуги」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网票价：Взрослые 500 руб.，школьники/студенты/пенсионеры 300 руб.；购票按场次，仅官网与现场售票"
+    },
+    {
+      "pointId": "p045",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "18:00",
+        "lastEntry": "17:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://tzar.ru/visitors/workinhours/ekaterininsky_palace",
+      "sourceLabel": "皇村博物馆官网「Екатерининский дворец」作息页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "Екатерининский дворец：10:00–18:00（售票至 16:45、入场至 17:00），周二闭馆；门票含叶卡捷琳娜公园入场"
+    },
+    {
+      "pointId": "p045",
+      "field": "ticket",
+      "value": "2200 ₽（外国游客基准价，含叶卡捷琳娜公园门票）／1200 ₽（俄与欧亚经济联盟公民优惠价）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://tzar.ru/visitors/workinhours/ekaterininsky_palace",
+      "sourceLabel": "皇村博物馆官网「Екатерининский дворец」票价",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "官网分双轨价：Базовый тариф（外国公民）成人 2200 руб.，Льготный тариф（俄/欧亚经济联盟公民）成人 1200 руб.；7–14 岁 700/400 руб.；含俄语讲解；开放日期票 3000 руб.；线上提前 7 天开售"
     }
   ]
 }
