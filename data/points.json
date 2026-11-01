@@ -3061,7 +3061,27 @@
     "lat": 43.24245,
     "lon": 76.95887,
     "estimatedDuration": 15,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo,Tu,We,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "22:00",
+      "weekly": {
+        "Tu": {
+          "open": "13:00",
+          "close": "22:00"
+        },
+        "Fr": {
+          "open": "10:00",
+          "close": "23:00"
+        },
+        "Sa": {
+          "open": "10:00",
+          "close": "23:00"
+        }
+      }
+    },
+    "ticket": "缆车 6000 ₸（单程）／10000 ₸（往返）；6–12 岁 3000／5000 ₸；公园本身免费、游乐项目另计"
   },
   {
     "id": "p129",
@@ -3175,7 +3195,8 @@
     "lat": 43.2583,
     "lon": 76.9556,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": "unknown"
   },
   {
     "id": "p137",
@@ -8880,7 +8901,8 @@
     "lon": 76.955197,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": "unknown"
   },
   {
     "id": "p500",
@@ -8974,7 +8996,13 @@
     "lon": 76.95687,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "19:00"
+    },
+    "ticket": "1000 ₸（成人，地方价目观测）／500 ₸（学生）／300 ₸（пенсионеры）"
   },
   {
     "id": "p506",
@@ -8989,7 +9017,9 @@
     "lon": 76.953086,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "免费（清真寺；非穆斯林注意着装与礼拜时段）"
   },
   {
     "id": "p507",

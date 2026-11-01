@@ -234,6 +234,119 @@
       "collectedAt": "2026-11-02",
       "reviewAfter": "2027-01-30",
       "note": "阿拜国家歌剧芭蕾舞剧院按演出场次开放、无固定参观时段；演出排期以剧院官网/票房为准；门前广场为江布尔纪念碑"
+    },
+    {
+      "pointId": "p128",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo,Tu,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "22:00",
+        "weekly": {
+          "Tu": {
+            "open": "13:00",
+            "close": "22:00"
+          },
+          "Fr": {
+            "open": "10:00",
+            "close": "23:00"
+          },
+          "Sa": {
+            "open": "10:00",
+            "close": "23:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://koktobe.com/operating-mode",
+      "sourceLabel": "Kok-Tobe 公园官网「Режим работы」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "缆车（пр. Достык 104Б 下站）：周一至周四及周日 10:00–22:00，周二 13:00–22:00，周五周六及节假日 10:00–23:00；园区步道本身免费开放；山顶餐厅 11:00–24:00"
+    },
+    {
+      "pointId": "p128",
+      "field": "ticket",
+      "value": "缆车 6000 ₸（单程）／10000 ₸（往返）；6–12 岁 3000／5000 ₸；公园本身免费、游乐项目另计",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://koktobe.com/price-list",
+      "sourceLabel": "Kok-Tobe 公园官网「Прайс лист」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网价目：缆车成人 6000 ₸ 单程/10000 ₸ 往返，6–12 岁儿童 3000/5000 ₸（凭出生证），5 岁以下免费；микроавтобус 上山 2000/3000 ₸；周二哈萨克斯坦 pensioners 凭证免费；Fast Track 私人车厢 100000/130000 ₸"
+    },
+    {
+      "pointId": "p505",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "19:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.almatymuseums.kz/",
+      "sourceLabel": "阿拉木图市博物馆联合会官网（该馆主管机构）",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "Ықылас 民族乐器博物馆（Зенкова 24А，潘菲洛夫公园内）：周二至周日 10:00–19:00，周一卫生日闭馆（市博物馆联合会 FAQ 口径）；e-museum.kz 国家目录另载 9:00–18:00，以现场为准"
+    },
+    {
+      "pointId": "p505",
+      "field": "ticket",
+      "value": "1000 ₸（成人，地方价目观测）／500 ₸（学生）／300 ₸（пенсионеры）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网未公布票价；地方名录（sxodim，2023-06）观测：成人 1000 ₸、学生 500 ₸、пенсионеры 300 ₸、中小学生免费；e-museum.kz 载 300 ₸（口径不明），按 estimated 记录、出行前以现场价目为准"
+    },
+    {
+      "pointId": "p136",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "军事历史博物馆（Зенкова 24，潘菲洛夫公园旁）为哈萨克斯坦国防部下属分支机构，无公开官网与稳定开放表；2019 年曾传关闭计划、国防部随后澄清保留；地方名录口径（工作日 09:00–15:00）较旧不采信，记 unknown、去前电话 +7 727 291-06-19 确认"
+    },
+    {
+      "pointId": "p499",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "绿巴扎（Зелёный базар，Жибек Жолы 53）为传统市集、无官方统一营业表；各摊位通常早开晚收、周一部分休市，记 unknown；建议上午前往（点位 note 口径一致）"
+    },
+    {
+      "pointId": "p506",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "阿拉木图中央清真寺（Пушкина 16）无独立官网发布参观时段；礼拜五主麻时段非穆斯林不入场，记 unknown"
+    },
+    {
+      "pointId": "p506",
+      "field": "ticket",
+      "value": "免费（清真寺；非穆斯林注意着装与礼拜时段）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "清真寺免费，按 estimated 记录"
     }
   ]
 }
