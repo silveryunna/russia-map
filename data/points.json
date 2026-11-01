@@ -1278,7 +1278,13 @@
       "免费"
     ],
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "09:00",
+      "close": "23:00"
+    },
+    "ticket": "免费（书店自由进出）"
   },
   {
     "id": "p035",
@@ -1581,7 +1587,29 @@
     "lat": 59.927369,
     "lon": 30.35068,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "11:00",
+      "close": "18:00",
+      "lastEntry": "17:30",
+      "weekly": {
+        "We": {
+          "open": "13:00",
+          "close": "20:00",
+          "lastEntry": "19:30"
+        }
+      },
+      "exceptions": [
+        {
+          "type": "date-range",
+          "from": "2026-11-12",
+          "to": "2026-12-14",
+          "action": "closed",
+          "note": "官网公告 2026-11-12 起闭馆维修，预告至 2026-12-14（可能延长，出行前复核）"
+        }
+      ]
+    }
   },
   {
     "id": "p052",
@@ -6398,7 +6426,21 @@
       "文学"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "10:30",
+      "close": "18:30",
+      "lastEntry": "17:30",
+      "weekly": {
+        "We": {
+          "open": "12:00",
+          "close": "20:00",
+          "lastEntry": "19:00"
+        }
+      }
+    },
+    "ticket": "550 ₽（纪念公寓）／850 ₽（含语音导览）"
   },
   {
     "id": "p363",
@@ -6416,7 +6458,36 @@
       "文学"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo,Tu,We,Th,Fr,Sa",
+      "open": "10:00",
+      "close": "17:00",
+      "weekly": {
+        "We": {
+          "open": "10:00",
+          "close": "20:00"
+        },
+        "Fr": {
+          "open": "10:00",
+          "close": "20:00"
+        },
+        "Sa": {
+          "open": "12:00",
+          "close": "20:00"
+        }
+      },
+      "exceptions": [
+        {
+          "type": "nth-weekday",
+          "weekday": "Th",
+          "nth": "last",
+          "action": "closed",
+          "note": "每月最后一个周四为卫生日"
+        }
+      ]
+    },
+    "ticket": "400 ₽（成人）／500 ₽（含俄语语音导览）／550 ₽（含英语语音导览）"
   },
   {
     "id": "p364",
