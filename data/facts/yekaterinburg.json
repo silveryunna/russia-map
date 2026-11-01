@@ -1,0 +1,177 @@
+{
+  "city": "叶卡捷琳堡",
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-02",
+  "note": "叶卡捷琳堡事实账本：旗舰点位优先（滴血教堂、叶利钦中心、维索茨基观景台、UGMK 航空博物馆等），来源以各馆官网为准。",
+  "facts": [
+    {
+      "pointId": "p447",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "21:00",
+        "lastEntry": "20:30"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://yeltsin.ru/museum",
+      "sourceLabel": "叶利钦中心官网「Музей Б.Н. Ельцина」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "博物馆与艺术画廊：周二至周日 10:00–21:00（售票至 20:30），周一闭馆；叶利钦中心大楼本身免费进入"
+    },
+    {
+      "pointId": "p447",
+      "field": "ticket",
+      "value": "400 ₽（博物馆）／500 ₽（博物馆＋艺术画廊）／300 ₽（画廊）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://yeltsin.ru/museum",
+      "sourceLabel": "叶利钦中心官网票价表",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：Музей 400 руб.，Музей+Арт-галерея 500 руб.，Арт-галерея 300 руб.，家庭票（2大1-2小）800 руб.；讲解专场 500 руб.（含门票）；每月最后一个周三画廊对优惠人群免费"
+    },
+    {
+      "pointId": "p460",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "11:00",
+        "close": "21:00",
+        "lastEntry": "20:30"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://visotsky-e.ru/view",
+      "sourceLabel": "维索茨基观景台官网「Смотровая площадка»」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "52层观景台（186 米）：每日 11:00–21:00，售票至 20:30；露天平台配防护玻璃，天气恶劣时体验受影响；官网季节性调整过时段（曾用 10:00–22:00），出行前可复核"
+    },
+    {
+      "pointId": "p460",
+      "field": "ticket",
+      "value": "600 ₽（成人）／500 ₽（学生、пенсионеры）／400 ₽（儿童 5–12 岁）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://visotsky-e.ru/view",
+      "sourceLabel": "维索茨基观景台官网「Стоимость посещения」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网票价：Входной билет 600 руб.，льготный 500 руб.（12 岁以上学生、пенсионеры 等），400 руб.（5–12 岁），5 岁以下免费；仅接受现金；购观景台票可同日免费参观维索茨基博物馆"
+    },
+    {
+      "pointId": "p434",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "19:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://mkugmk.ru/exhibition-centers/pg7saw0istcqwycg47fy80uh",
+      "sourceLabel": "UGMK 博物馆群官网「Музей авиации Крылья Победы」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "Музей авиации «Крылья Победы»（胜利之翼，上佩什马）：周二至周日 10:00–19:00，周一闭馆；位于叶卡捷琳堡以北约 20 公里"
+    },
+    {
+      "pointId": "p434",
+      "field": "ticket",
+      "value": "700 ₽（单一展馆成人票）／300 ₽（露天展区）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://mkugmk.ru/visitors/tickets",
+      "sourceLabel": "UGMK 博物馆群官网「Билеты」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网 2026 价目：Один Выставочный центр 700 руб.，Два 1200 руб.；Открытая площадка 300 руб.；儿童 7–14 岁 400、14–18 岁 600；购票任一展馆免露天展区门票；касса 10:00–18:30"
+    },
+    {
+      "pointId": "p448",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "official",
+      "sourceUrl": "https://hram-na-krovi.cerkov.ru/",
+      "sourceLabel": "滴血大教堂官网（教区平台 cerkov.ru）",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网只公布礼拜时刻（Литургия 08:00、晚祷 17:00 等），没有对外开放时段；多个旅游信息源写 07:00/07:30–23:00，但非官方不采信，记 unknown；地下层博物馆需随讲解进入"
+    },
+    {
+      "pointId": "p448",
+      "field": "ticket",
+      "value": "免费（教堂参观自由捐献）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "东正教教堂自由进出，官网设 Пожертвовать（捐献）入口；按 estimated 记录"
+    },
+    {
+      "pointId": "p458",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "official",
+      "sourceUrl": "https://uralopera.ru/",
+      "sourceLabel": "叶卡捷琳堡歌剧芭蕾舞剧院官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "剧院按演出场次开放、无固定参观时段（演出通常 18:00/18:30 开演，以官网演出日历为准）；购票为实名制"
+    },
+    {
+      "pointId": "p454",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "文学区公园为开放街区绿地（含庭院教堂与多家小型博物馆），常态全天可通行；区内个别博物馆有自己的作息，以现场为准"
+    },
+    {
+      "pointId": "p454",
+      "field": "ticket",
+      "value": "免费（开放式街区公园）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "开放公园免费，按 estimated 记录"
+    },
+    {
+      "pointId": "p456",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "塔季谢夫与德格宁纪念碑位于劳动广场，露天开放，常态全天可观赏；没有官方时刻表，故标 estimated"
+    },
+    {
+      "pointId": "p456",
+      "field": "ticket",
+      "value": "免费（露天纪念碑外观）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "外观免费，按 estimated 记录"
+    }
+  ]
+}

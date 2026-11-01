@@ -7780,7 +7780,13 @@
     "lon": 60.582785,
     "confidence": 100,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "19:00"
+    },
+    "ticket": "700 ₽（单一展馆成人票）／300 ₽（露天展区）"
   },
   {
     "id": "p435",
@@ -7993,7 +7999,14 @@
     "lon": 60.591167,
     "confidence": 100,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "21:00",
+      "lastEntry": "20:30"
+    },
+    "ticket": "400 ₽（博物馆）／500 ₽（博物馆＋艺术画廊）／300 ₽（画廊）"
   },
   {
     "id": "p448",
@@ -8008,7 +8021,9 @@
     "lon": 60.608971,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "免费（教堂参观自由捐献）"
   },
   {
     "id": "p449",
@@ -8101,7 +8116,11 @@
     "lon": 60.60868,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（开放式街区公园）"
   },
   {
     "id": "p455",
@@ -8131,7 +8150,11 @@
     "lon": 60.606589,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（露天纪念碑外观）"
   },
   {
     "id": "p457",
@@ -8164,7 +8187,8 @@
     "lon": 60.616629,
     "confidence": 100,
     "estimatedDuration": 150,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": "unknown"
   },
   {
     "id": "p459",
@@ -8194,7 +8218,14 @@
     "lon": 60.614604,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "11:00",
+      "close": "21:00",
+      "lastEntry": "20:30"
+    },
+    "ticket": "600 ₽（成人）／500 ₽（学生、пенсионеры）／400 ₽（儿童 5–12 岁）"
   },
   {
     "id": "p461",

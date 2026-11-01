@@ -4,6 +4,7 @@
   "files": [
     "moscow.json",
     "moscow-oblast.json",
-    "saint-petersburg.json"
+    "saint-petersburg.json",
+    "yekaterinburg.json"
   ]
 }
