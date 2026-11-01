@@ -36,7 +36,8 @@ eq(SOURCE_TYPES, ['official', 'curated', 'social', 'estimate'], '来源类型与
   });
   eq(index.size, 2, '索引只收合法条目');
   eq(index.get('p001|openCalendar').city, '莫斯科', '索引补上城市');
-  eq(factKey('p003', 'ticket'), 'p003|ticket', 'factKey 口径稳定');
+  const multi = indexFacts({ facts: [{ pointId: 'p009', field: 'ticket', status: 'unknown', value: 'unknown', city: '圣彼得堡' }] });
+  eq(multi.get('p009|ticket').city, '圣彼得堡', '顶层没有 city 时保留条目自带的 city');  eq(factKey('p003', 'ticket'), 'p003|ticket', 'factKey 口径稳定');
 }
 
 // 3) 读取时过期：不落库、按今天计算

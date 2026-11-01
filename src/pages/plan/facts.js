@@ -33,7 +33,10 @@ export function indexFacts(data) {
     if (!fact || typeof fact.pointId !== 'string' || !fact.pointId) continue;
     if (!FACT_FIELDS.includes(fact.field)) continue;
     if (!FACT_STATUS.includes(fact.status)) continue;
-    index.set(factKey(fact.pointId, fact.field), { ...fact, city: (data && data.city) || '' });
+    index.set(factKey(fact.pointId, fact.field), {
+      ...fact,
+      city: (data && data.city) || fact.city || '',
+    });
   }
   return index;
 }
