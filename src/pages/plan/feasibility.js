@@ -7,6 +7,7 @@
 // 打车费用估算来自城市费率表；工具/无城市上下文时默认莫斯科口径
 import { TAXI_FARES } from './fare-table.js';
 import { lookupTransitLeg } from './transit-matrix.js';
+import { factKey, factState, indexFacts } from './facts.js';
 
 export const TRANSIT = {
   walkSpeedMPerMin: 80,      // 4.8 km/h，城市步行含找路
@@ -17,6 +18,9 @@ export const TRANSIT = {
 };
 
 export const DEFAULT_DAY = { start: '09:00', end: '21:00' };
+
+// 一天里会被消费的事实字段：开放时间决定能不能去，票价决定要不要提前买
+const DAY_FACT_FIELDS = ['openCalendar', 'ticket'];
 
 const WEEKDAYS = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
 const TIME_RE = /^([01]\d|2[0-3]):([0-5]\d)$/;
@@ -256,6 +260,11 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
   const transportMode = options.transportMode === 'taxi' ? 'taxi' : 'transit';
   const taxiFareOption = Object.prototype.hasOwnProperty.call(options, 'taxiFare') ? options.taxiFare : TAXI_FARES['莫斯科'];
   const date = typeof day.date === 'string' ? day.date : '';
+  // 事实账本（可选）：给了就按字段判断过期；没给就退化到 points.sources 的粗粒度检查
+  const factIndex = options.facts
+    ? (options.facts instanceof Map ? options.facts : indexFacts(options.facts))
+    : null;
+  const evidenceDate = date || new Date().toISOString().slice(0, 10);
 
   const conflicts = [];
   const timeline = [];
@@ -389,6 +398,15 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       }
     }
 
+    const calStale = place && factIndex
+      ? factState(factIndex.get(factKey(place.id, 'openCalendar')), { today: evidenceDate })
+      : null;
+    if (calStale && calStale.stale) {
+      push('hours-stale', 'warn', item.id, `「${name}」开放时间资料复核日 ${calStale.reviewAfter} 已过，按现有日历排程，出发前须再确认`, {
+        reviewAfter: calStale.reviewAfter,
+      });
+    }
+
     const end = arrive + duration;
     dwell += duration;
     timeline.push({
@@ -408,6 +426,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       cost: leg && leg.mode === 'taxi' ? leg.cost || 0 : 0,
       currency: leg && leg.mode === 'taxi' ? leg.currency || '' : '',
       calendar: cal.state,
+      calendarStale: Boolean(calStale && calStale.stale),
       pinned: start.kind === 'absolute' || item.flexibility === 'fixed',
     });
     cursor = end;
@@ -428,7 +447,23 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
   const measuredDurations = placeRows.filter((t) => t.durationSource === 'first-party-measured').length;
   const unknownHours = placeRows.filter((t) => t.calendar === 'unknown').length;
   const knownHours = placeRows.filter((t) => t.calendar === 'open' || t.calendar === 'closed').length;
-  const staleFacts = placeRows.filter((t) => hasStaleSource(placeOf(places, t.placeId), date)).length;
+  // 事实账本优先：逐字段判断过期；账本没有记录的点位仍用 points.sources 兜底
+  const factRows = [];
+  if (factIndex) {
+    for (const row of placeRows) {
+      for (const field of DAY_FACT_FIELDS) {
+        const fact = factIndex.get(factKey(row.placeId, field));
+        if (!fact) continue;
+        factRows.push({ pointId: row.placeId, field, ...factState(fact, { today: evidenceDate }) });
+      }
+    }
+  }
+  const placesWithFacts = new Set(factRows.map((row) => row.pointId));
+  const staleFactRows = factRows.filter((row) => row.stale);
+  const legacyStalePlaces = placeRows.filter((t) => !placesWithFacts.has(t.placeId)
+    && hasStaleSource(placeOf(places, t.placeId), evidenceDate)).length;
+  const staleFacts = staleFactRows.length + legacyStalePlaces;
+  const countFacts = (predicate) => factRows.filter(predicate).length;
   const measuredDurationCoverage = placeRows.length ? measuredDurations / placeRows.length : 0;
   const thirdPartyRouteCoverage = routeLegs.length ? thirdPartyLegs / routeLegs.length : 0;
   const firstPartyRouteCoverage = routeLegs.length ? firstPartyLegs / routeLegs.length : 0;
@@ -441,6 +476,20 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
     thirdPartyRouteCoverage,
     firstPartyRouteCoverage,
     estimatedLegCoverage,
+    // 字段级证据（W3 事实账本接入）：只统计这一天真正被消费的 openCalendar / ticket
+    factSource: factIndex ? 'ledger' : 'points-sources',
+    factFields: {
+      expected: placeRows.length * DAY_FACT_FIELDS.length,
+      checked: factRows.length,
+      missing: Math.max(0, placeRows.length * DAY_FACT_FIELDS.length - factRows.length),
+      verified: countFacts((r) => r.effectiveStatus === 'verified'),
+      estimated: countFacts((r) => r.effectiveStatus === 'estimated'),
+      unknown: countFacts((r) => r.effectiveStatus === 'unknown'),
+      stale: staleFactRows.length,
+      staleHours: countFacts((r) => r.field === 'openCalendar' && r.stale),
+      pointsFallbackStale: legacyStalePlaces,
+      staleFields: staleFactRows.map((r) => ({ pointId: r.pointId, field: r.field, reviewAfter: r.reviewAfter })),
+    },
   };
   const conditional = evidence.unknownFacts > 0 || evidence.staleFacts > 0
     || evidence.estimatedLegCoverage > 0 || (placeRows.length > 0 && evidence.measuredDurationCoverage < 1);

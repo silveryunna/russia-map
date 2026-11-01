@@ -2,6 +2,7 @@ import '../shared/base.css';
 import './plan.css';
 import { evaluateDay, formatMinutes, formatMinutesCrossDay } from './plan/feasibility.js';
 import { indexTransitMatrix } from './plan/transit-matrix.js';
+import { indexFacts } from './plan/facts.js';
 import { buildDayRail } from './plan/timeline.js';
 import { planAutoTrim } from './plan/repair.js';
 import { evaluateSoft } from './plan/soft.js';
@@ -37,7 +38,7 @@ const $app = document.getElementById('plan-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 
 let meta = { cities: [], cityColors: {} };
-let cache = { pts: [], rts: [], matrix: null };
+let cache = { pts: [], rts: [], matrix: null, facts: null };
 let pointsById = new Map();
 let store = null;
 let storeWarn = '';
@@ -107,6 +108,7 @@ const FEAS_LABEL = {
   'day-overrun': '超出收工线', closed: '闭馆', 'after-last-entry': '过最后入场', 'after-close': '会跨闭馆',
   overlap: '与预订重叠', 'cross-day': '跨日预订', 'duplicate-place': '重复点位', 'missing-duration': '缺时长',
   'unresolved-place': '未绑定', 'missing-coords': '缺坐标', 'calendar-exceptions': '特殊闭馆未校验',
+  'hours-stale': '开放时间待复核',
 };
 
 // 每天一条双轴结论：结构是否可排 + 证据有多少仍待核/估算
@@ -253,7 +255,7 @@ function addLunch(di) {
     const trial = [...day.items.slice(0, idx), { ...patch }, ...day.items.slice(idx)];
     const res = evaluateDay({
       day: { id: day.id, date: day.date }, items: trial, places: pointsById,
-      options: { start: day.startTime, end: day.endTime, matrix: cache.matrix },
+      options: { start: day.startTime, end: day.endTime, matrix: cache.matrix, facts: cache.facts },
     });
     const row = res.timeline.find(t => t.itemId === id);
     if (!row) continue;
@@ -337,7 +339,7 @@ function fixBar(d, di, res) {
     if ((d.transportMode || 'transit') !== 'taxi') {
       const taxi = evaluateDay({
         day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
-        options: { start: d.startTime, end: d.endTime, transportMode: 'taxi', taxiFare: dayFare(d), matrix: cache.matrix },
+        options: { start: d.startTime, end: d.endTime, transportMode: 'taxi', taxiFare: dayFare(d), matrix: cache.matrix, facts: cache.facts },
       });
       const saved = res.stats.transitMinutes - taxi.stats.transitMinutes;
       if (saved > 0) {
@@ -402,7 +404,7 @@ function renderEditor() {
   const pending = countNeedsConfirm(t);
   const dayRes = new Map(t.days.map(d => [d.id, evaluateDay({
     day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
-    options: { start: d.startTime, end: d.endTime, transportMode: d.transportMode || 'transit', taxiFare: dayFare(d), matrix: cache.matrix },
+    options: { start: d.startTime, end: d.endTime, transportMode: d.transportMode || 'transit', taxiFare: dayFare(d), matrix: cache.matrix, facts: cache.facts },
   })]));
   const tripInterests = Array.isArray(t.origin && t.origin.interests) ? t.origin.interests : [];
   $app.innerHTML = `
@@ -926,16 +928,18 @@ async function runMigration() {
 }
 
 (async () => {
-  const [pts, rts, mt, trs] = await Promise.all([
+  const [pts, rts, mt, trs, fts] = await Promise.all([
     fetch('./data/points.json').then(r => r.json()),
     fetch('./data/routes.json').then(r => r.json()),
     fetch('./data/meta.json').then(r => r.json()),
     fetch('./data/transit-matrix.json').then(r => (r.ok ? r.json() : null)).catch(() => null),
+    fetch('./data/facts/moscow.json').then(r => (r.ok ? r.json() : null)).catch(() => null),
     ai.loadInfo(),
   ]);
   cache.pts = Array.isArray(pts) ? pts : (pts.points || []);
   cache.rts = Array.isArray(rts) ? rts : (rts.routes || []);
   cache.matrix = indexTransitMatrix(trs);
+  cache.facts = indexFacts(fts);
   meta = mt;
   pointsById = new Map(cache.pts.map(p => [p.id, p]));
   await bootStore();

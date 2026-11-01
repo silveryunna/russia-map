@@ -3,12 +3,13 @@
 //   • 数据完整性错误（缺点位/缺时长/缺坐标/重复/跨日/闭馆）→ 退出码 1
 //   • 时段冲突（最后入场/关门/重叠）与天数超时 → 只报告 + 修复建议，算动线设计问题（要调整顺序或删减）
 // 用法: node tools/check-route-feasibility.mjs [数据目录，默认 ./data] [城市，默认 莫斯科]
-import { readFileSync } from 'node:fs';
+import { readFileSync, readdirSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   DEFAULT_DAY, evaluateDay, formatMinutesCrossDay, suggestFixes, weekdayKey,
 } from '../src/pages/plan/feasibility.js';
 import { indexTransitMatrix } from '../src/pages/plan/transit-matrix.js';
+import { indexFacts } from '../src/pages/plan/facts.js';
 
 const dir = resolve(process.argv[2] || './data');
 const city = process.argv[3] || '莫斯科';
@@ -19,6 +20,17 @@ const routes = read('routes.json').filter((r) => r.city === city);
 const places = new Map(points.map((p) => [p.id, p]));
 let matrix = null;
 try { matrix = indexTransitMatrix(read('transit-matrix.json')); } catch { matrix = null; }
+// 事实账本：按城市挑 data/facts/*.json，用于逐字段判断开放时间是否过期；缺失时退回 points.sources
+let facts = null;
+try {
+  const factsDir = resolve(dir, 'facts');
+  const rows = readdirSync(factsDir).filter((f) => f.endsWith('.json')).flatMap((f) => {
+    const doc = JSON.parse(readFileSync(resolve(factsDir, f), 'utf8'));
+    if (doc.city && doc.city !== city) return [];
+    return Array.isArray(doc.facts) ? doc.facts : [];
+  });
+  facts = rows.length ? indexFacts({ facts: rows }) : null;
+} catch { facts = null; }
 
 // 固定验收日（周三，避开历史博物馆周二闭馆与圣瓦西里每月第一个周三）
 const DAY = { id: 'acceptance', date: '2026-11-11' };
@@ -32,7 +44,7 @@ for (const r of routes) {
     startLocal: '', flexibility: 'flexible', mustVisit: false,
     estimatedDuration: null, placeNameSnapshot: '', plannedStatus: 'planned', confirm: 'ok',
   }));
-  const res = evaluateDay({ day: DAY, items, places, options: { matrix } });
+  const res = evaluateDay({ day: DAY, items, places, options: { matrix, facts } });
   const overrun = res.conflicts.filter((c) => c.kind === 'day-overrun');
   const DATA_ERROR_KINDS = new Set(['unresolved-place', 'missing-duration', 'missing-coords', 'duplicate-place', 'cross-day', 'closed']);
   const dataErrs = res.errors.filter((c) => DATA_ERROR_KINDS.has(c.kind));
@@ -44,7 +56,7 @@ for (const r of routes) {
   if (dataErrs.length) verdict = `❌ ${dataErrs.map((c) => c.kind).join('/')}`;
   else if (hourErrs.length) verdict = `⚠️ 时段冲突（${hourErrs.map((c) => c.kind).join('/')}）`;
   else if (overrun.length) {
-    const wide = evaluateDay({ day: DAY, items, places, options: { start: '07:00', end: '23:00', matrix } });
+    const wide = evaluateDay({ day: DAY, items, places, options: { start: '07:00', end: '23:00', matrix, facts } });
     verdict = `⚠️ 超时（收工 ${end ? formatMinutesCrossDay(end) : '?'}）${wide.errors.length ? '，07:00–23:00 也走不完' : '，07:00–23:00 可完成'}`;
   } else if (res.structural === 'conditional') verdict = '⚠️ 条件式可排';
   else verdict = '✅ 可行';
@@ -81,7 +93,9 @@ for (const r of rows) {
 
 const warnOnly = rows.filter((r) => !r.res.errors.length && r.res.conflicts.some((c) => c.severity === 'warn')).length;
 const conditional = rows.filter((r) => r.res.structural === 'conditional').length;
+const staleHours = rows.reduce((n, r) => n + r.res.evidence.factFields.staleHours, 0);
 console.log(`\n合计 ${rows.length} 条动线：${rows.filter((r) => !r.res.errors.length).length} 条无硬冲突，${conditional} 条条件式可排，${warnOnly} 条仅有提示，${structural} 处结构性错误`);
+console.log(`事实账本 ${facts ? facts.size : 0} 条，验收日过期开放时间 ${staleHours} 处${staleHours ? '（按现有日历排程，出发前须复核）' : ''}`);
 
 if (structural) {
   console.error('\n结构性错误必须先在 data/ 修复（缺点位/时长/坐标或日期不对）');

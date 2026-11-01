@@ -111,7 +111,7 @@ export async function runGenerate(ctx, src) {
           points: cache.pts.filter(p => p.city === f.city),
           routes: cache.rts.filter(r => r.city === f.city),
         })
-      : ruleEngine(f, { pts: cache.pts, rts: cache.rts, matrix: cache.matrix });
+      : ruleEngine(f, { pts: cache.pts, rts: cache.rts, matrix: cache.matrix, facts: cache.facts });
     if (!Array.isArray(plan.interests)) plan.interests = Array.isArray(f.interests) ? f.interests : [];
     const mig = migratePlansV1({ plans: [plan], points: cache.pts });
     const trip = mig.trips[0];

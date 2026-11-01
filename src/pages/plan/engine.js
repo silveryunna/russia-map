@@ -83,11 +83,12 @@ function mkDay(n, slots, tip) {
 
 /**
  * @param {{city:string,date?:string,days:number,interests?:string[]}} params
- * @param {{pts:Array,rts:Array,matrix?:object}} data
+ * @param {{pts:Array,rts:Array,matrix?:object,facts?:object}} data
  */
 export function ruleEngine(params, data) {
   const targetDays = clampDays(params.days);
   const matrix = data.matrix || null;
+  const facts = data.facts || null;
   const interests = Array.isArray(params.interests) ? params.interests : [];
   const cityPts = (data.pts || []).filter(p => !p.pending && p.city === params.city
     && Number.isFinite(p.estimatedDuration) && p.estimatedDuration > 0
@@ -130,7 +131,7 @@ export function ruleEngine(params, data) {
       flexibility: 'flexible', mustVisit: false, estimatedDuration: null,
       placeNameSnapshot: p.name, plannedStatus: 'planned', confirm: 'ok',
     }));
-    const res = evaluateDay({ day: { id: 'generated', date }, items, places: byId, options: { matrix } });
+    const res = evaluateDay({ day: { id: 'generated', date }, items, places: byId, options: { matrix, facts } });
     return {
       ok: res.errors.length === 0,
       day,

@@ -6,6 +6,7 @@ import {
   formatMinutesCrossDay, parseDays, parseMinutes, suggestFixes, weekdayKey,
 } from '../src/pages/plan/feasibility.js';
 import { indexTransitMatrix } from '../src/pages/plan/transit-matrix.js';
+import { indexFacts } from '../src/pages/plan/facts.js';
 
 let bad = 0;
 const fail = (m) => { console.error('❌ ' + m); bad++; };
@@ -166,6 +167,64 @@ const it = (id, refId, extra = {}) => ({
   });
   assert(r.structural === 'feasible' && r.evidence.unknownFacts === 0 && r.evidence.measuredDurationCoverage === 1
     && r.evidence.thirdPartyRouteCoverage === 1, '证据充分的日子才显示无条件 feasible');
+}
+
+// ── 3.0.2) 事实账本接入：过期证据要影响结论 ──
+{
+  const factDoc = (reviewAfter, status = 'verified') => ({
+    city: '莫斯科',
+    facts: [{
+      pointId: 'p3', field: 'openCalendar', status, sourceType: status === 'verified' ? 'official' : 'estimate',
+      value: 'Mo-Su 10:00-18:00', sourceUrl: 'https://example.org/p3',
+      collectedAt: '2026-01-01', reviewAfter,
+    }],
+  });
+  const stale = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' }, items: [it('i1', 'p3')], places,
+    options: { facts: factDoc('2026-06-01') },
+  });
+  assert(stale.conflicts.some((c) => c.kind === 'hours-stale' && c.severity === 'warn'),
+    '开放时间事实过期时给出 hours-stale 提示（warn，不阻断）');
+  assert(stale.evidence.factSource === 'ledger' && stale.evidence.staleFacts === 1
+    && stale.evidence.factFields.staleHours === 1, '事实账本按字段统计过期证据');
+  assert(stale.timeline[0].calendarStale === true && stale.structural === 'conditional',
+    '有过期证据的日子判为条件式可排，而不是直接可行');
+
+  const fresh = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' }, items: [it('i1', 'p3')], places,
+    options: { facts: factDoc('2027-04-01') },
+  });
+  assert(!fresh.conflicts.some((c) => c.kind === 'hours-stale') && fresh.evidence.staleFacts === 0
+    && fresh.evidence.factFields.verified === 1, '未过期事实不产生 stale，并计入 verified');
+  assert(fresh.evidence.factFields.missing === 1 && fresh.evidence.factFields.expected === 2,
+    '同日消费两个字段时，未记录的 ticket 计入 missing');
+
+  // 无日期行程按今天判断，而不是永远不过期
+  const undated = evaluateDay({
+    day: { id: 'd', date: '' }, items: [it('i1', 'p3')], places,
+    options: { facts: factDoc('2026-06-01') },
+  });
+  assert(undated.evidence.staleFacts === 1, '无日期行程按今天判断事实是否过期');
+
+  // 账本里没有该点位时，仍用 points.sources 的粗粒度检查兜底
+  const legacy = new Map([['s1', P('s1', '有旧来源', 55.75, 37.61, {
+    openCalendar: { days: 'Mo-Su', open: '09:00', close: '20:00' },
+    sources: [{ type: 'official', collectedAt: '2025-01-01', reviewAfter: '2025-06-01' }],
+  })]]);
+  const fallback = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' }, items: [it('i1', 's1')], places: legacy,
+    options: { facts: indexFacts({ facts: [] }) },
+  });
+  assert(fallback.evidence.staleFacts === 1 && fallback.evidence.factFields.pointsFallbackStale === 1,
+    '账本无记录的点位仍用 points.sources 兜底判过期');
+
+  // unknown/pending 不是断言：即使写了 reviewAfter 也不算过期
+  const notAsserted = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' }, items: [it('i1', 'p3')], places,
+    options: { facts: factDoc('2026-06-01', 'unknown') },
+  });
+  assert(notAsserted.evidence.staleFacts === 0 && notAsserted.evidence.factFields.unknown === 1,
+    'unknown 状态永不过期，只计入 unknown');
 }
 
 // ── 3.1) 当天钟点窗口（TripDay.startTime/endTime 传入 options）──
