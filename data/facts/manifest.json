@@ -1,0 +1,8 @@
+{
+  "schemaVersion": 1,
+  "note": "事实账本清单：浏览器不能列目录，src/pages/plan/facts.js 按 files 逐个加载；新增城市账本必须在这里登记（check-facts 校验一一对应）。",
+  "files": [
+    "moscow.json",
+    "moscow-oblast.json"
+  ]
+}

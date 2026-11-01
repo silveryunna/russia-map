@@ -89,7 +89,7 @@ const points = Array.isArray(pointsRaw) ? pointsRaw : pointsRaw.points || [];
 const byId = new Map(points.filter((p) => p && p.id).map((p) => [p.id, p]));
 const cityIds = new Set(points.filter((p) => p && p.city).map((p) => p.city));
 
-const files = readdirSync(factsDir).filter((f) => f.endsWith('.json')).sort();
+const files = readdirSync(factsDir).filter((f) => f.endsWith('.json') && f !== 'manifest.json').sort();
 if (!files.length) fail(`${factsDir} 下没有事实文件`);
 
 const allFacts = [];
@@ -178,6 +178,29 @@ for (const file of files) {
     warn(`${where} 有 ${stale.length} 条已过复核日，不能继续当已验证事实：${stale.slice(0, 6).map((f) => `${f.pointId}.${f.field}@${f.reviewAfter}`).join('、')}${stale.length > 6 ? ' …' : ''}`);
   }
   for (const fact of doc.facts) allFacts.push({ ...fact, city: doc.city });
+}
+
+// manifest 必须与目录一一对应：浏览器不能列目录，漏登记 = 页面读不到该城事实
+{
+  const manifestPath = join(factsDir, 'manifest.json');
+  if (!existsSync(manifestPath)) {
+    fail('data/facts/manifest.json 缺失（页面按它加载账本文件）');
+  } else {
+    let manifest = null;
+    try { manifest = readJson(manifestPath); } catch (err) { fail(`data/facts/manifest.json 不是合法 JSON：${err.message}`); }
+    if (manifest) {
+      if (manifest.schemaVersion !== 1) fail('data/facts/manifest.json 的 schemaVersion 必须是 1');
+      const listed = Array.isArray(manifest.files) ? manifest.files.filter((f) => typeof f === 'string' && f) : [];
+      if (!listed.length) fail('data/facts/manifest.json 的 files 必须是非空字符串数组');
+      else {
+        const missing = listed.filter((f) => !existsSync(join(factsDir, f)));
+        const unlisted = files.filter((f) => !listed.includes(f));
+        if (missing.length) fail(`manifest 登记了不存在的账本：${missing.join('、')}`);
+        if (unlisted.length) fail(`账本没登记进 manifest：${unlisted.join('、')}`);
+        if (!missing.length && !unlisted.length) ok(`manifest 登记 ${listed.length} 个账本文件，与目录一致`);
+      }
+    }
+  }
 }
 
 // 汇总：官方来源点位（verified + official）

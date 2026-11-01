@@ -5,6 +5,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   FACT_FIELDS, FACT_STATUS, SOURCE_TYPES, factKey, indexFacts, factState, factCoverage, factGaps,
+  mergeFactDocs, loadFactLedger,
 } from '../src/pages/plan/facts.js';
 
 let bad = 0;
@@ -100,7 +101,41 @@ eq(SOURCE_TYPES, ['official', 'curated', 'social', 'estimate'], '来源类型与
   eq(gaps.filter((g) => g.reason === 'missing').length, 2, '没有记录标为 missing');
 }
 
-// 6) 真实数据集成：莫斯科事实文件可被索引（没有文件时跳过，不阻断）
+// 6) 多账本合并：city 只是元数据，索引键仍是 pointId+field
+{
+  const merged = mergeFactDocs([
+    { city: '莫斯科', facts: [{ pointId: 'p001', field: 'ticket', status: 'estimated', value: '免费' }] },
+    { city: '莫斯科州/近郊', facts: [{ pointId: 'p026', field: 'ticket', status: 'verified', value: '免费', city: '莫斯科州/近郊' }] },
+    null,
+    { facts: 'nope' },
+  ]);
+  eq(merged.facts.length, 2, '合并时跳过非法文档');
+  eq(merged.facts[0].city, '莫斯科', '合并时补上文档 city');
+  eq(merged.facts[1].city, '莫斯科州/近郊', '条目自带 city 优先');
+  eq([...indexFacts(merged).keys()], ['p001|ticket', 'p026|ticket'], '合并后仍按 pointId+field 建索引');
+}
+
+// 7) manifest 加载：按 files 逐个取，越界路径跳过，失败回落 null
+{
+  const docs = {
+    'mem://facts/manifest.json': { schemaVersion: 1, files: ['a.json', 'b.json', '../evil.json'] },
+    'mem://facts/a.json': { city: '莫斯科', facts: [{ pointId: 'p001', field: 'ticket', status: 'estimated', value: '免费' }] },
+    'mem://facts/b.json': { city: '莫斯科州/近郊', facts: [{ pointId: 'p026', field: 'ticket', status: 'verified', value: '免费' }] },
+  };
+  const seen = [];
+  const fakeFetch = async (url) => {
+    seen.push(url);
+    if (!docs[url]) return { ok: false, json: async () => null };
+    return { ok: true, json: async () => docs[url] };
+  };
+  const ledger = await loadFactLedger({ base: 'mem://facts/', fetch: fakeFetch });
+  eq(ledger && ledger.facts.length, 2, '按 manifest 合并多城账本');
+  eq(seen.includes('mem://facts/../evil.json'), false, '拒绝带 .. 的越界路径');
+  eq(await loadFactLedger({ base: 'mem://facts/', fetch: async () => ({ ok: false }) }), null, 'manifest 缺失时回落 null');
+  eq(await loadFactLedger({ base: 'mem://facts/', fetch: async () => { throw new Error('boom'); } }), null, '网络异常时回落 null');
+}
+
+// 8) 真实数据集成：莫斯科事实文件可被索引（没有文件时跳过，不阻断）
 {
   const dir = resolve(process.argv[2] || './data');
   const file = resolve(dir, 'facts/moscow.json');

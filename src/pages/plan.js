@@ -2,7 +2,7 @@ import '../shared/base.css';
 import './plan.css';
 import { evaluateDay, formatMinutes, formatMinutesCrossDay } from './plan/feasibility.js';
 import { indexTransitMatrix } from './plan/transit-matrix.js';
-import { indexFacts } from './plan/facts.js';
+import { indexFacts, loadFactLedger } from './plan/facts.js';
 import { buildDayRail } from './plan/timeline.js';
 import { planAutoTrim } from './plan/repair.js';
 import { evaluateSoft } from './plan/soft.js';
@@ -933,7 +933,7 @@ async function runMigration() {
     fetch('./data/routes.json').then(r => r.json()),
     fetch('./data/meta.json').then(r => r.json()),
     fetch('./data/transit-matrix.json').then(r => (r.ok ? r.json() : null)).catch(() => null),
-    fetch('./data/facts/moscow.json').then(r => (r.ok ? r.json() : null)).catch(() => null),
+    loadFactLedger(),
     ai.loadInfo(),
   ]);
   cache.pts = Array.isArray(pts) ? pts : (pts.points || []);

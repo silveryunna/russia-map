@@ -333,7 +333,7 @@
     "cluster": "③ 阿尔巴特-河湾文化群",
     "type": "宗教场所",
     "highlight": "莫斯科最大天主教堂；56m尖塔+玫瑰窗+管风琴",
-    "note": "免费（音乐会另购票）；约7:00-19:00",
+    "note": "免费（团体导览免费需预约，音乐会另购票）；每日 7:00–20:00，周三/周六至 19:00",
     "lat": 55.767179,
     "lon": 37.571315,
     "tags": [
@@ -341,14 +341,35 @@
     ],
     "estimatedDuration": 40,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "07:00",
+      "close": "20:00",
+      "weekly": {
+        "We": {
+          "open": "07:00",
+          "close": "19:00"
+        },
+        "Sa": {
+          "open": "07:00",
+          "close": "19:00"
+        }
+      }
+    },
+    "ticket": "免费（团体导览免费需预约；音乐会另购票）",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://catedra.ru/",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "天主教堂区官网：每日 7:00–20:00，周三/周六至 19:00；教堂可自由入内，团体导览免费需预约"
       }
     ],
     "confidence": 75
@@ -650,7 +671,7 @@
     "cluster": "⑥ 航天科学线（列宁大街→VDNKh）",
     "type": "建筑",
     "highlight": "镀金镂空冠饰地标（普拉托诺夫设计，1974动工/1990·97完工）",
-    "note": "免费外观；对岸机位最佳",
+    "note": "免费外观；办公楼不对外开放，对岸机位最佳",
     "lat": 55.710809,
     "lon": 37.57897,
     "tags": [
@@ -658,8 +679,10 @@
     ],
     "estimatedDuration": 15,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（建筑外观，无需门票）",
     "sources": [
       {
         "type": "curated",
@@ -679,7 +702,7 @@
     "cluster": "⑥ 航天科学线（列宁大街→VDNKh）",
     "type": "科技遗迹",
     "highlight": "42.5m世界首座大型钛合金纪念碑（1980）；底座仿发射台",
-    "note": "免费",
+    "note": "免费（开放广场，全天可看）",
     "lat": 55.706967,
     "lon": 37.586394,
     "tags": [
@@ -687,8 +710,10 @@
     ],
     "estimatedDuration": 30,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（开放广场，无需门票）",
     "sources": [
       {
         "type": "curated",
@@ -839,7 +864,7 @@
     "cluster": "⑦ 波克隆纳亚山胜利群",
     "type": "宗教场所",
     "highlight": "金顶白墙；落日时分金顶与方尖碑同框",
-    "note": "免费",
+    "note": "免费；教区网站只公布礼拜时刻，未公布对外开放时段",
     "lat": 55.732362,
     "lon": 37.512051,
     "tags": [
@@ -848,7 +873,7 @@
     "estimatedDuration": 30,
     "durationBasis": "estimate",
     "openCalendar": "unknown",
-    "ticket": "unknown",
+    "ticket": "免费（教堂参观无需门票）",
     "sources": [
       {
         "type": "curated",
@@ -1042,7 +1067,7 @@
     "cluster": "独立点位",
     "type": "宗教场所",
     "highlight": "75m钟楼；缴获德军坦克熔铸地面；300㎡马赛克穹顶；壁画全与武装力量相关（“挺招笑”）",
-    "note": "教堂+博物馆免费但需官网预约；周一闭园；日落亮灯后最震撼",
+    "note": "教堂每日 8:00–21:00 免费进入；博物馆「Дорога памяти」周一闭馆（周二–周五 10–19、周末 9–21），导览另收费；日落亮灯后最震撼",
     "lat": 55.580527,
     "lon": 36.826662,
     "tags": [
@@ -1051,14 +1076,32 @@
     ],
     "estimatedDuration": 120,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "08:00",
+      "close": "21:00"
+    },
+    "ticket": "免费（教堂与博物馆「Дорога памяти」入场免费；导览/登塔等另收费）",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://ghvs.ru/contacts/",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "Главный храм ВС РФ 官网「Контакты」：Собор открыт Пн.—Вс. 8:00–21:00，Вход свободный"
+      },
+      {
+        "type": "official",
+        "url": "https://1418museum.ru/faq",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "«Дорога памяти» 博物馆官网 FAQ：教堂每日 8:00–21:00；博物馆周二–周五 10–19、周末 9–21、周一技术维护；整体入场免费"
       }
     ],
     "confidence": 75

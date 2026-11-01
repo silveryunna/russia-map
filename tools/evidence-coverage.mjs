@@ -46,7 +46,7 @@ if (existsSync(routesPath)) {
 }
 
 const docs = readdirSync(factsDir)
-  .filter((f) => f.endsWith('.json'))
+  .filter((f) => f.endsWith('.json') && f !== 'manifest.json')
   .sort()
   .map((f) => ({ file: `data/facts/${f}`, ...readJson(join(factsDir, f)) }));
 

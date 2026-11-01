@@ -194,6 +194,44 @@
       "note": "开放步行街不设门票；店铺消费自理，没有官方票价页可引，标 estimated"
     },
     {
+      "pointId": "p009",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "07:00",
+        "close": "20:00",
+        "weekly": {
+          "We": {
+            "open": "07:00",
+            "close": "19:00"
+          },
+          "Sa": {
+            "open": "07:00",
+            "close": "19:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://catedra.ru/",
+      "sourceLabel": "天主教堂区官网（catedra.ru）",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网首页「Расписание／Храм открыт」：ежедневно 7:00-20:00；среда、суббота 7:00-19:00"
+    },
+    {
+      "pointId": "p009",
+      "field": "ticket",
+      "value": "免费（团体导览免费需预约；音乐会另购票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://catedra.ru/",
+      "sourceLabel": "天主教堂区官网（catedra.ru）",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网：собор открыт в течение всего дня，可自由入内参观；团体导览免费、需提前预约（周一/二/三/五 10:00–13:00、15:00–17:30，周末与节日不安排）；音乐会由慈善基金会另行售票"
+    },
+    {
       "pointId": "p010",
       "field": "openCalendar",
       "value": {
@@ -392,6 +430,54 @@
       "note": "官网主厅票价：成人 2400–2700 ₽，儿童 1900–2200 ₽；不同舱位另计"
     },
     {
+      "pointId": "p015",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "俄罗斯科学院主楼是办公建筑，内部不对游客开放；参观对象是外观与列宁大街对岸机位，室外空间全天可见，没有官方时刻表，按 estimated 记录"
+    },
+    {
+      "pointId": "p015",
+      "field": "ticket",
+      "value": "免费（建筑外观，无需门票）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "只在外围看外观，不进楼、不设售票处；没有官方票价页可引，标 estimated"
+    },
+    {
+      "pointId": "p016",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "加加林广场是开放城市广场，纪念碑全天可见；没有官方时刻表，按 estimated 记录"
+    },
+    {
+      "pointId": "p016",
+      "field": "ticket",
+      "value": "免费（开放广场，无需门票）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "开放广场不设门票；没有官方票价页可引，标 estimated"
+    },
+    {
       "pointId": "p017",
       "field": "openCalendar",
       "value": {
@@ -482,6 +568,29 @@
       "collectedAt": "2026-11-01",
       "reviewAfter": "2027-04-29",
       "note": "园区免费开放；胜利博物馆、展览与部分场馆另行售票。官方站点仅 http，按 estimated 记录"
+    },
+    {
+      "pointId": "p020",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "official",
+      "sourceUrl": "https://poklonnaya.moseparh.ru/",
+      "sourceLabel": "教区官网（poklonnaya.moseparh.ru）",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "教区官网只公布礼拜时刻（早祷/晚祷），没有对外开放时段；未找到官方开放时间，保持 unknown 而不是猜一个"
+    },
+    {
+      "pointId": "p020",
+      "field": "ticket",
+      "value": "免费（教堂参观无需门票）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "东正教教区教堂参观不售票；教区官网没有票价页，按 estimated 记录，特殊活动/登塔以现场为准"
     },
     {
       "pointId": "p021",

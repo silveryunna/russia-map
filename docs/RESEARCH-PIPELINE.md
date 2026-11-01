@@ -71,7 +71,7 @@ node tools/research-report.mjs ~/travel-research/candidates-莫斯科.json \
 | `data/points.json` | 消费口径（前端/可行性引擎直接读） | 校验见 `check-data` / `check-sample-data` |
 | `data/facts/{city}.json` | 来源账本（谁、哪天、复核到什么时候） | `tools/check-facts.mjs` 强制 schema，并**交叉校验值与 points.json 完全一致** |
 
-账本条目比候选多两个约定：`value` 必须与 `points.json` 同字段一字不差（防漂移）；过期不写进文件，由 `src/pages/plan/facts.js` 在读取时按 `reviewAfter < 今天` 降级为 `stale`。覆盖与过期情况用 `node tools/evidence-coverage.mjs ./data` 查。
+账本条目比候选多两个约定：`value` 必须与 `points.json` 同字段一字不差（防漂移）；过期不写进文件，由 `src/pages/plan/facts.js` 在读取时按 `reviewAfter < 今天` 降级为 `stale`。覆盖与过期情况用 `node tools/evidence-coverage.mjs ./data` 查。新增城市账本（如 `moscow-oblast.json`）必须同时登记进 `data/facts/manifest.json`——浏览器不能列目录，页面按清单加载，漏登记会被 `check-facts` 直接拦下。
 
 ## 4. 工作流
 

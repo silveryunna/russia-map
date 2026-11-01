@@ -1,0 +1,36 @@
+{
+  "city": "莫斯科州/近郊",
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-01",
+  "note": "莫斯科州/近郊点位的事实账本（库宾卡、谢尔盖耶夫等），schema 与 moscow.json 相同；points.json 是消费口径，本文件记录来源与复核日期。页面按 data/facts/manifest.json 逐个加载账本。",
+  "facts": [
+    {
+      "pointId": "p026",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "08:00",
+        "close": "21:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://ghvs.ru/contacts/",
+      "sourceLabel": "Главный храм ВС РФ 官网「Контакты」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网「Контакты」：Собор открыт Пн.—Вс. с 8:00 до 21:00，Вход свободный；博物馆「Дорога памяти」周一为技术维护日，教堂本身每日开放，故开放时间按教堂记"
+    },
+    {
+      "pointId": "p026",
+      "field": "ticket",
+      "value": "免费（教堂与博物馆「Дорога памяти」入场免费；导览/登塔等另收费）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://1418museum.ru/faq",
+      "sourceLabel": "«Дорога памяти» 博物馆官网 FAQ",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网 FAQ：进入园区、主教堂、博物馆与「Поле Победы」均免费；导览、登塔等单独收费"
+    }
+  ]
+}

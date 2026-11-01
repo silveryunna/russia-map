@@ -20,15 +20,16 @@ const routes = read('routes.json').filter((r) => r.city === city);
 const places = new Map(points.map((p) => [p.id, p]));
 let matrix = null;
 try { matrix = indexTransitMatrix(read('transit-matrix.json')); } catch { matrix = null; }
-// 事实账本：按城市挑 data/facts/*.json，用于逐字段判断开放时间是否过期；缺失时退回 points.sources
+// 事实账本：合并 data/facts/*.json（索引键是 pointId+field，跨城市一城一文件），用于逐字段判断开放时间是否过期；缺失时退回 points.sources
 let facts = null;
 try {
   const factsDir = resolve(dir, 'facts');
-  const rows = readdirSync(factsDir).filter((f) => f.endsWith('.json')).flatMap((f) => {
-    const doc = JSON.parse(readFileSync(resolve(factsDir, f), 'utf8'));
-    if (doc.city && doc.city !== city) return [];
-    return Array.isArray(doc.facts) ? doc.facts : [];
-  });
+  const rows = readdirSync(factsDir)
+    .filter((f) => f.endsWith('.json') && f !== 'manifest.json')
+    .flatMap((f) => {
+      const doc = JSON.parse(readFileSync(resolve(factsDir, f), 'utf8'));
+      return Array.isArray(doc.facts) ? doc.facts.map((fact) => ({ ...fact, city: fact.city || doc.city || '' })) : [];
+    });
   facts = rows.length ? indexFacts({ facts: rows }) : null;
 } catch { facts = null; }
 

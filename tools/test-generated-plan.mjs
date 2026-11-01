@@ -2,14 +2,14 @@
 // 生成计划平衡回归（CI 强制）：7 个起始星期 × 1–7 天，锁定逐日可执行性与最小点位
 // 断言：天数足额、无任何 evaluateDay 硬错误（含超收工线）、每日点位不少于 MIN_DAY_POINTS
 // 用法: node tools/test-generated-plan.mjs [数据目录，默认 ./data] [起始日，默认 2026-11-09 周一]
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { readFileSync, readdirSync } from 'node:fs';
+import { resolve, join } from 'node:path';
 import { MIN_FILLED_DAY, PLAN_DAYS_MAX, ruleEngine } from '../src/pages/plan/engine.js';
 import { addDays } from '../src/pages/trip/schema.js';
 import { migratePlansV1 } from '../src/pages/trip/migrate.js';
 import { evaluateDay, formatMinutesCrossDay, weekdayKey } from '../src/pages/plan/feasibility.js';
 import { indexTransitMatrix } from '../src/pages/plan/transit-matrix.js';
-import { indexFacts } from '../src/pages/plan/facts.js';
+import { indexFacts, mergeFactDocs } from '../src/pages/plan/facts.js';
 
 const dir = resolve(process.argv[2] || './data');
 const start = process.argv[3] || '2026-11-09';
@@ -21,12 +21,18 @@ let matrix = null;
 try { matrix = indexTransitMatrix(JSON.parse(readFileSync(resolve(dir, 'transit-matrix.json'), 'utf8'))); } catch { matrix = null; }
 let facts = null;
 try {
-  facts = indexFacts(JSON.parse(readFileSync(resolve(dir, 'facts/moscow.json'), 'utf8')));
+  const factsDir = resolve(dir, 'facts');
+  const docs = readdirSync(factsDir)
+    .filter((f) => f.endsWith('.json') && f !== 'manifest.json')
+    .sort()
+    .map((f) => JSON.parse(readFileSync(join(factsDir, f), 'utf8')));
+  const merged = mergeFactDocs(docs);
+  facts = merged.facts.length ? indexFacts(merged) : null;
 } catch { facts = null; }
 
 let bad = 0;
 const fail = (message) => { console.error(`❌ ${message}`); bad += 1; };
-if (!facts || !facts.size) fail('事实账本 facts/moscow.json 未加载：生成回归没有覆盖证据链路');
+if (!facts || !facts.size) fail('事实账本 data/facts/*.json 未加载：生成回归没有覆盖证据链路');
 const starts = Array.from({ length: 7 }, (_, i) => addDays(start, i));
 
 for (const date of starts) {

@@ -25,6 +25,42 @@ function daysBetween(fromISO, toISO) {
   return Math.round((b - a) / 86400000);
 }
 
+// 合并多份账本（一城一文件）：city 只是元数据，索引键始终是 pointId+field
+// 同一 pointId+field 出现在多份文件时后者覆盖前者（check-facts 会拦重复）
+export function mergeFactDocs(docs) {
+  const list = (Array.isArray(docs) ? docs : []).filter((d) => d && Array.isArray(d.facts));
+  return {
+    schemaVersion: 1,
+    city: '',
+    facts: list.flatMap((d) => d.facts
+      .filter((f) => f && typeof f === 'object')
+      .map((f) => ({ ...f, city: f.city || d.city || '' }))),
+  };
+}
+
+// 浏览器端加载：目录不可枚举，按 data/facts/manifest.json 的 files 逐个取
+// fetch 可注入（测试用），失败一律回落 null，页面按「没有事实账本」降级
+export async function loadFactLedger({ base = './data/facts/', fetch: fetchImpl } = {}) {
+  const doFetch = fetchImpl || (typeof fetch === 'function' ? fetch : null);
+  if (!doFetch) return null;
+  try {
+    const manifestRes = await doFetch(`${base}manifest.json`);
+    if (!manifestRes || !manifestRes.ok) return null;
+    const manifest = await manifestRes.json();
+    const files = Array.isArray(manifest && manifest.files)
+      ? manifest.files.filter((f) => typeof f === 'string' && f && !f.includes('..') && !f.startsWith('/'))
+      : [];
+    if (!files.length) return null;
+    const docs = await Promise.all(files.map((f) => doFetch(`${base}${f}`)
+      .then((r) => (r && r.ok ? r.json() : null))
+      .catch(() => null)));
+    const merged = mergeFactDocs(docs.filter(Boolean));
+    return merged.facts.length ? merged : null;
+  } catch {
+    return null;
+  }
+}
+
 // 索引：非法条目直接跳过（与 transit-matrix 同策略，校验交给 check-facts）
 export function indexFacts(data) {
   const index = new Map();
