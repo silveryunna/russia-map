@@ -1322,7 +1322,11 @@
       "免费"
     ],
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（城市广场）"
   },
   {
     "id": "p037",
@@ -1360,7 +1364,11 @@
       "免费"
     ],
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（广场纪念碑外观）"
   },
   {
     "id": "p039",
@@ -1414,7 +1422,11 @@
       "免费"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（岸边外观拍照；登舰博物馆另购票）"
   },
   {
     "id": "p041",
@@ -1445,7 +1457,8 @@
     "lat": 59.925393,
     "lon": 30.295836,
     "estimatedDuration": 150,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": "unknown"
   },
   {
     "id": "p043",
@@ -1476,7 +1489,26 @@
     "lat": 59.884512,
     "lon": 29.909235,
     "estimatedDuration": 240,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "09:00",
+      "close": "20:00",
+      "lastEntry": "19:45",
+      "exceptions": [
+        {
+          "type": "date-range",
+          "from": "2026-10-19",
+          "to": "2027-04-24",
+          "action": "open",
+          "open": "09:00",
+          "close": "18:00",
+          "lastEntry": "17:15",
+          "note": "冬季模式（2026-10-19 起）：公园至 18:00、售票至 17:00，喷泉停喷；夏季（约 4 月下旬–10 月 18 日）至 20:00、喷泉 10:00–19:45"
+        }
+      ]
+    },
+    "ticket": "2000 ₽ 起（外国游客全价，按日期浮动，官网观测 2000–2500）／900 ₽ 起（俄与欧亚联盟公民，观测 900–1100）"
   },
   {
     "id": "p045",

@@ -131,7 +131,7 @@ function validateCalendar(calendar, where) {
             err(`${ep}.nth 必须是 1–5 或 "last"`);
           }
         }
-        if (ex.action === 'open') checkHours(ex, ep, false, crossDay);
+        if (ex.action === 'open') checkHours(ex, ep, false, calendar.crossDay === true);
       });
     }
   }

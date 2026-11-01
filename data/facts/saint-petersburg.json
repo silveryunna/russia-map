@@ -705,6 +705,131 @@
       "collectedAt": "2026-11-02",
       "reviewAfter": "2027-01-30",
       "note": "书店自由进出无需门票，按 estimated 记录；店内消费（咖啡/书籍）自理"
+    },
+    {
+      "pointId": "p044",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "09:00",
+        "close": "20:00",
+        "lastEntry": "19:45",
+        "exceptions": [
+          {
+            "type": "date-range",
+            "from": "2026-10-19",
+            "to": "2027-04-24",
+            "action": "open",
+            "open": "09:00",
+            "close": "18:00",
+            "lastEntry": "17:15",
+            "note": "冬季模式（2026-10-19 起）：公园至 18:00、售票至 17:00，喷泉停喷；夏季（约 4 月下旬–10 月 18 日）至 20:00、喷泉 10:00–19:45"
+          }
+        ]
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://peterhofmuseum.ru/objects/peterhof/nizhniy_park/info",
+      "sourceLabel": "彼得霍夫博物馆官网「Нижний парк · Режим работы и цены」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "下园每日开放：夏季（2026-04-25–10-18）09:00–20:00、入口至 19:45、喷泉 10:00–19:45；2026-10-19 起冬季 09:00–18:00、售票至 17:00、喷泉停喷；上园免费（夏季至 21:00、冬季至 18:00）；大宫殿周一闭馆"
+    },
+    {
+      "pointId": "p044",
+      "field": "ticket",
+      "value": "2000 ₽ 起（外国游客全价，按日期浮动，官网观测 2000–2500）／900 ₽ 起（俄与欧亚联盟公民，观测 900–1100）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://peterhofmuseum.ru/objects/peterhof/nizhniy_park/info",
+      "sourceLabel": "彼得霍夫博物馆官网「Нижний парк · Режим работы и цены」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网下园入口票双轨价：Входной билет（外国游客全价）观测 2000–2500 руб.（随日期浮动），РФ/ЕАЭС 公民 900–1100 руб.；7–14 岁 150–600、14–18 岁 600 руб.；上园免费；门票单次入园；网上 tickets.peterhofmuseum.ru 或现场售票处"
+    },
+    {
+      "pointId": "p042",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mariinsky.ru/visit/tickets",
+      "sourceLabel": "马林斯基剧院官网「Где купить билеты」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "剧院按演出场次开放、无固定参观时段（演出通常 13:00/19:00，以官网演出日历为准）；官网退票条款显示票房窗口每日 15:00–18:00；购票为实名制，只在官网 mariinsky.ru / tickets.mariinsky.ru 与现场票房"
+    },
+    {
+      "pointId": "p036",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "战神广场为开放城市广场，常态全天可通行；临时活动管控以现场为准。没有官方时刻表，故标 estimated"
+    },
+    {
+      "pointId": "p036",
+      "field": "ticket",
+      "value": "免费（城市广场）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "开放广场免费，按 estimated 记录"
+    },
+    {
+      "pointId": "p038",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "尼古拉一世纪念碑位于圣以撒广场，露天开放，常态全天可观赏；没有官方时刻表，故标 estimated"
+    },
+    {
+      "pointId": "p038",
+      "field": "ticket",
+      "value": "免费（广场纪念碑外观）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "外观免费，与圣以撒登顶同场；按 estimated 记录"
+    },
+    {
+      "pointId": "p040",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "阿芙乐尔号停靠彼得格勒沿岸大街永久舾装展出，岸边外观拍照全天可行；舰上博物馆有自己的开馆日（未取官方表），此处按外观打卡记 alwaysOpen 的 estimated"
+    },
+    {
+      "pointId": "p040",
+      "field": "ticket",
+      "value": "免费（岸边外观拍照；登舰博物馆另购票）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "岸边外观免费；登舰参观博物馆需另购门票（本批未取到官方票价，不写入 verified）"
     }
   ]
 }
