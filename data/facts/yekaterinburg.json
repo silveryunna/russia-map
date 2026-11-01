@@ -172,6 +172,98 @@
       "collectedAt": "2026-11-02",
       "reviewAfter": "2027-01-30",
       "note": "外观免费，按 estimated 记录"
+    },
+    {
+      "pointId": "p444",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Fr",
+        "open": "09:00",
+        "close": "19:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://museumuztm.tilda.ws/",
+      "sourceLabel": "乌拉尔机械厂历史博物馆官网（Музей истории УЗТМ）",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：пн-пт 09:00–19:00，午休 14:00–15:00（schema 不支持午休，按连续时段记，午间可能闭门）；位于 УЗТМ 中央门卫楼（Машиностроителей 17），部分时段仅接受预约（2GIS 标注 по предварительной записи），去前电话 +7 (343) 327-10-63 确认"
+    },
+    {
+      "pointId": "p445",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "06:00",
+        "close": "00:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro-ektb.ru/rezhim-raboty-metropolitena-grafik_12",
+      "sourceLabel": "叶卡捷琳堡地铁官网「Режим работы метрополитена」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：车站每日 06:00–24:00 开放；末班列车进站约 00:02、经过换乘通道约 00:05–00:10；发车区间分时段 3.5–15 分钟不等"
+    },
+    {
+      "pointId": "p445",
+      "field": "ticket",
+      "value": "42 ₽（单程，QR／Екарта／银行卡／生物识别）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metro-ektb.ru/oplata_proesda/",
+      "sourceLabel": "叶卡捷琳堡地铁官网「Оплата проезда」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "依据叶卡捷琳堡市政府 09.10.2025 № 2276 号决议：单程 42 руб.；支持 QR 票、Екарта、非接触银行卡、生物识别；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p453",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "official",
+      "sourceUrl": "https://bolshoi-zlatoust.ru/",
+      "sourceLabel": "大兹拉托乌斯特教堂官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网只公布礼拜时刻与新闻，没有对外开放时段；记 unknown。教堂 2013 年重建开放（高 77 米钟楼、16 吨「大兹拉托乌斯特」钟），可预约登钟楼观景（экскурсионная служба，电话 +7 952 143-68-14）"
+    },
+    {
+      "pointId": "p453",
+      "field": "ticket",
+      "value": "免费（教堂参观自由捐献）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "东正教教堂自由进出，官网设捐献入口；登钟楼属预约讲解服务，按 estimated 记录"
+    },
+    {
+      "pointId": "p438",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "宇航员大道为开放城市干道（地铁1号线下穿），常态全天可通行；沿线构图主义建筑以街拍为主，没有官方时刻表，故标 estimated"
+    },
+    {
+      "pointId": "p438",
+      "field": "ticket",
+      "value": "免费（城市干道街景）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "开放街道免费，按 estimated 记录"
     }
   ]
 }

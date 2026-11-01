@@ -7855,7 +7855,11 @@
     "lon": 60.613932,
     "confidence": 75,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（城市干道街景）"
   },
   {
     "id": "p439",
@@ -7951,7 +7955,12 @@
     "lon": 60.592649,
     "confidence": 100,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Fr",
+      "open": "09:00",
+      "close": "19:00"
+    }
   },
   {
     "id": "p445",
@@ -7969,7 +7978,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "06:00",
+      "close": "00:00",
+      "crossDay": true
+    },
+    "ticket": "42 ₽（单程，QR／Екарта／银行卡／生物识别）"
   },
   {
     "id": "p446",
@@ -8101,7 +8117,9 @@
     "lon": 60.599067,
     "confidence": 75,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "免费（教堂参观自由捐献）"
   },
   {
     "id": "p454",
