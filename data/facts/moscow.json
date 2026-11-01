@@ -1579,6 +1579,100 @@
       "collectedAt": "2026-11-02",
       "reviewAfter": "2027-01-30",
       "note": "露天免费，按 estimated 记录；与莫大主楼、大马戏团同线"
+    },
+    {
+      "pointId": "p074",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "23:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mgomz.ru/ru/pages/contacts_kolomenskoe",
+      "sourceLabel": "卡洛明斯克庄园官网「Коломенское · режим работы」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：公园 territory 每日 05:30–23:00 免费开放；展馆（沙皇阿列克谢宫殿、彼得小屋、升天教堂等）周二至周日 10:00–18:00，周一闭馆（公园照开）；夏季部分展馆周五周六延长至 20:00"
+    },
+    {
+      "pointId": "p074",
+      "field": "ticket",
+      "value": "公园免费；展馆单票 200 ₽ 起（各馆单独购票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://um.mos.ru/museums/muzey_zapovednik_kolomenskoe",
+      "sourceLabel": "莫斯科市政府「Узнай Москву」门户",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "市政府门户：公园免费，展览/展馆票 200 ₽ 起、可官网或现场购买；无全场联票；阿列克谢宫殿等主力馆 400–450 ₽（2026-09 独立导览站核价）"
+    },
+    {
+      "pointId": "p322",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "19:00",
+        "weekly": {
+          "Th": {
+            "open": "10:00",
+            "close": "21:00"
+          },
+          "Sa": {
+            "open": "10:00",
+            "close": "21:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://kosmo-museum.ru/contacts",
+      "sourceLabel": "航天博物馆官网「Контакты」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "Музей космонавтики（ВДНХ 宇宙征服者纪念碑基座）：周一闭馆，周二/三/五/日 10:00–19:00，周四/六 10:00–21:00；касса 提前 30 分钟停售；每月第三个周四「博物馆周」免费（官网公告）"
+    },
+    {
+      "pointId": "p322",
+      "field": "ticket",
+      "value": "500 ₽（全票；与科罗廖夫故居联票另计）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://m.kosmo-museum.ru/static_pages/splanirovat-vizit",
+      "sourceLabel": "航天博物馆官网「Спланировать визит」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：全票 500 ₽（按场次售票）；与科罗廖夫院士故居联票出售（价格以票务页为准）； simulator「Орион」与讲解另购"
+    },
+    {
+      "pointId": "p430",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "10:00",
+        "close": "21:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://bunker42.com/",
+      "sourceLabel": "42号地堡官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网页脚：每日 10:00–21:00；讲解场次每小时/一个半小时一班，英语场次官网另列（EN 页写 10:00–19:00 为英语导览时段）；个人参观与 21:00 后场次需提前预订；293 级台阶下行、无电梯"
+    },
+    {
+      "pointId": "p430",
+      "field": "ticket",
+      "value": "按讲解场次 1300–4500 ₽（无自由参观；学生、пенсионеры 750–2000 ₽）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://bunker42.com/events/grif-snyat",
+      "sourceLabel": "42号地堡官网「Гриф снят」场次价目",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：无自由参观、按讲解场次购票；俄/独联体公民 1300–1400 ₽（工作日）/1900–2000 ₽（周末），学生/пенсионеры 750–1100 ₽；外国公民与个体场次价格更高（官网 EN 页口径 2300–4500 ₽；2026-08 第三方核价外国游客 3200 ₽ 起）；可开场前 10 分钟在票房购票"
     }
   ]
 }
