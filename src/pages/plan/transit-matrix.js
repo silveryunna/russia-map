@@ -1,5 +1,6 @@
 // 城市交通矩阵（纯函数）：只做索引与查询，不 fetch、不碰 DOM
 // 数据来源由 data/transit-matrix.json 提供；缺失时调用方回退 coordinate estimate。
+// 混合来源时顶层 provider 为 mixed，每条 entry 自带 provider（如 2gis / osrm），查询结果按条返回来源。
 
 const MODES = new Set(['walking', 'car']);
 
@@ -11,10 +12,12 @@ export function indexTransitMatrix(data) {
     if (!MODES.has(entry.mode)) continue;
     if (!Number.isFinite(entry.minutes) || entry.minutes <= 0) continue;
     if (!Number.isFinite(entry.meters) || entry.meters < 0) continue;
+    const provider = typeof entry.provider === 'string' && entry.provider ? entry.provider : (data.provider || '');
+    const collectedAt = typeof entry.collectedAt === 'string' && entry.collectedAt ? entry.collectedAt : (data.collectedAt || '');
     index.set(`${entry.from}|${entry.to}|${entry.mode}`, {
       ...entry,
-      provider: data.provider || '',
-      collectedAt: data.collectedAt || '',
+      provider,
+      collectedAt,
     });
   }
   return index;

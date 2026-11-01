@@ -40,7 +40,8 @@
 | OpenStreetMap / OSM-DE | 境外底图 | ODbL：需署名，衍生数据库需同许可 |
 | Esri World Imagery | 境外卫星底图 | 遵守 Esri 服务条款 |
 | 天地图 | 境内底图 | Key 为服务端类型，只存在服务器 nginx `/tdt/` 反代，前端不持有 |
-| 2GIS Routing API | `data/transit-matrix.json` 路线样本 | 仅存时长/距离等派生数值，不落原始响应、不转售；配额受限 |
+| 2GIS Routing API | `data/transit-matrix.json` 路线样本（主力来源，83 条） | 仅存时长/距离等派生数值，不落原始响应、不转售；配额受限 |
+| FOSSGIS OSRM（`routing.openstreetmap.de`） | `data/transit-matrix.json` 补采的 6 条驾车样本（2GIS Demo Key 覆盖不到或配额耗尽的段） | 底层数据为 OpenStreetMap（**ODbL**）：需署名，衍生数据库需同许可；公共实例由志愿者运营，只补缺口，禁止批量抓取 |
 | 携程 / 问道 API | `data/ratings.json` 第三方评分 | 按接口条款使用，标注来源 |
 | 场馆官网 / 官方预约页 | 开放时间、票价等事实 | 记录 `source.url` 与 `collectedAt`；不做整站镜像 |
 | 用户投稿 | 点位补充、笔记、照片 | 投稿需勾选"我有权使用"；建立下架流程 |

@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
   "city": "莫斯科",
-  "provider": "2gis",
-  "providerNote": "2GIS Routing API：walking 为步行路线，car 为实时路况驾车路线；car 不代表地铁耗时；每条 entry 的 collectedAt 为实际采集日",
+  "provider": "mixed",
+  "providerNote": "混合来源：2GIS Routing API 为实时路况驾车/步行路线；FOSSGIS OSRM（OSM 数据，ODbL）补采的样本不含实时路况，用于 2GIS Demo Key 覆盖不到或配额耗尽的段。每条 entry 的 provider 与 collectedAt 标明实际来源与采集日；car 不代表地铁耗时。",
   "collectedAt": "2026-11-01",
   "reviewAfter": "2027-02-01",
   "entries": [
@@ -13,7 +13,8 @@
       "minutes": 17,
       "meters": 1306,
       "straightMeters": 304,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p002",
@@ -22,7 +23,8 @@
       "minutes": 13,
       "meters": 1004,
       "straightMeters": 412,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p003",
@@ -31,7 +33,8 @@
       "minutes": 7,
       "meters": 2630,
       "straightMeters": 1249,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p004",
@@ -40,7 +43,8 @@
       "minutes": 5,
       "meters": 389,
       "straightMeters": 233,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p005",
@@ -49,7 +53,8 @@
       "minutes": 6,
       "meters": 458,
       "straightMeters": 270,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p007",
@@ -58,7 +63,8 @@
       "minutes": 11,
       "meters": 817,
       "straightMeters": 332,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p009",
@@ -67,7 +73,8 @@
       "minutes": 11,
       "meters": 5216,
       "straightMeters": 2434,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p010",
@@ -76,7 +83,8 @@
       "minutes": 14,
       "meters": 1048,
       "straightMeters": 837,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p011",
@@ -85,7 +93,8 @@
       "minutes": 13,
       "meters": 5503,
       "straightMeters": 2299,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p012",
@@ -94,7 +103,8 @@
       "minutes": 11,
       "meters": 2848,
       "straightMeters": 1410,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p013",
@@ -103,7 +113,8 @@
       "minutes": 7,
       "meters": 3237,
       "straightMeters": 2907,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p015",
@@ -112,7 +123,8 @@
       "minutes": 15,
       "meters": 1087,
       "straightMeters": 632,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p016",
@@ -121,7 +133,8 @@
       "minutes": 31,
       "meters": 15216,
       "straightMeters": 13304,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p017",
@@ -130,7 +143,8 @@
       "minutes": 7,
       "meters": 532,
       "straightMeters": 223,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p018",
@@ -139,7 +153,8 @@
       "minutes": 32,
       "meters": 11559,
       "straightMeters": 8636,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p019",
@@ -148,7 +163,8 @@
       "minutes": 1,
       "meters": 91,
       "straightMeters": 86,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p020",
@@ -157,7 +173,8 @@
       "minutes": 11,
       "meters": 835,
       "straightMeters": 625,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p021",
@@ -166,7 +183,8 @@
       "minutes": 24,
       "meters": 21148,
       "straightMeters": 16451,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p022",
@@ -175,7 +193,8 @@
       "minutes": 12,
       "meters": 864,
       "straightMeters": 497,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p057",
@@ -184,7 +203,8 @@
       "minutes": 9,
       "meters": 3676,
       "straightMeters": 2575,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p058",
@@ -193,7 +213,8 @@
       "minutes": 12,
       "meters": 4557,
       "straightMeters": 3439,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p060",
@@ -202,7 +223,8 @@
       "minutes": 8,
       "meters": 2252,
       "straightMeters": 1220,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p061",
@@ -211,7 +233,8 @@
       "minutes": 13,
       "meters": 4496,
       "straightMeters": 2791,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p062",
@@ -220,7 +243,8 @@
       "minutes": 20,
       "meters": 8183,
       "straightMeters": 3892,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p063",
@@ -229,7 +253,8 @@
       "minutes": 16,
       "meters": 6569,
       "straightMeters": 3799,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p063",
@@ -238,7 +263,8 @@
       "minutes": 20,
       "meters": 8884,
       "straightMeters": 4225,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p337",
@@ -247,7 +273,8 @@
       "minutes": 17,
       "meters": 1282,
       "straightMeters": 1198,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p339",
@@ -256,7 +283,8 @@
       "minutes": 15,
       "meters": 4791,
       "straightMeters": 3074,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p340",
@@ -265,7 +293,8 @@
       "minutes": 27,
       "meters": 10552,
       "straightMeters": 8097,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p345",
@@ -274,7 +303,8 @@
       "minutes": 12,
       "meters": 6631,
       "straightMeters": 4006,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p346",
@@ -283,7 +313,8 @@
       "minutes": 19,
       "meters": 9070,
       "straightMeters": 4578,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p347",
@@ -292,7 +323,8 @@
       "minutes": 13,
       "meters": 7112,
       "straightMeters": 3681,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p348",
@@ -301,7 +333,8 @@
       "minutes": 14,
       "meters": 4949,
       "straightMeters": 2038,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p354",
@@ -310,7 +343,8 @@
       "minutes": 17,
       "meters": 1294,
       "straightMeters": 1023,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p355",
@@ -319,7 +353,8 @@
       "minutes": 20,
       "meters": 1525,
       "straightMeters": 1135,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p358",
@@ -328,7 +363,8 @@
       "minutes": 11,
       "meters": 7836,
       "straightMeters": 5100,
-      "collectedAt": "2026-10-31"
+      "collectedAt": "2026-10-31",
+      "provider": "2gis"
     },
     {
       "from": "p002",
@@ -337,7 +373,8 @@
       "minutes": 16,
       "meters": 1226,
       "straightMeters": 304,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p003",
@@ -346,7 +383,8 @@
       "minutes": 6,
       "meters": 461,
       "straightMeters": 270,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p004",
@@ -355,7 +393,8 @@
       "minutes": 15,
       "meters": 1094,
       "straightMeters": 412,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p005",
@@ -364,7 +403,8 @@
       "minutes": 5,
       "meters": 397,
       "straightMeters": 233,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p007",
@@ -373,7 +413,8 @@
       "minutes": 8,
       "meters": 2958,
       "straightMeters": 1819,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p008",
@@ -382,7 +423,8 @@
       "minutes": 9,
       "meters": 3793,
       "straightMeters": 1819,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p008",
@@ -391,7 +433,8 @@
       "minutes": 14,
       "meters": 6785,
       "straightMeters": 2434,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p008",
@@ -400,7 +443,8 @@
       "minutes": 15,
       "meters": 1091,
       "straightMeters": 910,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p008",
@@ -409,7 +453,8 @@
       "minutes": 11,
       "meters": 828,
       "straightMeters": 687,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p009",
@@ -418,7 +463,8 @@
       "minutes": 11,
       "meters": 4303,
       "straightMeters": 2299,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p010",
@@ -427,7 +473,8 @@
       "minutes": 14,
       "meters": 5748,
       "straightMeters": 1223,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p011",
@@ -436,7 +483,8 @@
       "minutes": 15,
       "meters": 1091,
       "straightMeters": 910,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p011",
@@ -445,7 +493,8 @@
       "minutes": 14,
       "meters": 1051,
       "straightMeters": 837,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p011",
@@ -454,7 +503,8 @@
       "minutes": 17,
       "meters": 1310,
       "straightMeters": 1139,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p016",
@@ -463,7 +513,8 @@
       "minutes": 14,
       "meters": 1056,
       "straightMeters": 632,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p017",
@@ -472,7 +523,8 @@
       "minutes": 26,
       "meters": 24598,
       "straightMeters": 13304,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p018",
@@ -481,7 +533,8 @@
       "minutes": 7,
       "meters": 534,
       "straightMeters": 223,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p019",
@@ -490,7 +543,8 @@
       "minutes": 11,
       "meters": 819,
       "straightMeters": 625,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p021",
@@ -499,7 +553,8 @@
       "minutes": 1,
       "meters": 91,
       "straightMeters": 86,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p022",
@@ -508,7 +563,8 @@
       "minutes": 29,
       "meters": 24785,
       "straightMeters": 16451,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p023",
@@ -517,7 +573,8 @@
       "minutes": 12,
       "meters": 862,
       "straightMeters": 497,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p025",
@@ -526,7 +583,8 @@
       "minutes": 16,
       "meters": 4985,
       "straightMeters": 1249,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p354",
@@ -535,7 +593,8 @@
       "minutes": 11,
       "meters": 795,
       "straightMeters": 332,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p355",
@@ -544,7 +603,8 @@
       "minutes": 11,
       "meters": 828,
       "straightMeters": 687,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p368",
@@ -553,7 +613,8 @@
       "minutes": 9,
       "meters": 3997,
       "straightMeters": 1223,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p368",
@@ -562,7 +623,8 @@
       "minutes": 17,
       "meters": 1304,
       "straightMeters": 1139,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p058",
@@ -571,7 +633,8 @@
       "minutes": 6,
       "meters": 2034,
       "straightMeters": 1423,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p058",
@@ -580,7 +643,8 @@
       "minutes": 9,
       "meters": 3584,
       "straightMeters": 1880,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p060",
@@ -589,7 +653,8 @@
       "minutes": 14,
       "meters": 4664,
       "straightMeters": 2064,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p061",
@@ -598,7 +663,8 @@
       "minutes": 6,
       "meters": 1792,
       "straightMeters": 1423,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p061",
@@ -607,7 +673,8 @@
       "minutes": 11,
       "meters": 4233,
       "straightMeters": 2064,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p063",
@@ -616,7 +683,8 @@
       "minutes": 19,
       "meters": 16012,
       "straightMeters": 8097,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p337",
@@ -625,7 +693,8 @@
       "minutes": 10,
       "meters": 2453,
       "straightMeters": 1220,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p339",
@@ -634,7 +703,8 @@
       "minutes": 14,
       "meters": 8293,
       "straightMeters": 3681,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p340",
@@ -643,7 +713,8 @@
       "minutes": 13,
       "meters": 4635,
       "straightMeters": 3074,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p347",
@@ -652,7 +723,8 @@
       "minutes": 5,
       "meters": 2166,
       "straightMeters": 1880,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p348",
@@ -661,7 +733,8 @@
       "minutes": 12,
       "meters": 5642,
       "straightMeters": 3799,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p057",
@@ -670,7 +743,8 @@
       "minutes": 12,
       "meters": 3625,
       "straightMeters": 2245,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p057",
@@ -679,7 +753,8 @@
       "minutes": 9,
       "meters": 5170,
       "straightMeters": 3446,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p059",
@@ -688,7 +763,8 @@
       "minutes": 14,
       "meters": 6976,
       "straightMeters": 2245,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p059",
@@ -697,7 +773,8 @@
       "minutes": 13,
       "meters": 9455,
       "straightMeters": 7029,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p062",
@@ -706,7 +783,8 @@
       "minutes": 12,
       "meters": 5021,
       "straightMeters": 3446,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p062",
@@ -715,7 +793,8 @@
       "minutes": 10,
       "meters": 2722,
       "straightMeters": 2038,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p337",
@@ -724,7 +803,8 @@
       "minutes": 18,
       "meters": 11379,
       "straightMeters": 7582,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p345",
@@ -733,7 +813,8 @@
       "minutes": 18,
       "meters": 10214,
       "straightMeters": 7029,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p346",
@@ -742,7 +823,8 @@
       "minutes": 21,
       "meters": 17172,
       "straightMeters": 7582,
-      "collectedAt": "2026-11-01"
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
     },
     {
       "from": "p346",
@@ -751,6 +833,67 @@
       "minutes": 11,
       "meters": 9851,
       "straightMeters": 4006,
+      "collectedAt": "2026-11-01",
+      "provider": "2gis"
+    },
+    {
+      "from": "p010",
+      "to": "p057",
+      "mode": "car",
+      "minutes": 8,
+      "meters": 5425,
+      "straightMeters": 2575,
+      "provider": "osrm",
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p023",
+      "to": "p026",
+      "mode": "car",
+      "minutes": 75,
+      "meters": 72273,
+      "straightMeters": 53857,
+      "provider": "osrm",
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p026",
+      "to": "p023",
+      "mode": "car",
+      "minutes": 67,
+      "meters": 74388,
+      "straightMeters": 53857,
+      "provider": "osrm",
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p057",
+      "to": "p337",
+      "mode": "car",
+      "minutes": 5,
+      "meters": 3159,
+      "straightMeters": 1198,
+      "provider": "osrm",
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p060",
+      "to": "p058",
+      "mode": "car",
+      "minutes": 8,
+      "meters": 4932,
+      "straightMeters": 3439,
+      "provider": "osrm",
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p337",
+      "to": "p057",
+      "mode": "car",
+      "minutes": 2,
+      "meters": 1206,
+      "straightMeters": 1198,
+      "provider": "osrm",
       "collectedAt": "2026-11-01"
     }
   ]

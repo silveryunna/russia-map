@@ -18,9 +18,10 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
 
 // 1) 数据契约
 {
-  if (matrix.city === '莫斯科' && matrix.provider === '2gis' && DATE.test(matrix.collectedAt || '') && DATE.test(matrix.reviewAfter || '')) {
-    ok('矩阵元数据完整（城市/来源/采集与复核日期）');
-  } else fail(`矩阵元数据异常：${JSON.stringify({ city: matrix.city, provider: matrix.provider, collectedAt: matrix.collectedAt, reviewAfter: matrix.reviewAfter })}`);
+  const PROVIDERS = new Set(['2gis', 'osrm']);
+  if (matrix.city === '莫斯科' && DATE.test(matrix.collectedAt || '') && DATE.test(matrix.reviewAfter || '')) {
+    ok('矩阵元数据完整（城市/采集与复核日期）');
+  } else fail(`矩阵元数据异常：${JSON.stringify({ city: matrix.city, collectedAt: matrix.collectedAt, reviewAfter: matrix.reviewAfter })}`);
 
   const entries = Array.isArray(matrix.entries) ? matrix.entries : [];
   const keys = new Set();
@@ -36,6 +37,18 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
   if (entries.length && !invalid) ok(`矩阵条目 ${entries.length} 条，起终点/模式/时长/距离均有效`);
   else fail(`矩阵有 ${invalid} 条非法或重复条目`);
 
+  // 混合来源：每条必须自带 provider，顶层用 mixed；单一来源时顶层与条目一致
+  const unknownProvider = entries.filter((e) => !e || !PROVIDERS.has(e.provider));
+  if (entries.length && !unknownProvider.length) {
+    const byProvider = entries.reduce((m, e) => ((m[e.provider] = (m[e.provider] || 0) + 1), m), {});
+    ok(`每条样本带来源：${Object.entries(byProvider).map(([k, v]) => `${k} ${v}`).join(' / ')}`);
+  } else fail(`有 ${unknownProvider.length} 条缺少或来源未知（顶层 provider=${matrix.provider}）`);
+
+  const providers = new Set(entries.map((e) => e && e.provider).filter(Boolean));
+  const expected = providers.size > 1 ? 'mixed' : [...providers][0];
+  if (providers.size && matrix.provider === expected) ok(`顶层 provider 与样本来源一致（${matrix.provider}）`);
+  else fail(`顶层 provider=${matrix.provider} 与样本来源 ${[...providers].join('/')} 不一致`);
+
   const coverage = matrixCoverage(indexTransitMatrix(matrix));
   if (coverage.total >= 15 && coverage.walking >= 8 && coverage.car >= 5) ok(`矩阵覆盖 ${coverage.total} 条（步行 ${coverage.walking} / 驾车 ${coverage.car}）`);
   else fail(`矩阵覆盖不足：${JSON.stringify(coverage)}`);
@@ -46,13 +59,21 @@ const DATE = /^\d{4}-\d{2}-\d{2}$/;
   const index = indexTransitMatrix(matrix);
   const first = matrix.entries[0];
   const hit = lookupTransitLeg(index, first.from, first.to, first.mode);
-  if (hit && hit.minutes === first.minutes && hit.provider === '2gis') ok('矩阵查询命中并带来源');
+  if (hit && hit.minutes === first.minutes && hit.provider === first.provider) ok('矩阵查询命中并带来源');
   else fail('矩阵查询未命中');
   if (!lookupTransitLeg(index, first.from, first.to, first.mode === 'walking' ? 'car' : 'walking')) ok('模式不匹配时不串用');
   else fail('模式不匹配仍命中');
   const fake = indexTransitMatrix({ provider: 'x', entries: [{ from: 'a', to: 'b', mode: 'walking', minutes: 0, meters: 1 }, { from: 'a', to: 'b', mode: 'flying', minutes: 5, meters: 1 }, { from: 'a', to: 'b', mode: 'car', minutes: 5, meters: 100 }] });
   if (fake.size === 1) ok('非法矩阵条目被忽略');
   else fail(`非法矩阵条目未被忽略：${fake.size}`);
+  const mixed = indexTransitMatrix({ provider: 'mixed', entries: [
+    { from: 'a', to: 'b', mode: 'walking', minutes: 5, meters: 300, provider: '2gis', collectedAt: '2026-11-01' },
+    { from: 'a', to: 'b', mode: 'car', minutes: 8, meters: 1200, provider: 'osrm', collectedAt: '2026-11-02' },
+  ] });
+  const w = lookupTransitLeg(mixed, 'a', 'b', 'walking');
+  const c = lookupTransitLeg(mixed, 'a', 'b', 'car');
+  if (w.provider === '2gis' && c.provider === 'osrm' && c.collectedAt === '2026-11-02') ok('混合来源按条返回 provider 与采集日');
+  else fail(`混合来源未按条返回：${JSON.stringify({ walk: w, car: c })}`);
 }
 
 // 3) estimateLeg 接线
