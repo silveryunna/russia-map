@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "city": "莫斯科",
   "provider": "2gis",
-  "providerNote": "2GIS Routing API：walking 为步行路线，car 为实时路况驾车路线；car 不代表地铁耗时",
-  "collectedAt": "2026-10-31",
-  "reviewAfter": "2027-01-29",
+  "providerNote": "2GIS Routing API：walking 为步行路线，car 为实时路况驾车路线；car 不代表地铁耗时；每条 entry 的 collectedAt 为实际采集日",
+  "collectedAt": "2026-11-01",
+  "reviewAfter": "2027-02-01",
   "entries": [
     {
       "from": "p001",
@@ -12,7 +12,8 @@
       "mode": "walking",
       "minutes": 17,
       "meters": 1306,
-      "straightMeters": 304
+      "straightMeters": 304,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p002",
@@ -20,15 +21,17 @@
       "mode": "walking",
       "minutes": 13,
       "meters": 1004,
-      "straightMeters": 412
+      "straightMeters": 412,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p003",
       "to": "p025",
       "mode": "car",
-      "minutes": 8,
+      "minutes": 7,
       "meters": 2630,
-      "straightMeters": 1249
+      "straightMeters": 1249,
+      "collectedAt": "2026-11-01"
     },
     {
       "from": "p004",
@@ -36,7 +39,8 @@
       "mode": "walking",
       "minutes": 5,
       "meters": 389,
-      "straightMeters": 233
+      "straightMeters": 233,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p005",
@@ -44,7 +48,8 @@
       "mode": "walking",
       "minutes": 6,
       "meters": 458,
-      "straightMeters": 270
+      "straightMeters": 270,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p007",
@@ -52,15 +57,17 @@
       "mode": "walking",
       "minutes": 11,
       "meters": 817,
-      "straightMeters": 332
+      "straightMeters": 332,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p009",
       "to": "p008",
       "mode": "car",
-      "minutes": 15,
-      "meters": 5238,
-      "straightMeters": 2434
+      "minutes": 11,
+      "meters": 5216,
+      "straightMeters": 2434,
+      "collectedAt": "2026-11-01"
     },
     {
       "from": "p010",
@@ -68,15 +75,17 @@
       "mode": "walking",
       "minutes": 14,
       "meters": 1048,
-      "straightMeters": 837
+      "straightMeters": 837,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p011",
       "to": "p009",
       "mode": "car",
-      "minutes": 15,
-      "meters": 4755,
-      "straightMeters": 2299
+      "minutes": 13,
+      "meters": 5503,
+      "straightMeters": 2299,
+      "collectedAt": "2026-11-01"
     },
     {
       "from": "p012",
@@ -84,7 +93,8 @@
       "mode": "car",
       "minutes": 11,
       "meters": 2848,
-      "straightMeters": 1410
+      "straightMeters": 1410,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p013",
@@ -92,7 +102,8 @@
       "mode": "car",
       "minutes": 7,
       "meters": 3237,
-      "straightMeters": 2907
+      "straightMeters": 2907,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p015",
@@ -100,15 +111,17 @@
       "mode": "walking",
       "minutes": 15,
       "meters": 1087,
-      "straightMeters": 632
+      "straightMeters": 632,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p016",
       "to": "p017",
       "mode": "car",
-      "minutes": 37,
-      "meters": 19084,
-      "straightMeters": 13304
+      "minutes": 31,
+      "meters": 15216,
+      "straightMeters": 13304,
+      "collectedAt": "2026-11-01"
     },
     {
       "from": "p017",
@@ -116,7 +129,8 @@
       "mode": "walking",
       "minutes": 7,
       "meters": 532,
-      "straightMeters": 223
+      "straightMeters": 223,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p018",
@@ -124,7 +138,8 @@
       "mode": "car",
       "minutes": 32,
       "meters": 11559,
-      "straightMeters": 8636
+      "straightMeters": 8636,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p019",
@@ -132,7 +147,8 @@
       "mode": "walking",
       "minutes": 1,
       "meters": 91,
-      "straightMeters": 86
+      "straightMeters": 86,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p020",
@@ -140,15 +156,17 @@
       "mode": "walking",
       "minutes": 11,
       "meters": 835,
-      "straightMeters": 625
+      "straightMeters": 625,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p021",
       "to": "p022",
       "mode": "car",
-      "minutes": 42,
-      "meters": 22936,
-      "straightMeters": 16451
+      "minutes": 24,
+      "meters": 21148,
+      "straightMeters": 16451,
+      "collectedAt": "2026-11-01"
     },
     {
       "from": "p022",
@@ -156,7 +174,8 @@
       "mode": "walking",
       "minutes": 12,
       "meters": 864,
-      "straightMeters": 497
+      "straightMeters": 497,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p057",
@@ -164,7 +183,8 @@
       "mode": "car",
       "minutes": 9,
       "meters": 3676,
-      "straightMeters": 2575
+      "straightMeters": 2575,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p058",
@@ -172,7 +192,8 @@
       "mode": "car",
       "minutes": 12,
       "meters": 4557,
-      "straightMeters": 3439
+      "straightMeters": 3439,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p060",
@@ -180,7 +201,8 @@
       "mode": "car",
       "minutes": 8,
       "meters": 2252,
-      "straightMeters": 1220
+      "straightMeters": 1220,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p061",
@@ -188,7 +210,8 @@
       "mode": "car",
       "minutes": 13,
       "meters": 4496,
-      "straightMeters": 2791
+      "straightMeters": 2791,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p062",
@@ -196,7 +219,8 @@
       "mode": "car",
       "minutes": 20,
       "meters": 8183,
-      "straightMeters": 3892
+      "straightMeters": 3892,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p063",
@@ -204,7 +228,8 @@
       "mode": "car",
       "minutes": 16,
       "meters": 6569,
-      "straightMeters": 3799
+      "straightMeters": 3799,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p063",
@@ -212,7 +237,8 @@
       "mode": "car",
       "minutes": 20,
       "meters": 8884,
-      "straightMeters": 4225
+      "straightMeters": 4225,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p337",
@@ -220,7 +246,8 @@
       "mode": "walking",
       "minutes": 17,
       "meters": 1282,
-      "straightMeters": 1198
+      "straightMeters": 1198,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p339",
@@ -228,7 +255,8 @@
       "mode": "car",
       "minutes": 15,
       "meters": 4791,
-      "straightMeters": 3074
+      "straightMeters": 3074,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p340",
@@ -236,7 +264,8 @@
       "mode": "car",
       "minutes": 27,
       "meters": 10552,
-      "straightMeters": 8097
+      "straightMeters": 8097,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p345",
@@ -244,7 +273,8 @@
       "mode": "car",
       "minutes": 12,
       "meters": 6631,
-      "straightMeters": 4006
+      "straightMeters": 4006,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p346",
@@ -252,7 +282,8 @@
       "mode": "car",
       "minutes": 19,
       "meters": 9070,
-      "straightMeters": 4578
+      "straightMeters": 4578,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p347",
@@ -260,7 +291,8 @@
       "mode": "car",
       "minutes": 13,
       "meters": 7112,
-      "straightMeters": 3681
+      "straightMeters": 3681,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p348",
@@ -268,7 +300,8 @@
       "mode": "car",
       "minutes": 14,
       "meters": 4949,
-      "straightMeters": 2038
+      "straightMeters": 2038,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p354",
@@ -276,7 +309,8 @@
       "mode": "walking",
       "minutes": 17,
       "meters": 1294,
-      "straightMeters": 1023
+      "straightMeters": 1023,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p355",
@@ -284,7 +318,8 @@
       "mode": "walking",
       "minutes": 20,
       "meters": 1525,
-      "straightMeters": 1135
+      "straightMeters": 1135,
+      "collectedAt": "2026-10-31"
     },
     {
       "from": "p358",
@@ -292,7 +327,431 @@
       "mode": "car",
       "minutes": 11,
       "meters": 7836,
-      "straightMeters": 5100
+      "straightMeters": 5100,
+      "collectedAt": "2026-10-31"
+    },
+    {
+      "from": "p002",
+      "to": "p001",
+      "mode": "walking",
+      "minutes": 16,
+      "meters": 1226,
+      "straightMeters": 304,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p003",
+      "to": "p005",
+      "mode": "walking",
+      "minutes": 6,
+      "meters": 461,
+      "straightMeters": 270,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p004",
+      "to": "p002",
+      "mode": "walking",
+      "minutes": 15,
+      "meters": 1094,
+      "straightMeters": 412,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p005",
+      "to": "p004",
+      "mode": "walking",
+      "minutes": 5,
+      "meters": 397,
+      "straightMeters": 233,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p007",
+      "to": "p008",
+      "mode": "car",
+      "minutes": 8,
+      "meters": 2958,
+      "straightMeters": 1819,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p008",
+      "to": "p007",
+      "mode": "car",
+      "minutes": 9,
+      "meters": 3793,
+      "straightMeters": 1819,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p008",
+      "to": "p009",
+      "mode": "car",
+      "minutes": 14,
+      "meters": 6785,
+      "straightMeters": 2434,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p008",
+      "to": "p011",
+      "mode": "walking",
+      "minutes": 15,
+      "meters": 1091,
+      "straightMeters": 910,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p008",
+      "to": "p355",
+      "mode": "walking",
+      "minutes": 11,
+      "meters": 828,
+      "straightMeters": 687,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p009",
+      "to": "p011",
+      "mode": "car",
+      "minutes": 11,
+      "meters": 4303,
+      "straightMeters": 2299,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p010",
+      "to": "p368",
+      "mode": "car",
+      "minutes": 14,
+      "meters": 5748,
+      "straightMeters": 1223,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p011",
+      "to": "p008",
+      "mode": "walking",
+      "minutes": 15,
+      "meters": 1091,
+      "straightMeters": 910,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p011",
+      "to": "p010",
+      "mode": "walking",
+      "minutes": 14,
+      "meters": 1051,
+      "straightMeters": 837,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p011",
+      "to": "p368",
+      "mode": "walking",
+      "minutes": 17,
+      "meters": 1310,
+      "straightMeters": 1139,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p016",
+      "to": "p015",
+      "mode": "walking",
+      "minutes": 14,
+      "meters": 1056,
+      "straightMeters": 632,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p017",
+      "to": "p016",
+      "mode": "car",
+      "minutes": 26,
+      "meters": 24598,
+      "straightMeters": 13304,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p018",
+      "to": "p017",
+      "mode": "walking",
+      "minutes": 7,
+      "meters": 534,
+      "straightMeters": 223,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p019",
+      "to": "p020",
+      "mode": "walking",
+      "minutes": 11,
+      "meters": 819,
+      "straightMeters": 625,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p021",
+      "to": "p019",
+      "mode": "walking",
+      "minutes": 1,
+      "meters": 91,
+      "straightMeters": 86,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p022",
+      "to": "p021",
+      "mode": "car",
+      "minutes": 29,
+      "meters": 24785,
+      "straightMeters": 16451,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p023",
+      "to": "p022",
+      "mode": "walking",
+      "minutes": 12,
+      "meters": 862,
+      "straightMeters": 497,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p025",
+      "to": "p003",
+      "mode": "car",
+      "minutes": 16,
+      "meters": 4985,
+      "straightMeters": 1249,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p354",
+      "to": "p007",
+      "mode": "walking",
+      "minutes": 11,
+      "meters": 795,
+      "straightMeters": 332,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p355",
+      "to": "p008",
+      "mode": "walking",
+      "minutes": 11,
+      "meters": 828,
+      "straightMeters": 687,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p368",
+      "to": "p010",
+      "mode": "car",
+      "minutes": 9,
+      "meters": 3997,
+      "straightMeters": 1223,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p368",
+      "to": "p011",
+      "mode": "walking",
+      "minutes": 17,
+      "meters": 1304,
+      "straightMeters": 1139,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p058",
+      "to": "p061",
+      "mode": "car",
+      "minutes": 6,
+      "meters": 2034,
+      "straightMeters": 1423,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p058",
+      "to": "p347",
+      "mode": "car",
+      "minutes": 9,
+      "meters": 3584,
+      "straightMeters": 1880,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p060",
+      "to": "p061",
+      "mode": "car",
+      "minutes": 14,
+      "meters": 4664,
+      "straightMeters": 2064,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p061",
+      "to": "p058",
+      "mode": "car",
+      "minutes": 6,
+      "meters": 1792,
+      "straightMeters": 1423,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p061",
+      "to": "p060",
+      "mode": "car",
+      "minutes": 11,
+      "meters": 4233,
+      "straightMeters": 2064,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p063",
+      "to": "p340",
+      "mode": "car",
+      "minutes": 19,
+      "meters": 16012,
+      "straightMeters": 8097,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p337",
+      "to": "p060",
+      "mode": "car",
+      "minutes": 10,
+      "meters": 2453,
+      "straightMeters": 1220,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p339",
+      "to": "p347",
+      "mode": "car",
+      "minutes": 14,
+      "meters": 8293,
+      "straightMeters": 3681,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p340",
+      "to": "p339",
+      "mode": "car",
+      "minutes": 13,
+      "meters": 4635,
+      "straightMeters": 3074,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p347",
+      "to": "p058",
+      "mode": "car",
+      "minutes": 5,
+      "meters": 2166,
+      "straightMeters": 1880,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p348",
+      "to": "p063",
+      "mode": "car",
+      "minutes": 12,
+      "meters": 5642,
+      "straightMeters": 3799,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p057",
+      "to": "p059",
+      "mode": "car",
+      "minutes": 12,
+      "meters": 3625,
+      "straightMeters": 2245,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p057",
+      "to": "p062",
+      "mode": "car",
+      "minutes": 9,
+      "meters": 5170,
+      "straightMeters": 3446,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p059",
+      "to": "p057",
+      "mode": "car",
+      "minutes": 14,
+      "meters": 6976,
+      "straightMeters": 2245,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p059",
+      "to": "p345",
+      "mode": "car",
+      "minutes": 13,
+      "meters": 9455,
+      "straightMeters": 7029,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p062",
+      "to": "p057",
+      "mode": "car",
+      "minutes": 12,
+      "meters": 5021,
+      "straightMeters": 3446,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p062",
+      "to": "p348",
+      "mode": "car",
+      "minutes": 10,
+      "meters": 2722,
+      "straightMeters": 2038,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p337",
+      "to": "p346",
+      "mode": "car",
+      "minutes": 18,
+      "meters": 11379,
+      "straightMeters": 7582,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p345",
+      "to": "p059",
+      "mode": "car",
+      "minutes": 18,
+      "meters": 10214,
+      "straightMeters": 7029,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p346",
+      "to": "p337",
+      "mode": "car",
+      "minutes": 21,
+      "meters": 17172,
+      "straightMeters": 7582,
+      "collectedAt": "2026-11-01"
+    },
+    {
+      "from": "p346",
+      "to": "p345",
+      "mode": "car",
+      "minutes": 11,
+      "meters": 9851,
+      "straightMeters": 4006,
+      "collectedAt": "2026-11-01"
     }
   ]
 }
