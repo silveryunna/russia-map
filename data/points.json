@@ -816,8 +816,10 @@
     ],
     "estimatedDuration": 75,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（公园与纪念区，无需门票）",
     "sources": [
       {
         "type": "curated",
@@ -874,8 +876,10 @@
     ],
     "estimatedDuration": 20,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（室外纪念建筑，无需门票）",
     "sources": [
       {
         "type": "curated",
@@ -1011,7 +1015,7 @@
       "close": "21:00",
       "lastEntry": "20:00"
     },
-    "ticket": "unknown",
+    "ticket": "成人 700 ₽；优惠票 0／350／400 ₽（主楼单独售票）",
     "sources": [
       {
         "type": "curated",

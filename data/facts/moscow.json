@@ -460,6 +460,54 @@
       "note": "官网「О ВДНХ」列明「пространство открыто круглосуточно; вход свободный」；园内展馆、博物馆、 каток 各自售票，没有全园通票"
     },
     {
+      "pointId": "p019",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "波克隆纳亚山胜利公园官网（poklonnaya.gbuador.ru，仅 http）写明「Время работы парка — круглосуточно」；官网只有 http，不满足 verified 的 https 要求，故标 estimated"
+    },
+    {
+      "pointId": "p019",
+      "field": "ticket",
+      "value": "免费（公园与纪念区，无需门票）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "园区免费开放；胜利博物馆、展览与部分场馆另行售票。官方站点仅 http，按 estimated 记录"
+    },
+    {
+      "pointId": "p021",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "凯旋门是库图佐夫大街旁开放广场上的室外纪念建筑，可全天从外部参观；没有官方时刻表，标 estimated"
+    },
+    {
+      "pointId": "p021",
+      "field": "ticket",
+      "value": "免费（室外纪念建筑，无需门票）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "室外纪念建筑不设门票；没有官方票价页可引，标 estimated"
+    },
+    {
       "pointId": "p022",
       "field": "openCalendar",
       "value": {
@@ -513,6 +561,18 @@
       "collectedAt": "2026-10-31",
       "reviewAfter": "2027-01-29",
       "note": "特列季亚科夫画廊官网；周一闭馆；周二至周日 10:00–21:00，售票/入场至 20:00"
+    },
+    {
+      "pointId": "p025",
+      "field": "ticket",
+      "value": "成人 700 ₽；优惠票 0／350／400 ₽（主楼单独售票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.tretyakovgallery.ru/for-visitors/museums/istoricheskoe-zdanie/",
+      "sourceLabel": "特列季亚科夫画廊官网·历史主楼页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网历史主楼页内嵌票价：Взрослый — 700 ₽、Льготные — 0, 350, 400 ₽；主楼（拉夫鲁申斯基巷 10）与新特列季亚科夫卡（克里米亚堤 10）各自售票，本点位是主楼"
     },
     {
       "pointId": "p057",
