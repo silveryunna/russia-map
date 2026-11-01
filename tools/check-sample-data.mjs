@@ -53,7 +53,8 @@ for (const id of scope) {
   if (p.openCalendar === 'unknown') { /* 显式未知：允许，排程按宽边界处理 */ }
   else if (p.openCalendar && typeof p.openCalendar === 'object') {
     const c = p.openCalendar;
-    if (!c.days || !c.open || !c.close) err(`${where} openCalendar 需要 days/open/close`);
+    if (c.alwaysOpen === true) calendarKnown += 1;
+    else if (!c.days || !c.open || !c.close) err(`${where} openCalendar 需要 days/open/close 或 alwaysOpen: true`);
     else calendarKnown += 1;
   } else err(`${where} 缺 openCalendar（没有就写 "unknown"，不许留空）`);
 

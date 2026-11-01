@@ -53,6 +53,10 @@ function checkValue(field, value) {
   if (field === 'openCalendar') {
     if (value === 'unknown') return null;
     if (!value || typeof value !== 'object' || Array.isArray(value)) return 'openCalendar 需要对象或 "unknown"';
+    if (value.alwaysOpen !== undefined) {
+      if (typeof value.alwaysOpen !== 'boolean') return 'openCalendar.alwaysOpen 需布尔值';
+      if (value.alwaysOpen === true) return null;
+    }
     for (const k of ['days', 'open', 'close']) if (typeof value[k] !== 'string' || !value[k]) return `openCalendar 缺 ${k}`;
     for (const k of ['open', 'close']) if (!TIME_RE.test(value[k])) return `openCalendar.${k} 需 HH:MM`;
     if (value.lastEntry !== undefined && !TIME_RE.test(value.lastEntry)) return 'openCalendar.lastEntry 需 HH:MM';

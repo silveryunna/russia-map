@@ -7,24 +7,26 @@
     {
       "pointId": "p001",
       "field": "openCalendar",
-      "value": "unknown",
-      "status": "unknown",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
       "sourceType": "curated",
       "sourceLabel": "站内整理",
       "collectedAt": "2026-11-01",
       "reviewAfter": "2027-04-29",
-      "note": "红场是开放城市广场，没有官方开放时间表；临时管控/活动封闭以现场为准"
+      "note": "红场是开放城市广场，常态全天可通行；临时管控/活动封闭以现场为准。没有官方时刻表，故标 estimated 而不是 verified"
     },
     {
       "pointId": "p001",
       "field": "ticket",
-      "value": "unknown",
-      "status": "unknown",
+      "value": "免费（开放广场，无需门票）",
+      "status": "estimated",
       "sourceType": "curated",
       "sourceLabel": "站内整理",
       "collectedAt": "2026-11-01",
       "reviewAfter": "2027-04-29",
-      "note": "开放城市广场，不设门票；没有官方票价页可引"
+      "note": "开放城市广场不设门票；没有官方票价页可引，按现场常识记录并标 estimated"
     },
     {
       "pointId": "p002",
@@ -170,24 +172,26 @@
     {
       "pointId": "p008",
       "field": "openCalendar",
-      "value": "unknown",
-      "status": "unknown",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
       "sourceType": "curated",
       "sourceLabel": "站内整理",
       "collectedAt": "2026-11-01",
       "reviewAfter": "2027-04-29",
-      "note": "老阿尔巴特是开放步行街，没有官方开放时间表；店铺各自营业时间另计"
+      "note": "老阿尔巴特是开放步行街，常态全天可通行；店铺各自营业时间另计。没有官方时刻表，故标 estimated 而不是 verified"
     },
     {
       "pointId": "p008",
       "field": "ticket",
-      "value": "unknown",
-      "status": "unknown",
+      "value": "免费（开放步行街，无需门票）",
+      "status": "estimated",
       "sourceType": "curated",
       "sourceLabel": "站内整理",
       "collectedAt": "2026-11-01",
       "reviewAfter": "2027-04-29",
-      "note": "开放步行街，不设门票；没有官方票价页可引"
+      "note": "开放步行街不设门票；店铺消费自理，没有官方票价页可引，标 estimated"
     },
     {
       "pointId": "p010",
@@ -391,7 +395,7 @@
       "pointId": "p017",
       "field": "openCalendar",
       "value": {
-        "days": "Mo,Tu,We,Fr",
+        "days": "Mo-Su",
         "open": "10:00",
         "close": "19:00",
         "weekly": {
@@ -415,7 +419,45 @@
       "sourceLabel": "莫斯科航天博物馆官网",
       "collectedAt": "2026-10-31",
       "reviewAfter": "2027-01-29",
-      "note": "莫斯科航天博物馆官网；周一/二/三/五 10–19；周四/六/日 10–21"
+      "note": "莫斯科航天博物馆官网：周一/二/三/五 10:00–19:00，周四/六/日 10:00–21:00；官网写明每天开放，周表只覆盖周四/六/日延时"
+    },
+    {
+      "pointId": "p017",
+      "field": "ticket",
+      "value": "全票 500 ₽（优惠票另计，需带证明）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://kosmo-museum.ru/static_pages/splanirovat-vizit",
+      "sourceLabel": "莫斯科航天博物馆官网「计划参观」页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网：按场次售票，全票 500 ₽，语音导览 250 ₽；第三方票务页曾显示「от 300 ₽」为最低价口径（通常对应优惠票），本站按官网全票价记录"
+    },
+    {
+      "pointId": "p018",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://vdnh.ru/visitors/FAQ",
+      "sourceLabel": "ВДНХ 官网「Частые вопросы」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "ВДНХ 官网 FAQ：「Выставка открыта для посетителей круглосуточно」；园区 24 小时开放、免费进入，园内展馆各有营业时间，故只对园区本身用 alwaysOpen"
+    },
+    {
+      "pointId": "p018",
+      "field": "ticket",
+      "value": "免费进入园区；园内展馆/博物馆单独售票",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://vdnh.ru/visitors/about/",
+      "sourceLabel": "ВДНХ 官网「О ВДНХ」页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网「О ВДНХ」列明「пространство открыто круглосуточно; вход свободный」；园内展馆、博物馆、 каток 各自售票，没有全园通票"
     },
     {
       "pointId": "p022",
@@ -747,7 +789,7 @@
       "pointId": "p354",
       "field": "openCalendar",
       "value": {
-        "days": "Tu,We,Fr,Sa,Su",
+        "days": "Tu-Su",
         "open": "12:00",
         "close": "19:00",
         "weekly": {
@@ -781,7 +823,7 @@
       "pointId": "p355",
       "field": "openCalendar",
       "value": {
-        "days": "Tu,We,Fr,Sa,Su",
+        "days": "Tu-Su",
         "open": "12:00",
         "close": "19:00",
         "weekly": {
@@ -815,7 +857,7 @@
       "pointId": "p358",
       "field": "openCalendar",
       "value": {
-        "days": "Tu,Fr,Sa,Su",
+        "days": "Tu-Su",
         "open": "11:00",
         "close": "18:00",
         "weekly": {
@@ -853,7 +895,7 @@
       "pointId": "p368",
       "field": "openCalendar",
       "value": {
-        "days": "We,Fr,Sa,Su",
+        "days": "We-Su",
         "open": "10:00",
         "close": "18:00",
         "weekly": {

@@ -25,6 +25,24 @@ const WEEKDAYS = new Set(['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su']);
 const CLOCK_RE = /^([01]\d|2[0-3]):[0-5]\d$/;
 
 const isClock = (s) => typeof s === 'string' && CLOCK_RE.test(s);
+const WD_ORDER = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+// 与 src/pages/plan/feasibility.js 的 parseDays 同口径：'Mo-Fr,Sa' 或 ['Mo','Tu']
+function parseWeekdays(days) {
+  if (Array.isArray(days)) return days.filter((d) => WEEKDAYS.has(d));
+  if (typeof days !== 'string' || !days.trim()) return [];
+  const out = [];
+  for (const part of days.split(',').map((s) => s.trim()).filter(Boolean)) {
+    const [a, b] = part.split('-').map((s) => s.trim());
+    if (!WEEKDAYS.has(a)) continue;
+    if (!b) { out.push(a); continue; }
+    if (!WEEKDAYS.has(b)) continue;
+    for (let i = WD_ORDER.indexOf(a); ; i = (i + 1) % 7) {
+      out.push(WD_ORDER[i]);
+      if (WD_ORDER[i] === b) break;
+    }
+  }
+  return [...new Set(out)];
+}
 const isDate = (s) => {
   if (typeof s !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(s)) return false;
   const t = Date.parse(s + 'T00:00:00Z');
@@ -53,28 +71,42 @@ function validateCalendar(calendar, where) {
   const daysOk = Array.isArray(calendar.days)
     ? calendar.days.every((d) => WEEKDAYS.has(d))
     : typeof calendar.days === 'string';
-  if (!daysOk) err(`${where} openCalendar.days 必须是星期字符串或数组`);
-  if (!calendar.days || !isClock(calendar.open) || !isClock(calendar.close)) {
-    return err(`${where} openCalendar 需要 days/open/close（HH:MM）`);
+  // alwaysOpen：24 小时开放（开放广场/步行街/全天园区），与 days/open/close 互斥
+  if (calendar.alwaysOpen !== undefined && typeof calendar.alwaysOpen !== 'boolean') {
+    err(`${where} openCalendar.alwaysOpen 必须是布尔值`);
   }
-  // crossDay 显式声明「营业跨到次日」：只有这时才允许 close <= open，避免把笔误当跨日
-  if (calendar.crossDay !== undefined && typeof calendar.crossDay !== 'boolean') {
-    err(`${where} openCalendar.crossDay 必须是布尔值`);
-  }
-  const crossDay = calendar.crossDay === true;
-  if (!crossDay && calendar.close <= calendar.open) err(`${where} openCalendar.close 必须晚于 open（跨午夜请显式写 crossDay: true）`);
-  if (crossDay && calendar.close === calendar.open) err(`${where} openCalendar.crossDay 时 close 不能等于 open`);
-  if (calendar.lastEntry !== undefined) checkHours(calendar, where, true, crossDay);
+  const alwaysOpen = calendar.alwaysOpen === true;
+  if (alwaysOpen) {
+    for (const k of ['days', 'open', 'close', 'lastEntry', 'weekly', 'crossDay']) {
+      if (calendar[k] !== undefined) err(`${where} openCalendar.alwaysOpen 为真时不能同时写 ${k}（全天开放没有时段时间表）`);
+    }
+  } else {
+    if (!daysOk) err(`${where} openCalendar.days 必须是星期字符串或数组`);
+    if (!calendar.days || !isClock(calendar.open) || !isClock(calendar.close)) {
+      return err(`${where} openCalendar 需要 days/open/close（HH:MM）或 alwaysOpen: true`);
+    }
+    // crossDay 显式声明「营业跨到次日」：只有这时才允许 close <= open，避免把笔误当跨日
+    if (calendar.crossDay !== undefined && typeof calendar.crossDay !== 'boolean') {
+      err(`${where} openCalendar.crossDay 必须是布尔值`);
+    }
+    const crossDay = calendar.crossDay === true;
+    if (!crossDay && calendar.close <= calendar.open) err(`${where} openCalendar.close 必须晚于 open（跨午夜请显式写 crossDay: true）`);
+    if (crossDay && calendar.close === calendar.open) err(`${where} openCalendar.crossDay 时 close 不能等于 open`);
+    if (calendar.lastEntry !== undefined) checkHours(calendar, where, true, crossDay);
 
-  if (calendar.weekly !== undefined) {
-    if (!calendar.weekly || typeof calendar.weekly !== 'object' || Array.isArray(calendar.weekly)) {
-      err(`${where} openCalendar.weekly 必须是对象`);
-    } else {
-      for (const [wd, hours] of Object.entries(calendar.weekly)) {
-        const wp = `${where}.weekly.${wd}`;
-        if (!WEEKDAYS.has(wd)) err(`${wp} 星期非法`);
-        if (!hours || typeof hours !== 'object' || Array.isArray(hours)) { err(`${wp} 必须是对象`); continue; }
-        checkHours(hours, wp, true, crossDay);
+    if (calendar.weekly !== undefined) {
+      if (!calendar.weekly || typeof calendar.weekly !== 'object' || Array.isArray(calendar.weekly)) {
+        err(`${where} openCalendar.weekly 必须是对象`);
+      } else {
+        const openDays = parseWeekdays(calendar.days);
+        for (const [wd, hours] of Object.entries(calendar.weekly)) {
+          const wp = `${where}.weekly.${wd}`;
+          if (!WEEKDAYS.has(wd)) err(`${wp} 星期非法`);
+          // weekly 是「周内某天改时段」，不能用来额外开门：那天不在 days 里会被判闭馆
+          else if (!openDays.includes(wd)) err(`${wp} 不在 openCalendar.days（${calendar.days}）里：weekly 只能改开放日的时段，要那天开门请写进 days`);
+          if (!hours || typeof hours !== 'object' || Array.isArray(hours)) { err(`${wp} 必须是对象`); continue; }
+          checkHours(hours, wp, true, crossDay);
+        }
       }
     }
   }

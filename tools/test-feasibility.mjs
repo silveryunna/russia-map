@@ -420,6 +420,46 @@ const it = (id, refId, extra = {}) => ({
     '跨日场所次日 00:30 关门，23:40 入场 60 分钟仍报超时并标注次日');
 }
 
+// ── 5.2) 全天开放（alwaysOpen）：开放广场 / 步行街 / 24 小时园区 ──
+{
+  const st = calendarState({ alwaysOpen: true }, '2026-11-10');
+  assert(st.state === 'open' && st.open === 0 && st.close === 1440 && st.reason === '全天开放',
+    'alwaysOpen 全天开放，不写 00:00–23:59 假装有边界');
+
+  const holidayShut = calendarState({
+    alwaysOpen: true,
+    exceptions: [{ type: 'date', date: '2026-11-07', action: 'closed', note: '活动管控' }],
+  }, '2026-11-07');
+  assert(holidayShut.state === 'closed' && holidayShut.reason === '活动管控',
+    'alwaysOpen 仍可被日期例外临时关闭');
+
+  const square = new Map([['po', P('po', '开放广场', 55.753, 37.62, {
+    estimatedDuration: 45,
+    openCalendar: { alwaysOpen: true },
+  })]]);
+  const late = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('i1', 'po', { startLocal: '23:30' })],
+    places: square,
+    options: { start: '23:00', end: '23:59' },
+  });
+  assert(!late.conflicts.some((x) => ['after-close', 'before-open', 'hours-unknown'].includes(x.kind)),
+    '23:30 逛全天开放场所不误报关门/开门/时间未知');
+
+  const park = new Map([['pa', P('pa', '24 小时园区', 55.83, 37.63, {
+    estimatedDuration: 60,
+    openCalendar: { alwaysOpen: true },
+  })]]);
+  const crossMidnight = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('i1', 'pa', { startLocal: '23:40' })],
+    places: park,
+    options: { start: '23:00', end: '23:59' },
+  });
+  assert(!crossMidnight.conflicts.some((x) => x.kind === 'after-close'),
+    '23:40 开始 60 分钟停留跨过 24:00 也不报关门');
+}
+
 // ── 6) 固定预订重叠 ──
 {
   const r = evaluateDay({

@@ -16,8 +16,10 @@
     ],
     "estimatedDuration": 45,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（开放广场，无需门票）",
     "sources": [
       {
         "type": "curated",
@@ -308,8 +310,10 @@
     ],
     "estimatedDuration": 90,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（开放步行街，无需门票）",
     "sources": [
       {
         "type": "curated",
@@ -714,7 +718,7 @@
     "estimatedDuration": 120,
     "durationBasis": "estimate",
     "openCalendar": {
-      "days": "Mo,Tu,We,Fr",
+      "days": "Mo-Su",
       "open": "10:00",
       "close": "19:00",
       "weekly": {
@@ -732,7 +736,7 @@
         }
       }
     },
-    "ticket": "unknown",
+    "ticket": "全票 500 ₽（优惠票另计，需带证明）",
     "sources": [
       {
         "type": "curated",
@@ -746,6 +750,13 @@
         "collectedAt": "2026-10-31",
         "reviewAfter": "2027-01-29",
         "note": "莫斯科航天博物馆官网；周一/二/三/五 10–19；周四/六/日 10–21"
+      },
+      {
+        "type": "official",
+        "url": "https://kosmo-museum.ru/static_pages/splanirovat-vizit",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "官网：按场次售票，全票 500 ₽，语音导览 250 ₽；第三方票务页曾显示「от 300 ₽」为最低价口径（通常对应优惠票），本站按官网全票价记录"
       }
     ],
     "confidence": 75
@@ -767,14 +778,23 @@
     ],
     "estimatedDuration": 180,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费进入园区；园内展馆/博物馆单独售票",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://vdnh.ru/visitors/about/",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "官网「О ВДНХ」列明「пространство открыто круглосуточно; вход свободный」；园内展馆、博物馆、 каток 各自售票，没有全园通票"
       }
     ],
     "confidence": 75
@@ -5929,7 +5949,7 @@
     "estimatedDuration": 90,
     "durationBasis": "estimate",
     "openCalendar": {
-      "days": "Tu,We,Fr,Sa,Su",
+      "days": "Tu-Su",
       "open": "12:00",
       "close": "19:00",
       "weekly": {
@@ -5975,7 +5995,7 @@
     "estimatedDuration": 90,
     "durationBasis": "estimate",
     "openCalendar": {
-      "days": "Tu,We,Fr,Sa,Su",
+      "days": "Tu-Su",
       "open": "12:00",
       "close": "19:00",
       "weekly": {
@@ -6048,7 +6068,7 @@
     "estimatedDuration": 90,
     "durationBasis": "estimate",
     "openCalendar": {
-      "days": "Tu,Fr,Sa,Su",
+      "days": "Tu-Su",
       "open": "11:00",
       "close": "18:00",
       "weekly": {
@@ -6134,7 +6154,7 @@
     "estimatedDuration": 90,
     "durationBasis": "estimate",
     "openCalendar": {
-      "days": "We,Fr,Sa,Su",
+      "days": "We-Su",
       "open": "10:00",
       "close": "18:00",
       "weekly": {

@@ -203,6 +203,19 @@ export function calendarState(calendar, dateStr) {
   if (state === 'closed') {
     return { state: 'closed', open: null, close: null, lastEntry: null, reason, exceptionsUnresolved: false };
   }
+  // 全天开放（开放广场、步行街、24 小时园区）：没有开闭馆边界，用显式 alwaysOpen 表达，
+  // 不要写 00:00–23:59 假装有边界（那会在 23:30 误报关门）。
+  if (calendar.alwaysOpen === true) {
+    return {
+      state: 'open',
+      open: 0,
+      close: 1440,
+      lastEntry: null,
+      reason: '全天开放',
+      alwaysOpen: true,
+      exceptionsUnresolved,
+    };
+  }
   // 跨日营业（地铁 05:30–01:00、夜店等）：crossDay=true 时 close/lastEntry 落在次日，
   // 内部统一用 >24:00 的分钟数表示，避免「01:00 比 05:30 早」被当成超时。
   if (calendar.crossDay === true && hours.open !== null) {
@@ -386,17 +399,18 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
         if (cal.exceptionsUnresolved) {
           push('calendar-exceptions', 'warn', item.id, `「${name}」缺少日期，周内/特殊闭馆例外未校验（按默认时段排程）`);
         }
-        if (arrive < cal.open) {
+        if (!cal.alwaysOpen && arrive < cal.open) {
           wait += cal.open - arrive;
           push('before-open', 'warn', item.id, `「${name}」${formatMinutes(cal.open)} 才开门，需等待 ${cal.open - arrive} 分钟`, { opens: formatMinutes(cal.open) });
           arrive = cal.open;
         }
-        const lastEntry = cal.lastEntry ?? cal.close;
-        if (arrive > lastEntry) {
+        // 全天开放没有关门时刻：不检查最后入场/闭馆，避免把 24 小时场所误判超时
+        const lastEntry = cal.alwaysOpen ? null : (cal.lastEntry ?? cal.close);
+        if (lastEntry !== null && arrive > lastEntry) {
           push('after-last-entry', 'error', item.id, `「${name}」最晚入场 ${formatMinutesCrossDay(lastEntry)}，实际 ${formatMinutesCrossDay(arrive)} 才到`, {
             lastEntry: formatMinutesCrossDay(lastEntry),
           });
-        } else if (arrive + duration > cal.close) {
+        } else if (!cal.alwaysOpen && arrive + duration > cal.close) {
           push('after-close', 'error', item.id, `「${name}」${formatMinutesCrossDay(cal.close)} 关门，${formatMinutesCrossDay(arrive)} 开始停留 ${duration} 分钟会超时`, {
             closes: formatMinutesCrossDay(cal.close),
           });
