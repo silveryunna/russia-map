@@ -1,0 +1,239 @@
+{
+  "city": "阿拉木图",
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-02",
+  "note": "阿拉木图事实账本：旗舰点位优先（中央国家博物馆、地铁五站、升天大教堂等），来源以各馆官网为准。",
+  "facts": [
+    {
+      "pointId": "p122",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo,We,Th,Fr,Sa,Su",
+        "open": "09:00",
+        "close": "18:00",
+        "lastEntry": "17:30"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://csmrk.kz/ru",
+      "sourceLabel": "哈萨克斯坦中央国家博物馆官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网页脚：Пн–Вс 09:00–18:00，Вт 闭馆，касса 至 17:30；每月最后一个周二为卫生日闭馆（地方名录标注，以官网公告为准）"
+    },
+    {
+      "pointId": "p122",
+      "field": "ticket",
+      "value": "1500 ₸（本国成人主展）／5000 ₸（外国游客主展）／10000 ₸（外国游客全馆）／学生、пенсионеры 700 ₸",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://csmrk.kz/ru/category/ticket-prices",
+      "sourceLabel": "中央国家博物馆官网「Цены билетов」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网票价表：主展（1–4 厅）成人 1500 ₸、学生/пенсионеры 700 ₸；外国游客主展 5000 ₸、全馆 10000 ₸（2025-07-25 起调价，Kazinform 报道）；讲解 2000–3000 ₸/小时"
+    },
+    {
+      "pointId": "p137",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "06:20",
+        "close": "00:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metroalmaty.kz/ru",
+      "sourceLabel": "阿拉木图地铁官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：地铁每日 06:20–00:00（阿斯塔纳时间=当地时间）开放，全天单一票价；丝绸之路站 Zhibek Zholy随全网统一作息，高峰 7–8 分钟一班、平峰最长 13 分钟"
+    },
+    {
+      "pointId": "p137",
+      "field": "ticket",
+      "value": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metroalmaty.kz/ru/payment",
+      "sourceLabel": "阿拉木图地铁官网「Оплата проезда」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：смарт-жетон 单程 120 тенге（当日有效），смарт-карта 180 ₸（卡费，可存 60 次、3 年有效）；7–15 岁儿童 60 ₸；支持银行卡、Onay、QR；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p138",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "06:20",
+        "close": "00:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metroalmaty.kz/ru",
+      "sourceLabel": "阿拉木图地铁官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：地铁每日 06:20–00:00（阿斯塔纳时间=当地时间）开放，全天单一票价；苹果站 Almaly随全网统一作息，高峰 7–8 分钟一班、平峰最长 13 分钟"
+    },
+    {
+      "pointId": "p138",
+      "field": "ticket",
+      "value": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metroalmaty.kz/ru/payment",
+      "sourceLabel": "阿拉木图地铁官网「Оплата проезда」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：смарт-жетон 单程 120 тенге（当日有效），смарт-карта 180 ₸（卡费，可存 60 次、3 年有效）；7–15 岁儿童 60 ₸；支持银行卡、Onay、QR；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p139",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "06:20",
+        "close": "00:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metroalmaty.kz/ru",
+      "sourceLabel": "阿拉木图地铁官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：地铁每日 06:20–00:00（阿斯塔纳时间=当地时间）开放，全天单一票价；阿乌埃佐夫剧院站 Auezov Theater随全网统一作息，高峰 7–8 分钟一班、平峰最长 13 分钟"
+    },
+    {
+      "pointId": "p139",
+      "field": "ticket",
+      "value": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metroalmaty.kz/ru/payment",
+      "sourceLabel": "阿拉木图地铁官网「Оплата проезда」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：смарт-жетон 单程 120 тенге（当日有效），смарт-карта 180 ₸（卡费，可存 60 次、3 年有效）；7–15 岁儿童 60 ₸；支持银行卡、Onay、QR；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p140",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "06:20",
+        "close": "00:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metroalmaty.kz/ru",
+      "sourceLabel": "阿拉木图地铁官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：地铁每日 06:20–00:00（阿斯塔纳时间=当地时间）开放，全天单一票价；萨雷亚尔卡站 Saryarka随全网统一作息，高峰 7–8 分钟一班、平峰最长 13 分钟"
+    },
+    {
+      "pointId": "p140",
+      "field": "ticket",
+      "value": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metroalmaty.kz/ru/payment",
+      "sourceLabel": "阿拉木图地铁官网「Оплата проезда」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：смарт-жетон 单程 120 тенге（当日有效），смарт-карта 180 ₸（卡费，可存 60 次、3 年有效）；7–15 岁儿童 60 ₸；支持银行卡、Onay、QR；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p141",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "06:20",
+        "close": "00:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metroalmaty.kz/ru",
+      "sourceLabel": "阿拉木图地铁官网",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：地铁每日 06:20–00:00（阿斯塔纳时间=当地时间）开放，全天单一票价；拜科努尔站 Baikonur随全网统一作息，高峰 7–8 分钟一班、平峰最长 13 分钟"
+    },
+    {
+      "pointId": "p141",
+      "field": "ticket",
+      "value": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://metroalmaty.kz/ru/payment",
+      "sourceLabel": "阿拉木图地铁官网「Оплата проезда」",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网：смарт-жетон 单程 120 тенге（当日有效），смарт-карта 180 ₸（卡费，可存 60 次、3 年有效）；7–15 岁儿童 60 ₸；支持银行卡、Onay、QR；站厅参观含在车费内"
+    },
+    {
+      "pointId": "p134",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "升天大教堂（津科夫大教堂，1907 年建、世界第二高木结构教堂）为莫斯科宗主教区在用教堂，无独立官网发布开放时段；旅游平台多写 07:00–19:00，非官方不采信，记 unknown"
+    },
+    {
+      "pointId": "p134",
+      "field": "ticket",
+      "value": "免费（教堂参观自由捐献）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "东正教教堂自由进出，按 estimated 记录；弥撒时段保持肃静"
+    },
+    {
+      "pointId": "p120",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "共和国广场与独立纪念碑（Отан Қорғаушылар монументі）为开放城市广场，常态全天可通行；近年时有围挡修缮，以现场为准"
+    },
+    {
+      "pointId": "p120",
+      "field": "ticket",
+      "value": "免费（共和国广场开放空间）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "开放广场免费，按 estimated 记录"
+    },
+    {
+      "pointId": "p123",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "阿拜国家歌剧芭蕾舞剧院按演出场次开放、无固定参观时段；演出排期以剧院官网/票房为准；门前广场为江布尔纪念碑"
+    }
+  ]
+}

@@ -2937,7 +2937,11 @@
     "lat": 43.23856,
     "lon": 76.94542,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（共和国广场开放空间）"
   },
   {
     "id": "p121",
@@ -2965,7 +2969,14 @@
     "lat": 43.23591,
     "lon": 76.95072,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo,We,Th,Fr,Sa,Su",
+      "open": "09:00",
+      "close": "18:00",
+      "lastEntry": "17:30"
+    },
+    "ticket": "1500 ₸（本国成人主展）／5000 ₸（外国游客主展）／10000 ₸（外国游客全馆）／学生、пенсионеры 700 ₸"
   },
   {
     "id": "p123",
@@ -2979,7 +2990,8 @@
     "lat": 43.24865,
     "lon": 76.94579,
     "estimatedDuration": 150,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": "unknown"
   },
   {
     "id": "p124",
@@ -3133,7 +3145,9 @@
     "lat": 43.25875,
     "lon": 76.95355,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": "unknown",
+    "ticket": "免费（教堂参观自由捐献）"
   },
   {
     "id": "p135",
@@ -3178,7 +3192,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "06:20",
+      "close": "00:00",
+      "crossDay": true
+    },
+    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）"
   },
   {
     "id": "p138",
@@ -3195,7 +3216,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "06:20",
+      "close": "00:00",
+      "crossDay": true
+    },
+    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）"
   },
   {
     "id": "p139",
@@ -3212,7 +3240,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "06:20",
+      "close": "00:00",
+      "crossDay": true
+    },
+    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）"
   },
   {
     "id": "p140",
@@ -3229,7 +3264,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "06:20",
+      "close": "00:00",
+      "crossDay": true
+    },
+    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）"
   },
   {
     "id": "p141",
@@ -3246,7 +3288,14 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "06:20",
+      "close": "00:00",
+      "crossDay": true
+    },
+    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）"
   },
   {
     "id": "p142",
