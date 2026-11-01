@@ -31,16 +31,18 @@ const isDate = (s) => {
   return Number.isFinite(t) && new Date(t).toISOString().slice(0, 10) === s;
 };
 
-function checkHours(obj, where, required = true) {
+function checkHours(obj, where, required = true, crossDay = false) {
   const hasOpen = obj.open !== undefined;
   const hasClose = obj.close !== undefined;
   if (required && (!hasOpen || !hasClose)) { err(`${where} 需要 open 与 close`); return; }
   if (!required && hasOpen !== hasClose) { err(`${where} open/close 必须同时提供`); return; }
   if (!hasOpen && !hasClose) return;
   if (!isClock(obj.open) || !isClock(obj.close)) { err(`${where} open/close 必须是 HH:MM`); return; }
-  if (obj.close <= obj.open) err(`${where} close 必须晚于 open`);
-  if (obj.lastEntry !== undefined && (!isClock(obj.lastEntry) || obj.lastEntry > obj.close)) {
-    err(`${where} lastEntry 必须是 HH:MM 且不晚于 close`);
+  if (!crossDay && obj.close <= obj.open) err(`${where} close 必须晚于 open（跨午夜请显式写 crossDay: true）`);
+  if (crossDay && obj.close === obj.open) err(`${where} crossDay 时 close 不能等于 open`);
+  if (obj.lastEntry !== undefined) {
+    if (!isClock(obj.lastEntry)) err(`${where} lastEntry 必须是 HH:MM`);
+    else if (!crossDay && obj.lastEntry > obj.close) err(`${where} lastEntry 不得晚于 close`);
   }
 }
 
@@ -55,8 +57,14 @@ function validateCalendar(calendar, where) {
   if (!calendar.days || !isClock(calendar.open) || !isClock(calendar.close)) {
     return err(`${where} openCalendar 需要 days/open/close（HH:MM）`);
   }
-  if (calendar.close <= calendar.open) err(`${where} openCalendar.close 必须晚于 open`);
-  if (calendar.lastEntry !== undefined) checkHours(calendar, where);
+  // crossDay 显式声明「营业跨到次日」：只有这时才允许 close <= open，避免把笔误当跨日
+  if (calendar.crossDay !== undefined && typeof calendar.crossDay !== 'boolean') {
+    err(`${where} openCalendar.crossDay 必须是布尔值`);
+  }
+  const crossDay = calendar.crossDay === true;
+  if (!crossDay && calendar.close <= calendar.open) err(`${where} openCalendar.close 必须晚于 open（跨午夜请显式写 crossDay: true）`);
+  if (crossDay && calendar.close === calendar.open) err(`${where} openCalendar.crossDay 时 close 不能等于 open`);
+  if (calendar.lastEntry !== undefined) checkHours(calendar, where, true, crossDay);
 
   if (calendar.weekly !== undefined) {
     if (!calendar.weekly || typeof calendar.weekly !== 'object' || Array.isArray(calendar.weekly)) {
@@ -66,7 +74,7 @@ function validateCalendar(calendar, where) {
         const wp = `${where}.weekly.${wd}`;
         if (!WEEKDAYS.has(wd)) err(`${wp} 星期非法`);
         if (!hours || typeof hours !== 'object' || Array.isArray(hours)) { err(`${wp} 必须是对象`); continue; }
-        checkHours(hours, wp);
+        checkHours(hours, wp, true, crossDay);
       }
     }
   }
@@ -91,7 +99,7 @@ function validateCalendar(calendar, where) {
             err(`${ep}.nth 必须是 1–5 或 "last"`);
           }
         }
-        if (ex.action === 'open') checkHours(ex, ep, false);
+        if (ex.action === 'open') checkHours(ex, ep, false, crossDay);
       });
     }
   }

@@ -56,6 +56,7 @@ function checkValue(field, value) {
     for (const k of ['days', 'open', 'close']) if (typeof value[k] !== 'string' || !value[k]) return `openCalendar 缺 ${k}`;
     for (const k of ['open', 'close']) if (!TIME_RE.test(value[k])) return `openCalendar.${k} 需 HH:MM`;
     if (value.lastEntry !== undefined && !TIME_RE.test(value.lastEntry)) return 'openCalendar.lastEntry 需 HH:MM';
+    if (value.crossDay !== undefined && typeof value.crossDay !== 'boolean') return 'openCalendar.crossDay 需布尔值';
     return null;
   }
   if (field === 'ticket') {

@@ -382,6 +382,44 @@ const it = (id, refId, extra = {}) => ({
     '早到只等待并提示，不算不可行');
 }
 
+// ── 5.1) 跨日营业（crossDay）：地铁 05:30–01:00 这类闭馆落在次日的场所 ──
+{
+  const metroHours = { days: 'Mo-Su', open: '05:30', close: '01:00', crossDay: true };
+  const st = calendarState(metroHours, '2026-11-10');
+  assert(st.state === 'open' && st.open === 330 && st.close === 1500,
+    'crossDay 把闭馆 01:00 记为次日 25:00');
+  assert(st.reason.includes('（次日）'), '跨日营业的时段说明标注次日');
+  const plain = calendarState({ days: 'Mo-Su', open: '05:30', close: '23:00' }, '2026-11-10');
+  assert(plain.close === 1380, '未声明 crossDay 时不改写闭馆时间');
+
+  const night = new Map([['pn', P('pn', '跨日场所', 55.77, 37.59, {
+    estimatedDuration: 30,
+    openCalendar: metroHours,
+  })]]);
+  const okLate = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('i1', 'pn', { startLocal: '23:20' })],
+    places: night,
+    options: { start: '23:00', end: '23:59' },
+  });
+  assert(okLate.feasible && !okLate.conflicts.some((c) => c.kind === 'after-close'),
+    '23:20 进 05:30–01:00 的跨日场所，30 分钟不误判超时');
+
+  const closingEarly = new Map([['pe', P('pe', '跨日场所', 55.77, 37.59, {
+    estimatedDuration: 60,
+    openCalendar: { days: 'Mo-Su', open: '18:00', close: '00:30', crossDay: true },
+  })]]);
+  const badLate = evaluateDay({
+    day: { id: 'd', date: '2026-11-10' },
+    items: [it('i1', 'pe', { startLocal: '23:40' })],
+    places: closingEarly,
+    options: { start: '23:00', end: '23:59' },
+  });
+  const c = badLate.conflicts.find((x) => x.kind === 'after-close');
+  assert(Boolean(c) && String(c.message).includes('00:30（次日）'),
+    '跨日场所次日 00:30 关门，23:40 入场 60 分钟仍报超时并标注次日');
+}
+
 // ── 6) 固定预订重叠 ──
 {
   const r = evaluateDay({

@@ -203,6 +203,12 @@ export function calendarState(calendar, dateStr) {
   if (state === 'closed') {
     return { state: 'closed', open: null, close: null, lastEntry: null, reason, exceptionsUnresolved: false };
   }
+  // 跨日营业（地铁 05:30–01:00、夜店等）：crossDay=true 时 close/lastEntry 落在次日，
+  // 内部统一用 >24:00 的分钟数表示，避免「01:00 比 05:30 早」被当成超时。
+  if (calendar.crossDay === true && hours.open !== null) {
+    if (hours.close !== null && hours.close <= hours.open) hours.close += 1440;
+    if (hours.lastEntry !== null && hours.lastEntry <= hours.open) hours.lastEntry += 1440;
+  }
   if (hours.open === null || hours.close === null) {
     return { state: 'unknown', open: null, close: null, lastEntry: null, reason: '开放时间格式不可用' };
   }
@@ -211,7 +217,7 @@ export function calendarState(calendar, dateStr) {
     open: hours.open,
     close: hours.close,
     lastEntry: hours.lastEntry,
-    reason: reason || `${formatMinutes(hours.open)}–${formatMinutes(hours.close)}`,
+    reason: reason || `${formatMinutes(hours.open)}–${formatMinutesCrossDay(hours.close)}`,
     exceptionsUnresolved,
   };
 }
@@ -387,12 +393,12 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
         }
         const lastEntry = cal.lastEntry ?? cal.close;
         if (arrive > lastEntry) {
-          push('after-last-entry', 'error', item.id, `「${name}」最晚入场 ${formatMinutes(lastEntry)}，实际 ${formatMinutesCrossDay(arrive)} 才到`, {
-            lastEntry: formatMinutes(lastEntry),
+          push('after-last-entry', 'error', item.id, `「${name}」最晚入场 ${formatMinutesCrossDay(lastEntry)}，实际 ${formatMinutesCrossDay(arrive)} 才到`, {
+            lastEntry: formatMinutesCrossDay(lastEntry),
           });
         } else if (arrive + duration > cal.close) {
-          push('after-close', 'error', item.id, `「${name}」${formatMinutes(cal.close)} 关门，${formatMinutesCrossDay(arrive)} 开始停留 ${duration} 分钟会超时`, {
-            closes: formatMinutes(cal.close),
+          push('after-close', 'error', item.id, `「${name}」${formatMinutesCrossDay(cal.close)} 关门，${formatMinutesCrossDay(arrive)} 开始停留 ${duration} 分钟会超时`, {
+            closes: formatMinutesCrossDay(cal.close),
           });
         }
       }

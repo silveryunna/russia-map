@@ -5,6 +5,28 @@
   "note": "事实账本：points.json 是消费口径，本文件记录每个字段的来源、状态与复核日期。verified 只能来自 official 来源；estimated 是站内估算；unknown 是合法终态。过期不落库，由 src/pages/plan/facts.js 在读取时按 reviewAfter 计算。与 points.json 的值必须一致，由 tools/check-facts.mjs 交叉校验。",
   "facts": [
     {
+      "pointId": "p001",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "红场是开放城市广场，没有官方开放时间表；临时管控/活动封闭以现场为准"
+    },
+    {
+      "pointId": "p001",
+      "field": "ticket",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "开放城市广场，不设门票；没有官方票价页可引"
+    },
+    {
       "pointId": "p002",
       "field": "openCalendar",
       "value": {
@@ -20,6 +42,18 @@
       "collectedAt": "2026-10-31",
       "reviewAfter": "2027-01-29",
       "note": "莫斯科克里姆林宫博物馆官网；博物馆 10:00–17:00，周四闭馆；售票处 09:30–16:30"
+    },
+    {
+      "pointId": "p002",
+      "field": "ticket",
+      "value": "教堂广场博物馆成人 1100 ₽、优惠 600 ₽；军械库成人 1400 ₽、优惠 800 ₽",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://kreml.ru/ru/tickets",
+      "sourceLabel": "克里姆林宫官网票价页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网「Музеи Соборной площади」入口票 1100/600 ₽（含讲解 1600/1100、含语音导览 1600/1100）；军械库 1400/800 ₽"
     },
     {
       "pointId": "p003",
@@ -46,6 +80,18 @@
       "collectedAt": "2026-10-31",
       "reviewAfter": "2027-01-29",
       "note": "圣瓦西里大教堂官网页；官网 11–17、每月第一个周三闭馆；已用 exceptions 表达"
+    },
+    {
+      "pointId": "p003",
+      "field": "ticket",
+      "value": "俄/欧亚经济联盟成人 700 ₽，外国公民 2000 ₽；7–17 岁 350 ₽（外国 1000 ₽）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://shm.ru/visit/tickets/hvb/",
+      "sourceLabel": "国家历史博物馆官网票价页（圣瓦西里）",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网票价页：俄/欧亚经济联盟成人 700 ₽、外国公民 2000 ₽；学生与 7–17 岁 350 ₽（外国儿童 1000 ₽）；语音导览 400/600 ₽"
     },
     {
       "pointId": "p004",
@@ -108,6 +154,40 @@
       "collectedAt": "2026-10-31",
       "reviewAfter": "2027-01-29",
       "note": "古姆百货官网；官网每日 10:00–22:00"
+    },
+    {
+      "pointId": "p005",
+      "field": "ticket",
+      "value": "免费进入（百货商场，无需门票）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceUrl": "https://gum.ru/contacts",
+      "sourceLabel": "古姆百货官网联系页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "古姆是营业中的百货商场，入口不设门票；官网只公布营业时间 10:00–22:00，未单列票价，故按 estimated 记录"
+    },
+    {
+      "pointId": "p008",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "老阿尔巴特是开放步行街，没有官方开放时间表；店铺各自营业时间另计"
+    },
+    {
+      "pointId": "p008",
+      "field": "ticket",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-04-29",
+      "note": "开放步行街，不设门票；没有官方票价页可引"
     },
     {
       "pointId": "p010",
@@ -198,6 +278,18 @@
       "collectedAt": "2026-10-31",
       "reviewAfter": "2027-01-29",
       "note": "果戈里故居官网；周一闭馆；周二/三/五 12–19，周四 14–21，周六/日 12–18；最后一个周二卫生日闭馆"
+    },
+    {
+      "pointId": "p011",
+      "field": "ticket",
+      "value": "成人 400 ₽，优惠 200 ₽；联票（常设展+1 个临展）500 ₽／250 ₽",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.domgogolya.ru/museum/services",
+      "sourceLabel": "果戈里故居官网价目页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网价目：常设展全票 400 ₽、优惠 200 ₽；常设展+1 个临展联票 500/250 ₽；每月第三个周日「莫斯科博物馆周」免费"
     },
     {
       "pointId": "p012",
@@ -381,6 +473,93 @@
       "note": "特列季亚科夫画廊官网；周一闭馆；周二至周日 10:00–21:00，售票/入场至 20:00"
     },
     {
+      "pointId": "p057",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://gorod.mos.ru/objects/88501/about",
+      "sourceLabel": "莫斯科市政门户「Наш город」马雅可夫斯基站页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "市政门户站页：全部出入口 05:30 开、01:00 关（次日），跨日营业用 crossDay 表达；首末班车另见地铁官网"
+    },
+    {
+      "pointId": "p057",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
+      "pointId": "p058",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:20",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页：全部车站每日 05:30–01:00 开放，共青团站单列 05:20 开、01:00 关；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p058",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
+      "pointId": "p060",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:30",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页：全部车站每日 05:30 至次日 01:00 开放；新村庄站未在差异表中单列，按通例取 05:30–01:00；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p060",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
+    },
+    {
       "pointId": "p077",
       "field": "openCalendar",
       "value": {
@@ -534,6 +713,35 @@
       "collectedAt": "2026-11-01",
       "reviewAfter": "2027-01-30",
       "note": "特列季亚科夫画廊新馆官网页：ВС/ВТ/СР/ЧТ/ПТ/СБ 10:00–21:00（售票与入场至 20:00），ПН 闭馆；票价页需另行核验，票价保持 unknown"
+    },
+    {
+      "pointId": "p337",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "05:25",
+        "close": "01:00",
+        "crossDay": true
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.mosmetro.ru/passengers/information/schedule",
+      "sourceLabel": "莫斯科地铁官网运行时间页",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "官网运行时间页：全部车站每日 05:30–01:00 开放，白俄罗斯站单列 05:25 开、01:00 关；跨日营业用 crossDay 表达"
+    },
+    {
+      "pointId": "p337",
+      "field": "ticket",
+      "value": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+      "sourceLabel": "莫斯科统一交通门户「Оплата проезда」",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-29",
+      "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
     },
     {
       "pointId": "p354",

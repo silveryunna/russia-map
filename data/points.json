@@ -48,7 +48,7 @@
       "close": "17:00",
       "lastEntry": "16:30"
     },
-    "ticket": "unknown",
+    "ticket": "教堂广场博物馆成人 1100 ₽、优惠 600 ₽；军械库成人 1400 ₽、优惠 800 ₽",
     "sources": [
       {
         "type": "curated",
@@ -62,6 +62,13 @@
         "collectedAt": "2026-10-31",
         "reviewAfter": "2027-01-29",
         "note": "莫斯科克里姆林宫博物馆官网；博物馆 10:00–17:00，周四闭馆；售票处 09:30–16:30"
+      },
+      {
+        "type": "official",
+        "url": "https://kreml.ru/ru/tickets",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "官网「Музеи Соборной площади」入口票 1100/600 ₽（含讲解 1600/1100、含语音导览 1600/1100）；军械库 1400/800 ₽"
       }
     ],
     "confidence": 75
@@ -98,7 +105,7 @@
         }
       ]
     },
-    "ticket": "unknown",
+    "ticket": "俄/欧亚经济联盟成人 700 ₽，外国公民 2000 ₽；7–17 岁 350 ₽（外国 1000 ₽）",
     "sources": [
       {
         "type": "curated",
@@ -112,6 +119,13 @@
         "collectedAt": "2026-10-31",
         "reviewAfter": "2027-01-29",
         "note": "圣瓦西里大教堂官网页；官网 11–17、每月第一个周三闭馆；已用 exceptions 表达"
+      },
+      {
+        "type": "official",
+        "url": "https://shm.ru/visit/tickets/hvb/",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "官网票价页：俄/欧亚经济联盟成人 700 ₽、外国公民 2000 ₽；学生与 7–17 岁 350 ₽（外国儿童 1000 ₽）；语音导览 400/600 ₽"
       }
     ],
     "confidence": 75
@@ -197,7 +211,7 @@
       "open": "10:00",
       "close": "22:00"
     },
-    "ticket": "unknown",
+    "ticket": "免费进入（百货商场，无需门票）",
     "sources": [
       {
         "type": "curated",
@@ -211,6 +225,13 @@
         "collectedAt": "2026-10-31",
         "reviewAfter": "2027-01-29",
         "note": "古姆百货官网；官网每日 10:00–22:00"
+      },
+      {
+        "type": "official",
+        "url": "https://gum.ru/contacts",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "古姆是营业中的百货商场，入口不设门票；官网只公布营业时间 10:00–22:00，未单列票价，故按 estimated 记录"
       }
     ],
     "confidence": 75
@@ -437,7 +458,7 @@
         }
       ]
     },
-    "ticket": "unknown",
+    "ticket": "成人 400 ₽，优惠 200 ₽；联票（常设展+1 个临展）500 ₽／250 ₽",
     "sources": [
       {
         "type": "curated",
@@ -451,6 +472,13 @@
         "collectedAt": "2026-10-31",
         "reviewAfter": "2027-01-29",
         "note": "果戈里故居官网；周一闭馆；周二/三/五 12–19，周四 14–21，周六/日 12–18；最后一个周二卫生日闭馆"
+      },
+      {
+        "type": "official",
+        "url": "https://www.domgogolya.ru/museum/services",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "官网价目：常设展全票 400 ₽、优惠 200 ₽；常设展+1 个临展联票 500/250 ₽；每月第三个周日「莫斯科博物馆周」免费"
       }
     ],
     "confidence": 75
@@ -1480,14 +1508,33 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:30",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://gorod.mos.ru/objects/88501/about",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "市政门户站页：全部出入口 05:30 开、01:00 关（次日），跨日营业用 crossDay 表达；首末班车另见地铁官网"
+      },
+      {
+        "type": "official",
+        "url": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
       }
     ],
     "confidence": 75
@@ -1509,14 +1556,33 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:20",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://www.mosmetro.ru/passengers/information/schedule",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "官网运行时间页：全部车站每日 05:30–01:00 开放，共青团站单列 05:20 开、01:00 关；跨日营业用 crossDay 表达"
+      },
+      {
+        "type": "official",
+        "url": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
       }
     ],
     "confidence": 75
@@ -1567,14 +1633,33 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:30",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://www.mosmetro.ru/passengers/information/schedule",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "官网运行时间页：全部车站每日 05:30 至次日 01:00 开放；新村庄站未在差异表中单列，按通例取 05:30–01:00；跨日营业用 crossDay 表达"
+      },
+      {
+        "type": "official",
+        "url": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
       }
     ],
     "confidence": 75
@@ -5461,14 +5546,33 @@
     ],
     "estimatedDuration": 10,
     "durationBasis": "estimate",
-    "openCalendar": "unknown",
-    "ticket": "unknown",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "05:25",
+      "close": "01:00",
+      "crossDay": true
+    },
+    "ticket": "地铁单程 75 ₽（Тройка 钱包）／90 ₽（单程纸票）",
     "sources": [
       {
         "type": "curated",
         "note": "俄文原名与名称对照站内整理；停留时长为类型估算，待实测修正",
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
+      },
+      {
+        "type": "official",
+        "url": "https://www.mosmetro.ru/passengers/information/schedule",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "官网运行时间页：全部车站每日 05:30–01:00 开放，白俄罗斯站单列 05:25 开、01:00 关；跨日营业用 crossDay 表达"
+      },
+      {
+        "type": "official",
+        "url": "https://transport.mos.ru/mostrans/oplata_proezda_transport",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-29",
+        "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
       }
     ]
   },
