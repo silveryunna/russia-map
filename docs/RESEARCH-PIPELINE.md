@@ -62,6 +62,17 @@ node tools/research-report.mjs ~/travel-research/candidates-莫斯科.json \
 - 同一 `pointId+field` 只能有一条候选；
 - 过期未复核的候选会被 `research-report` 标出，不能继续当已验证事实。
 
+### 3.1 候选 → 事实账本
+
+候选校验通过后，定稿要**同提交写两处**：
+
+| 文件 | 角色 | 约束 |
+|---|---|---|
+| `data/points.json` | 消费口径（前端/可行性引擎直接读） | 校验见 `check-data` / `check-sample-data` |
+| `data/facts/{city}.json` | 来源账本（谁、哪天、复核到什么时候） | `tools/check-facts.mjs` 强制 schema，并**交叉校验值与 points.json 完全一致** |
+
+账本条目比候选多两个约定：`value` 必须与 `points.json` 同字段一字不差（防漂移）；过期不写进文件，由 `src/pages/plan/facts.js` 在读取时按 `reviewAfter < 今天` 降级为 `stale`。覆盖与过期情况用 `node tools/evidence-coverage.mjs ./data` 查。
+
 ## 4. 工作流
 
 ```text

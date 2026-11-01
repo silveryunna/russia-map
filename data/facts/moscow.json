@@ -1,0 +1,679 @@
+{
+  "city": "莫斯科",
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-01",
+  "note": "事实账本：points.json 是消费口径，本文件记录每个字段的来源、状态与复核日期。verified 只能来自 official 来源；estimated 是站内估算；unknown 是合法终态。过期不落库，由 src/pages/plan/facts.js 在读取时按 reviewAfter 计算。与 points.json 的值必须一致，由 tools/check-facts.mjs 交叉校验。",
+  "facts": [
+    {
+      "pointId": "p002",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo,Tu,We,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "17:00",
+        "lastEntry": "16:30"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://kreml.ru/en",
+      "sourceLabel": "克里姆林宫官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "莫斯科克里姆林宫博物馆官网；博物馆 10:00–17:00，周四闭馆；售票处 09:30–16:30"
+    },
+    {
+      "pointId": "p003",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "11:00",
+        "close": "17:00",
+        "lastEntry": "16:00",
+        "exceptions": [
+          {
+            "type": "nth-weekday",
+            "weekday": "We",
+            "nth": 1,
+            "action": "closed",
+            "note": "每月第一个周三闭馆"
+          }
+        ]
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://shm.ru/museum/hvb/",
+      "sourceLabel": "圣瓦西里大教堂官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "圣瓦西里大教堂官网页；官网 11–17、每月第一个周三闭馆；已用 exceptions 表达"
+    },
+    {
+      "pointId": "p004",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "19:00",
+        "lastEntry": "18:00",
+        "weekly": {
+          "Th": {
+            "open": "10:00",
+            "close": "21:00",
+            "lastEntry": "20:00"
+          },
+          "Fr": {
+            "open": "10:00",
+            "close": "21:00",
+            "lastEntry": "20:00"
+          },
+          "Sa": {
+            "open": "10:00",
+            "close": "21:00",
+            "lastEntry": "20:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://shm.ru/visit/kontakty-i-rezhim-raboty/",
+      "sourceLabel": "历史博物馆（红砖楼）官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "国家历史博物馆官网；周二闭馆；官网周表为周一/三/日 10–19、周四至周六 10–21，此处保守取 19:00"
+    },
+    {
+      "pointId": "p004",
+      "field": "ticket",
+      "value": "成人票 700 ₽ 起（不同展览/票种至 2000 ₽）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://shm.ru/visit/tickets/gim/",
+      "sourceLabel": "历史博物馆（红砖楼）官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2026-11-30",
+      "note": "国家历史博物馆票务；官网成人票 700–2000 ₽，按展览/票种"
+    },
+    {
+      "pointId": "p005",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "10:00",
+        "close": "22:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://gum.ru/",
+      "sourceLabel": "古姆百货 + 冰淇淋官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "古姆百货官网；官网每日 10:00–22:00"
+    },
+    {
+      "pointId": "p010",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "11:00",
+        "close": "20:00",
+        "lastEntry": "19:00",
+        "weekly": {
+          "Th": {
+            "open": "11:00",
+            "close": "21:00",
+            "lastEntry": "20:00"
+          },
+          "Fr": {
+            "open": "11:00",
+            "close": "21:00",
+            "lastEntry": "20:00"
+          },
+          "Sa": {
+            "open": "10:00",
+            "close": "21:00",
+            "lastEntry": "20:00"
+          },
+          "Su": {
+            "open": "10:00",
+            "close": "20:00",
+            "lastEntry": "19:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://pushkinmuseum.art/visitors/opening_hours/index.php?lang=ru",
+      "sourceLabel": "普希金国家美术博物馆官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "普希金博物馆官网；周一闭馆；官网周二/三 11–20、周四/五 11–21、周六 10–21、周日 10–20，此处保守取 11–20"
+    },
+    {
+      "pointId": "p010",
+      "field": "ticket",
+      "value": "成人 700 ₽，优惠 500 ₽",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://pushkinmuseum.art/visitors/tickets/index.php?lang=ru",
+      "sourceLabel": "普希金国家美术博物馆官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2026-11-30",
+      "note": "普希金博物馆票务；主馆全价票"
+    },
+    {
+      "pointId": "p011",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "12:00",
+        "close": "19:00",
+        "weekly": {
+          "Th": {
+            "open": "14:00",
+            "close": "21:00"
+          },
+          "Sa": {
+            "open": "12:00",
+            "close": "18:00"
+          },
+          "Su": {
+            "open": "12:00",
+            "close": "18:00"
+          }
+        },
+        "exceptions": [
+          {
+            "type": "nth-weekday",
+            "weekday": "Tu",
+            "nth": "last",
+            "action": "closed",
+            "note": "最后一个周二卫生日闭馆"
+          }
+        ]
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.domgogolya.ru/info/contacts/",
+      "sourceLabel": "果戈里故居官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "果戈里故居官网；周一闭馆；周二/三/五 12–19，周四 14–21，周六/日 12–18；最后一个周二卫生日闭馆"
+    },
+    {
+      "pointId": "p012",
+      "field": "openCalendar",
+      "value": {
+        "days": "We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "18:00",
+        "exceptions": [
+          {
+            "type": "nth-weekday",
+            "weekday": "Th",
+            "nth": "last",
+            "action": "closed",
+            "note": "每月最后一个周四卫生日"
+          }
+        ]
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://museum.imli.ru/",
+      "sourceLabel": "高尔基故居官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "高尔基博物馆（ИМЛИ РАН）官网排期页：周三至周日 10:00–18:00，17:30 停止入场；周一、周二闭馆；每月最后一个周四卫生日；票价 PDF 字体编码不可读，票价仍待复核"
+    },
+    {
+      "pointId": "p013",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "12:00",
+        "close": "20:00",
+        "weekly": {
+          "We": {
+            "open": "10:00",
+            "close": "18:00"
+          },
+          "Fr": {
+            "open": "10:00",
+            "close": "18:00"
+          },
+          "Sa": {
+            "open": "10:00",
+            "close": "18:00"
+          },
+          "Su": {
+            "open": "10:00",
+            "close": "18:00"
+          }
+        },
+        "exceptions": [
+          {
+            "type": "nth-weekday",
+            "weekday": "Fr",
+            "nth": "last",
+            "action": "closed",
+            "note": "每月最后一个周五闭馆"
+          }
+        ]
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://tolstoymuseum.ru/contacts/addresses-and-schedule/",
+      "sourceLabel": "托尔斯泰故居官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "托尔斯泰博物馆官网；周一闭馆；周二/四 12–20，周三/五/六/日 10–18；最后一个周五闭馆"
+    },
+    {
+      "pointId": "p014",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "13:00",
+        "close": "23:30"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.radisson-cruise.ru/about/",
+      "sourceLabel": "莫斯科河夜游船官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "Radisson Royal 船队官网：全年每日巡航，2.5 小时，乌克兰饭店码头出发；班次约 13:00–21:00，末班返程约 23:30，冬季班次可能减少"
+    },
+    {
+      "pointId": "p014",
+      "field": "ticket",
+      "value": "成人 2400–2700 ₽，儿童 1900–2200 ₽（主厅）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.radisson-cruise.ru/",
+      "sourceLabel": "莫斯科河夜游船官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2026-11-30",
+      "note": "官网主厅票价：成人 2400–2700 ₽，儿童 1900–2200 ₽；不同舱位另计"
+    },
+    {
+      "pointId": "p017",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo,Tu,We,Fr",
+        "open": "10:00",
+        "close": "19:00",
+        "weekly": {
+          "Th": {
+            "open": "10:00",
+            "close": "21:00"
+          },
+          "Sa": {
+            "open": "10:00",
+            "close": "21:00"
+          },
+          "Su": {
+            "open": "10:00",
+            "close": "21:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://kosmo-museum.ru/",
+      "sourceLabel": "莫斯科航天博物馆官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "莫斯科航天博物馆官网；周一/二/三/五 10–19；周四/六/日 10–21"
+    },
+    {
+      "pointId": "p022",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "18:00",
+        "weekly": {
+          "Fr": {
+            "open": "10:00",
+            "close": "20:00"
+          },
+          "Sa": {
+            "open": "10:00",
+            "close": "20:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://tsaritsyno-museum.ru/",
+      "sourceLabel": "察里津诺庄园（公主换装）官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "察里津诺庄园官网；周一闭馆；周二至周四/周日 10–18，周五/六 10–20；园区每日 06–24"
+    },
+    {
+      "pointId": "p022",
+      "field": "ticket",
+      "value": "宫殿博物馆成人 900 ₽，优惠 540 ₽；公园免费",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://tsaritsyno-museum.ru/the_museum/prices-and-benefits",
+      "sourceLabel": "察里津诺庄园（公主换装）官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2026-11-30",
+      "note": "官网票价页：宫殿博物馆成人 900 ₽，优惠 540 ₽；公园免费"
+    },
+    {
+      "pointId": "p025",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu-Su",
+        "open": "10:00",
+        "close": "21:00",
+        "lastEntry": "20:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.tretyakovgallery.ru/for-visitors/museums/istoricheskoe-zdanie/",
+      "sourceLabel": "特列季亚科夫画廊官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "特列季亚科夫画廊官网；周一闭馆；周二至周日 10:00–21:00，售票/入场至 20:00"
+    },
+    {
+      "pointId": "p077",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "11:00",
+        "close": "18:00",
+        "lastEntry": "17:30",
+        "weekly": {
+          "We": {
+            "open": "11:00",
+            "close": "21:00",
+            "lastEntry": "20:30"
+          },
+          "Th": {
+            "open": "11:00",
+            "close": "21:00",
+            "lastEntry": "20:30"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://goslitmuz.ru/museums/dom-muzey-a-i-gertsena/",
+      "sourceLabel": "赫尔岑故居博物馆官网",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2026-12-01",
+      "note": "国家文学博物馆（ГМИРЛИ）赫尔岑故居分馆页：График работы 显示 ВТ/ПТ/СБ/ВС 11:00–18:00（售票至 17:30），СР/ЧТ 11:00–21:00（售票至 20:30），ПН 闭馆；票价 300/200 ₽"
+    },
+    {
+      "pointId": "p077",
+      "field": "ticket",
+      "value": "成人 300 ₽，优惠 200 ₽",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://goslitmuz.ru/museums/dom-muzey-a-i-gertsena/",
+      "sourceLabel": "赫尔岑故居博物馆官网",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2026-12-01",
+      "note": "国家文学博物馆（ГМИРЛИ）赫尔岑故居分馆页：График работы 显示 ВТ/ПТ/СБ/ВС 11:00–18:00（售票至 17:30），СР/ЧТ 11:00–21:00（售票至 20:30），ПН 闭馆；票价 300/200 ₽"
+    },
+    {
+      "pointId": "p078",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "11:00",
+        "close": "18:00",
+        "lastEntry": "17:30",
+        "weekly": {
+          "We": {
+            "open": "11:00",
+            "close": "21:00",
+            "lastEntry": "20:30"
+          },
+          "Th": {
+            "open": "11:00",
+            "close": "21:00",
+            "lastEntry": "20:30"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://goslitmuz.ru/museums/muzey-kvartira-a-n-tolstogo/",
+      "sourceLabel": "阿列克谢·托尔斯泰故居博物馆官网",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2026-12-01",
+      "note": "国家文学博物馆阿·托尔斯泰故居分馆页：График работы 显示 ВТ/ПТ/СБ/ВС 11:00–18:00（售票至 17:30），СР/ЧТ 11:00–21:00（售票至 20:30），ПН 闭馆；票价 400/300 ₽"
+    },
+    {
+      "pointId": "p078",
+      "field": "ticket",
+      "value": "成人 400 ₽，优惠 300 ₽",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://goslitmuz.ru/museums/muzey-kvartira-a-n-tolstogo/",
+      "sourceLabel": "阿列克谢·托尔斯泰故居博物馆官网",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2026-12-01",
+      "note": "国家文学博物馆阿·托尔斯泰故居分馆页：График работы 显示 ВТ/ПТ/СБ/ВС 11:00–18:00（售票至 17:30），СР/ЧТ 11:00–21:00（售票至 20:30），ПН 闭馆；票价 400/300 ₽"
+    },
+    {
+      "pointId": "p079",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "11:00",
+        "close": "18:00",
+        "lastEntry": "17:30",
+        "weekly": {
+          "We": {
+            "open": "11:00",
+            "close": "21:00",
+            "lastEntry": "20:30"
+          },
+          "Th": {
+            "open": "11:00",
+            "close": "21:00",
+            "lastEntry": "20:30"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://goslitmuz.ru/museums/muzey-serebryanogo-veka/",
+      "sourceLabel": "白银时代博物馆官网",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2026-12-01",
+      "note": "国家文学博物馆白银时代分馆页：График работы 显示 ВТ/ПТ/СБ/ВС 11:00–18:00（售票至 17:30），СР/ЧТ 11:00–21:00（售票至 20:30），ПН 闭馆；票价 400/300 ₽"
+    },
+    {
+      "pointId": "p079",
+      "field": "ticket",
+      "value": "成人 400 ₽，优惠 300 ₽",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://goslitmuz.ru/museums/muzey-serebryanogo-veka/",
+      "sourceLabel": "白银时代博物馆官网",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2026-12-01",
+      "note": "国家文学博物馆白银时代分馆页：График работы 显示 ВТ/ПТ/СБ/ВС 11:00–18:00（售票至 17:30），СР/ЧТ 11:00–21:00（售票至 20:30），ПН 闭馆；票价 400/300 ₽"
+    },
+    {
+      "pointId": "p093",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "00:00",
+        "close": "23:59"
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-04-29",
+      "note": "官方未公布该字段；按室外/自由进入的站内口径处理，属估算，待官方或实测修正"
+    },
+    {
+      "pointId": "p317",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "21:00",
+        "lastEntry": "20:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.tretyakovgallery.ru/for-visitors/museums/novaya-tretyakovka/",
+      "sourceLabel": "新特里季亚科夫画廊（新馆）官网",
+      "collectedAt": "2026-11-01",
+      "reviewAfter": "2027-01-30",
+      "note": "特列季亚科夫画廊新馆官网页：ВС/ВТ/СР/ЧТ/ПТ/СБ 10:00–21:00（售票与入场至 20:00），ПН 闭馆；票价页需另行核验，票价保持 unknown"
+    },
+    {
+      "pointId": "p354",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Fr,Sa,Su",
+        "open": "12:00",
+        "close": "19:00",
+        "weekly": {
+          "Th": {
+            "open": "14:00",
+            "close": "21:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://bulgakovmuseum.ru/visit",
+      "sourceLabel": "布尔加科夫故居博物馆（Большая Садовая 10）官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "布尔加科夫博物馆官网：周一闭馆；周二/三/五/六/日 12:00–19:00，周四 14:00–21:00；成人 500 ₽，优惠 250 ₽"
+    },
+    {
+      "pointId": "p354",
+      "field": "ticket",
+      "value": "成人 500 ₽，优惠 250 ₽",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://bulgakovmuseum.ru/visit",
+      "sourceLabel": "布尔加科夫故居博物馆（Большая Садовая 10）官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "布尔加科夫博物馆官网：周一闭馆；周二/三/五/六/日 12:00–19:00，周四 14:00–21:00；成人 500 ₽，优惠 250 ₽"
+    },
+    {
+      "pointId": "p355",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Fr,Sa,Su",
+        "open": "12:00",
+        "close": "19:00",
+        "weekly": {
+          "Th": {
+            "open": "12:00",
+            "close": "21:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://dommuseum.ru/contacts",
+      "sourceLabel": "茨维塔耶娃故居博物馆（Борисоглебский пер. 6）官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "茨维塔耶娃故居博物馆官网：周一闭馆；周二至周日 12:00–19:00，周四 12:00–21:00；成人 400 ₽，优惠 200 ₽"
+    },
+    {
+      "pointId": "p355",
+      "field": "ticket",
+      "value": "成人 400 ₽，优惠 200 ₽",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://dommuseum.ru/contacts",
+      "sourceLabel": "茨维塔耶娃故居博物馆（Борисоглебский пер. 6）官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "茨维塔耶娃故居博物馆官网：周一闭馆；周二至周日 12:00–19:00，周四 12:00–21:00；成人 400 ₽，优惠 200 ₽"
+    },
+    {
+      "pointId": "p358",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,Fr,Sa,Su",
+        "open": "11:00",
+        "close": "18:00",
+        "weekly": {
+          "We": {
+            "open": "11:00",
+            "close": "21:00"
+          },
+          "Th": {
+            "open": "11:00",
+            "close": "21:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://goslitmuz.ru/museums/dom-muzey-a-p-chekhova/",
+      "sourceLabel": "契诃夫故居博物馆（Садовая-Кудринская 6）官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "国家文学博物馆官网：周一闭馆；周二/五/六/日 11:00–18:00，周三/四 11:00–21:00；售票至 17:30/20:30；成人 450 ₽，优惠 350 ₽"
+    },
+    {
+      "pointId": "p358",
+      "field": "ticket",
+      "value": "成人 450 ₽，优惠 350 ₽",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://goslitmuz.ru/museums/dom-muzey-a-p-chekhova/",
+      "sourceLabel": "契诃夫故居博物馆（Садовая-Кудринская 6）官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "国家文学博物馆官网：周一闭馆；周二/五/六/日 11:00–18:00，周三/四 11:00–21:00；售票至 17:30/20:30；成人 450 ₽，优惠 350 ₽"
+    },
+    {
+      "pointId": "p368",
+      "field": "openCalendar",
+      "value": {
+        "days": "We,Fr,Sa,Su",
+        "open": "10:00",
+        "close": "18:00",
+        "weekly": {
+          "Th": {
+            "open": "13:00",
+            "close": "21:00"
+          }
+        }
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://pushkinmuseum.ru/filialy/memorialnaya-kvartira-a-s-pushkina-na-arbate/",
+      "sourceLabel": "普希金故居纪念馆（Арбат 53）官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2027-01-29",
+      "note": "普希金博物馆官网分馆页：周三/五/六/日 10:00–18:00，周四 13:00–21:00，周一、周二闭馆"
+    },
+    {
+      "pointId": "p368",
+      "field": "ticket",
+      "value": "成人 400 ₽，优惠 200 ₽",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://pushkinmuseum.ru/posetitelyam/stoimost-biletov/",
+      "sourceLabel": "普希金故居纪念馆（Арбат 53）官网",
+      "collectedAt": "2026-10-31",
+      "reviewAfter": "2026-11-30",
+      "note": "普希金博物馆票价页：分馆成人 400 ₽，优惠 200 ₽"
+    }
+  ]
+}

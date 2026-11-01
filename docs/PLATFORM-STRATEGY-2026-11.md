@@ -8,7 +8,7 @@
 > 方法：本仓库代码/数据实测 + 六个参考仓库源码走读 + 公开市场资料（2026-10-31 抓取）
 > 定位：**这是一份战略文档，不是需求清单**。它回答三个问题：我们现在真正拥有什么、市场真正缺什么、下一个 12 个月应该把有限的产能押在哪。
 >
-> **进度更新（2026-11-01 晚）**：W1/W2 已完成，质量门 22 → 26（本地 31 个脚本），`plan.js` 1,258 → 948 行；交通矩阵 36 → 89 条（walking 31 / car 58，2GIS 83 + FOSSGIS OSRM 6），莫斯科动线相邻段双向 40/40。下文 §2 的代码/数据数字保留为审计基线，不随进度回写。
+> **进度更新（2026-11-01 晚）**：W1/W2 已完成，质量门 22 → 26（本地 31 个脚本），`plan.js` 1,258 → 948 行；交通矩阵 36 → 89 条（walking 31 / car 58，2GIS 83 + FOSSGIS OSRM 6），莫斯科动线相邻段双向 40/40。**W3 事实地基已完成**：`data/facts/moscow.json`（32 条 / 21 个点位，官方来源 20），覆盖率 CLI 与交叉校验门进 CI。下文 §2 的代码/数据数字保留为审计基线，不随进度回写。
 
 ---
 
@@ -1346,6 +1346,8 @@ src/pages/plan/
 
 **W2 实际进度（2026-11-02）**：第 1 周和第 2 周的目标一起做完了——`io.js`（90 行）、`ai.js`（134 行）、`format.js`（69 行）、`list.js`（99 行）、`generate.js`（147 行）已抽出，`plan.js` 从 1,258 降到 948 行（目标 <950）。剩余 `editor.js` / `inspector.js` / `state.js` 仍是后续工作：编辑器的渲染与事件接线还留在组装根里，因为它们共享 `current` / `view` / `undoStack` 三份可变状态，抽之前应先把状态收进一个显式对象（§7.8 的 `state.js`），否则只是把闭包换个地方放。抽出的模块全部改成工厂 + 依赖注入，因此第一次有了不依赖浏览器的单测（`test-plan-format` / `test-plan-io` / `test-plan-ai`，共 90 项断言）。
 
+**W3 实际进度（2026-11-01）**：事实地基已落地，但口径与计划有一处刻意的调整——**第 1 批补的是"能拿到官方来源"的 20 个点位，而不是"Top 40 里的前 20 个"**。原因是莫斯科动线覆盖的 38 个点里有 25 个没有官方来源，其中 14 个是地铁站（`mosmetro.ru` 本机与服务器均不可达）、其余是红场/阿尔巴特/凯旋门这类开放空间（官方不公布参观时段）；硬凑"Top 20"只会产出 20 条 `unknown`。实际产出：`data/facts/moscow.json`（32 条事实 / 21 个点位，verified 31 + estimated 1）、`src/pages/plan/facts.js`（索引 + 读取时 stale 判定 + 覆盖率，纯函数）、`tools/check-facts.mjs`（schema + 与 `points.json` 交叉校验）、`tools/evidence-coverage.mjs`（覆盖率/过期/动线缺口）、`tools/test-facts.mjs`；新增 4 个官方来源点位（赫尔岑故居、阿·托尔斯泰故居、白银时代博物馆、新特列季亚科夫画廊），官方来源点位 16 → **20**，开放时间已知 17 → 21、票价已知 8 → 11。动线点位的官方来源仍只有 13/38，这是 W4 的真实起点，不是已完成项。
+
 ### 7.9 技术选型：明确"不改"的清单
 
 | 项 | 决定 | 理由 |
@@ -1480,7 +1482,7 @@ P0 收口
 |---|---|---|---|---:|
 | **W1** | 收口 | `tools/check-ci-parity.mjs`；4 个漏跑门进 CI；README 页面清单修正；LICENSE 三选一落地；埋点骨架 `src/shared/telemetry.js` | CI 与 `npm test` 完全一致；`check-doc-facts` 删掉手写数组；LICENSE 文件存在 | 12h |
 | **W2** | 拆分 + 手机 ✅ | `plan/{format,ai,io,list,generate}.js` 抽出（`plan.js` 1,258 → 948 行）；`smoke-test.mjs` 增加 390×844 plan + today | `plan.js` < 950 行；冒烟 27 → 46 条，手机 plan + today 全过 | 14h |
-| **W3** | 事实地基 | `data/facts/moscow.json` schema；`tools/evidence-coverage.mjs`；莫斯科 Top 40 事实采集（第 1 批 20 个） | CLI 能报告覆盖率/过期数；20 个点位有官方来源 | 13h |
+| **W3** | 事实地基 ✅ | `data/facts/moscow.json` schema；`tools/evidence-coverage.mjs`；莫斯科事实账本第 1 批（32 条 / 21 个点位） | CLI 能报告覆盖率/过期数；20 个点位有官方来源 ✅（实际 20） | 13h |
 | **W4** | 事实采集 | Top 40 第 2 批 20 个；admin 只读覆盖率看板 | Top 40 开放时间 100%；票价 100%；来源 100% | 14h |
 | **W5** | 证据链 UI | 可信度带（四计数）+ 核验清单（按影响排序）+ `evidence.js` 纯函数 + 单测 | 莫斯科 3 日行程显示正确的 4 个计数；清单按 `impactMinutes` 降序 | 14h |
 | **W6** | 时间模型 + 核验动作 | `Trip.timeZone`、`DayWindow`、`formatInZone`；核验动作 → FactRevision → 自动重排 | 跨午夜用例通过；改一条事实后行程自动重排且无新硬冲突 | 15h |

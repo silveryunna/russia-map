@@ -1862,7 +1862,43 @@
     "highlight": "《往事与随想》作者故居，西夫采夫巷27号",
     "note": "Сивцев Вражек, 27",
     "lat": 55.745,
-    "lon": 37.592
+    "lon": 37.592,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "11:00",
+      "close": "18:00",
+      "lastEntry": "17:30",
+      "weekly": {
+        "We": {
+          "open": "11:00",
+          "close": "21:00",
+          "lastEntry": "20:30"
+        },
+        "Th": {
+          "open": "11:00",
+          "close": "21:00",
+          "lastEntry": "20:30"
+        }
+      }
+    },
+    "ticket": "成人 300 ₽，优惠 200 ₽",
+    "sources": [
+      {
+        "type": "official",
+        "url": "https://goslitmuz.ru/museums/dom-muzey-a-i-gertsena/",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2026-12-01",
+        "note": "国家文学博物馆（ГМИРЛИ）赫尔岑故居分馆页：График работы 显示 ВТ/ПТ/СБ/ВС 11:00–18:00（售票至 17:30），СР/ЧТ 11:00–21:00（售票至 20:30），ПН 闭馆；票价 300/200 ₽"
+      },
+      {
+        "type": "curated",
+        "note": "停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-04-30"
+      }
+    ]
   },
   {
     "id": "p078",
@@ -1874,7 +1910,43 @@
     "highlight": "《苦难的历程》作者（注意：非列夫·托尔斯泰）",
     "note": "Спиридоновка, 2с1",
     "lat": 55.7591,
-    "lon": 37.5889
+    "lon": 37.5889,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "11:00",
+      "close": "18:00",
+      "lastEntry": "17:30",
+      "weekly": {
+        "We": {
+          "open": "11:00",
+          "close": "21:00",
+          "lastEntry": "20:30"
+        },
+        "Th": {
+          "open": "11:00",
+          "close": "21:00",
+          "lastEntry": "20:30"
+        }
+      }
+    },
+    "ticket": "成人 400 ₽，优惠 300 ₽",
+    "sources": [
+      {
+        "type": "official",
+        "url": "https://goslitmuz.ru/museums/muzey-kvartira-a-n-tolstogo/",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2026-12-01",
+        "note": "国家文学博物馆阿·托尔斯泰故居分馆页：График работы 显示 ВТ/ПТ/СБ/ВС 11:00–18:00（售票至 17:30），СР/ЧТ 11:00–21:00（售票至 20:30），ПН 闭馆；票价 400/300 ₽"
+      },
+      {
+        "type": "curated",
+        "note": "停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-04-30"
+      }
+    ]
   },
   {
     "id": "p079",
@@ -1886,7 +1958,43 @@
     "highlight": "白银时代文学与艺术，勃留索夫故居",
     "note": "Проспект Мира, 30с1",
     "lat": 55.7743,
-    "lon": 37.6341
+    "lon": 37.6341,
+    "estimatedDuration": 60,
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "11:00",
+      "close": "18:00",
+      "lastEntry": "17:30",
+      "weekly": {
+        "We": {
+          "open": "11:00",
+          "close": "21:00",
+          "lastEntry": "20:30"
+        },
+        "Th": {
+          "open": "11:00",
+          "close": "21:00",
+          "lastEntry": "20:30"
+        }
+      }
+    },
+    "ticket": "成人 400 ₽，优惠 300 ₽",
+    "sources": [
+      {
+        "type": "official",
+        "url": "https://goslitmuz.ru/museums/muzey-serebryanogo-veka/",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2026-12-01",
+        "note": "国家文学博物馆白银时代分馆页：График работы 显示 ВТ/ПТ/СБ/ВС 11:00–18:00（售票至 17:30），СР/ЧТ 11:00–21:00（售票至 20:30），ПН 闭馆；票价 400/300 ₽"
+      },
+      {
+        "type": "curated",
+        "note": "停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-04-30"
+      }
+    ]
   },
   {
     "id": "p080",
@@ -5023,6 +5131,30 @@
     "tags": [
       "免费",
       "周一闭馆"
+    ],
+    "estimatedDuration": 150,
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "10:00",
+      "close": "21:00",
+      "lastEntry": "20:00"
+    },
+    "ticket": "unknown",
+    "sources": [
+      {
+        "type": "official",
+        "url": "https://www.tretyakovgallery.ru/for-visitors/museums/novaya-tretyakovka/",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-01-30",
+        "note": "特列季亚科夫画廊新馆官网页：ВС/ВТ/СР/ЧТ/ПТ/СБ 10:00–21:00（售票与入场至 20:00），ПН 闭馆；票价页需另行核验，票价保持 unknown"
+      },
+      {
+        "type": "curated",
+        "note": "停留时长为类型估算，待实测修正",
+        "collectedAt": "2026-11-01",
+        "reviewAfter": "2027-04-30"
+      }
     ]
   },
   {

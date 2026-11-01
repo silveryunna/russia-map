@@ -79,6 +79,13 @@ jobs:
           node tools/test-trip-execution.mjs
           node tools/test-trip-offline.mjs
 
+      # 2.7.3) W3 事实账本：schema + 来源等级 + 与 points.json 交叉校验（防漂移）+ 覆盖率报告
+      - name: 事实账本与证据覆盖
+        run: |
+          node tools/test-facts.mjs ./data
+          node tools/check-facts.mjs ./data
+          node tools/evidence-coverage.mjs ./data
+
       # 2.8) SW 缓存策略：外壳覆盖全部页面 + 瓦片白名单与实际底图一致
       - name: SW 策略测试
         run: node tools/sw-policy-test.mjs
