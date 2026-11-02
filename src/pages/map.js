@@ -169,7 +169,7 @@ function popupHtml(p) {
         `<span style="display:inline-block;background:#EFEBE0;color:#5D4A1F;border-radius:4px;padding:1px 6px;margin:0 4px 3px 0;font-size:10px">#${esc(t)}</span>`).join('')}</div>` : ''}
       <div style="font-size:12px;line-height:1.5;margin-bottom:6px">${esc(p.highlight)}</div>
       ${p.note ? `<div style="font-size:11px;color:#555;margin-bottom:6px">📌 ${esc(p.note)}</div>` : ''}
-      <div style="font-size:11px;color:#999;margin-bottom:6px">${p.lat.toFixed(5)}, ${p.lon.toFixed(5)} · ${confBadge(p)}${d != null ? ` · 📏 距我 ${fmtDist(d)}` : ''}</div>${p.hours || p.ticket || p.mustOrder ? `<div style="font-size:11px;color:#666;margin-bottom:6px;line-height:1.7">${p.hours ? `🕐 ${esc(p.hours)}&nbsp; ` : ''}${p.ticket ? `🎫 ${esc(p.ticket)}&nbsp; ` : ''}${p.mustOrder ? `🍽 ${esc(p.mustOrder)}` : ''}</div>` : ''}${ratingTabs(p, rl)}${p.url ? `<div style="margin-bottom:6px"><a href="${esc(p.url)}" target="_blank" rel="noopener" style="color:#00695C;font-size:12px">🌐 官方网站</a></div>` : ''}
+      <div style="font-size:11px;color:#999;margin-bottom:6px">${p.lat.toFixed(5)}, ${p.lon.toFixed(5)} · ${confBadge(p)}${d != null ? ` · 📏 距我 ${fmtDist(d)}` : ''}</div>${p.hours || p.ticket || p.mustOrder ? `<div style="font-size:11px;color:#666;margin-bottom:6px;line-height:1.7">${p.hours ? `🕐 ${esc(p.hours)}&nbsp; ` : ''}${p.ticket ? `🎫 ${esc(p.ticket)}&nbsp; ` : ''}${p.mustOrder ? `🍽 ${esc(p.mustOrder)}` : ''}</div>` : ''}${ratingTabs(p, rl)}${fieldBlock(p)}${p.url ? `<div style="margin-bottom:6px"><a href="${esc(p.url)}" target="_blank" rel="noopener" style="color:#00695C;font-size:12px">🌐 官方网站</a></div>` : ''}
       <div style="margin-bottom:6px"><a href="${nv.href}" ${nv.blank ? `target="_blank" rel="noopener"` : ''} class="popup-nav" style="display:block;text-align:center;background:#B71C1C;color:#fff;text-decoration:none;border-radius:8px;padding:8px 10px;font-size:13px;font-weight:600">🧭 ${nv.label}</a></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px 10px;font-size:12px">
         ${nav.amapPin
@@ -181,6 +181,33 @@ function popupHtml(p) {
         <a href="${nav.googleNav}" target="_blank" rel="noopener" style="color:#1E5A8A">🧭 到这里去</a>`}
       </div>
     </div>`;
+}
+
+// 朋友实况：data/field.json（投稿快照：打卡时间线 + 照片）+ content/notes 挂载数
+function fieldBlock(p) {
+  const f = (window.__fieldData__ || {})[p.id];
+  const notes = (window.__notesIndex__ || []).filter((n) => (n.point_ids || []).includes(p.id));
+  if (!f && !notes.length) return '';
+  let html = '<div style="margin:8px 0 2px;border-top:1px dashed #E3E0D8;padding-top:6px">' +
+    '<div style="font-size:11px;color:#999;margin-bottom:5px">📷 朋友实况</div>';
+  if (f) {
+    for (const it of (f.timeline || []).slice(-3)) {
+      html += `<div style="font-size:12px;color:#444;margin-bottom:4px">` +
+        `<b style="color:#1E5A8A">● ${esc(it.author)}</b> ${esc(it.note)} ` +
+        `<span style="color:#AAA;font-size:10px">${esc(it.t)}</span></div>`;
+    }
+    const ph = (f.photos || []).slice(0, 4);
+    if (ph.length) {
+      html += `<div style="display:flex;gap:5px;flex-wrap:wrap;margin:5px 0">` +
+        ph.map((x) => `<a href="${esc(x.file)}" target="_blank" rel="noopener">` +
+          `<img src="${esc(x.file)}" loading="lazy" alt="${esc(x.note || '朋友照片')}" ` +
+          `style="width:74px;height:56px;object-fit:cover;border-radius:6px;border:1px solid #E3E0D8"></a>`).join('') + '</div>';
+    }
+  }
+  if (notes.length) {
+    html += `<a href="notes.html" style="font-size:12px;color:#00695C">📖 ${notes.length} 篇相关笔记 ›</a>`;
+  }
+  return html + '</div>';
 }
 
 // ===== 应用状态 =====
@@ -674,6 +701,7 @@ function renderChrome() {
 async function initMap() {
   map = L.map('map', { zoomControl: false, attributionControl: false }).setView([56.5, 37.6], 5);
   window.__map__ = map; // 调试/自动化测试入口
+  window.__popupHtml__ = (id) => { const p = pointById.get(id); return p ? popupHtml(p) : ''; }; // 弹窗内容测试钩子
   L.control.attribution({ prefix: false, position: 'bottomright' })
     .addAttribution('© OpenStreetMap contributors · Esri · 天地图 · 高德 · 腾讯')
     .addTo(map);
@@ -1020,6 +1048,8 @@ async function main() {
     fetch('./data/overlays.json').then(r => r.json()),
     fetch('./data/china-boundary.json').then(r => r.json()).then(d => (window.__chinaBoundary__ = d)),
     fetch('./data/ratings.json').then(r => r.json()).catch(() => ({ items: {} })).then(d => (window.__ratings__ = d)),
+    fetch('./data/field.json').then(r => r.json()).catch(() => ({})).then(d => (window.__fieldData__ = d)),
+    fetch('./content/notes/index.json').then(r => r.json()).catch(() => []).then(d => (window.__notesIndex__ = d)),
   ]);
   state.checked = new Set(Object.keys(visitRepo.getCheckins()));
   window.__overlaysData__ = overlays || [];
