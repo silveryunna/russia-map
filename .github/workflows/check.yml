@@ -161,7 +161,11 @@ jobs:
           python3 -m http.server 8080 >/dev/null 2>&1 &
           sleep 2
           node tools/smoke-test.mjs
+      # 首个周期只报数：脚本内 --report-only + 此处 continue-on-error，两处都写明翻牌条件。
+      # 现状：同一份代码在 run 267 绿、268 红（导航偶发失败），先在 CI 里收集几轮数字再转阻断。
+      # 撤除条件：连续 3 轮数字稳定后删掉 continue-on-error，并把 --report-only 从命令行去掉 → 违规即红。
       - name: 设计门（渲染层：对比度 / 热区 / 遮挡，真实浏览器）
+        continue-on-error: true
         env:
           SMOKE_DEPS: /tmp/smoke
         run: |
