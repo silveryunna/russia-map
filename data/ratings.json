@@ -1,5 +1,5 @@
 {
- "updated": "2026-10-27",
+ "updated": "2026-11-02",
  "source": "携程/大众点评",
  "items": {
   "p533": {
@@ -765,6 +765,59 @@
      "page": true
     }
    ]
+  },
+  "p474": {
+   "ratings": [
+    {
+     "src": "大众点评",
+     "score": 4.4,
+     "count": 3,
+     "url": "https://www.dianping.com/shop/G4g7FPXJHfoDVznt",
+     "checked": "manual"
+    }
+   ]
+  },
+  "p478": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.7,
+     "count": 195,
+     "url": "http://m.ctrip.com/webapp/you/sight/harbin151/145533.html?ext-shelfPage=ctrip_shelf_seo",
+     "poiId": "",
+     "matched": "",
+     "checked": "2026-11-02",
+     "page": true
+    }
+   ]
+  },
+  "p486": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.4,
+     "count": 442,
+     "url": "https://gs.ctrip.com/html5/you/sight/harbin151/7907.html",
+     "poiId": "",
+     "matched": "",
+     "checked": "2026-11-02",
+     "page": true
+    }
+   ]
+  },
+  "p490": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.8,
+     "count": 5,
+     "url": "https://you.ctrip.com/sight/harbin151/71490901.html",
+     "poiId": "",
+     "matched": "",
+     "checked": "2026-11-02",
+     "page": true
+    }
+   ]
   }
  },
  "nodata": [
@@ -772,7 +825,10 @@
   "p597",
   "p598",
   "p599",
-  "p601"
+  "p601",
+  "p469",
+  "p477",
+  "p483"
  ],
  "resolved": {
   "p540": {
@@ -791,17 +847,15 @@
    "matched": ""
   },
   "p471": {
-   "url": "https://hotels.ctrip.com/hotels/4375100.html",
+   "url": "https://m.ctrip.com/webapp/hotel/HotelDetail/4375100.html",
    "poiId": "",
-   "matched": ""
+   "matched": "",
+   "reason": "unverified",
+   "llmScore": 4.6,
+   "llmCount": 133
   },
   "p488": {
    "url": "https://hotels.corporatetravel.ctrip.com/hotels/114054922.html",
-   "poiId": "",
-   "matched": ""
-  },
-  "p490": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=71490901&seo=0&isHideNavBar=YES&poiType=3",
    "poiId": "",
    "matched": ""
   },
@@ -833,16 +887,17 @@
    "checked": "2026-10-26"
   },
   "p465": {
-   "url": "https://you.ctrip.com/sight/harbin151/7708.html",
-   "reason": "no-ctrip-score",
-   "count": 883,
-   "checked": "2026-10-26"
+   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=77067&seo=0&isHideNavBar=YES&poiType=3",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
+   "llmScore": 4.7,
+   "llmCount": 883
   },
   "p481": {
-   "url": "https://gs.ctrip.com/html5/you/sight/harbin151/4645485.html",
-   "reason": "no-ctrip-score",
-   "count": 5471,
-   "checked": "2026-10-26"
+   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=52040334&seo=0&isHideNavBar=YES&poiType=3",
+   "poiId": "",
+   "matched": ""
   },
   "p483": {
    "url": "http://m.ctrip.com/webapp/you/sight/harbin151/90497932.html",
@@ -851,46 +906,41 @@
    "checked": "2026-10-26"
   },
   "p464": {
-   "url": "https://you.ctrip.com/sight/harbin150.html",
-   "reason": "page-unparseable-sight",
+   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=77071&seo=0&isHideNavBar=YES&poiType=3",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
    "llmScore": 4.8,
-   "llmCount": 8585,
-   "checked": "2026-10-26"
+   "llmCount": 8584
   },
   "p466": {
    "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=91383&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
    "llmScore": 4.8,
-   "llmCount": 285,
-   "checked": "2026-10-26"
+   "llmCount": 285
   },
   "p467": {
-   "url": "https://p.ctrip.com/zhentravel/33524179.html",
-   "reason": "page-unparseable-sight",
+   "url": "",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
    "llmScore": 5,
-   "llmCount": 0,
-   "checked": "2026-10-26"
+   "llmCount": 0
   },
   "p475": {
-   "url": "https://www.trip.com/travel-guide/attraction/harbin/former-residence-of-jewish-merchant-soskin-90497952",
-   "reason": "page-unparseable-sight",
+   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=90497952&seo=0&isHideNavBar=YES&poiType=3",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
    "llmScore": 5,
-   "llmCount": 0,
-   "checked": "2026-10-26"
-  },
-  "p478": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=10521465&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
-   "llmScore": 4.6,
-   "llmCount": 195,
-   "checked": "2026-10-26"
+   "llmCount": 0
   },
   "p479": {
    "url": "https://gs.ctrip.com/html5/you/shops/31/1372313.html",
-   "reason": "page-unparseable-sight",
-   "llmScore": 4.6,
-   "llmCount": 79,
-   "checked": "2026-10-26"
+   "poiId": "",
+   "matched": ""
   },
   "p477": {
    "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=10521464&seo=0&isHideNavBar=YES&poiType=3",
@@ -900,18 +950,11 @@
    "checked": "2026-10-26"
   },
   "p485": {
-   "url": "https://you.ctrip.com/searchsite/?query=%E7%A7%AF%E5%88%AB%E6%B4%9B%E7%B4%A2%E9%AB%98%E5%A4%A7%E6%A5%BC%EF%BC%88%E6%84%8F%E5%A4%A7%E5%88%A9%E9%A2%86%E4%BA%8B%E9%A6%86%E6%97%A7%E5%9D%80%EF%BC%89",
-   "reason": "page-unparseable-sight",
-   "llmScore": 1.8,
-   "llmCount": 0,
-   "checked": "2026-10-26"
-  },
-  "p486": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=77092&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
-   "llmScore": 4.4,
-   "llmCount": 441,
-   "checked": "2026-10-26"
+   "url": "https://you.ctrip.com/sight/harbin151/148727596.html",
+   "poiId": "",
+   "matched": "",
+   "reason": "no-ctrip-score",
+   "count": 7439
   },
   "p489": {
    "url": "https://you.ctrip.com/searchsite/?query=%E9%A6%99%E5%9D%8A%E7%AB%99",
@@ -921,18 +964,17 @@
    "checked": "2026-10-26"
   },
   "p491": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=18480903&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
+   "url": "",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
    "llmScore": 4.8,
-   "llmCount": 35,
-   "checked": "2026-10-26"
+   "llmCount": 34
   },
   "p492": {
    "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=56806449&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
-   "llmScore": 5,
-   "llmCount": 0,
-   "checked": "2026-10-26"
+   "poiId": "",
+   "matched": ""
   },
   "p496": {
    "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=77082&seo=0&isHideNavBar=YES&poiType=3",
