@@ -12,7 +12,7 @@
 // 纪律：只升置信度（--apply-conf，需 <150m 且名称命中 ≥0.9），不改坐标；坐标调整一律人工。
 import { readFileSync, writeFileSync, mkdirSync, existsSync } from 'node:fs';
 import { gcj2wgs } from '../src/pages/map/coords.js';
-import { CN_CITIES, CITY_REGION, AGREE, FAR, distM, cleanName, nameScore } from './lib/audit-shared.mjs';
+import { CN_CITIES, CITY_REGION, PROVINCE, AGREE, FAR, distM, cleanName, coreName, nameScore } from './lib/audit-shared.mjs';
 
 const TOKEN = process.env.BAIDU_MAP_AUTH_TOKEN || '';
 if (!TOKEN) {
@@ -93,35 +93,63 @@ function addressHint(note) {
   return '';
 }
 
-function pickBest(d, name) {
-  const cands = (d.results || [])
+function collect(d, p, scope) {
+  const core = coreName(p.name, p.city);
+  return (d.results || [])
     .filter((x) => x.location && Number.isFinite(x.location.lat) && Number.isFinite(x.location.lng))
-    .map((x) => ({ name: x.name, address: x.address || '', uid: x.uid, s: nameScore(x.name, name), loc: x.location }))
-    .filter((x) => x.s >= 0.6)
-    .sort((a, b) => b.s - a.s);
-  return cands[0] || null;
+    .map((x) => {
+      const [lat, lon] = gcj2wgs(x.location.lat, x.location.lng);
+      return {
+        lat, lon, label: x.name, address: x.address || '', uid: x.uid,
+        s: nameScore(x.name, core), scope,
+        dist: Math.round(distM([p.lat, p.lon], [lat, lon])),
+      };
+    })
+    .filter((c) => c.s >= 0.6);
 }
 
-// 语义检索：先带地址线索问一次；没有候选再退回最朴素的「X在哪里」
-// （实测：带城市前缀+长句会退化成「附近搜索」，乌鲁木齐站/亿恒夜市都因此查不到）
+// scoring: 名称得分优先，其次距离近（连锁店多分店时选离库存最近的那家）。
+// 距离 >50km 的候选不参与择优（语义搜索偶尔会把千里外的同名店端上来），只留在候选列表里作旁证。
+const bestOf = (pool) => pool.filter((c) => c.dist < 50000).sort((a, b) => (b.s - a.s) || (a.dist - b.dist))[0] || null;
+
+// 语义检索：城市级 → 省级兜底。
+// 实测两个坑：① 带城市名的长句会退化成「附近搜索」（乌鲁木齐站/亿恒夜市查不到）；
+// ② region 传错行政区会返回同名不同地的 POI（分界洲岛 → 三亚市区潜水基地，差 74km）。
+// 因此城市级答案明显偏远（>2km）或匹配不是精确同名时，再用省级 region 问一次。
 async function queryPlace(p) {
-  const region = CITY_REGION[p.city] || p.city;
-  const name = cleanName(p.name);
+  const cityRegion = CITY_REGION[p.city] || p.city;
+  const province = PROVINCE[p.city] || '';
+  const core = coreName(p.name, p.city);
   const hint = addressHint(p.note);
-  const attempts = [
-    `帮我确认${p.city}的「${name}」的具体位置${hint ? `，地址在${hint}` : ''}`,
-    `${name}在哪里`,
-  ];
-  for (let i = 0; i < attempts.length; i++) {
-    const d = await api('/place', { user_raw_request: attempts[i], region });
-    const best = pickBest(d, p.name);
-    if (best) {
-      const [lat, lon] = gcj2wgs(best.loc.lat, best.loc.lng);
-      return { lat, lon, label: best.name, address: best.address, uid: best.uid, score: +best.s.toFixed(2), query: attempts[i] };
-    }
-    if (i === 0) await sleep(300);
+  const pool = [];
+
+  const ask = async (q, region, scope) => {
+    const d = await api('/place', { user_raw_request: q, region });
+    pool.push(...collect(d, p, scope));
+  };
+
+  await ask(`帮我确认${p.city}的「${cleanName(p.name)}」的具体位置${hint ? `，地址在${hint}` : ''}`, cityRegion, 'city');
+  let b = bestOf(pool);
+  if (!b || b.dist > 2000 || b.s < 0.9) {
+    await sleep(300);
+    await ask(`${core}在哪里`, cityRegion, 'city');
+    b = bestOf(pool);
   }
-  return null;
+  if (province && (!b || b.dist > 2000 || b.s < 0.9)) {
+    await sleep(300);
+    await ask(`${core}在哪里`, province, 'province');
+    b = bestOf(pool);
+  }
+  if (!b) return null;
+  const alts = pool
+    .filter((c) => c !== b && c.label !== b.label)
+    .sort((x, y) => (y.s - x.s) || (x.dist - y.dist))
+    .slice(0, 2)
+    .map((c) => ({ label: c.label, dist: c.dist, scope: c.scope }));
+  return {
+    lat: b.lat, lon: b.lon, label: b.label, address: b.address, uid: b.uid,
+    score: +b.s.toFixed(2), scope: b.scope, alts,
+  };
 }
 
 // 地理编码：只在 note 里能取出街道门牌时用（道路级答案，精度低于 POI，默认关闭）
@@ -159,7 +187,11 @@ for (const p of targets) {
     r.verdict = 'dry';
   } else if (src) {
     r.dist = Math.round(distM([p.lat, p.lon], src));
-    r.verdict = r.dist < AGREE ? 'agree' : r.dist < FAR ? 'near' : 'diverge';
+    const samePoi = (src.score ?? 0) >= 0.9;   // 连续同名/包含才算「百度认的是同一个地方」
+    r.verdict = r.dist < AGREE ? 'agree'
+      : r.dist < FAR ? 'near'
+      : (!samePoi && r.dist >= 2000) ? 'mismatch'   // 名称对不上又隔着公里级 → 百度根本没这个点位
+      : 'diverge';
   } else {
     r.verdict = r.error ? 'error' : 'empty';
   }
@@ -170,7 +202,8 @@ for (const p of targets) {
     address: src?.address || null,
     score: src?.score ?? null,
     match: src ? (src.score >= 0.9 ? 'exact' : 'partial') : null,
-    query: src?.query || null,
+    scope: src?.scope || null,
+    alts: src?.alts || [],
     dist: r.dist ?? null,
     verdict: r.verdict,
     geo: r.geocode ? {
@@ -184,18 +217,21 @@ for (const p of targets) {
   results.push({ p, ...entry });
   const shown = entry.wgs ? `${entry.wgs[0]},${entry.wgs[1]}` : '—';
   const mark = entry.match === 'partial' ? '~' : ' ';
-  console.log(`  ${p.id} ${p.name.slice(0, 16).padEnd(18, ' ')} ${entry.verdict.padEnd(7)} ${String(entry.dist ?? '—').padStart(5)}m  ${shown} ${mark} ${entry.label || ''}`);
+  const scopeMark = entry.scope === 'province' ? '[省]' : '';
+  console.log(`  ${p.id} ${p.name.slice(0, 16).padEnd(18, ' ')} ${entry.verdict.padEnd(7)} ${String(entry.dist ?? '—').padStart(5)}m  ${shown} ${mark} ${scopeMark}${entry.label || ''}`);
+  if (entry.alts?.length) console.log(`      └ 其他候选：${entry.alts.map((a) => `${a.label} ${a.dist}m`).join(' / ')}`);
   if (entry.geo) console.log(`      └ geocoding ${entry.geo.dist}m  ${entry.geo.wgs.join(',')}  ${entry.geo.label}`);
 }
 
 const by = (v) => results.filter((r) => r.verdict === v);
-const agree = by('agree'), near = by('near'), diverge = by('diverge'), empty = by('empty'), error = by('error');
+const agree = by('agree'), near = by('near'), diverge = by('diverge'), mismatch = by('mismatch'), empty = by('empty'), error = by('error');
 const exact = results.filter((r) => r.match === 'exact').length;
 
 console.log(`\n═══ 百度核对结论（${results.length} 点，本次调用 ${apiCalls} 次${GEOCODE ? '，含 geocoding' : ''}）═══`);
 console.log(`✅ 一致 (<${AGREE}m)：${agree.length}（名称精确命中 ${exact}/${results.length}，~ 为部分命中）`);
 console.log(`🟡 偏差 (${AGREE}–${FAR}m)：${near.length}`); near.forEach((r) => console.log(`   ${r.p.id} ${r.p.name} → ${r.dist}m | 百度 ${r.label}`));
-console.log(`🔴 分歧 (>${FAR}m，需人工判断，可能是同名/异名 POI，不等于库存错)：${diverge.length}`); diverge.forEach((r) => console.log(`   ${r.p.id} ${r.p.name} → ${r.dist}m | 百度 ${r.label}（${r.address || '无地址'}）| ${r.wgs?.join(',')}`));
+console.log(`🔴 分歧 (>${FAR}m，同名但口径不同：湾区/景区/机场基准点)：${diverge.length}`); diverge.forEach((r) => console.log(`   ${r.p.id} ${r.p.name} → ${r.dist}m | 百度 ${r.label}（${r.address || '无地址'}）| ${r.wgs?.join(',')}`));
+console.log(`⚫ 百度没这个点（名字对不上且 >2km，不算证据）：${mismatch.length}`); mismatch.forEach((r) => console.log(`   ${r.p.id} ${r.p.name} → ${r.dist}m | 最近似 ${r.label}（${r.score}）`));
 console.log(`⚪ 未命中：${empty.length}${empty.length ? '（' + empty.map((r) => r.p.id + r.p.name.slice(0, 6)).join('、') + '）' : ''}`);
 if (error.length) { console.log(`⚠️ 请求失败：${error.length}`); error.slice(0, 5).forEach((r) => console.log(`   ${r.p.id} ${r.error}`)); }
 
