@@ -41,7 +41,9 @@ if (!policy) { console.error('❌ sw.js 未导出 __SW_POLICY__'); process.exit(
   else fail(`外壳引用了不存在的页面：${stray.join('、')}`);
 }
 
-// 2) 瓦片白名单 = 实际在用的世界底图；GCJ-02 图商必须排除
+// 2) 瓦片白名单 = 实际在用的世界底图 + 同源天地图反代；GCJ-02 图商（高德/腾讯）必须排除
+//    政策（2026-11-02 站长裁决）：天地图纳入运行时缓存（中国区域离线可用）；
+//    同源前缀匹配必须精确——/api/ 等其它本站路径不得混入
 {
   const tiles = [
     ['https://tile.openstreetmap.org/5/19/10.png', true, 'OSM 官方'],
@@ -49,7 +51,10 @@ if (!policy) { console.error('❌ sw.js 未导出 __SW_POLICY__'); process.exit(
     ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/5/10/19', true, 'Esri（OSM 失败备用）'],
     ['https://webrd01.is.autonavi.com/appmaptile?x=1&y=2&z=3', false, '高德（GCJ-02）'],
     ['https://rt0.map.gtimg.com/realtimerender?z=3&x=1&y=2', false, '腾讯（GCJ-02/实时）'],
-    ['https://julyyunna.art/tdt/DataServer?T=vec_w&x=1&y=2&l=3', false, '天地图（同源 /tdt/，走同源分支）'],
+    ['https://julyyunna.art/tdt/DataServer?T=vec_w&x=1&y=2&l=3', true, '天地图（同源 /tdt/，2026-11-02 起纳入缓存）'],
+    ['https://julyyunna.art/api/submit', false, '本站 /api/ 不得被瓦片分支拦走'],
+    ['https://julyyunna.art/assets/map.js', false, '本站静态资源仍走同源分支'],
+    ['https://evil.com/tdt/x.png', false, '他站 /tdt/ 路径不得匹配（origin 必须同源）'],
   ];
   for (const [url, want, label] of tiles) {
     const got = policy.isTileUrl(url);
