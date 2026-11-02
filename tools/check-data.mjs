@@ -349,7 +349,8 @@ if (existsSync(resolve(dir, 'ratings.json'))) {
       } else {
         if (!(typeof rr.score === 'number' && rr.score > 0 && rr.score <= 5)) err(`${w} score 非法：${rr.score}`);
         if (!(Number.isInteger(rr.count) && rr.count >= 0)) err(`${w} count 非法：${rr.count}`);
-        if (rr.count < 10 && !(rr.src === '大众点评' && rr.count >= 5)) low.push(`${id} ${rr.src} ${rr.score}/${rr.count}`);
+        // page:true = 已对照官方 POI 页面核实精准对应，低点评数是真实冷门而非同名错配，不告警
+        if (rr.count < 10 && !(rr.src === '大众点评' && rr.count >= 5) && rr.page !== true) low.push(`${id} ${rr.src} ${rr.score}/${rr.count}`);
       }
       let u;
       try { u = new URL(rr.url); } catch { err(`${w} url 非法：${rr.url}`); continue; }

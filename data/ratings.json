@@ -92,15 +92,6 @@
      "count": 9548,
      "url": "https://www.dianping.com/shop/la30976SD2tqKsD9",
      "checked": "manual"
-    },
-    {
-     "src": "携程",
-     "score": 4,
-     "count": 2,
-     "url": "https://www.trip.com/restaurant/china/sanya/detail/yelin-bobo-coconut-chicken-zao-po-cu-seafood-hot-pot-140851464/",
-     "poiId": "140851464",
-     "checked": "2026-10-26",
-     "page": true
     }
    ]
   },
@@ -510,17 +501,6 @@
      "score": 4.2,
      "count": 777,
      "url": "https://www.dianping.com/shop/G3LCAAQf65Ix3VZf",
-     "checked": "manual"
-    }
-   ]
-  },
-  "p474": {
-   "ratings": [
-    {
-     "src": "大众点评",
-     "score": 4.4,
-     "count": 3,
-     "url": "https://www.dianping.com/shop/G4g7FPXJHfoDVznt",
      "checked": "manual"
     }
    ]
