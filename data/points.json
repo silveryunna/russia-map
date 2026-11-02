@@ -10186,25 +10186,6 @@
     "durationBasis": "estimate"
   },
   {
-    "id": "p570",
-    "name": "财哥粥铺（后海）",
-    "name_en": "Caige Seafood Congee (Houhai)",
-    "city": "三亚",
-    "cluster": "⑤ 三亚·海棠湾群",
-    "type": "餐饮",
-    "highlight": "后海村20r海鲜粥，很鲜很多料",
-    "note": "后海村内，具体门牌待核",
-    "lat": 18.27499,
-    "lon": 109.728282,
-    "confidence": 75,
-    "tags": [
-      "餐厅/咖啡"
-    ],
-    "mustOrder": "海鲜粥 20r",
-    "estimatedDuration": 60,
-    "durationBasis": "estimate"
-  },
-  {
     "id": "p571",
     "name": "保利瑰丽·海吧天际",
     "name_en": "Rosewood Sanya · Sky Bar",
@@ -10567,22 +10548,6 @@
     "durationBasis": "estimate",
     "openCalendar": "unknown",
     "ticket": "30元/人（含免费讲解与现场手风琴演奏）"
-  },
-  {
-    "id": "p594",
-    "name": "三区革命烈士墓",
-    "name_en": "Three Districts Revolution Martyrs Cemetery",
-    "city": "伊宁",
-    "cluster": "① 伊宁·六星街-老城人文线",
-    "type": "纪念地",
-    "highlight": "阿合买提江等三区革命烈士墓，全国重点文物保护单位",
-    "note": "人民公园旁；目前维修中暂不开放",
-    "lat": 43.916722,
-    "lon": 81.291434,
-    "confidence": 100,
-    "estimatedDuration": 30,
-    "durationBasis": "estimate",
-    "openCalendar": "unknown"
   },
   {
     "id": "p595",
