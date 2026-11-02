@@ -58,7 +58,15 @@ run('node', ['tools/check-data.mjs', './data'], { stdio: 'inherit' });
 // ── 3) 构建 + 组装（assemble 内注入 sw.js VERSION = git short sha） ──
 step(3, 'vite build + assemble');
 run('npm', ['run', 'build'], { stdio: 'inherit', shell: process.platform === 'win32' });
-run('node', ['tools/assemble.mjs'], { stdio: 'inherit' });
+try {
+  run('node', ['tools/assemble.mjs'], { stdio: 'inherit' });
+} catch (e) {
+  if (String(e).includes('EPERM')) {
+    console.error('❌ site-out 被占用（本地 :8899 测试服务器未关？）。先杀进程再重跑：');
+    console.error('   for pid in $(netstat -ano | grep \':8899\' | grep LISTENING | awk \'{print $NF}\' | sort -u); do taskkill //PID $pid //F; done');
+  }
+  process.exit(1);
+}
 
 // 入口 HTML 以 site-out 为准（site-out 是唯一事实源）
 HTML_FILES = readdirSync(join(ROOT, 'site-out')).filter((f) => f.endsWith('.html'));
