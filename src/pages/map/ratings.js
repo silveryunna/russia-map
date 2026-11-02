@@ -25,6 +25,10 @@ function ratingPill(r) {
   const bd = r.src === '大众点评' ? '#FFD3C2' : r.src === '小红书' ? '#FFC2D1' : '#FFDFA8';
   const fg = r.src === '大众点评' ? '#8A3A22' : r.src === '小红书' ? '#A02040' : '#8A5A00';
   const checked = r.checked || (window.__ratings__ || {}).updated || '';
+  const snap = (window.__ratings__ || {}).updated || '';
+  // 鲜度徽标：条目采集日比快照更新日早 >90 天 → 明示「可能过时」（管理预期，不烧配额刷新）
+  const isStale = checked && snap && (new Date(snap) - new Date(checked)) / 864e5 > 90;
+  const staleTag = isStale ? ` · <span style="color:#B09A6A" title="该评分采集已久，店家评分可能已变化">📅 ${esc(String(checked).slice(0, 7))}采集</span>` : '';
   const score = r.src === '小红书'
     ? `<span style="font-weight:800;color:#FF2442;font-size:13px;white-space:nowrap">${r.verdict === '避雷' ? '⛔' : r.verdict === '一般' ? '🟡' : '🟢'} ${esc(r.verdict)}</span>`
     : `<span style="font-weight:800;color:${r.src === '大众点评' ? '#FF6633' : '#E8A33D'};font-size:13px">★ ${r.score}</span>${
@@ -32,7 +36,7 @@ function ratingPill(r) {
         : r.src === '携程' ? `<span style="font-size:11px" title="未经官方页面核实，仅供参考">⚠️</span>` : ''}`;
   const mid = r.src === '小红书'
     ? `${esc(r.src)}${r.note ? ` · ${esc(r.note)}` : ''}`
-    : `${esc(r.src)}${fmtCount(r) ? ` · ${fmtCount(r)} 条点评` : ''}`;
+    : `${esc(r.src)}${fmtCount(r) ? ` · ${fmtCount(r)} 条点评` : ''}${staleTag}`;
   return `<div style="margin-bottom:6px"><a href="${esc(r.url || '#')}" target="_blank" rel="noopener" title="采集于 ${esc(checked)}，实时数据以${esc(r.src)}为准" style="display:flex;align-items:center;gap:6px;text-decoration:none;background:${bg};border:1px solid ${bd};border-radius:8px;padding:6px 9px;font-size:12px;color:${fg}">${score}<span style="flex:1">${mid}</span><span style="font-size:11px;opacity:.75">${r.src === '小红书' ? '看笔记 ›' : '去看点评 ›'}</span></a></div>`;
 }
 
