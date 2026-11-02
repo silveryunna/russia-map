@@ -4,6 +4,7 @@
 // 用法: node tools/test-plan-io.mjs
 import {
   buildMarkdown, exportMarkdown, exportBackup, importBackup, IMPORT_CONFIRM,
+  backupReminder, BACKUP_WARN_DAYS,
 } from '../src/pages/plan/io.js';
 
 let bad = 0;
@@ -134,6 +135,38 @@ const trip = {
   assert(r.ok === false && r.reason === 'store', '存储失败返回 store 失败');
   assert(toasts[0] === '备份数据未通过校验', '透传存储层错误文案');
   assert(refreshed === 0, '失败时不刷新、不重渲染');
+}
+
+// 8) backupReminder：从未备份 / 超期 / 期内 / 边界
+{
+  assert(backupReminder('', '2026-11-03')?.level === 'never', '空记录 → never（提醒）');
+  assert(backupReminder(null, '2026-11-03')?.level === 'never', 'null → never（提醒）');
+  assert(backupReminder('not-a-date', '2026-11-03')?.level === 'never', '非法日期 → never（提醒）');
+  assert(backupReminder('2026-11-03', '2026-11-03') === null, '当天备份不提醒');
+  assert(backupReminder('2026-10-27', '2026-11-03') === null, `正好 ${BACKUP_WARN_DAYS} 天不提醒（边界在内）`);
+  const r = backupReminder('2026-10-26', '2026-11-03');
+  assert(r?.level === 'stale' && r.days === 8, '超期 1 天 → stale 且天数正确');
+  const future = backupReminder('2026-11-10', '2026-11-03');
+  assert(future === null, '未来日期不提醒（负天数视为期内）');
+}
+
+// 9) exportBackup：afterExport 用于写备份时间（备份提醒的依据）
+{
+  let exported = 0;
+  await exportBackup({
+    store: { exportAll: async () => ({ trips: [], visits: [], events: [], legs: [] }) },
+    save: () => {},
+    toast: () => {},
+    afterExport: async () => { exported++; },
+  });
+  assert(exported === 1, 'afterExport 在导出后被调用（写 meta backup:lastExportAt）');
+  let skipped = 0;
+  await exportBackup({
+    store: { exportAll: async () => ({ trips: [], visits: [], events: [], legs: [] }) },
+    save: () => {},
+    toast: () => {},
+  });
+  assert(skipped === 0, '不传 afterExport 也能正常导出');
 }
 
 if (bad) { console.error(`\n${bad} 处导入导出行为不符合约定`); process.exit(1); }

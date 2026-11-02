@@ -164,11 +164,15 @@ export async function createVisitRepository({ store, storage = defaultStorage(),
 
 export async function openVisitRepository({ now = () => Date.now(), idFn, storage = defaultStorage(), onChange } = {}) {
   let store;
+  let degraded = false;
   try {
     store = await openTripStore({ driver: createIdbDriver(), now, idFn });
     await store.getMeta('__probe');
   } catch {
     store = await openTripStore({ driver: createMemoryDriver(), now, idFn });
+    degraded = true; // IndexedDB 不可用：打卡改动只在内存，刷新即丢——页面必须据此出横幅
   }
-  return createVisitRepository({ store, storage, now, idFn, onChange });
+  const repo = await createVisitRepository({ store, storage, now, idFn, onChange });
+  repo.degraded = degraded;
+  return repo;
 }

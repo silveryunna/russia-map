@@ -1,8 +1,8 @@
 import '../shared/base.css';
 import './plan.css';
 import { evaluateDay, formatMinutes, formatMinutesCrossDay } from './plan/feasibility.js';
-import { indexTransitMatrix } from './plan/transit-matrix.js';
-import { indexFacts, loadFactLedger } from './plan/facts.js';
+import { indexTransitMatrix, matrixCoverage } from './plan/transit-matrix.js';
+import { indexFacts, loadFactLedger, factCoverage } from './plan/facts.js';
 import { buildDayRail } from './plan/timeline.js';
 import { planAutoTrim } from './plan/repair.js';
 import { evaluateSoft } from './plan/soft.js';
@@ -19,7 +19,7 @@ import {
   shortDate, snap5, sourceLabel, weekday,
 } from './plan/format.js';
 import { createAIClient } from './plan/ai.js';
-import { download, exportBackup as writeBackup, exportMarkdown, importBackup as readBackup } from './plan/io.js';
+import { download, exportBackup as writeBackup, exportMarkdown, importBackup as readBackup, backupReminder } from './plan/io.js';
 import { renderTripList } from './plan/list.js';
 import { renderCreateForm, runGenerate } from './plan/generate.js';
 import {
@@ -36,12 +36,15 @@ import {
 
 const $app = document.getElementById('plan-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+const localToday = () => new Date().toISOString().slice(0, 10);
 
 let meta = { cities: [], cityColors: {} };
 let cache = { pts: [], rts: [], matrix: null, facts: null };
 let pointsById = new Map();
 let store = null;
 let storeWarn = '';
+let dataWarn = [];       // 交通矩阵/事实账本加载失败（离线兜底时为空数组）
+let backupLast = '';     // 上次全量备份日期（meta backup:lastExportAt）
 let trips = [];
 let current = null;              // 编辑器里的行程
 let ambiguities = [];            // 迁移遗留的待确认项（仅用于预置候选）
@@ -77,11 +80,19 @@ function render() {
 function banners() {
   const out = [];
   if (storeWarn) out.push(`<div class="pl-tip warn">⚠️ ${esc(storeWarn)}</div>`);
+  for (const w of dataWarn) out.push(`<div class="pl-tip warn">⚠️ ${esc(w)}</div>`);
+  if (!storeWarn && trips.length) {
+    const b = backupReminder(backupLast, localToday());
+    if (b) out.push(`<div class="pl-tip warn">💾 ${b.level === 'never' ? '这份行程数据还没有导出过备份' : `上次备份已是 ${b.days} 天前`}——数据只存在这台设备的浏览器里<button class="pl-btn small" id="pl-backup-now">立即备份</button></div>`);
+  }
   if (planLoad.recovered) out.push(`<div class="pl-tip warn">⚠️ 检测到损坏的旧本地计划，已备份为 ${esc(planLoad.backupKey || '备份键')}</div>`);
   const live = current
     ? ambiguities.filter(a => current.days.some(d => d.items.some(it => it.id === a.itemId && it.confirm !== 'ok')))
     : [];
   if (live.length) out.push(`<div class="pl-tip">🔎 旧计划迁移有 ${live.length} 个点位待确认，点名字即可绑定</div>`);
+  const cov = matrixCoverage(cache.matrix);
+  const fc = factCoverage(cache.facts, { points: cache.pts, today: localToday() });
+  out.push(`<div class="pl-tip">🧭 数据快照：交通矩阵 ${cov.total} 段（步行 ${cov.walking} · 车行 ${cov.car}）· 事实账本 ${fc.facts} 条 / 覆盖 ${fc.documented} 点位（official ${fc.official}）${fc.stale ? ` · 已过期 ${fc.stale} 条` : ''}</div>`);
   return out.join('');
 }
 
@@ -878,7 +889,18 @@ async function doUndo() {
 }
 
 /* ---------- 导入导出（实现见 plan/io.js，这里只做依赖绑定） ---------- */
-const exportBackup = () => writeBackup({ store, save: download, toast });
+const exportBackup = () => writeBackup({
+  store, save: download, toast,
+  afterExport: async () => {
+    backupLast = localToday();
+    await store.setMeta('backup:lastExportAt', backupLast).catch(() => {});
+  },
+});
+
+// 「立即备份」按钮渲染在 banners() 里（列表/编辑器视图都有），用委托绑一次
+$app.addEventListener('click', e => {
+  if (e.target && e.target.id === 'pl-backup-now') { e.preventDefault(); void exportBackup(); }
+});
 
 const importBackup = file => readBackup(file, {
   store,
@@ -940,9 +962,13 @@ async function runMigration() {
   cache.rts = Array.isArray(rts) ? rts : (rts.routes || []);
   cache.matrix = indexTransitMatrix(trs);
   cache.facts = indexFacts(fts);
+  // 静默降级不可接受（审计 B2-2）：矩阵/账本没加载成功必须让用户知道结论降级了
+  if (!trs) dataWarn.push('交通矩阵未加载（离线或网络故障），通行时间全部按模型估算');
+  if (!fts) dataWarn.push('事实账本未加载（离线或网络故障），开放时间一律按未知处理');
   meta = mt;
   pointsById = new Map(cache.pts.map(p => [p.id, p]));
   await bootStore();
+  backupLast = String(await store.getMeta('backup:lastExportAt').catch(() => '')) || '';
   await runMigration();
   await refreshTrips();
   render();

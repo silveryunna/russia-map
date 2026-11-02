@@ -7,21 +7,33 @@
 
 ## 1. 项目现状
 
-- **架构**：多页面 PWA（Vite 构建），数据与视图分离
-- **点位数据**：`data/points.json`（**626+ 个点位**，2026-10；本手册 §2 统计为 382 时代历史快照）
-- **动线数据**：`data/routes.json`（**28 条动线**）
-- **评分快照**：`data/ratings.json`（92 点位多来源评分，携程问道 API 构建期抓取 + 大众点评人工采集，规则见 check-data.mjs）
-- **部署**：GitHub Pages（`silveryunna.github.io/russia-map`）+ 腾讯云服务器（`124.221.104.242`，**scp 直传为主**，cron 自动 pull 已失效；双节点流程见 HANDOFF.md 第四节）
+> ⚠️ **本节 2026-11-03 重写**：下面的 7 条是现行事实；§2 及之后的历史章节保持原样（382/626 时代的数字是历史快照，勿据其操作）。
+
+- **架构**：多页面 PWA（Vite 构建），`src/` 是源码唯一事实来源，根目录 HTML 与 `assets/` 是构建产物（禁手改，改源码走 `npm run publish`）
+- **点位数据**：`data/points.json`（当前点位数见 `node tools/audit-snapshot.mjs`，不要手填数字）
+- **动线数据**：`data/routes.json`（28 条动线，数量以 audit-snapshot 为准）
+- **评分快照**：`data/ratings.json`（61 点位多来源评分；`data/dianping-manual.json` 人工采集 + 携程问道 API 构建期抓取，规则见 check-data.mjs）
+- **部署**：**GitHub 即部署源**——push 到 main 后腾讯云 webroot（git 工作区）cron ≤2 分钟 `git reset --hard origin/main` 自动上线；**禁止 scp 热修**（会被覆盖，确需临时改先注释 cron）。Pages 备节点已放弃维护
 - **部署密钥**：两台电脑两把 key 并存于服务器 `authorized_keys`——①原机 `~/.ssh/julyyunna_ed25519`（控制台绑定名 julyyunna / lhkp-dx1mnoy4）；②2026-10-26 新增本机 `~/.ssh/julyyunna_thispc_ed25519`，指纹 `SHA256:MzwpKhOa7IVVHC/E/SdRXYY5fo8wW7fj6gfg3HquJDQ`（注释 thispc-2026-10）。轮换/吊销时按指纹区分，勿解绑错 key
-- **源码**：本仓库仅含构建产物；源码在另一处维护。改数据直接编辑 `data/*.json`，**无需重新构建**；改 UI 逻辑需改 `assets/*.js` 构建产物（会被下次构建覆盖，需同步改源码）
+- **源码与构建**：改数据（`data/*.json`）= check-data → commit → push 即上线，无需构建；改源码（`src/`、`tools/`、sw.js 模板）= `npm run publish`（体检 → 构建 → 产物回写 → commit → push）。发布脚本拒绝脏工作区
+
+### 周期任务（新维护者按此巡检）
+
+| 频率 | 任务 | 命令 |
+|---|---|---|
+| 每次部署前 | 数据门 + 文档事实门 | `node tools/check-data.mjs ./data && node tools/check-doc-facts.mjs` |
+| 每周 | 事实账本过期/覆盖报告 | `node tools/evidence-coverage.mjs ./data`（退出码 1 = 有数据缺口） |
+| 每月 | 监控探针本地复跑 | `node tools/site-monitor.mjs` |
+| 每季度 | 国内点位坐标全量复核（缓存命中≈0 成本） | `node tools/audit-baidu.mjs --all`（结果在 tools/.cache，四源结论人工裁决后才改坐标） |
+| 每次主线变更 | 留一页决策记录 | `docs/decisions/ADR-NNN-*.md`：推翻了什么、为什么、废止哪段旧文 |
 
 ### 页面结构
 
 | 页面 | 入口 | 说明 |
 |---|---|---|
 | 首页 | `index.html` | 落地页（`main-*.js`） |
-| 地图 | `map.html` | 主地图（`map-D2GUsbT3.js`） |
-| 清单 | `list.html` | |
+| 地图 | `map.html` | 主地图（hash 产物，见 assets/） |
+| 清单 | `list.html` | 打卡清单（Visit repository 投影） |
 | 相册 | `album.html` | |
 | 笔记 | `notes.html` | Markdown 内容在 `content/notes/` |
 | **管理后台** | `admin.html` | 点位录入助手（localStorage + 导出 JSON，见 §6） |

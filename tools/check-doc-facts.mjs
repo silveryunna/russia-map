@@ -23,6 +23,15 @@ const readme = read('README.md');
   else fail(`AGENTS 写 ${m[1]} 个变异，tools/mutation-test.mjs 实际注册 ${actual} 个`);
 }
 
+// 1b) README 的变异数 = 同一实际值（README:59 曾写 35 实际 40，机检盲区）
+{
+  const actual = (read('tools/mutation-test.mjs').match(/M\.push\(/g) || []).length;
+  const m = readme.match(/（(\d+)\s*个变异须全捕获）/);
+  if (!m) fail('README.md 未写明变异测试数量（格式：（N 个变异须全捕获））');
+  else if (+m[1] === actual && actual > 0) ok(`README 变异数 ${actual} 与实际一致`);
+  else fail(`README 写 ${m[1]} 个变异，tools/mutation-test.mjs 实际注册 ${actual} 个`);
+}
+
 // 2) README 的点位/动线数 = data/*.json 实际条数
 {
   const pts = JSON.parse(read('data/points.json'));

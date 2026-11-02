@@ -2,6 +2,7 @@ import '../shared/base.css';
 import './list.css';
 import { renderIcpFooter } from '../shared/icp-footer.js';
 import { openVisitRepository } from './visits/repository.js';
+import { showDegradedBanner } from '../shared/degraded-banner.js';
 
 // ===== 打卡清单页：与地图/笔记共享同一个 Visit repository =====
 
@@ -188,6 +189,7 @@ async function main() {
     fetch('./data/meta.json').then(r => r.json()),
   ]);
   state.checked = new Set(Object.keys(visitRepo.getCheckins()));
+  if (visitRepo.degraded) showDegradedBanner('IndexedDB 不可用，打卡改动只会留在内存、刷新即丢；请关闭隐私模式或检查浏览器存储权限');
   render();
 }
 

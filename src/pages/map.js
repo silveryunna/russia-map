@@ -20,6 +20,7 @@ import { drawOverlays, rebuildOverlays } from './map/overlays.js';
 import { initPlayer, playRoute, stopPlay } from './map/player.js';
 import { initLayers, countryOf, sortCities, COUNTRY_STYLE } from './map/layers.js';
 import { openVisitRepository } from './visits/repository.js';
+import { showDegradedBanner } from '../shared/degraded-banner.js';
 
 // 兼容只认全局 L 的老插件（leaflet.markercluster 的 UMD 内部引用自由变量 L）
 window.L = L;
@@ -1052,6 +1053,7 @@ async function main() {
     fetch('./content/notes/index.json').then(r => r.json()).catch(() => []).then(d => (window.__notesIndex__ = d)),
   ]);
   state.checked = new Set(Object.keys(visitRepo.getCheckins()));
+  if (visitRepo.degraded) showDegradedBanner('IndexedDB 不可用，打卡改动只会留在内存、刷新即丢；请关闭隐私模式或检查浏览器存储权限');
   window.__overlaysData__ = overlays || [];
   pointByName = new Map(points.map(p => [p.name, p]));
   pointById = new Map(points.map(p => [p.id, p]));

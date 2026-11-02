@@ -49,10 +49,26 @@ export function exportMarkdown(trip, { nameOf, save = download, toast = () => {}
 }
 
 /** 全量备份：行程 + 打卡 + 变更日志 + 实际通行记录。 */
-export async function exportBackup({ store, save = download, toast = () => {} }) {
+export async function exportBackup({ store, save = download, toast = () => {}, afterExport = null }) {
   const payload = await store.exportAll();
   save(`trips-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(payload, null, 2));
+  if (afterExport) await afterExport(); // 例如写 meta backup:lastExportAt，供备份提醒用
   toast(`已导出 ${payload.trips.length} 份行程、${payload.visits.length} 条打卡记录`);
+}
+
+/* ---------- 备份提醒（N1：数据只存在浏览器里，从不提醒导出等于等着丢） ---------- */
+export const BACKUP_WARN_DAYS = 7;
+
+/**
+ * 纯函数：该不该提醒备份。
+ * @returns {null | { level: 'never'|'stale', days: number|null }}
+ *   never = 从未导出过；stale = 超过 BACKUP_WARN_DAYS 天未导出；否则 null。
+ */
+export function backupReminder(lastExport, today) {
+  if (!/^\d{4}-\d{2}-\d{2}/.test(lastExport || '')) return { level: 'never', days: null };
+  const days = Math.floor((Date.parse(today) - Date.parse(lastExport)) / 86400000);
+  if (!Number.isFinite(days) || days <= BACKUP_WARN_DAYS) return null;
+  return { level: 'stale', days };
 }
 
 export const IMPORT_CONFIRM = '用备份覆盖本机全部行程吗？\n确定＝覆盖；取消＝合并（同一行程保留修订号更高的版本）';

@@ -47,6 +47,8 @@ jobs:
           node tools/test-plan-format.mjs
           node tools/test-plan-io.mjs
           node tools/test-plan-ai.mjs
+          node tools/test-plan-generate.mjs
+          node tools/test-plan-list.mjs
 
       # 2.7) Trip v2：schema 契约、旧计划/打卡迁移（零丢失 + 歧义队列）、编辑操作、存储与导入
       - name: Trip v2 测试
@@ -97,6 +99,13 @@ jobs:
       # 2.9) 文档事实：README/AGENTS 里的数量与代码、数据一致（防"21 变异"这类过期数字）
       - name: 文档事实检查
         run: node tools/check-doc-facts.mjs
+
+      # 2.92) 审计快照 + API 安全契约 + 产物体积预算（2026-11-03 复核审计新增）
+      - name: 审计快照 / API 契约 / 体积预算
+        run: |
+          node tools/audit-snapshot.mjs
+          node tools/test-api-contract.mjs
+          node tools/check-asset-budget.mjs
 
       # 2.95) 本地质量门与 CI 一致：清单从 package.json 派生，不再手写
       #        （2026-11-01 事故：CI 少跑 4 个门，手写 required 数组没跟着更新）

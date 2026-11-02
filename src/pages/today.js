@@ -5,11 +5,11 @@ import './today.css';
 import { renderIcpFooter } from '../shared/icp-footer.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
 import {
-  completeItem, dayExecution, nearestDay, recordArrival, skipItem, verificationTasks,
+  completeItem, dayExecution, executionReport, nearestDay, recordArrival, skipItem, verificationTasks,
 } from './trip/execution.js';
 import { pointDigest, tripChecklistMarkdown, tripToGeoJSON, tripToGPX, tripToKML } from './trip/offline.js';
 import { indexTransitMatrix } from './plan/transit-matrix.js';
-import { formatMinutes } from './plan/feasibility.js';
+import { formatMinutesCrossDay } from './plan/feasibility.js';
 
 const $app = document.getElementById('today-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -44,6 +44,7 @@ let current = null;
 let dayIndex = 0;
 let visits = [];
 let events = [];
+let legs = [];
 let clockTimer = null;
 
 function toast(msg) {
@@ -129,7 +130,7 @@ function render() {
     <div class="td-card td-now">
       <div class="td-label">${cur ? '正在进行' : '下一项'}</div>
       <div class="td-name">${esc(rowName(nowRow))}</div>
-      <div class="td-time">${Number.isFinite(nowRow.arrive) ? `${formatMinutes(nowRow.arrive)}–${formatMinutes(nowRow.end)}` : '时间待定'} · 停留 ${nowRow.duration ?? '—'} 分钟${nowRow.transitMinutes ? ` · 路上约 ${nowRow.transitMinutes} 分钟` : ''}</div>
+      <div class="td-time">${Number.isFinite(nowRow.arrive) ? `${formatMinutesCrossDay(nowRow.arrive)}–${formatMinutesCrossDay(nowRow.end)}` : '时间待定'} · 停留 ${nowRow.duration ?? '—'} 分钟${nowRow.transitMinutes ? ` · 路上约 ${nowRow.transitMinutes} 分钟` : ''}</div>
       <div>${rowFlags(nowRow)}</div>
       <div class="td-actions">
         <button class="td-btn primary" data-act="done" data-id="${esc(nowRow.itemId)}">✅ 完成</button>
@@ -150,6 +151,7 @@ function render() {
 
     ${renderTasks()}
     ${renderEvents()}
+    ${renderReport()}
     ${renderOffline()}
   `;
   bind();
@@ -159,7 +161,7 @@ function renderRow(row, cur) {
   const statusCls = row.status === 'done' ? 'is-done' : row.status === 'skipped' ? 'is-skipped' : '';
   const currentCls = cur && cur.itemId === row.itemId ? 'is-current' : '';
   const unscheduled = row.unscheduled ? 'is-unscheduled' : '';
-  const time = Number.isFinite(row.arrive) ? `${formatMinutes(row.arrive)}<br>${formatMinutes(row.end)}` : '待定';
+  const time = Number.isFinite(row.arrive) ? `${formatMinutesCrossDay(row.arrive)}<br>${formatMinutesCrossDay(row.end)}` : '待定';
   const icon = row.status === 'done' ? '✅' : row.status === 'skipped' ? '⏭' : row.item?.type === 'meal' ? '🍽' : row.item?.type === 'break' ? '☕' : '📍';
   const p = pointOf(row);
   const canAct = row.status === 'pending' && row.item && (row.item.type === 'visit' || row.item.type === 'reservation' || row.item.type === 'meal' || row.item.type === 'break');
@@ -197,6 +199,37 @@ function renderEvents() {
       <h2>🕘 变更日志（最近 ${Math.min(events.length, 20)} 条）</h2>
       ${events.slice(0, 20).map(ev => `
         <div class="td-event"><span class="td-event-time">${fmtClock(ev.at)}</span>${KIND_ICON[ev.kind] || '•'} ${esc(ev.summary || ev.kind)}</div>`).join('')}
+    </div>`;
+}
+
+function renderReport() {
+  const report = executionReport(current, { visits, legs });
+  const doneRows = report.visits.filter(r => r.status === 'visited');
+  const legRows = report.legs.filter(l => Number.isFinite(l.errorMinutes));
+  if (!doneRows.length && !legRows.length) return '';
+  const row = r => {
+    const planned = Number.isFinite(r.plannedDuration) ? r.plannedDuration : null;
+    return `<div class="td-event"><span class="td-event-time">${esc(r.actualStart || '—')}–${esc(r.actualEnd || '—')}</span>✅ ${esc(r.name)}${planned !== null ? ` · 计划停留 ${planned} 分钟` : ''}</div>`;
+  };
+  const itemNameById = id => {
+    for (const d of current.days) {
+      const it = (d.items || []).find(x => x.id === id);
+      if (it) return it.placeNameSnapshot || it.type || '条目';
+    }
+    return '';
+  };
+  const leg = l => {
+    const e = l.errorMinutes;
+    const cls = e > 5 ? 'is-bad' : '';
+    const target = itemNameById(l.toItemId);
+    return `<div class="td-event ${cls}"><span class="td-event-time">${e > 0 ? '+' : ''}${e} 分钟</span>🧭 ${target ? `去「${esc(target)}」` : '路上'}实际 ${l.actualMinutes} 分钟（计划 ${l.plannedMinutes ?? '—'}）${l.mode ? ` · ${esc(l.mode)}` : ''}</div>`;
+  };
+  return `
+    <div class="td-card">
+      <h2>📊 实际 vs 计划</h2>
+      ${doneRows.length ? doneRows.map(row).join('') : '<div class="td-muted">（还没有完成记录）</div>'}
+      ${legRows.length ? `<div class="td-muted" style="margin-top:6px">通行偏差</div>${legRows.map(leg).join('')}` : ''}
+      <div class="td-muted" style="margin-top:6px">只报告、不改写原始记录；这些偏差将来会用于校准通行估算。</div>
     </div>`;
 }
 
@@ -253,10 +286,11 @@ async function openTrip(id) {
 }
 
 async function reloadFacts() {
-  if (!current) { visits = []; events = []; return; }
-  [visits, events] = await Promise.all([
+  if (!current) { visits = []; events = []; legs = []; return; }
+  [visits, events, legs] = await Promise.all([
     store.listVisits({ tripId: current.id }),
     store.listEvents({ tripId: current.id }),
+    store.listLegs({ tripId: current.id }),
   ]);
 }
 

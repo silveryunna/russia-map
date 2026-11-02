@@ -1,0 +1,31 @@
+{
+ "note": "assets 体积预算基线（tools/check-asset-budget.mjs --update 重新生成）；maxFileBytes/totalGrowthRatio 是阈值不是实测值",
+ "maxFileBytes": 600000,
+ "totalGrowthRatio": 1.25,
+ "total": 507327,
+ "files": {
+  "account-D5Dyts9r.js": 18013,
+  "admin-cndgY9Ta.js": 16263,
+  "ai-models-BHqtacC4.js": 1024,
+  "album-DPdsDct0.js": 2561,
+  "base-BJw1lW7I.js": 670,
+  "checkin-44ePzKVA.js": 494,
+  "execution-BuxE3-fy.js": 23489,
+  "friend-BrGG1h0L.js": 11365,
+  "icp-footer-Crs5Jn1v.js": 187,
+  "leaflet-default-icon-z5NjA5XR.js": 155530,
+  "leaflet.markercluster-src-C_Wk1_tu.js": 34213,
+  "list-DZcy6E1V.js": 5339,
+  "main-DOKuAFgE.js": 970,
+  "map-DOnXes-I.js": 64536,
+  "marked.esm-HaWzKJJ6.js": 43068,
+  "notes-DEKLz1XR.js": 7629,
+  "plan-pEZOZ_an.js": 70484,
+  "repository-Ca4uC0Jv.js": 3400,
+  "store-CKBDx_-R.js": 29004,
+  "sw-register-Buwh9M9Z.js": 340,
+  "tdt-key.example.js": 747,
+  "tdt-key.js": 371,
+  "today-DufHIBaR.js": 17630
+ }
+}
