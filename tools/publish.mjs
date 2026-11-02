@@ -31,9 +31,10 @@ const step = (n, s) => console.log(`\n[${n}] ${s}`);
 const proxy = process.env.HTTPS_PROXY || process.env.HTTP_PROXY || 'http://127.0.0.1:7897';
 const git = (gitArgs, opt = {}) => run('git', ['-c', `http.proxy=${proxy}`, ...gitArgs], opt);
 
-// ── 1) 体检：工作区干净 + 不落后远端（防覆盖并行会话的提交） ──
+// ── 1) 体检：已跟踪文件干净 + 不落后远端（防覆盖并行会话的提交） ──
+// 未跟踪文件（??）放行：publish 的 git add 是具名范围，不会动它们（如另一会话的草稿文档）
 step(1, '体检');
-const dirty = run('git', ['status', '--porcelain']);
+const dirty = run('git', ['status', '--porcelain']).split('\n').filter((l) => l && !l.startsWith('??')).join('\n');
 if (dirty) {
   console.error('❌ 工作区有未提交改动，先 commit 或 stash 再发布：\n' + dirty);
   process.exit(1);
