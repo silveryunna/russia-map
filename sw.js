@@ -27,8 +27,8 @@ const SHELL_ASSETS = [
   './favicon.png',
 ];
 
-// 瓦片缓存白名单：只缓存 WGS84 的 OSM 系与 Esri（实际在用的两张世界底图）。
-// - 天地图走同源 /tdt/ 反代，由上面的同源分支处理（网络优先 + 离线回退）
+// 瓦片缓存白名单：WGS84 的 OSM 系与 Esri（世界底图）+ 同源 /tdt/ 天地图反代（中国底图）。
+// - 天地图是同源请求，hostname 是本站，须按路径前缀匹配（isTileUrl 内处理）
 // - 高德(autonavi)/腾讯(gtimg) 是 GCJ-02 瓦片且为跨域 opaque 响应：按服务条款不落盘，
 //   且它们在境内本就要求在线，离线时用天地图缓存代替
 const TILE_HOSTS = [
@@ -36,12 +36,17 @@ const TILE_HOSTS = [
   'tile.openstreetmap.de',
   'server.arcgisonline.com',
 ];
-const TILE_CACHE_MAX = 4000;
+const TILE_PATH_PREFIXES = ['/tdt/']; // 同源天地图反代
+const TILE_CACHE_MAX = 6000; // 天地图双层 + OSM/Esri 混用，较纯 OSM 时期上调
 
 function isTileUrl(url) {
-  let host;
-  try { host = new URL(url).hostname; } catch { return false; }
-  return TILE_HOSTS.includes(host);
+  let u;
+  try { u = new URL(url); } catch { return false; }
+  if (TILE_HOSTS.includes(u.hostname)) return true;
+  if (u.origin === self.location.origin) {
+    return TILE_PATH_PREFIXES.some((p) => u.pathname.startsWith(p));
+  }
+  return false;
 }
 
 async function postToClients(msg) {
@@ -96,6 +101,26 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
+  // 白名单瓦片（OSM 系 / Esri / 同源天地图）：缓存优先，浏览过的区域离线可用（运行时缓存，上限 TILE_CACHE_MAX）
+  // ⚠️ 必须在同源分支之前判断：/tdt/ 是天地图同源反代，否则会被同源分支网络优先拦走、永远不进运行时缓存
+  if (isTileUrl(url)) {
+    event.respondWith((async () => {
+      const hit = await caches.match(url, { cacheName: RUNTIME_CACHE });
+      if (hit) return hit;
+      try {
+        const res = await fetch(url, { mode: 'no-cors' });
+        if (res && (res.ok || res.type === 'opaque')) {
+          const cache = await caches.open(RUNTIME_CACHE);
+          cache.put(url, res.clone()).then(() => trimCache(RUNTIME_CACHE, TILE_CACHE_MAX));
+        }
+        return res;
+      } catch (e) {
+        return new Response('', { status: 504, statusText: 'offline' });
+      }
+    })());
+    return;
+  }
+
   // 同源资源：网络优先（强制回源校验，避免数据 JSON 被浏览器旧缓存顶住），离线回退缓存
   // API 响应（含鉴权数据/投稿照片）永不落缓存，防共享设备上登出后仍可脱机读取
   if (new URL(url).origin === self.location.origin) {
@@ -113,25 +138,6 @@ self.addEventListener('fetch', (event) => {
         return (await caches.match(req)) ||
           (await caches.match(req, { ignoreSearch: true })) ||
           Response.error();
-      }
-    })());
-    return;
-  }
-
-  // 白名单瓦片（OSM 系 / Esri）：缓存优先，浏览过的区域离线可用（运行时缓存，上限 TILE_CACHE_MAX）
-  if (isTileUrl(url)) {
-    event.respondWith((async () => {
-      const hit = await caches.match(url, { cacheName: RUNTIME_CACHE });
-      if (hit) return hit;
-      try {
-        const res = await fetch(url, { mode: 'no-cors' });
-        if (res && (res.ok || res.type === 'opaque')) {
-          const cache = await caches.open(RUNTIME_CACHE);
-          cache.put(url, res.clone()).then(() => trimCache(RUNTIME_CACHE, TILE_CACHE_MAX));
-        }
-        return res;
-      } catch (e) {
-        return new Response('', { status: 504, statusText: 'offline' });
       }
     })());
     return;
