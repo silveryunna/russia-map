@@ -8494,7 +8494,7 @@
   "note": "道里区；北起防洪塔南至经纬街；老鼎丰/马迭尔沿线",
   "lat": 45.771899,
   "lon": 126.612911,
-  "confidence": 75,
+  "confidence": 100,
   "estimatedDuration": 120,
   "durationBasis": "estimate",
   "openCalendar": {
@@ -8547,7 +8547,7 @@
   "note": "道里区通江街82号；外观全天可看",
   "lat": 45.769722,
   "lon": 126.60913,
-  "confidence": 75,
+  "confidence": 100,
   "estimatedDuration": 60,
   "durationBasis": "estimate"
  },
@@ -8577,7 +8577,7 @@
   "note": "道里区西五道街36号（原眼科医院老楼）；外观为主",
   "lat": 45.772888,
   "lon": 126.614413,
-  "confidence": 75,
+  "confidence": 100,
   "estimatedDuration": 30,
   "durationBasis": "estimate"
  },
@@ -8643,7 +8643,7 @@
   "note": "道里区西十三道街（中央大街旁）；打卡剧中同款餐桌",
   "lat": 45.768004,
   "lon": 126.615744,
-  "confidence": 75,
+  "confidence": 100,
   "tags": [
    "餐厅/咖啡"
   ],
@@ -8706,7 +8706,7 @@
   "note": "南岗区士课街47号（革新街交口）；免费开放",
   "lat": 45.748941,
   "lon": 126.653371,
-  "confidence": 75,
+  "confidence": 100,
   "estimatedDuration": 30,
   "durationBasis": "estimate"
  },
@@ -8781,7 +8781,7 @@
   "note": "南岗区吉林街52号（紧邻秋林公司步行170米）；二类保护建筑",
   "lat": 45.761118,
   "lon": 126.640704,
-  "confidence": 75,
+  "confidence": 100,
   "estimatedDuration": 20,
   "durationBasis": "estimate"
  },
@@ -8811,7 +8811,7 @@
   "note": "南岗区红军街63号（博物馆转盘道旁）；周二-周日9:00-11:30免费，仅上午开放，周一闭馆",
   "lat": 45.756733,
   "lon": 126.636816,
-  "confidence": 75,
+  "confidence": 100,
   "estimatedDuration": 20,
   "durationBasis": "estimate"
  },
@@ -8908,7 +8908,7 @@
   "note": "南岗区联发街1号",
   "lat": 45.750768,
   "lon": 126.635,
-  "confidence": 75,
+  "confidence": 100,
   "estimatedDuration": 60,
   "durationBasis": "estimate"
  },
@@ -8956,7 +8956,7 @@
   "note": "香坊区卫生街副22号（近香坊站）；外观打卡",
   "lat": 45.719443,
   "lon": 126.678214,
-  "confidence": 75,
+  "confidence": 100,
   "estimatedDuration": 45,
   "durationBasis": "estimate"
  },
