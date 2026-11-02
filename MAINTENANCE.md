@@ -508,6 +508,20 @@ tail -c 25 data/points.json | od -c
 - **自定义 Key 静态加密**：主密钥 `ai-at-rest.key` 默认与 `config.php` 同目录（webroot 外，`root:apache 640`），新 key 以 `enc:v1:` 落库。来源优先级、`AI_KEY_FILE` 在 php-fpm 下的真实行为（`clear_env=yes` + `env[]` 才有效，`export` 无效；生产当前走默认路径）、文件格式陷阱（BOM 会静默换钥匙）与恢复步骤见 `docs/AI-KEY-ENV.md`
 - 模型范围改了立即生效；换默认模型改 `config.php` 的 `tokenhub_model` 即可，不用动代码
 
+### 10.2 投稿快照发布管道（2026-11-02 实况层 MVP）
+
+采纳后的投稿不再是 write-only：`node tools/publish-content.mjs` 把服务器 SQLite 里
+`status='approved'` 的投稿发布为静态快照（git 管理、双端一致、PWA 离线可读）：
+
+- **note** → `content/notes/f<id>-<slug>.md`（front matter 带 `author` 化名与 `point_ids`）+ `index.json` 登记
+- **checkin / photo** → `data/field.json` 按 `point_id` 挂载 `{timeline, photos}`；照片 scp 回传 `photos/field/`
+- **消费端**：地图弹窗「📷 朋友实况」块（时间线 + 照片缩略图 + 相关笔记链接）
+- **隐私闸（fail-closed）**：`data/friend-aliases.json` 是 username → 公开化名的唯一映射，缺一即中止
+- **挂载规则**：`point_id` 为空或不存在的 photo/checkin 不发布（留 DB 人工处理）；note 可无挂载发布
+- **幂等**：`data/content-state.json` 记录已处理 id；`--rebuild` 全量；照片回传失败即中止不留半发布状态
+- 发布后照例 `npm run publish` 上线；设计全文见 `D:\KIMI\MAP\ratings-plan-202610\UNIFIED-内容体系统一.md`
+- ⚠️ API 目前只收 `photo/note/checkin` 三类（`api/index.php` 类型白名单），朋友**评分**投稿需先扩 API 再入此管道
+
 ## 11. 地图区域遮罩（单一中国区域，两个模式互为补集）
 
 遮罩是"区分中国/非中国两套瓦片"的视觉手段，样式在 `__renderMask__` 里，pane `region-mask-pane`(z350)，fillColor `#efeeea`（fillOpacity .9）。
