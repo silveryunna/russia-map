@@ -1,0 +1,120 @@
+{
+  "city": "伊宁",
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-03",
+  "note": "伊宁事实账本：点位以民营庭院/宗教场所/市集为主，无官方网站者多，来源为站内调研（curated），门票与时段按 estimated/unknown 记账，出行前以现场公示为准。",
+  "facts": [
+    {
+      "pointId": "p516",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-03",
+      "reviewAfter": "2027-01-31",
+      "note": "六星街为开放历史街区（六角形街巷格局），常态全天可通行；院内个别场馆（手风琴博物馆等）有自己的作息与门票"
+    },
+    {
+      "pointId": "p516",
+      "field": "ticket",
+      "value": "免费（历史街区漫游）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-03",
+      "reviewAfter": "2027-01-31",
+      "note": "开放街区免费，按 estimated 记录"
+    },
+    {
+      "pointId": "p585",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-03",
+      "reviewAfter": "2027-01-31",
+      "note": "伊犁（国际）大巴扎为市集、无官方统一营业表；各摊位营业时段不一，记 unknown；购物需自行议价"
+    },
+    {
+      "pointId": "p587",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-03",
+      "reviewAfter": "2027-01-31",
+      "note": "乌孜别克文化大院为民营庭院景点，无官网发布开放时段；站内口径 20:30 后停止入内（晚间到访注意），记 unknown"
+    },
+    {
+      "pointId": "p587",
+      "field": "ticket",
+      "value": "10元/人",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-03",
+      "reviewAfter": "2027-01-31",
+      "note": "站内调研口径 10元/人，按 estimated 记录、以现场公示为准"
+    },
+    {
+      "pointId": "p590",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-03",
+      "reviewAfter": "2027-01-31",
+      "note": "六星街东正教堂为在用宗教场所，无官方参观时段；周日礼拜时段尊重宗教仪式，记 unknown"
+    },
+    {
+      "pointId": "p590",
+      "field": "ticket",
+      "value": "免费（教堂参观）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-03",
+      "reviewAfter": "2027-01-31",
+      "note": "教堂免费，按 estimated 记录"
+    },
+    {
+      "pointId": "p593",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-03",
+      "reviewAfter": "2027-01-31",
+      "note": "亚历山大手风琴博物馆（六星街）为私人收藏馆，无官网发布开放时段，记 unknown；到访前建议电话/地图页确认当日开放"
+    },
+    {
+      "pointId": "p593",
+      "field": "ticket",
+      "value": "30元/人（含免费讲解与现场手风琴演奏）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-03",
+      "reviewAfter": "2027-01-31",
+      "note": "站内调研口径 30元/人含讲解与现场演奏，按 estimated 记录、以现场公示为准"
+    },
+    {
+      "pointId": "p594",
+      "field": "openCalendar",
+      "value": "unknown",
+      "status": "unknown",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-03",
+      "reviewAfter": "2027-01-31",
+      "note": "三区革命烈士墓（人民公园旁）站内调研时处于维修状态、暂不开放，无官方恢复日期公告，记 unknown；出行前以现场为准"
+    }
+  ]
+}
