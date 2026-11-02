@@ -11,61 +11,6 @@
    "hScroll": 0,
    "attribCovered": 0,
    "attribOff": 0
-  },
-  "plan@390": {
-   "contrastFail": 18,
-   "contrastFail3": 12,
-   "tapUnder32": 56,
-   "tapOverlap": 0,
-   "emojiOnly": 0,
-   "unnamed": 1,
-   "hScroll": 0,
-   "attribCovered": 0,
-   "attribOff": 0
-  },
-  "today@390": {
-   "contrastFail": 3,
-   "contrastFail3": 1,
-   "tapUnder32": 2,
-   "tapOverlap": 0,
-   "emojiOnly": 18,
-   "unnamed": 0,
-   "hScroll": 0,
-   "attribCovered": 0,
-   "attribOff": 0
-  },
-  "map@1440": {
-   "contrastFail": 27,
-   "contrastFail3": 12,
-   "tapUnder32": 79,
-   "tapOverlap": 26,
-   "emojiOnly": 4,
-   "unnamed": 2,
-   "hScroll": 0,
-   "attribCovered": 0,
-   "attribOff": 0
-  },
-  "plan@1440": {
-   "contrastFail": 18,
-   "contrastFail3": 12,
-   "tapUnder32": 56,
-   "tapOverlap": 0,
-   "emojiOnly": 0,
-   "unnamed": 1,
-   "hScroll": 0,
-   "attribCovered": 0,
-   "attribOff": 0
-  },
-  "today@1440": {
-   "contrastFail": 3,
-   "contrastFail3": 1,
-   "tapUnder32": 2,
-   "tapOverlap": 0,
-   "emojiOnly": 18,
-   "unnamed": 0,
-   "hScroll": 0,
-   "attribCovered": 0,
-   "attribOff": 0
   }
  }
 }

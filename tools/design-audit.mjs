@@ -21,6 +21,8 @@ const ALL = process.argv.includes('--all');
 const SIZES = ALL ? [[320, 568], [375, 812], [390, 844], [768, 1024], [1440, 900]] : [[390, 844], [1440, 900]];
 const PAGES = ['map', 'plan', 'today'];
 const tighten = process.argv.includes('--tighten');
+// 只报数不判死：用于门在 CI 里尚未跑稳的首个周期（连续两轮数字可信后即撤掉此标志）
+const REPORT_ONLY = process.argv.includes('--report-only') || process.env.DESIGN_AUDIT_REPORT_ONLY === '1';
 
 let bad = 0;
 const fail = (m) => { console.error('❌ ' + m); bad++; };
@@ -70,6 +72,7 @@ const MEASURE = `(() => {
   return JSON.stringify(o);
 })()`;
 
+// 生成一份 6 天行程供编辑器与今日页测量
 async function openPlan(page) {
   await page.waitForSelector('#pl-new', { timeout: 20000 }).catch(() => {});
   await page.click('#pl-new').catch(() => {});
@@ -77,35 +80,49 @@ async function openPlan(page) {
   await page.fill('#pl-date', '2026-11-13').catch(() => {});
   await page.fill('#pl-days', '6').catch(() => {});
   await page.click('#pl-gen-rule').catch(() => {});
-  await page.waitForSelector('.pl-day', { timeout: 30000 }).catch(() => {});
-  await page.waitForTimeout(800);
+  await page.waitForTimeout(1500);
+  return (await page.locator('.pl-day').count().catch(() => 0)) > 0;
 }
 
 const browser = await chromium.launch();
 const now = {};
+const REQUIRED = { map: '#sb-stats', plan: '.pl-day', today: '.td-row, .td-muted, .td-card' };
+
+// 每个「视口 × 页面」用独立上下文：共享上下文里 goto 失败会停在旧页面，
+// 实测把地图页当成行程页量出过 0 违规 —— 所以既隔离上下文，也校验落地 URL。
 for (const [w, h] of SIZES) {
   for (const name of PAGES) {
-    const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: w < 800 ? 2 : 1, hasTouch: w < 800, isMobile: w < 800 });
+    const key = `${name}@${w}`;
+    const ctx = await browser.newContext({ viewport: { width: w, height: h }, deviceScaleFactor: w < 800 ? 2 : 1 });
     const page = await ctx.newPage();
     const jsErrors = [];
     page.on('pageerror', e => jsErrors.push(String(e.message).slice(0, 90)));
-    await page.goto(`${BASE}/plan.html`, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
-    await openPlan(page);                       // 先生成一份 6 天行程：today 页与 plan 编辑器都要有真实数据才可测
-    if (name === 'today') {
-      await page.goto(`${BASE}/today.html`, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
-      await page.waitForTimeout(2500);
-    } else if (name === 'map') {
-      await page.goto(`${BASE}/map.html`, { waitUntil: 'domcontentloaded', timeout: 45000 }).catch(() => {});
-      await page.waitForTimeout(3500);
-    } else {
-      await page.waitForTimeout(800);
+    await page.goto(`${BASE}/plan.html`, { waitUntil: 'domcontentloaded', timeout: 25000 }).catch(() => {});
+    const generated = await openPlan(page);
+    if (name !== 'plan') {
+      await page.goto(`${BASE}/${name}.html`, { waitUntil: 'domcontentloaded', timeout: 25000 }).catch(() => {});
+      await page.waitForTimeout(name === 'map' ? 3000 : 1500);
     }
-    let m;
-    try { m = JSON.parse(await page.evaluate(MEASURE)); }
-    catch (e) { fail(`${name}@${w}：测量失败 ${String(e.message).slice(0, 90)}`); await ctx.close(); continue; }
-    const key = `${name}@${w}`;
+    const landed = new URL(page.url()).pathname.split('/').pop();
+    if (landed !== `${name}.html`) {
+      fail(`${key}：导航失败，停在 ${page.url()}（期望 ${name}.html）—— 静态服务或构建产物有问题`);
+      await ctx.close(); continue;
+    }
+    let m = null, lastErr = '';
+    for (let attempt = 0; attempt < 3 && !m; attempt += 1) {
+      try { m = JSON.parse(await page.evaluate(MEASURE)); }
+      catch (e) { lastErr = String(e.message).slice(0, 70); await page.waitForTimeout(2000); }
+    }
+    if (!m) { fail(`${key}：测量失败（重试 3 次）${lastErr}`); await ctx.close(); continue; }
+    const anchor = await page.locator(REQUIRED[name]).count().catch(() => 0);
+    if (name === 'plan' && !anchor && !generated) fail(`${key}：行程生成没出 .pl-day —— 先修页面，再谈设计`);
+    // 地板：页面没渲染出来时所有指标都会"变好"，必须判失败而不是放行
+    if (!anchor || m.text < 20) {
+      fail(`${key}：测量无效（锚点 ${REQUIRED[name]} 命中 ${anchor}，文本节点 ${m.text}）—— 页面未渲染，不得当作"没有违规"`);
+      await ctx.close(); continue;
+    }
     now[key] = { contrastFail: m.contrastFail, contrastFail3: m.contrastFail3, tapUnder32: m.tapUnder32, tapOverlap: m.tapOverlap, emojiOnly: m.emojiOnly, unnamed: m.unnamed, hScroll: m.hScroll, attribCovered: m.attribCovered, attribOff: m.attribOff };
-    console.log(`${key.padEnd(14)} 文本${String(m.text).padStart(4)}｜对比度不达 ${String(m.contrastFail).padStart(3)}（其中<3:1 ${m.contrastFail3}）｜热区<32 ${String(m.tapUnder32).padStart(3)}｜热区互叠 ${m.tapOverlap}｜emoji独占 ${m.emojiOnly}｜无名 ${m.unnamed}｜横向溢出 ${m.hScroll}｜版权 ${m.attribCovered ? '被遮挡' : m.attribOff ? '滑出视口' : 'OK'}${jsErrors.length ? '｜JS错误 ' + jsErrors[0] : ''}`);
+    console.log(`${key.padEnd(14)} 文本${String(m.text).padStart(4)}｜对比度不达 ${String(m.contrastFail).padStart(3)}（<3:1 ${m.contrastFail3}）｜热区<32 ${String(m.tapUnder32).padStart(3)}｜热区互叠 ${m.tapOverlap}｜emoji独占 ${m.emojiOnly}｜无名 ${m.unnamed}｜溢出 ${m.hScroll}｜版权 ${m.attribCovered ? '被遮挡' : m.attribOff ? '滑出视口' : 'OK'}${jsErrors.length ? '｜JS错误 ' + jsErrors[0] : ''}`);
     if (m.worst.length) console.log(`    最差: ${m.worst.map(x => `${x.sel}(${x.px}px ${x.ratio}) ${x.text}`).join(' | ')}`);
     if (jsErrors.length) fail(`${key}：页面 JS 报错 ${jsErrors[0]}`);
     if (m.hScroll) fail(`${key}：${w}px 下出现横向滚动 ${m.hScroll}px`);

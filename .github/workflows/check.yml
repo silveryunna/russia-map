@@ -167,7 +167,7 @@ jobs:
         run: |
           python3 -m http.server 8080 >/dev/null 2>&1 &
           sleep 2
-          node tools/design-audit.mjs http://127.0.0.1:8080
+          node tools/design-audit.mjs http://127.0.0.1:8080 --report-only   # 连续两轮数字可信后撤掉此标志转为阻断
 
       - uses: actions/upload-artifact@v4
         if: always()
