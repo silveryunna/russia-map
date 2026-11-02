@@ -1,5 +1,6 @@
 index-beautified.js
 tools/node_modules/
+tools/.cache/
 assets/tdt-key.js
 
 node_modules/

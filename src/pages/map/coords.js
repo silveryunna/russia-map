@@ -54,3 +54,40 @@ export function gcj2wgs(lat, lon) {
 export function xy(lat, lon) {
   return window.__amapActive__ ? wgs2gcj(lat, lon) : [lat, lon];
 }
+
+/* ---------------- BD-09（百度） ---------------- */
+// 百度在 GCJ-02 之上再叠一次非线性偏移，境内合计比 WGS84 偏 ~800m 东北。
+// 公式与 wandergis/coordtransform 一致，由 tools/coords-test.mjs 用 24 点基线守护。
+// 仅用于核对/取数（tools/audit-baidu.mjs 等）；页面底图不用百度，故不在运行时调用。
+const X_PI = (PI * 3000) / 180;
+const inChina = (lat, lon) => !(lon < 72.004 || lon > 137.8347 || lat < 0.8293 || lat > 55.8271);
+
+// BD-09 → GCJ-02
+export function bd09ToGcj02(lat, lon) {
+  if (!inChina(lat, lon)) return [lat, lon];
+  const x = lon - 0.0065;
+  const y = lat - 0.006;
+  const z = Math.sqrt(x * x + y * y) - 0.00002 * Math.sin(y * X_PI);
+  const theta = Math.atan2(y, x) - 0.000003 * Math.cos(x * X_PI);
+  return [+(z * Math.sin(theta)).toFixed(6), +(z * Math.cos(theta)).toFixed(6)];
+}
+
+// GCJ-02 → BD-09
+export function gcj2bd09(lat, lon) {
+  if (!inChina(lat, lon)) return [lat, lon];
+  const z = Math.sqrt(lon * lon + lat * lat) + 0.00002 * Math.sin(lat * X_PI);
+  const theta = Math.atan2(lat, lon) + 0.000003 * Math.cos(lon * X_PI);
+  return [+(z * Math.sin(theta) + 0.006).toFixed(6), +(z * Math.cos(theta) + 0.0065).toFixed(6)];
+}
+
+// BD-09 → WGS84（百度接口返回值入库前的唯一正确路径）
+export function bd09ToWgs(lat, lon) {
+  const [gLat, gLon] = bd09ToGcj02(lat, lon);
+  return gcj2wgs(gLat, gLon);
+}
+
+// WGS84 → BD-09（向百度接口回传坐标时用，如 direction 的 location）
+export function wgsToBd09(lat, lon) {
+  const [gLat, gLon] = wgs2gcj(lat, lon);
+  return gcj2bd09(gLat, gLon);
+}

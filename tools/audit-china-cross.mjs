@@ -1,34 +1,26 @@
 #!/usr/bin/env node
-// 中国点位多方地图交叉核对（腾讯 + 高德 + 天地图 三源 vs 库存）
-// 诊断逻辑：四方的坐标聚类（150m 内算一致）——
+// 中国点位多方地图交叉核对（腾讯 + 高德 + 天地图，可选百度 = 第四源，vs 库存）
+// 诊断逻辑：多方的坐标聚类（150m 内算一致）——
 //   库存与 ≥2 源一致      → ✅ 铁证，confidence→100（--apply-conf 时）
 //   库存与 1 源一致       → 🟢 可信
 //   源之间一致但库存落单   → 🔴 库存疑似错误（最高优先级盲区！）
-//   四方各说各话          → ❓ 人工
-// 用法: QQ_LBS_KEY=xxx AMAP_WEB_KEY=xxx TDT_KEY=xxx node tools/audit-china-cross.mjs [--apply-conf]
-// 纪律：只升置信度，不改坐标；坐标错误一律人工（输出带三方建议坐标）
+//   各源各说各话          → ❓ 人工
+// 用法: QQ_LBS_KEY=xxx AMAP_WEB_KEY=xxx TDT_KEY=xxx [BAIDU_MAP_AUTH_TOKEN=xxx] node tools/audit-china-cross.mjs [--apply-conf]
+// 纪律：只升置信度，不改坐标；坐标错误一律人工（输出带各方建议坐标）
+// 百度为 Agent Plan 语义检索（按次计费，返回 BD-09），不带 token 时整体跳过，不影响三源结论。
 import { readFileSync, writeFileSync } from 'node:fs';
 import { gcj2wgs } from '../src/pages/map/coords.js';
+import { CN_CITIES as CN, CITY_REGION, AGREE, FAR, distM, cleanName as clean, nameScore as score } from './lib/audit-shared.mjs';
 
 const QQ = process.env.QQ_LBS_KEY || '';
 const AM = process.env.AMAP_WEB_KEY || '';
 const TDT = process.env.TDT_KEY || '';
-if (!QQ || !AM || !TDT) { console.error('需要 QQ_LBS_KEY + AMAP_WEB_KEY + TDT_KEY 三个环境变量'); process.exit(1); }
+const BD = process.env.BAIDU_MAP_AUTH_TOKEN || '';
+if (!QQ || !AM || !TDT) { console.error('需要 QQ_LBS_KEY + AMAP_WEB_KEY + TDT_KEY 三个环境变量（BAIDU_MAP_AUTH_TOKEN 可选）'); process.exit(1); }
 const APPLY = process.argv.includes('--apply-conf');
 const FILE = 'data/points.json';
-const CN = new Set(['哈尔滨', '伊宁', '三亚', '赛里木湖', '博乐', '阿拉山口', '霍尔果斯', '乌鲁木齐']);
-const AGREE = 150;      // 源间一致阈值
-const FAR = 400;        // 库存落单阈值
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
-const distM = (a, b) => {
-  const R = 6371000, r = Math.PI / 180;
-  const [a0, a1] = [a.lat ?? a[0], a.lon ?? a[1]];
-  const [b0, b1] = [b.lat ?? b[0], b.lon ?? b[1]];
-  return 2 * R * Math.asin(Math.sqrt(
-    Math.sin((b0 - a0) * r / 2) ** 2 + Math.cos(a0 * r) * Math.cos(b0 * r) * Math.sin((b1 - a1) * r / 2) ** 2));
-};
-const clean = (name) => name.replace(/（.*?）|\(.*?\)|「|」|№/g, ' ').replace(/[^\p{Script=Han}A-Za-z0-9 ]/gu, ' ').replace(/\s+/g, ' ').trim();
 
 /* ---------- 三个源（统一返回 {lat, lon} WGS84 或 null） ---------- */
 async function fromQQ(name, city) {
@@ -72,15 +64,29 @@ async function fromTDT(name, city) {
   const [lon, lat] = hit.lonlat.split(',').map(Number);
   return { lat, lon, label: hit.name }; // 天地图 CGCS2000 ≈ WGS84，不转换
 }
-const score = (title, kw) => {
-  let s = 0; for (const ch of new Set(kw.replace(/ /g, ''))) if (title.includes(ch)) s++;
-  return s;
-};
+// 百度 Agent Plan 语义检索（第四源）：返回 **GCJ-02**（非经典 Place API 的 BD-09），名称匹配 <0.6 视为未命中
+async function fromBD(name, city) {
+  const u = new URL('https://api.map.baidu.com/agent_plan/v1/place');
+  u.searchParams.set('user_raw_request', `帮我确认${city}的「${clean(name)}」的具体位置`);
+  u.searchParams.set('region', CITY_REGION[city] || city);
+  const r = await fetch(u, { headers: { authorization: `Bearer ${BD}` }, signal: AbortSignal.timeout(30000) });
+  const d = await r.json();
+  if (d.status !== 0 && d.status !== '0') throw new Error(`BD:${d.status} ${d.message || ''}`.slice(0, 60));
+  const cands = (d.results || [])
+    .filter((x) => x.location && Number.isFinite(x.location.lat) && Number.isFinite(x.location.lng))
+    .map((x) => ({ ...x, s: score(x.name, name) }))
+    .filter((x) => x.s >= 0.6)
+    .sort((a, b) => b.s - a.s);
+  if (!cands.length) return null;
+  const best = cands[0];
+  const [wLat, wLon] = gcj2wgs(best.location.lat, best.location.lng);
+  return { lat: wLat, lon: wLon, label: best.name, score: +best.s.toFixed(2) };
+}
 
 /* ---------- 主流程 ---------- */
 const pts = JSON.parse(readFileSync(FILE, 'utf8'));
 const targets = pts.filter((p) => CN.has(p.city) && !p.pending);
-console.log(`交叉核对目标：${targets.length} 个中国点位（腾讯+高德+天地图 三源）\n`);
+console.log(`交叉核对目标：${targets.length} 个中国点位（腾讯+高德+天地图${BD ? '+百度' : ''}）\n`);
 
 const iron = [], good = [], storedWrong = [], chaos = [], srcFail = [];
 let done = 0;
@@ -92,9 +98,10 @@ for (const p of targets) {
   await sleep(120);
   try { r.tdt = await fromTDT(p.name, p.city); } catch { r.tdtErr = 1; }
   await sleep(120);
+  if (BD) { try { r.bd = await fromBD(p.name, p.city); } catch { r.bdErr = 1; } await sleep(350); }
 
   const stored = { lat: p.lat, lon: p.lon };
-  const srcs = [['qq', r.qq], ['am', r.am], ['tdt', r.tdt]].filter(([, v]) => v);
+  const srcs = [['qq', r.qq], ['am', r.am], ['tdt', r.tdt], ['bd', r.bd]].filter(([, v]) => v);
   const okSrcs = srcs.filter(([, v]) => distM(stored, v) < AGREE);
   const nearSrcs = srcs.filter(([, v]) => distM(stored, v) < FAR);
   // 源间聚类：找彼此 <AGREE 的源组
@@ -114,7 +121,7 @@ for (const p of targets) {
 
 const fmt = (r) => {
   const parts = [`${r.p.id} ${r.p.name.slice(0, 16)}`];
-  for (const [n, v] of [['qq', r.qq], ['am', r.am], ['tdt', r.tdt]]) {
+  for (const [n, v] of [['qq', r.qq], ['am', r.am], ['tdt', r.tdt], ['bd', r.bd]]) {
     parts.push(v ? `${n}:${distM([r.p.lat, r.p.lon], v).toFixed(0)}m` : `${n}:无`);
   }
   return '  ' + parts.join(' | ') + (r.d != null ? `（最近 ${r.d.toFixed(0)}m）` : '');
@@ -125,7 +132,7 @@ console.log(`🛡️ 铁证一致(库存+≥2源<150m)：${iron.length}`); iron.
 console.log(`🟢 可信(库存与某源<400m)：${good.length}`); good.slice(0, 5).forEach((r) => console.log(fmt(r))); if (good.length > 5) console.log(`  …共 ${good.length} 个`);
 console.log(`🔴🔴 库存疑似错误（≥2源互相一致、库存落单）：${storedWrong.length}`); storedWrong.forEach((r) => console.log(fmt(r)));
 console.log(`❓ 各说各话：${chaos.length}`); chaos.slice(0, 8).forEach((r) => console.log(fmt(r))); if (chaos.length > 8) console.log(`  …共 ${chaos.length} 个`);
-console.log(`⚪ 三源全查不到：${srcFail.length}（${srcFail.map((p) => p.id + p.name.slice(0, 8)).join('、') || '无'}）`);
+console.log(`⚪ 全部源都查不到：${srcFail.length}（${srcFail.map((p) => p.id + p.name.slice(0, 8)).join('、') || '无'}）`);
 
 if (APPLY) {
   let up = 0;
@@ -142,8 +149,10 @@ writeFileSync('tools/audit-china-cross-report.json', JSON.stringify({
     qq: r.qq && [+r.qq.lat.toFixed(6), +r.qq.lon.toFixed(6), r.qq.label],
     am: r.am && [+r.am.lat.toFixed(6), +r.am.lon.toFixed(6), r.am.label],
     tdt: r.tdt && [+r.tdt.lat.toFixed(6), +r.tdt.lon.toFixed(6), r.tdt.label],
+    bd: r.bd && [+r.bd.lat.toFixed(6), +r.bd.lon.toFixed(6), r.bd.label],
   })),
   chaos: chaos.map((r) => ({ id: r.p.id, name: r.p.name, stored: [r.p.lat, r.p.lon],
-    qq: r.qq && [+r.qq.lat.toFixed(6), +r.qq.lon.toFixed(6)], am: r.am && [+r.am.lat.toFixed(6), +r.am.lon.toFixed(6)], tdt: r.tdt && [+r.tdt.lat.toFixed(6), +r.tdt.lon.toFixed(6)] })),
+    qq: r.qq && [+r.qq.lat.toFixed(6), +r.qq.lon.toFixed(6)], am: r.am && [+r.am.lat.toFixed(6), +r.am.lon.toFixed(6)], tdt: r.tdt && [+r.tdt.lat.toFixed(6), +r.tdt.lon.toFixed(6)],
+    bd: r.bd && [+r.bd.lat.toFixed(6), +r.bd.lon.toFixed(6)] })),
 }, null, 1));
 console.log('\n明细 → tools/audit-china-cross-report.json');

@@ -43,6 +43,8 @@
 | 2GIS Routing API | `data/transit-matrix.json` 路线样本（主力来源，83 条） | 仅存时长/距离等派生数值，不落原始响应、不转售；配额受限 |
 | FOSSGIS OSRM（`routing.openstreetmap.de`） | `data/transit-matrix.json` 补采的 6 条驾车样本（2GIS Demo Key 覆盖不到或配额耗尽的段） | 底层数据为 OpenStreetMap（**ODbL**）：需署名，衍生数据库需同许可；公共实例由志愿者运营，只补缺口，禁止批量抓取 |
 | 携程 / 问道 API | `data/ratings.json` 第三方评分 | 按接口条款使用，标注来源 |
+| 百度地图 Agent Plan API | 国内点位坐标交叉核对（`tools/audit-baidu.mjs`，第四商业源） | 按百度地图开放平台服务条款使用：结果**只写本地 `tools/.cache/`（已 gitignore），不落 `data/`**，不转售、不再分发 POI 原始数据；返回 GCJ-02，经 `gcj2wgs()` 转 WGS84 后只用于「支持/反对/未命中」判断 |
+| 高德 / 腾讯 Web 服务 | 国内点位坐标交叉核对（`tools/audit-china-cross.mjs`） | 同上：只做核对，坐标调整一律人工裁决 |
 | 场馆官网 / 官方预约页 | 开放时间、票价等事实 | 记录 `source.url` 与 `collectedAt`；不做整站镜像 |
 | 用户投稿 | 点位补充、笔记、照片 | 投稿需勾选"我有权使用"；建立下架流程 |
 

@@ -5,9 +5,10 @@
 //   2) 主流库基准：coordtransform README 公开示例逐值比对（< 5m）
 //   3) 项目实测：MAINTENANCE.md §7.9 三城偏移量/方向交叉核对（量级+方向区间断言）
 //   4) 境外不变换：矩形外原样返回
+//   5) BD-09 双向：coordtransform 24 点基线 + WGS84 合计偏移量级/方向（百度取数用）
 // 用法: node tools/coords-test.mjs
 import { readFileSync } from 'node:fs';
-import { wgs2gcj, gcj2wgs } from '../src/pages/map/coords.js';
+import { wgs2gcj, gcj2wgs, bd09ToGcj02, gcj2bd09, bd09ToWgs, wgsToBd09 } from '../src/pages/map/coords.js';
 
 let bad = 0;
 const fail = (m) => { console.error('❌ ' + m); bad++; };
@@ -72,5 +73,40 @@ function distM(a, b) {
   else fail(`境外坐标被误偏移：${mos}`);
 }
 
+// 5) BD-09 双向（百度接口返回 BD-09，入库前必须降到 WGS84）
+{
+  const base = JSON.parse(readFileSync(new URL('./fixtures/bd09-baseline.json', import.meta.url), 'utf8'));
+  let worst = 0, at = '';
+  for (const p of base.points) {
+    const fwd = distM(gcj2bd09(p.gcj[0], p.gcj[1]), p.bd);
+    const back = distM(bd09ToGcj02(p.bd[0], p.bd[1]), p.gcj);
+    const d = Math.max(fwd, back);
+    if (d > worst) { worst = d; at = p.name; }
+  }
+  if (worst < 0.5) ok(`BD-09 双向 24 点基线最大差 ${worst.toFixed(3)}m（@${at}），< 0.5m 门槛`);
+  else fail(`BD-09 与 coordtransform 基线差 ${worst.toFixed(1)}m（@${at}，>0.5m）——百度偏移公式被改`);
+
+  // 百度比 WGS84 多叠一层偏移：境内合计约 1.0–1.6km 东北（GCJ ~500m + BD ~870m）
+  const cases = [['天安门', 39.9042, 116.4074], ['哈尔滨', 45.7737, 126.6225], ['三亚湾', 18.2528, 109.4742]];
+  let bad5 = 0;
+  for (const [name, lat, lon] of cases) {
+    const [bLat, bLon] = wgsToBd09(lat, lon);
+    const d = distM([lat, lon], [bLat, bLon]);
+    if (!(d >= 1000 && d <= 1600) || !(bLat > lat && bLon > lon)) { fail(`${name} BD-09 偏移 ${Math.round(d)}m 方向(${bLat > lat ? 'N' : 'S'}${bLon > lon ? 'E' : 'W'})，不在 [1000,1600]m 东北`); bad5++; }
+  }
+  if (!bad5) ok('WGS84→BD-09 三城偏移 1000–1600m 东北，量级与实测一致');
+
+  // bd09ToWgs 复合路径自洽：bd → wgs 再回 bd 误差 < 1m
+  let rt = 0, rtAt = '';
+  for (const p of base.points) {
+    const [wLat, wLon] = bd09ToWgs(p.bd[0], p.bd[1]);
+    const [b2Lat, b2Lon] = wgsToBd09(wLat, wLon);
+    const d = distM([p.bd[0], p.bd[1]], [b2Lat, b2Lon]);
+    if (d > rt) { rt = d; rtAt = p.name; }
+  }
+  if (rt < 1) ok(`BD-09 → WGS84 → BD-09 往返最大 ${rt.toFixed(3)}m（@${rtAt}），< 1m 门槛`);
+  else fail(`BD-09 往返误差 ${rt.toFixed(2)}m（@${rtAt}）超 1m——bd09ToWgs 口径不一致`);
+}
+
 if (bad) { console.error(`\n${bad} 项坐标测试失败`); process.exit(1); }
-console.log('\n坐标变换质量门通过（4/4）');
+console.log('\n坐标变换质量门通过（5/5）');
