@@ -6,7 +6,7 @@
 
 ## 这是什么
 
-一个以地图为中心的旅行手账。目前收录 **625 个打卡点位**（俄罗斯主线 + 国内三亚/哈尔滨/伊宁等）、28 条每日动线，支持：
+一个以地图为中心的旅行手账。目前收录 **624 个打卡点位**（俄罗斯主线 + 国内三亚/哈尔滨/伊宁等）、28 条每日动线，支持：
 
 - 🗺️ **地图页**（`map.html`）：Leaflet 地图，点位/动线/城市筛选，已打卡置灰，动线顺序播放；境外用 OSM/Esri 底图，境内用天地图
 - ✅ **打卡清单**（`list.html`）：按城市分组的打卡进度
@@ -29,7 +29,7 @@
 index/map/list/notes/album/plan/today/friend/account/admin .html   十个页面（构建产物，源头在 src/）
 src/               页面源码与共享模块（Vite 构建入口，改这里）
 assets/            前端 JS/CSS（hash 命名的构建产物，禁止手改）
-data/              points/routes/ratings 等 JSON 数据（625 点位）
+data/              points/routes/ratings 等 JSON 数据（624 点位）
 api/               PHP+SQLite 后端
 tools/             check-data / mutation-test / 各类单测 / deploy-check / site-monitor 等
 docs 三件套：      README(本文件) → 给人看；AGENTS.md / MAINTENANCE.md → 给 AI 助手看
