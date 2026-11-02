@@ -418,7 +418,7 @@ function pointsTabHtml() {
         <span class="head-arrow">${isCollapsed ? '▶' : '▼'}</span>
         <span class="head-dot" style="background:${color}"></span>${esc(city)}
         <span class="head-count">（${count}）</span>
-        <button class="star-btn" data-star="city" data-value="${esc(city)}" title="${hl ? '取消高亮' : '在地图上高亮该城市点位'}">${hl ? '⭐' : '☆'}</button>
+        <button class="star-btn" data-star="city" data-value="${esc(city)}" aria-label="${hl ? '取消高亮该城市点位' : '在地图上高亮该城市点位'}" title="${hl ? '取消高亮' : '在地图上高亮该城市点位'}">${hl ? '⭐' : '☆'}</button>
       </div>`;
       if (!isCollapsed) {
         for (const { cluster, points: pts } of clusters) {
@@ -431,7 +431,7 @@ function pointsTabHtml() {
             <span class="head-arrow">${cCollapsed ? '▶' : '▼'}</span>
             <span class="head-dot" style="background:${color}"></span>${esc(cluster)}
             <span class="head-count">（${pts.length}）</span>
-            <button class="star-btn" data-star="cluster" data-city="${esc(city)}" data-value="${esc(cluster)}" title="${chl ? '取消高亮' : '在地图上高亮该点位群'}">${chl ? '⭐' : '☆'}</button>
+            <button class="star-btn" data-star="cluster" data-city="${esc(city)}" data-value="${esc(cluster)}" aria-label="${chl ? '取消高亮该点位群' : '在地图上高亮该点位群'}" title="${chl ? '取消高亮' : '在地图上高亮该点位群'}">${chl ? '⭐' : '☆'}</button>
           </div>`;
           if (!cCollapsed) {
             for (const p of pts) html += pointRowHtml(p, state.myLoc);

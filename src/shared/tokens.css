@@ -1,0 +1,88 @@
+/* 设计令牌 · 唯一色源与几何标度（DESIGN.md §2/§3/§4/§5/§6）
+ * 规则（由 tools/design-lint.mjs 机检）：
+ *   1) 除本文件外，任何 CSS 不得出现颜色字面量；
+ *   2) 间距/圆角/阴影/层级只引用这里的令牌；
+ *   3) --seal 只做图形，禁止承载文字；--warning 只做大字/图形，文字用 --warning-ink。
+ * 对比度为 WCAG 相对亮度实测值（tools/design-audit.mjs 在真实浏览器复核，纸底 #FAFAF7）。
+ */
+:root {
+  /* 表面与描边 */
+  --canvas: #FAFAF7;
+  --surface: #FFFFFF;
+  --surface-sunken: #F2EFE7;
+  --surface-translucent: rgba(255, 255, 255, .96);   /* 吸顶栏压在内容上时的实底半透明 */
+  --border-subtle: #E8E4DA;
+  --border: #DCD7CB;
+  --border-strong: #C4BEB0;
+
+  /* 文本：15.15 / 6.90 / 5.39 on 纸或白 */
+  --text-1: #1F1D19;
+  --text-2: #57534A;
+  --text-3: #6E6A61;
+
+  /* 品牌与语义 */
+  --brand: #B71C1C;            /* 6.28 on 纸 · 6.57 on 白 */
+  --brand-press: #8E1414;
+  --brand-soft: #FFF8E1;
+  --seal: #C9A227;              /* 2.31 on 纸 —— 仅图形，禁文字 */
+  --success: #2E7D32;           /* 4.90 on 纸 */
+  --warning: #B26A00;           /* 仅大字/图形 */
+  --warning-ink: #8A5200;       /* 文字 */
+  --info: #1565C0;              /* 5.50 on 纸 */
+  --danger: #B71C1C;            /* 与品牌同色：危险必须三重编码（图标+文字+描边） */
+  --focus: #0B57D0;
+
+  /* 城市分类色（DESIGN.md §2.2 等权重修正，亮度极差 0.260 → 0.079） */
+  --city-moscow: #B71C1C;
+  --city-moscow-oblast: #A1551B;
+  --city-spb: #175C94;
+  --city-almaty: #00796B;
+  --city-harbin: #0B7BA8;
+  --city-yekat: #7B3FA0;
+  --city-yining: #B45F06;
+  --city-other: #5A6B75;
+  --city-sanya: #2E7D32;
+
+  /* 几何：圆角 4 档 + 间距 4 的倍数 */
+  --r-xs: 6px;
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 16px;
+  --r-pill: 999px;
+  --sp-1: 4px;
+  --sp-2: 8px;
+  --sp-3: 12px;
+  --sp-4: 16px;
+  --sp-5: 20px;
+  --sp-6: 24px;
+  --sp-8: 32px;
+
+  /* 阴影：保留仓库原有的暖调（rgba(60,50,30,…)），不换中性黑 */
+  --e1: 0 1px 2px rgba(60, 50, 30, .06), 0 1px 4px rgba(60, 50, 30, .04);
+  --e2: 0 4px 14px rgba(60, 50, 30, .10);
+  --e3: 0 12px 32px rgba(60, 50, 30, .18);
+
+  /* 层级：Leaflet 自带 pane 占 200–700，应用 UI 一律从 800 起 */
+  --z-map-control: 500;
+  --z-header: 800;
+  --z-toolbar: 850;
+  --z-sheet: 900;
+  --z-dialog: 1000;
+  --z-toast: 1100;
+
+  /* 排版与动效 */
+  --font-ui: system-ui, -apple-system, "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", sans-serif;
+  --font-serif: "Songti SC", "Source Han Serif SC", "Noto Serif CJK SC", "SimSun", serif;
+  --dur-1: 120ms;
+  --dur-2: 200ms;
+  --ease-1: cubic-bezier(.2, 0, 0, 1);
+
+  /* 旧变量 → 新令牌（迁移期别名，逐期删除；--muted 由 3.39:1 提到 5.39:1 是 DESIGN.md 唯一的强制色改） */
+  --bg: var(--canvas);
+  --card: var(--surface);
+  --line: var(--border);
+  --text: var(--text-1);
+  --muted: var(--text-3);
+  --accent: var(--brand);
+  --accent-soft: var(--brand-soft);
+}

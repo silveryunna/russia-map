@@ -18,6 +18,7 @@ const CI_ONLY = new Set([
   'tools/check-esm.mjs',        // 需要先 build（--experimental-vm-modules）
   'tools/check-build-sync.mjs', // 需要 npm ci + vite build
   'tools/smoke-test.mjs',       // 需要 Playwright 与静态服务器
+  'tools/design-audit.mjs',     // 需要 Playwright：真实浏览器量对比度/热区/遮挡
 ]);
 
 let bad = 0;
