@@ -1,0 +1,112 @@
+{
+  "city": "哈尔滨",
+  "schemaVersion": 1,
+  "updatedAt": "2026-11-02",
+  "note": "哈尔滨事实账本：旗舰点位优先（圣索菲亚教堂、省博物馆、中央大街等）。中文场馆官网多依赖公众号/预约系统，静态页少，来源以官网与官方媒体公告为准。",
+  "facts": [
+    {
+      "pointId": "p463",
+      "field": "openCalendar",
+      "value": {
+        "days": "Mo-Su",
+        "open": "08:30",
+        "close": "21:00"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://www.cnr.cn/xzpd/20251205/t20251205_527450594.shtml",
+      "sourceLabel": "央广网：索菲亚景区重启开放公告（2025-12-06 起）",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "2025-12-06 重新开放后每日 8:30–21:00（央广网报道景区公告）；非冰雪季时段历史上为 8:30–17:00，季节性调整以「索菲亚景区」官方购票页为准；索菲亚广场本身全天候开放"
+    },
+    {
+      "pointId": "p463",
+      "field": "ticket",
+      "value": "广场免费；教堂内部参观约 20 元（美团/抖音「索菲亚景区」或入口扫码购票）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "广场拍照免费；内部（哈尔滨市建筑艺术馆）购票进入，线上经美团/抖音「索菲亚景区」、现场入口扫码，旅游平台参考价 20 元（优惠票约 15 元）——官方未公布静态价目，按 estimated 记录"
+    },
+    {
+      "pointId": "p486",
+      "field": "openCalendar",
+      "value": {
+        "days": "Tu,We,Th,Fr,Sa,Su",
+        "open": "09:00",
+        "close": "16:30",
+        "lastEntry": "15:30"
+      },
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://hljsb.hdwbcloud.com/gticketw/index",
+      "sourceLabel": "黑龙江省博物馆参观预约系统（官网「参观预约」入口）",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "官网及预约系统口径：每周一闭馆（节假日除外），开放日 9:00–16:30、15:30 停止入馆（部分平台标注 16:00 停止入场，以现场公示为准）；新馆已建成但暂未开放，现仍在红军街 50 号老馆（莫斯科商场旧址）接待"
+    },
+    {
+      "pointId": "p486",
+      "field": "ticket",
+      "value": "免费（官网/微信公众号实名预约，可提前 7 日）",
+      "status": "verified",
+      "sourceType": "official",
+      "sourceUrl": "https://hljsb.hdwbcloud.com/gticketw/index",
+      "sourceLabel": "黑龙江省博物馆参观预约系统",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "博物馆参观预约系统（官网「参观预约」入口）：全员实名免费预约，可提前 7 日、每账户一次最多 5 人、每证件每日限 1 次；入馆持本人身份证"
+    },
+    {
+      "pointId": "p464",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "中央大街为开放步行街，常态全天可通行；本地宝口径「1/1-12/31 全天开放、无需预约」"
+    },
+    {
+      "pointId": "p464",
+      "field": "ticket",
+      "value": "免费（步行街）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "开放街区免费，按 estimated 记录"
+    },
+    {
+      "pointId": "p465",
+      "field": "openCalendar",
+      "value": {
+        "alwaysOpen": true
+      },
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "防洪胜利纪念塔及斯大林公园为开放滨江空间，常态全天可通行；没有官方时刻表，故标 estimated"
+    },
+    {
+      "pointId": "p465",
+      "field": "ticket",
+      "value": "免费（江畔纪念塔广场）",
+      "status": "estimated",
+      "sourceType": "curated",
+      "sourceLabel": "站内整理",
+      "collectedAt": "2026-11-02",
+      "reviewAfter": "2027-01-30",
+      "note": "开放广场免费，按 estimated 记录"
+    }
+  ]
+}

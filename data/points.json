@@ -8475,7 +8475,13 @@
     "lon": 126.621277,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Mo-Su",
+      "open": "08:30",
+      "close": "21:00"
+    },
+    "ticket": "广场免费；教堂内部参观约 20 元（美团/抖音「索菲亚景区」或入口扫码购票）"
   },
   {
     "id": "p464",
@@ -8490,7 +8496,11 @@
     "lon": 126.612911,
     "confidence": 75,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（步行街）"
   },
   {
     "id": "p465",
@@ -8505,7 +8515,11 @@
     "lon": 126.611324,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "alwaysOpen": true
+    },
+    "ticket": "免费（江畔纪念塔广场）"
   },
   {
     "id": "p466",
@@ -8814,7 +8828,14 @@
     "lon": 126.635134,
     "confidence": 100,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "openCalendar": {
+      "days": "Tu,We,Th,Fr,Sa,Su",
+      "open": "09:00",
+      "close": "16:30",
+      "lastEntry": "15:30"
+    },
+    "ticket": "免费（官网/微信公众号实名预约，可提前 7 日）"
   },
   {
     "id": "p487",
