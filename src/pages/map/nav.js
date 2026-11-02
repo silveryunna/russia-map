@@ -4,7 +4,7 @@ import { wgs2gcj } from './coords.js';
 const esc = (s) => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
 
 // 国内城市：提供高德链接（坐标需转 GCJ-02）
-const CN_CITIES = ['哈尔滨', '伊宁', '三亚'];
+const CN_CITIES = ['哈尔滨', '伊宁', '三亚', '赛里木湖', '博乐', '阿拉山口', '霍尔果斯', '乌鲁木齐'];
 
 // 坐标顺序坑（改动前先看清）：
 //   Google query/destination：纬度,经度
