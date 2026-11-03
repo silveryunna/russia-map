@@ -19,7 +19,8 @@ import { ratingTabs, ratingBadges, validRatings } from './map/ratings.js';
 import { navLinks, navHref } from './map/nav.js';
 import { drawOverlays, rebuildOverlays } from './map/overlays.js';
 import { initPlayer, playRoute, stopPlay } from './map/player.js';
-import { initLayers, countryOf, sortCities, COUNTRY_STYLE } from './map/layers.js';
+import { initLayers, countryOf, sortCities, COUNTRY_STYLE, syncRegionBasemap } from './map/layers.js';
+import { initBoundaries, showRegionBoundary, clearRegionBoundary } from './map/boundaries.js';
 
 /* 设计门 L1 · 例外 · Leaflet 的 color/fillColor 会写进 SVG 属性，CSS 变量不解析 · 与 --city-other 同值，改令牌要同步这里 */
 const CITY_FALLBACK = '#546570';
@@ -251,9 +252,11 @@ let meta = { cities: [], cityColors: {} };
 let pointByName = new Map();   // 动线 steps 的 point 名称快照索引（pointId 缺失时兜底）
 let pointById = new Map();
 
-let map, clusterGroup, routesGroup;
+let map, routesGroup;
 let visitRepo = null;
 const markerById = new Map();
+const groupByPoint = new Map();   // 点位 id → 所属板块聚合层（切换板块只显隐，不重建）
+const regionGroups = new Map();   // 板块 id → markerClusterGroup（按板块懒创建）
 let suppressFit = false;  // 手动飞向点位后，阻止本次重新 fitBounds
 let lastFitKey = '';      // 上次 fitBounds 的视图钥匙
 
@@ -336,6 +339,8 @@ function groupedByRegion() {
 function focusRegion(id) {
   const r = regionIndex && regionIndex.byId ? regionIndex.byId.get(id) : null;
   if (!r || !Array.isArray(r.center) || !map) return;
+  showRegionBoundary(r);            // 边界按需加载；失败在模块内降级为 bbox，不阻塞地图
+  syncRegionBasemap(r);             // 板块级底图策略（cn 启用时也只走 WGS，无 GCJ 偏移）
   map.flyTo([r.center[0], r.center[1]], r.defaultZoom || 5);
 }
 
@@ -424,7 +429,8 @@ function pointsTabHtml() {
   }
 
   // 板块层：切换板块只改变侧栏分组与地图视野，不动已有的筛选/打卡状态
-  const boards = (regionIndex && regionIndex.regions ? regionIndex.regions : []).filter(r => r.enabled !== false);
+  const boards = (regionIndex && regionIndex.regions ? regionIndex.regions : [])
+    .filter(r => r.enabled !== false && points.some(p => regionOf(p, regionIndex) === r.id));
   if (boards.length > 1) {
     html += `<div class="region-chips">${[''].concat(boards.map(b => b.id)).map(id => {
       const b = id ? regionIndex.byId.get(id) : null;
@@ -611,10 +617,61 @@ function routeDetailHtml(r) {
 }
 
 // ===== 地图标记刷新 =====
+// 板块级聚合层：每个板块一个 markerClusterGroup，只在需要时创建；
+// 板块切换只做显隐（syncRegionVisibility），不 clearLayers/不重建标记。
+const CLUSTER_OPTS = {
+  maxClusterRadius: 35,
+  disableClusteringAtZoom: 12,
+  showCoverageOnHover: false,
+  chunkedLoading: true,
+  iconCreateFunction: (cluster) => L.divIcon({
+    className: '',
+    html: `<div style="width:34px;height:34px;border-radius:50%;background:#B71C1C;color:#fff;` +
+      `font:700 14px/1 system-ui;display:flex;align-items:center;justify-content:center;` +
+      `border:3px solid #FFD54F;box-shadow:0 1px 6px rgba(0,0,0,.5)">${cluster.getChildCount()}</div>`,
+    iconSize: [34, 34],
+  }),
+};
+
+function regionKeyOf(p) {
+  return regionOf(p, regionIndex) || '__default';
+}
+
+function markerGroupFor(rid) {
+  let g = regionGroups.get(rid);
+  if (!g) {
+    g = L.markerClusterGroup(CLUSTER_OPTS);
+    regionGroups.set(rid, g);
+  }
+  return g;
+}
+
+// 板块 chip 切换：按 state.region 只增删图层，标记本身不重建
+function syncRegionVisibility() {
+  for (const [rid, g] of regionGroups) {
+    const on = !state.region || rid === state.region;
+    if (on && !map.hasLayer(g)) g.addTo(map);
+    else if (!on && map.hasLayer(g)) map.removeLayer(g);
+  }
+}
+
+// 切换后若选中点位仍在可见板块，直接重开它的弹窗（不再 zoomToShowLayer，避免把刚 flyTo 的视野拉回点位）
+function reopenSelectedPopup() {
+  if (!state.selected) return;
+  const m = markerById.get(state.selected);
+  const g = groupByPoint.get(state.selected);
+  if (!m || !g || !map.hasLayer(g) || !map.hasLayer(m)) return;
+  m.openPopup();
+}
+
 function refreshMarkers() {
-  clusterGroup.clearLayers();
+  for (const g of regionGroups.values()) {
+    g.clearLayers();
+    if (map.hasLayer(g)) map.removeLayer(g);
+  }
   routesGroup.clearLayers();
   markerById.clear();
+  groupByPoint.clear();
   const bounds = [];
   const route = state.tab === 'routes' ? currentRoute() : null;
 
@@ -642,15 +699,19 @@ function refreshMarkers() {
       const m = L.marker(xy(p.lat, p.lon), { icon });
       m.bindPopup(popupHtml(p), { closeButton: true, autoPan: false });
       m.on('click', () => { state.selected = p.id; refreshMarkers(); renderSidebar(); });
-      clusterGroup.addLayer(m);
+      const g = markerGroupFor(regionKeyOf(p));
+      g.addLayer(m);
+      groupByPoint.set(p.id, g);
       markerById.set(p.id, m);
-      if (state.selected === p.id) clusterGroup.zoomToShowLayer(m, () => m.openPopup());
-      bounds.push(xy(p.lat, p.lon));
+      if (state.selected === p.id && map.hasLayer(g)) g.zoomToShowLayer(m, () => m.openPopup());
+      // fitBounds 只按当前可见板块计算，避免切到单个板块后又被其他板块的点拉远
+      if (!state.region || regionOf(p, regionIndex) === state.region) bounds.push(xy(p.lat, p.lon));
     }
   }
 
+  syncRegionVisibility();
   // 视图钥匙变化时才 fitBounds（筛选/切换页签/选动线），点选/高亮/打卡不移动地图
-  const key = state.tab + '|' + state.city + '|' + (route ? route.id : '');
+  const key = state.tab + '|' + state.city + '|' + state.region + '|' + (route ? route.id : '');
   if (bounds.length && !suppressFit && key !== lastFitKey) {
     map.fitBounds(L.latLngBounds(bounds).pad(0.15));
     lastFitKey = key;
@@ -691,7 +752,10 @@ function flyToPoint(p) {
     const m = markerById.get(p.id);
     if (!m) return;
     if (state.tab === 'routes') m.openPopup();
-    else clusterGroup.zoomToShowLayer(m, () => m.openPopup());
+    else {
+      const g = groupByPoint.get(p.id);
+      if (g && map.hasLayer(g)) g.zoomToShowLayer(m, () => m.openPopup());
+    }
   }, 850);
 }
 
@@ -774,21 +838,9 @@ async function initMap() {
     }
   });
 
-  // 点位聚合层（红色数字气泡，街区级散开）
-  clusterGroup = L.markerClusterGroup({
-    maxClusterRadius: 35,
-    disableClusteringAtZoom: 12,
-    showCoverageOnHover: false,
-    chunkedLoading: true,
-    iconCreateFunction: (cluster) => L.divIcon({
-      className: '',
-      html: `<div style="width:34px;height:34px;border-radius:50%;background:#B71C1C;color:#fff;` +
-        `font:700 14px/1 system-ui;display:flex;align-items:center;justify-content:center;` +
-        `border:3px solid #FFD54F;box-shadow:0 1px 6px rgba(0,0,0,.5)">${cluster.getChildCount()}</div>`,
-      iconSize: [34, 34],
-    }),
-  }).addTo(map);
+  // 点位聚合层按板块拆分为多个 markerClusterGroup（见 refreshMarkers），这里只建路线层
   routesGroup = L.layerGroup().addTo(map);
+  initBoundaries({ L, map });
 
   // 数据驱动覆盖层（水上巴士航线等，来自 data/overlays.json）
   drawOverlays(L, map);
@@ -1009,8 +1061,15 @@ function bindEvents() {
     if (regBtn) {
       const id = regBtn.dataset.region;
       state.region = state.region === id ? '' : id;
-      if (state.region) focusRegion(state.region);
-      refreshMarkers(); renderSidebar();
+      syncRegionVisibility();          // 只显隐板块图层，不重建标记
+      if (state.region) {
+        focusRegion(state.region);     // flyTo 中心/缩放 + 换边界 + 底图策略
+      } else {
+        clearRegionBoundary();
+        syncRegionBasemap(null);       // 全部板块 → 回世界底图
+      }
+      renderSidebar();
+      reopenSelectedPopup();
       return;
     }
     // 标签筛选 chips——须放在 input/button 提前返回之前（chips 是 button）
@@ -1105,7 +1164,7 @@ async function main() {
     fetch('./data/routes.json').then(r => r.json()),
     fetch('./data/meta.json').then(r => r.json()),
     fetch('./data/overlays.json').then(r => r.json()),
-    fetch('./data/china-boundary.json').then(r => r.json()).then(d => (window.__chinaBoundary__ = d)),
+    fetch('./data/china-boundary.json').then(r => r.json()).then(d => (window.__chinaBoundary__ = d)).catch(() => null),
     fetch('./data/ratings.json').then(r => r.json()).catch(() => ({ items: {} })).then(d => (window.__ratings__ = d)),
     fetch('./data/field.json').then(r => r.json()).catch(() => ({})).then(d => (window.__fieldData__ = d)),
     fetch('./content/notes/index.json').then(r => r.json()).catch(() => []).then(d => (window.__notesIndex__ = d)),

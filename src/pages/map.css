@@ -325,6 +325,9 @@ b.hl { color: #B71C1C; font-weight: 700; }
 .region-chip.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
 .region-chip.active b { color: var(--accent); }
 
+/* 板块边界（Leaflet path 的 SVG 属性由 CSS 覆盖，颜色统一走令牌） */
+.region-boundary { stroke: var(--muted); stroke-width: 1.5; stroke-opacity: .65; fill: none; }
+
 /* 国家/板块分组头（四级侧栏第一级） */
 .country-head {
   display: flex; align-items: center; gap: 9px;

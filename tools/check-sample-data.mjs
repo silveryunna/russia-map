@@ -9,6 +9,7 @@ import { resolve } from 'node:path';
 import { TYPE_VOCAB } from './type-vocab.mjs';
 import { CITY_TIME_ZONES } from '../src/pages/trip/migrate.js';
 import { createRegionIndex, visiblePoints, isPointVisible, regionStats } from '../src/shared/regions.js';
+import { boundaryBounds } from '../src/pages/map/boundaries.js';
 
 const dir = resolve(process.argv[2] || './data');
 const city = process.argv[3] || '莫斯科';
@@ -176,6 +177,83 @@ console.log(`   票价/预约已知 ${ticketKnown}/${scope.length}（${pct(ticke
     if (!/l-region-stats/.test(srcOf('pages/list.js'))) err('列表页缺少板块统计/筛选层');
     if (!/region-head/.test(srcOf('pages/map.js')) || !/data-focus-region/.test(srcOf('pages/map.js'))) err('地图侧栏缺少板块层或板块定位');
     if (!/flyTo/.test(srcOf('pages/map.js'))) err('地图板块切换未带动中心/缩放');
+
+    // P1-2：板块视野校准（center/defaultZoom 与 points 包围盒自洽）
+    const merc = (lat) => Math.log(Math.tan(Math.PI / 4 + (lat * Math.PI) / 360));
+    const fitZoom = (b) => {
+      const dLon = (b[2] - b[0]) / 360;
+      const dY = (merc(b[3]) - merc(b[1])) / (2 * Math.PI);
+      const zx = dLon > 0 ? Math.log2(560 / (256 * dLon)) : Infinity;
+      const zy = dY > 0 ? Math.log2(520 / (256 * dY)) : Infinity;
+      return Math.min(zx, zy);
+    };
+    const zoomSummary = [];
+    for (const r of doc.regions || []) {
+      const rs = points.filter((p) => p.region === r.id && Number.isFinite(p.lat) && Number.isFinite(p.lon));
+      if (!rs.length) continue;
+      const minLat = Math.min(...rs.map((p) => p.lat));
+      const maxLat = Math.max(...rs.map((p) => p.lat));
+      const minLon = Math.min(...rs.map((p) => p.lon));
+      const maxLon = Math.max(...rs.map((p) => p.lon));
+      const cLat = (minLat + maxLat) / 2;
+      const cLon = (minLon + maxLon) / 2;
+      const [lat, lon] = r.center;
+      if (lat < minLat - 0.005 || lat > maxLat + 0.005 || lon < minLon - 0.005 || lon > maxLon + 0.005) {
+        err(`板块 ${r.id} 的 center 不在点位包围盒内：${r.center}`);
+      }
+      if (Math.abs(lat - cLat) > 0.05 || Math.abs(lon - cLon) > 0.05) {
+        err(`板块 ${r.id} 的 center 未对齐点位包围盒中心（应为 ${cLat.toFixed(3)},${cLon.toFixed(3)}）`);
+      }
+      if (r.defaultZoom < 3 || r.defaultZoom > 12) err(`板块 ${r.id} 的 defaultZoom=${r.defaultZoom} 超出 3–12`);
+      const fit = fitZoom([minLon, minLat, maxLon, maxLat]);
+      if (!(r.defaultZoom <= fit + 1e-9)) {
+        err(`板块 ${r.id} 的 zoom=${r.defaultZoom} 大于适配值 ${fit.toFixed(2)}，会裁掉边缘点位`);
+      }
+      // kz 有 82.5E 的多斯特克单点：过低 zoom 会把单点压进阿拉木图大集群
+      if (r.id === 'kz' && r.defaultZoom < 7) err('kz 的 zoom 过低：整境视野会丢掉单点');
+      const b = r.bounds && r.bounds.bbox;
+      if (!Array.isArray(b) || b.length !== 4) err(`板块 ${r.id} 缺 bounds.bbox，边界无法降级`);
+      else if (b[0] > minLon + 0.002 || b[1] > minLat + 0.002 || b[2] < maxLon - 0.002 || b[3] < maxLat - 0.002) {
+        err(`板块 ${r.id} 的 bounds.bbox 未覆盖全部点位`);
+      }
+      zoomSummary.push(`${r.id} z${r.defaultZoom}`);
+    }
+    ok(`板块视野校准：${zoomSummary.join(' / ')}（center 对齐点位包围盒，zoom 不大于 560×520 适配值）`);
+
+    // P1-2：边界降级与「最后一次点击为准」；cn 启用路径固定 WGS84、无 GCJ 偏移
+    const bSrc = srcOf('pages/map/boundaries.js');
+    if (!/boundaryFile/.test(bSrc) || !/bounds\.bbox/.test(bSrc)) err('边界模块缺 boundaryFile/bbox 降级链');
+    if (!/catch/.test(bSrc)) err('边界加载失败未捕获，会阻塞地图与点位');
+    if (!/my !== seq/.test(bSrc)) err('边界切换未按最后一次点击为准（存在竞态）');
+    if (!/clearRegionBoundary/.test(bSrc)) err('边界模块缺清除入口');
+    const geRegion = (doc.regions || []).find((r) => r.id === 'ge');
+    const geBox = boundaryBounds(geRegion);
+    if (!geBox) err('ge 无 boundaryFile 时应降级为 bbox 矩形');
+    else if (geBox[2] - geBox[0] < 0.02 || geBox[3] - geBox[1] < 0.02) err('单点板块的降级矩形退化');
+    if (boundaryBounds({ id: 'x' })) err('无 bbox/boundaryFile 时应返回 null（不画边界）');
+    if (!/initBoundaries/.test(srcOf('pages/map.js'))) err('地图未初始化板块边界层');
+    if (!/\.catch\(\(\) => null\)/.test(srcOf('pages/map.js'))) err('china-boundary.json 加载失败会阻塞启动');
+
+    const lSrc = srcOf('pages/map/layers.js');
+    if (!/syncRegionBasemap/.test(lSrc)) err('缺板块级底图策略 syncRegionBasemap');
+    if (!lSrc.includes("base: CN_WGS_LAYER, gcj: false")) err('中国板块启用路径未固定「天地图 + 无 GCJ」');
+    if (!lSrc.includes('inCn ? { base: CN_WGS_LAYER, gcj: false')) err('自动进入中国板块仍会自动切 GCJ/偏移');
+    const mapSrc = srcOf('pages/map.js');
+    if (!/syncRegionBasemap/.test(mapSrc)) err('板块切换未应用板块级底图策略');
+    if (!/regionGroups/.test(mapSrc) || !/markerGroupFor/.test(mapSrc)) err('地图未按板块拆分点位图层');
+
+    // 切换不丢筛选/选中/打卡/弹窗：chip 分支只显隐与换边界，不重建标记、不重置状态
+    const chipStart = mapSrc.indexOf("closest('[data-region]')");
+    const chipEnd = mapSrc.indexOf('// 标签筛选 chips——须放在');
+    const chipBlock = mapSrc.slice(chipStart, chipEnd > chipStart ? chipEnd : chipStart + 900);
+    if (!/syncRegionVisibility/.test(chipBlock)) err('板块切换未走图层显隐');
+    if (/refreshMarkers/.test(chipBlock)) err('板块切换仍在重建标记（会丢选中/弹窗）');
+    for (const k of ['state.checked =', 'state.city =', 'state.query =', 'state.selected =']) {
+      if (chipBlock.includes(k)) err(`板块切换重置了状态：${k.trim()}`);
+    }
+    if (!/reopenSelectedPopup/.test(chipBlock)) err('板块切换未恢复已选点位弹窗');
+    if (!/clearRegionBoundary/.test(chipBlock)) err('切回「全部」未清除板块边界');
+
 
     // 城市名清理：「其他城市」桶已拆，所有城市必须有排程时区，城市配置与点位一致
     const { CITY_TIME_ZONES } = await import('../src/pages/trip/migrate.js');

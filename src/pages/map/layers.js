@@ -19,6 +19,14 @@ let activeReg = 'world';
 let regionMode = 'auto';
 // 板块开关：中国板块 enabled=false 时（Gate-CN 未过），不提供中国底图方案、不自动切到 GCJ
 let cnRegionEnabled = true;
+// 中国板块启用后的默认底图：天地图（CGCS2000≈WGS84），不做 GCJ 偏移
+const CN_WGS_LAYER = '天地图';
+
+function selectedLayer(reg) {
+  return reg === 'cn'
+    ? window.__cnSel__ || CN_WGS_LAYER
+    : window.__worldSelName__ || '当地原文 (OSM)';
+}
 
 // ===== 图层选择持久化（nm-layer-v1） =====
 function saveSel() {
@@ -104,7 +112,7 @@ function showRegionLoading() {
   setTimeout(() => d.classList.remove('show'), 3000);
 }
 
-function rebuildLayersCtl(reg) {
+function rebuildLayersCtl(reg, selName) {
   const { L, map, refreshMarkers } = ctx;
   if (window.__layersCtl__) {
     map.removeControl(window.__layersCtl__);
@@ -123,7 +131,7 @@ function rebuildLayersCtl(reg) {
         '中文概览（仅大区域）': window.__esriTopoLayer__,
       };
   window.__baseEntries__ = entries;
-  const selName = reg === 'cn' ? window.__cnSel__ || '高德' : window.__worldSelName__ || '当地原文 (OSM)';
+  const sel = selName || selectedLayer(reg);
   window.__layersCtl__ = L.control.layers(entries, {}, { position: 'topleft' }).addTo(map);
   // 图层控件挪到左上角最前（在搜索按钮之前）
   const corner = map.getContainer().querySelector('.leaflet-top.leaflet-left');
@@ -140,7 +148,7 @@ function rebuildLayersCtl(reg) {
       const nm = ((inp.parentElement.querySelector('span') || {}).textContent || '').trim();
       if (!nm) return;
       const rg = window.__layersCtl__.__reg;
-      const cur = rg === 'cn' ? window.__cnSel__ || '高德' : window.__worldSelName__ || '当地原文 (OSM)';
+      const cur = selectedLayer(rg);
       if (nm === cur) return;
       showRegionLoading();
       anchorView(rg === 'cn' && (nm === '高德' || nm === '腾讯'));
@@ -164,8 +172,10 @@ function rebuildLayersCtl(reg) {
   }
 }
 
-function setRegion(reg) {
-  if (reg === activeReg) return;
+function setRegion(reg, opts = {}) {
+  const sel = opts.base || selectedLayer(reg);
+  const gcj = reg === 'cn' && opts.gcj !== false && (sel === '高德' || sel === '腾讯');
+  if (reg === activeReg && sel === selectedLayer(reg)) return;
   showRegionLoading();
   const olds = window.__baseEntries__ ? Object.values(window.__baseEntries__) : [];
   olds.forEach((ly) => {
@@ -174,15 +184,16 @@ function setRegion(reg) {
   });
   activeReg = reg;
   // 保留用户上次的图层选择（不再重置为默认），GCJ 标志以实际选中的底图为准
-  const sel = reg === 'cn' ? window.__cnSel__ || '高德' : window.__worldSelName__ || '当地原文 (OSM)';
-  const gcj = reg === 'cn' && (sel === '高德' || sel === '腾讯');
+  if (reg === 'cn') window.__cnSel__ = sel;
+  else window.__worldSelName__ = sel;
   anchorView(gcj);
-  rebuildLayersCtl(reg);
+  rebuildLayersCtl(reg, sel);
   clearGeoMarkers();
   ctx.refreshMarkers();
   rebuildOverlays(ctx.L, ctx.map);
   renderMask();
   saveSel();
+  if (opts.silent) return;
   ctx.toast(reg === 'world'
     ? '已切换到非中国图层'
     : `已切换到中国图层（${sel}${gcj ? '，点位已按 GCJ-02 补偿' : ''}）`);
@@ -195,7 +206,31 @@ function autoRegion() {
   const c = ctx.map.getCenter();
   // GCJ 底图激活时视野数字在 GCJ 空间，先换回 WGS 再判定，避免国界附近误判
   const [lat, lng] = window.__amapActive__ ? gcj2wgs(c.lat, c.lng) : [c.lat, c.lng];
-  setRegion(pointInChina(lat, lng) ? 'cn' : 'world');
+  const inCn = pointInChina(lat, lng);
+  // 自动进入中国板块只用 WGS84 的天地图：不自动切 GCJ、不做坐标偏移
+  setRegion(inCn ? 'cn' : 'world', inCn ? { base: CN_WGS_LAYER, gcj: false, silent: true } : { silent: true });
+}
+
+function syncModeButtons() {
+  const d = document.querySelector('.region-ctl');
+  if (!d) return;
+  d.querySelectorAll('.region-btn[data-reg]').forEach((x) => x.classList.toggle('active', x.dataset.reg === regionMode));
+}
+
+// 板块级底图策略：basemap=world → 世界底图；basemap=cn 且板块启用 → WGS84 天地图（无 GCJ、无偏移）；
+// basemap=cn 但板块关闭 → 保持世界底图（不提供需要审图号的国内底图）
+export function syncRegionBasemap(region) {
+  const bm = (region && region.basemap) || 'world';
+  if (bm === 'cn') {
+    if (!cnRegionEnabled) return;
+    regionMode = 'cn';
+    setRegion('cn', { base: CN_WGS_LAYER, gcj: false, silent: true });
+  } else {
+    regionMode = 'world';
+    setRegion('world', { silent: true });
+  }
+  syncModeButtons();
+  saveSel();
 }
 
 // 中国以外区域灰化遮罩（world 模式灰化中国，cn 模式灰化中国以外）
@@ -362,7 +397,7 @@ export function initLayers(deps) {
   const regionConf = cnRegionEnabled ? REGION_CONF : REGION_CONF.filter((r) => r.id !== 'cn');
   window.__regionConf__ = regionConf;
   window.__amapActive__ = false;
-  window.__cnSel__ = (saved.cn || '').trim() || '高德';
+  window.__cnSel__ = (saved.cn || '').trim() || CN_WGS_LAYER;
   window.__worldSelName__ = (saved.world || '').trim() || '当地原文 (OSM)';
   regionMode = saved.mode === 'world' || saved.mode === 'cn' ? saved.mode : 'auto';
   if (!cnRegionEnabled) regionMode = 'auto';
