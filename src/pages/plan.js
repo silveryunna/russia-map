@@ -132,8 +132,51 @@ const FEAS_LABEL = {
   'day-overrun': '超出收工线', closed: '闭馆', 'after-last-entry': '过最后入场', 'after-close': '会跨闭馆',
   overlap: '与预订重叠', 'cross-day': '跨日预订', 'duplicate-place': '重复点位', 'missing-duration': '缺时长',
   'unresolved-place': '未绑定', 'missing-coords': '缺坐标', 'calendar-exceptions': '特殊闭馆未校验',
-  'hours-stale': '开放时间待复核',
+  'hours-stale': '开放时间待复核', 'cross-region-unmodeled': '长途未建模',
 };
+
+const UNMODELED_NOTE = '长途未建模（需自行安排航班/长距离交通）';
+
+// 板块串联：一天里首个/末个可见点位的 region 用来判断跨板块长途段（不新增行程字段，旧数据按 region 缺失跳过）
+function dayRegion(d) {
+  for (const it of d.items) {
+    if (it.type === 'note' || it.type === 'task' || it.plannedStatus === 'skipped') continue;
+    const p = it.refId ? pointsById.get(it.refId) : null;
+    if (p && typeof p.region === 'string' && p.region) return p.region;
+  }
+  return '';
+}
+function prevDayRegion(t, di) {
+  for (let i = di - 1; i >= 0; i -= 1) {
+    const r = dayRegion(t.days[i]);
+    if (r) return r;
+  }
+  return '';
+}
+// 进入第 di 天前所在板块；与当天板块不同 → 该天按"长途未建模"降权
+function transferFromRegion(t, di) {
+  const cur = dayRegion(t.days[di]);
+  const prev = prevDayRegion(t, di);
+  return cur && prev && prev !== cur ? prev : '';
+}
+function regionName(id) {
+  const r = regionIndex && regionIndex.byId ? regionIndex.byId.get(id) : null;
+  return r && r.name ? r.name : id;
+}
+function regionNamesMap() {
+  const out = {};
+  if (regionIndex && regionIndex.byId) for (const [id, r] of regionIndex.byId) out[id] = r.name || id;
+  return out;
+}
+function transferNote(t, di) {
+  const from = transferFromRegion(t, di);
+  const cur = dayRegion(t.days[di]);
+  if (!from || !cur) return '';
+  let prevIdx = -1;
+  for (let i = di - 1; i >= 0; i -= 1) if (dayRegion(t.days[i])) { prevIdx = i; break; }
+  if (prevIdx < 0) return '';
+  return `<div class="tr-feas is-warn"><span>✈️ D${prevIdx + 1}（${esc(regionName(from))}）→ D${di + 1}（${esc(regionName(cur))}）：${UNMODELED_NOTE}，不计入当天排程</span></div>`;
+}
 
 // 每天一条双轴结论：结构是否可排 + 证据有多少仍待核/估算
 function feasibilityLine(d, res) {
@@ -149,9 +192,11 @@ function feasibilityLine(d, res) {
   const start = formatMinutesCrossDay(res.timeline[0].arrive);
   const end = formatMinutesCrossDay(res.timeline[res.timeline.length - 1].end);
   const dwell = (res.stats.dwellMinutes / 60).toFixed(1);
-  const conditional = res.structural === 'conditional';
+  const conditional = res.structural === 'conditional' || res.structural === 'unmodeled';
+  const unmodeled = (res.stats && res.stats.unmodeledLegs) || 0;
   const chips = errs.slice(0, 3).map(c => `<span class="tr-chip danger">${FEAS_LABEL[c.kind] || c.kind}</span>`).join('')
     + (errs.length > 3 ? `<span class="tr-chip danger">+${errs.length - 3}</span>` : '')
+    + (unmodeled ? `<span class="tr-chip warn" title="${UNMODELED_NOTE}">✈️ ${unmodeled} 段长途未建模（需自行安排航班/长距离交通）</span>` : '')
     + (warns.length ? `<span class="tr-chip warn">${warns.length} 条提示</span>` : '')
     + (unknown ? `<span class="tr-chip warn">${unknown} 处开放时间待核</span>` : '')
     + (stale ? `<span class="tr-chip warn">${stale} 处资料待复核</span>` : '')
@@ -160,6 +205,7 @@ function feasibilityLine(d, res) {
       : '');
   const verdict = lead
     ? `${errs.length ? '⚠️' : '🔔'} ${lead.message}`
+    : unmodeled ? `⚠️ 含 ${unmodeled} 段${UNMODELED_NOTE}，无法自动判定`
     : conditional ? '⚠️ 条件式可排（仍有待核事实或估算段）' : '✅ 结构可行，证据充分';
   return `<div class="tr-feas ${errs.length ? 'is-bad' : warns.length || conditional ? 'is-warn' : ''}">
       <span>⏱ 预计 ${start}–${end} · 停留 ${dwell}h · 通行 ${res.stats.transitMinutes}m</span>
@@ -329,7 +375,7 @@ function timelineDayHtml(d, di, res) {
   }).join('');
 
   const hours = rail.hours.map(h => `<div class="tl-hour" style="top:${h.top}px"><b>${h.label}</b></div>`).join('');
-  const legs = rail.legs.filter(l => l.showLabel).map(l => `<div class="tl-leg" style="top:${l.top}px"><span>${esc(l.label)}</span></div>`).join('');
+  const legs = rail.legs.filter(l => l.showLabel).map(l => `<div class="tl-leg" style="top:${l.top}px" title="${esc(l.detail || '')}"><span>${esc(l.label)}</span></div>`).join('');
   const waits = rail.waits.map(w => `<div class="tl-wait" style="top:${w.top}px;height:${w.height}px"><span>${esc(w.label)}</span></div>`).join('');
   const overrun = rail.overrun ? `<div class="tl-overrun" style="top:${rail.overrun.top}px;height:${rail.overrun.height}px"></div>` : '';
   const unplacedHtml = unplaced.length ? `<div class="tl-unplaced">
@@ -426,10 +472,15 @@ function renderEditor() {
   const conflicts = itemDateConflicts(t);
   const conflictByItem = new Map(conflicts.map(c => [c.itemId, c]));
   const pending = countNeedsConfirm(t);
-  const dayRes = new Map(t.days.map(d => [d.id, evaluateDay({
+  const dayRes = new Map(t.days.map((d, di) => [d.id, evaluateDay({
     day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
-    options: { start: d.startTime, end: d.endTime, transportMode: d.transportMode || 'transit', taxiFare: dayFare(d), matrix: cache.matrix, facts: cache.facts },
+    options: {
+      start: d.startTime, end: d.endTime, transportMode: d.transportMode || 'transit',
+      taxiFare: dayFare(d), matrix: cache.matrix, facts: cache.facts,
+      entryRegion: transferFromRegion(t, di), regionNames: regionNamesMap(),
+    },
   })]));
+  const crossRegionTransfers = t.days.reduce((n, d, di) => n + (transferFromRegion(t, di) ? 1 : 0), 0);
   const tripInterests = Array.isArray(t.origin && t.origin.interests) ? t.origin.interests : [];
   $app.innerHTML = `
     <div class="pl-head">
@@ -462,7 +513,7 @@ function renderEditor() {
           </select>
         </label>` : ''}
       </div>
-      <div class="pl-meta">${esc(sourceLabel(t))} · ${t.days.length} 天 · ${tripItemCount(t)} 项${pending ? ` · <b class="tr-warn">${pending} 待确认</b>` : ''}${conflicts.length ? ` · <b class="tr-warn">${conflicts.length} 处预订日冲突</b>` : ''} · 修订 ${t.revision}</div>
+      <div class="pl-meta">${esc(sourceLabel(t))} · ${t.days.length} 天 · ${tripItemCount(t)} 项${pending ? ` · <b class="tr-warn">${pending} 待确认</b>` : ''}${conflicts.length ? ` · <b class="tr-warn">${conflicts.length} 处预订日冲突</b>` : ''}${crossRegionTransfers ? ` · <b class="tr-warn">${crossRegionTransfers} 段跨板块长途未建模</b>` : ''} · 修订 ${t.revision}</div>
     </div>
     ${t.notes ? `<div class="pl-tip">📌 ${esc(t.notes)}</div>` : ''}
     ${t.days.map((d, di) => `
@@ -482,6 +533,7 @@ function renderEditor() {
           </select>
         </div>
         ${feasibilityLine(d, dayRes.get(d.id))}
+        ${transferNote(t, di)}
         ${softLine(d, di, dayRes.get(d.id), tripInterests)}
         ${fixBar(d, di, dayRes.get(d.id))}
         ${view.layout === 'timeline' ? timelineDayHtml(d, di, dayRes.get(d.id)) : (d.items.length ? d.items.map((it, ii) => {

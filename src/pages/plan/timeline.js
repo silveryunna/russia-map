@@ -64,7 +64,12 @@ export function buildDayRail({ result, day, items = [], pxPerMin = TL_PX_PER_MIN
   const legs = [];
   const waits = [];
   rows.forEach((r, i) => {
-    if (i === 0) return;
+    if (i === 0) {
+      if (r.unmodeled) {
+        legs.push({ top: top(r.start) - 8, minutes: 0, mode: 'unmodeled', label: '✈️ 长途未建模', detail: r.unmodeledLabel || '', showLabel: true, unmodeled: true });
+      }
+      return;
+    }
     const prev = rows[i - 1];
     const transit = r.transitMinutes || 0;
     const arriveRaw = prev.end + transit;
@@ -76,6 +81,12 @@ export function buildDayRail({ result, day, items = [], pxPerMin = TL_PX_PER_MIN
         mode: r.mode || 'none',
         label: `${MODE_LABEL[r.mode] || '通行'} ${transit}m`,
         showLabel: transit >= 12,
+      });
+    } else if (r.unmodeled) {
+      // 跨板块段没有可信时长：不伪造通行分钟，只在轨道上留"未建模"标记
+      legs.push({
+        top: top(prev.end) - 8, minutes: 0, mode: 'unmodeled',
+        label: '✈️ 长途未建模', detail: r.unmodeledLabel || '', showLabel: true, unmodeled: true,
       });
     }
     const wait = r.start - arriveRaw;
