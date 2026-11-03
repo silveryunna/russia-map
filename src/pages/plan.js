@@ -1,5 +1,8 @@
 import '../shared/base.css';
 import './plan.css';
+import '../shared/layout-wide.css';
+import '../shared/print.css';
+import { installShortcuts, openHelp } from '../shared/shortcuts.js';
 import { evaluateDay, formatMinutes, formatMinutesCrossDay } from './plan/feasibility.js';
 import { indexTransitMatrix, matrixCoverage } from './plan/transit-matrix.js';
 import { indexFacts, loadFactLedger, factCoverage } from './plan/facts.js';
@@ -84,9 +87,67 @@ function toast(msg) {
 
 /* ---------- 渲染 ---------- */
 function render() {
-  if (view.mode === 'create') return renderCreate();
+  if (view.mode === 'create') { removePrintSheet(); return renderCreate(); }
   if (view.mode === 'editor' && current) return renderEditor();
+  removePrintSheet();
   return renderList();
+}
+
+/* ---------- 打印稿（body 级，@media print 时其他节点全隐藏） ---------- */
+function removePrintSheet() {
+  const el = document.getElementById('print-sheet');
+  if (el) el.remove();
+}
+
+function printItemHtml(it, row) {
+  const time = row ? `${formatMinutesCrossDay(row.start)}–${formatMinutesCrossDay(row.end)}` : '未排程';
+  const flags = [
+    row && row.unmodeled ? '✈ 长途未建模' : '',
+    it.confirm !== 'ok' ? '待确认' : '',
+    it.mustVisit === false ? '可删' : '',
+    it.plannedStatus === 'skipped' ? '已跳过' : '',
+  ].filter(Boolean);
+  return `<div class="ps-item">
+      <span class="ps-time">${esc(time)}</span>
+      <div>
+        <span class="ps-name">${esc(itemName(it, pointsById))}${flags.map(f => `<span class="ps-flag">${esc(f)}</span>`).join('')}</span>
+        ${it.notes ? `<span class="ps-note">${esc(it.notes)}</span>` : ''}
+        ${it.placeNameSnapshot !== itemName(it, pointsById) ? `<span class="ps-note">${esc(it.placeNameSnapshot)}</span>` : ''}
+      </div>
+    </div>`;
+}
+
+function renderPrintSheet(t, dayRes) {
+  removePrintSheet();
+  const range = t.startDate ? (t.days.length > 1 ? `${shortDate(t.startDate)} 起 · ${t.days.length} 天` : shortDate(t.startDate)) : `${t.days.length} 天`;
+  const days = t.days.map((d, di) => {
+    const res = dayRes.get(d.id);
+    const rows = res ? res.timeline : [];
+    const rowOf = (id) => rows.find(x => x.itemId === id) || null;
+    const items = d.items.length
+      ? d.items.map(it => printItemHtml(it, rowOf(it.id))).join('')
+      : '<div class="ps-note">这一天还没有安排</div>';
+    const transfer = transferNote(t, di);
+    return `<section class="ps-day">
+        <div class="ps-day-head">
+          <span>Day ${d.index}${d.date ? ` · ${shortDate(d.date)} ${weekday(d.date)}` : ''}</span>
+          <span class="ps-date">${d.items.length} 项</span>
+        </div>
+        ${items}
+        ${d.note ? `<div class="ps-day-note">备注：${esc(d.note)}</div>` : ''}
+        ${transfer ? `<div class="ps-day-note">${transfer.replace(/<[^>]+>/g, '').replace(/^[^\u4e00-\u9fa5A-Za-z0-9]+/, '')}</div>` : ''}
+      </section>`;
+  }).join('');
+  const el = document.createElement('article');
+  el.id = 'print-sheet';
+  el.className = 'print-sheet';
+  el.setAttribute('aria-hidden', 'true');
+  el.innerHTML = `
+    <h1 class="ps-title">${esc(t.title || '行程单')}</h1>
+    <div class="ps-sub">${esc(range)} · ${tripItemCount(t)} 项 · ${esc(STATUS_LABEL[t.status] || '')}${t.notes ? ` · ${esc(t.notes)}` : ''}</div>
+    ${days}
+    <div class="ps-foot">牛马打工人的旅行笔记 · 行程单 · 打印时间 ${esc(new Date().toLocaleString('zh-CN'))} · 页码见页脚</div>`;
+  document.body.append(el);
 }
 
 function banners() {
@@ -482,16 +543,43 @@ function renderEditor() {
   })]));
   const crossRegionTransfers = t.days.reduce((n, d, di) => n + (transferFromRegion(t, di) ? 1 : 0), 0);
   const tripInterests = Array.isArray(t.origin && t.origin.interests) ? t.origin.interests : [];
+  // 大屏右栏：概览 + 打印/快捷键入口（窄屏由 CSS 隐藏，版面与改动前一致）
+  const range = t.startDate
+    ? (t.days.length > 1 ? `${shortDate(t.startDate)} 起 · ${t.days.length} 天` : shortDate(t.startDate))
+    : `${t.days.length} 天`;
+  const asideHtml = `
+    <aside class="plan-aside" aria-label="行程概览">
+      <div class="aside-card">
+        <h3>行程概览</h3>
+        <div class="aside-stack">
+          <div class="aside-row"><span>日期</span><b>${esc(range)}</b></div>
+          <div class="aside-row"><span>条目</span><b>${tripItemCount(t)} 项</b></div>
+          <div class="aside-row"><span>待确认</span><b>${pending} 项</b></div>
+          ${crossRegionTransfers ? `<div class="aside-row"><span>跨板块</span><b>${crossRegionTransfers} 段长途未建模</b></div>` : ''}
+        </div>
+      </div>
+      <div class="aside-card">
+        <h3>打印与快捷键</h3>
+        <div class="aside-stack">
+          <button type="button" class="pl-btn" data-print>🖨 打印行程单</button>
+          <button type="button" class="pl-btn" data-kbd-open>? 查看全部快捷键</button>
+          <p class="aside-note">打印只输出干净行程单（标题 / 日期 / 每日条目 / 点位与备注 / 长途未建模标记），导航、侧栏、地图控件和彩色背景都不会带进纸面。</p>
+        </div>
+      </div>
+    </aside>`;
   $app.innerHTML = `
     <div class="pl-head">
       <button class="pl-btn small" id="tr-back">← 全部行程</button>
       <div class="tr-head-ops">
         <a class="pl-btn small" href="./today.html">📍 今日执行</a>
+        <button class="pl-btn small pl-print-head" data-print>🖨 打印行程单</button>
         <button class="pl-btn small" id="tr-layout">${view.layout === 'timeline' ? '☰ 列表' : '🗓 时间轴'}</button>
         <button class="pl-btn small" id="tr-undo" ${undoStack.length ? '' : 'disabled'}>↶ 撤销</button>
         <button class="pl-btn small" id="tr-md">导出 MD</button>
       </div>
     </div>
+    <div class="plan-shell">
+      <main class="plan-main">
     ${banners()}
     <div class="card tr-meta">
       <input id="tr-title" class="tr-title-input" value="${esc(t.title)}" aria-label="行程标题">
@@ -571,7 +659,11 @@ function renderEditor() {
       <button class="pl-btn" id="tr-add-day">＋ 增加一天</button>
       <button class="pl-btn" id="tr-json">导出本行程 JSON</button>
     </div>
+      </main>
+      ${asideHtml}
+    </div>
     ${view.picker ? pickerHtml() : ''}`;
+  renderPrintSheet(t, dayRes);
 
   document.getElementById('tr-back').onclick = () => { view.mode = 'list'; view.picker = null; view.sel = null; current = null; render(); };
   const undoBtn = document.getElementById('tr-undo');
@@ -617,6 +709,9 @@ function renderEditor() {
 
   // 委托：items 与 day 操作
   $app.onclick = e => {
+    // 打印与快捷键入口（head 与右栏两个按钮共用 data-print / data-kbd-open）
+    if (e.target.closest('[data-print]')) { window.print(); return; }
+    if (e.target.closest('[data-kbd-open]')) { openHelp(); return; }
     const tlBlock = e.target.closest('[data-tl-block]');
     if (tlBlock) {
       if (tlDragged) { tlDragged = false; return; }
@@ -815,6 +910,20 @@ function findItem(id) {
     if (it) return it;
   }
   return null;
+}
+
+/* ---------- 键盘：j/k 在当前行程的条目间移动（列表/时间轴都用同一份条目顺序） ---------- */
+let planKbdIdx = -1;
+
+function stepPlanItem(step) {
+  if (!current) return;
+  const ids = current.days.flatMap(d => d.items.map(it => it.id));
+  if (!ids.length) return;
+  planKbdIdx = (planKbdIdx + step + ids.length) % ids.length;
+  view.sel = ids[planKbdIdx];
+  render();
+  const el = $app.querySelector(`.tr-item[data-item="${CSS.escape(view.sel)}"], .tl-block[data-tl-block="${CSS.escape(view.sel)}"]`);
+  if (el) el.scrollIntoView({ block: 'center' });
 }
 
 function pickerHtml() {
@@ -1062,6 +1171,14 @@ async function runMigration() {
   await runMigration();
   await refreshTrips();
   render();
+  installShortcuts({
+    // 有候选面板时优先聚焦面板搜索，否则聚焦标题（计划页唯一的可编辑文本框）
+    search: () => (view.picker && document.getElementById('tr-q') ? document.getElementById('tr-q') : document.getElementById('tr-title'))?.focus(),
+    nextPoint: () => stepPlanItem(1),
+    prevPoint: () => stepPlanItem(-1),
+    today: () => { location.href = './today.html'; },
+    plan: () => {},   // 已经在本页：不刷新，避免丢掉未保存的编辑状态
+  });
 })().catch(err => {
   $app.innerHTML = `<div class="pl-empty">⚠️ 加载失败：${esc(err.message)}</div>`;
 });

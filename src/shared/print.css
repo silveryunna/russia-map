@@ -1,0 +1,62 @@
+/* 打印稿：只输出干净行程单（标题 / 日期 / 每日条目 / 备注 / 长途未建模标记）
+ * 页码交给浏览器打印页眉页脚（Chrome 默认开启；PDF 实测用 footerTemplate）。
+ * 打印一律纸底色，不带深色主题与彩色背景。
+ */
+.print-sheet { display: none; }
+
+@media print {
+  @page { size: A4; margin: 16mm 14mm 18mm; }
+
+  /* 纸面高度由内容决定：base.css 的 body{min-height:100vh} 在打印里等于整页，
+   * 会多顶出一张空白页，这里归零 */
+  html, body { min-height: 0; background: var(--surface); color: var(--text-1); }
+
+  /* 除行程单外全部隐藏：导航、侧栏、按钮、地图控件、页脚 */
+  body > *:not(.print-sheet) { display: none !important; }
+  .page-nav, #sidebar, .site-footer, .leaflet-control, .pl-btn, .tr-ops, .tr-day-ops, .tr-window { display: none !important; }
+
+  .print-sheet {
+    display: block;
+    font-family: var(--font-ui);
+    font-size: 12pt;
+    line-height: 1.6;
+    color: var(--text-1);
+    background: var(--surface);
+  }
+  .ps-title { margin: 0 0 var(--sp-2); font-size: 20pt; font-weight: 700; }
+  .ps-sub { margin: 0 0 var(--sp-5); color: var(--text-2); font-size: 10pt; }
+  .ps-day { margin: 0 0 var(--sp-5); break-inside: auto; }
+  .ps-day-head {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--sp-4);
+    margin: 0 0 var(--sp-2);
+    padding: 0 0 var(--sp-1);
+    border-bottom: 1px solid var(--border-strong);
+    font-size: 13pt;
+    font-weight: 700;
+    break-after: avoid;
+  }
+  .ps-day-head .ps-date { font-weight: 400; color: var(--text-2); font-size: 10pt; }
+  .ps-item {
+    display: grid;
+    grid-template-columns: 96px minmax(0, 1fr);
+    gap: var(--sp-3);
+    padding: var(--sp-1) 0;
+    break-inside: avoid;
+  }
+  .ps-time { color: var(--text-2); font-size: 10pt; }
+  .ps-name { font-weight: 600; }
+  .ps-note { display: block; color: var(--text-2); font-size: 10pt; }
+  .ps-flag {
+    display: inline-block;
+    margin-left: var(--sp-2);
+    padding: 0 var(--sp-2);
+    border: 1px solid var(--border-strong);
+    border-radius: var(--r-xs);
+    color: var(--text-2);
+    font-size: 9pt;
+  }
+  .ps-day-note { margin: var(--sp-2) 0 0; color: var(--text-2); font-size: 10pt; }
+  .ps-foot { margin-top: var(--sp-6); padding-top: var(--sp-2); border-top: 1px solid var(--border-subtle); color: var(--text-3); font-size: 9pt; }
+}
