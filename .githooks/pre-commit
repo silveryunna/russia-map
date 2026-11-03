@@ -3,6 +3,11 @@
 # 安装（每台机器一次）：git config core.hooksPath .githooks
 set -e
 cd "$(git rev-parse --show-toplevel)"
+# 敏感文件拦截（2026-11-04 审计）：表格类文件不允许入库，请放仓库外
+if git diff --cached --name-only | grep -qE '\.(xlsx|xls|numbers)$'; then
+  echo "❌ 检测到表格文件（xlsx/xls/numbers），请移到仓库外再提交" >&2
+  exit 1
+fi
 if git diff --cached --name-only | grep -q '^data/'; then
   node tools/check-data.mjs ./data
 fi

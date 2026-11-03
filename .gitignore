@@ -11,3 +11,8 @@ verify-desktop.png
 
 # 设计试衣间（一次性决策产物，不进版本库；结论写 docs/DESIGN-DECISIONS.md）
 design-previews/
+
+# 个人信息表格（2026-11-04 审计；只放仓库外）
+*.xlsx
+*.xls
+*.numbers
