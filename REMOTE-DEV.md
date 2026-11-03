@@ -101,11 +101,70 @@ scp -i ~/.ssh/nas_ed25519 \
 | 跳板 SSH 卡住 | 先 `ssh root@124.221.104.242` 单独验 VPS 可达；再 `ssh root@VPS 'ss -tlnp \| grep 60022'` 确认回环监听在 |
 | Windows 上 known_hosts 中文路径报错 | 无害；或每条 ssh 加 `-o UserKnownHostsFile=/dev/null` |
 
-## 8. 开发工作流（不变，内外网一致）
+## 8. 开发工作流（多机 / 多人协作，内外网一致）
 
-1. 改代码 → `node tools/check-data.mjs ./data` + `node tools/deploy-check.mjs data/`
-2. commit（启用 `.githooks`：`git config core.hooksPath .githooks`）
-3. 部署：改数据 → commit + push 即上线（push 需代理 `127.0.0.1:7897`）；改 `src/` 源码 → `npm run publish`
-4. 根目录 HTML 与 `assets/` 是构建产物，不要手改；sw.js VERSION 由构建自动注入 git sha
+**唯一事实来源是 GitHub `main`；腾讯云 webroot 与 NAS 都只是它的消费者，不是第二份仓库。**
 
-NAS 侧职责：密钥归档、照片管线（immich/photo-*）、实验容器。网站代码的**唯一事实来源是 GitHub main 分支**，不要把 NAS 当代码仓库用。
+### 8.1 每台机器的一次性准备
+
+```bash
+git clone https://github.com/silveryunna/russia-map.git D:/dev/russia-map
+cd D:/dev/russia-map
+git config core.hooksPath .githooks      # 数据校验 + 冲突标记拦截
+git config user.name  "你的名字"
+git config user.email "你的 GitHub 邮箱"
+node tools/check-data.mjs ./data         # 验活
+```
+
+**三条硬性约定**
+
+1. **代码目录必须放在非云同步盘。** 2026-11-03 事故：OneDrive 在 `git pull` 期间把 `.git/refs/heads/main` 改名成 `main-DESKTOP-8K3SG2M`，`HEAD` 失效、`git log` 报"当前分支没有任何提交"、5 个根 HTML 与 `plan.css` 被移走，只剩冲突副本；靠 `git update-ref refs/heads/main <sha>` + `git reset --hard` 才救回。**OneDrive / iCloud / 坚果云里只放 `site-out/`、截图、设计稿这些导出物。**
+2. **开工先 `fetch`，收工必 `push`。** 未推送的提交在另一台机器上等于不存在。
+3. **只在 `main` 上开发，永不 force push。**
+
+### 8.2 日常循环
+
+```bash
+git fetch --prune && git status -sb        # 开工，先看有没有落后
+
+# 改数据（data/*.json）→ 直接上线
+node tools/check-data.mjs ./data && node tools/deploy-check.mjs data/
+git add -A && git commit -m "data: ..." && git push
+
+# 改源码（src/、tools/、sw.js 模板）→ 构建发布
+npm run publish -- --wait
+```
+
+`--wait` 会等线上 `git rev-parse HEAD` 追平（cron ≤2 分钟）。根目录 HTML 与 `assets/` 是产物，不要手改；`sw.js` VERSION 由构建注入 git sha。
+
+### 8.3 多人 / 双机并行
+
+- **同一时刻只让一个会话改 `data/`**：JSON 几乎必然冲突，且产物与数据强耦合
+- 拉取用 `git pull --rebase`，保持线性历史
+- `.githooks/pre-commit` 会跑 `check-data`，并拒绝任何含合并冲突标记的提交，不要绕过
+- 长期协作者加 GitHub Collaborator；临时帮忙走 fork + PR
+- 建议对 `main` 开 branch protection（禁 force push、要求线性历史）
+
+### 8.4 GitHub 不通时
+
+1. 本机代理：`git config http.https://github.com.proxy http://127.0.0.1:7897`
+2. SSH over 443：`git remote set-url origin ssh://git@ssh.github.com:443/silveryunna/russia-map.git`
+3. 走 §4 的 frp 隧道，在一台常开的机器上操作
+
+### 8.5 备份镜像（只读，禁止签出）
+
+GitHub 之外保留一份国内可快速恢复的裸仓：
+
+| 位置 | 路径 | 说明 |
+|---|---|---|
+| VPS | `/root/russia-map.git`（bare） | 由 `git push backup main` 更新 |
+| NAS | `/volume1/dev/backup/russia-map.git`（bare） | DSM 任务计划定期从 VPS 镜像 `git fetch --prune` |
+
+```bash
+git remote add backup root@124.221.104.242:/root/russia-map.git
+git push origin main && git push backup main
+```
+
+**镜像仓只接收，绝不在上面签出或开发**：webroot 由 cron 每 2 分钟 `reset --hard origin/main`，服务器上的任何手改都会被覆盖（见 `AGENTS.md` §部署）。
+
+NAS 侧职责不变：密钥归档、照片管线（immich/photo-*）、实验容器。
