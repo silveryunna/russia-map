@@ -42,7 +42,7 @@ for (const name of WRITE_ENDPOINTS) {
 
 // 2) 管理端点必须 needAdmin（session_ok 第三参 true；bearer() 含括号，不能用 [^)]* 匹配）
 const ADMIN_RE = /session_ok\([\s\S]*?,\s*true\)/;
-for (const name of ['accounts', 'pending', 'approve', 'reject']) {
+for (const name of ['accounts', 'pending', 'review', 'changesets']) {
   const s = find(name);
   if (!s) { fail(`缺少管理端点 ${name}`); continue; }
   assert(ADMIN_RE.test(s.body), `${name} 必须 needAdmin`);

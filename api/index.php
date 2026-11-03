@@ -1,7 +1,7 @@
 <?php
 // 协作投稿 API —— 密钥/配置在 webroot 外（julyyunna-art-data/config.php）
-// 端点：?a=login|logout|me|submit|my|photo|pending|approve|reject|accounts
-//       |plan|ai_settings|ai_policy|ai_usage|ai_test
+// 端点：?a=login|logout|me|submit|my|photo|pending|review|accounts
+//       |changesets|plan|ai_settings|ai_policy|ai_usage|ai_test
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
 header('X-Content-Type-Options: nosniff');
@@ -43,6 +43,21 @@ $db->exec('CREATE TABLE IF NOT EXISTS submissions(
 try { $db->exec('ALTER TABLE submissions ADD COLUMN target_field TEXT'); } catch (PDOException $e) { /* 已存在 */ }
 try { $db->exec('ALTER TABLE submissions ADD COLUMN new_value TEXT'); } catch (PDOException $e) { /* 已存在 */ }
 try { $db->exec('ALTER TABLE submissions ADD COLUMN source_url TEXT'); } catch (PDOException $e) { /* 已存在 */ }
+// 状态机审计：每次 pending/needs_more → approved/rejected 都留操作人、时间、理由
+$db->exec('CREATE TABLE IF NOT EXISTS submission_logs(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, submission_id INTEGER NOT NULL,
+  from_status TEXT, to_status TEXT NOT NULL, actor TEXT NOT NULL, reason TEXT, created INTEGER)');
+// changeset：审核通过只生成「可应用变更」，绝不直接改 data/points.json，before 由 apply 工具回填
+$db->exec('CREATE TABLE IF NOT EXISTS changesets(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, submission_id INTEGER NOT NULL UNIQUE,
+  city TEXT, point_id TEXT NOT NULL, json_path TEXT NOT NULL, new_value TEXT NOT NULL,
+  before_value TEXT, status TEXT DEFAULT "ready", run_id TEXT,
+  applied_by TEXT, applied_at INTEGER, created INTEGER)');
+// changeset 审计：工具应用/回滚后回写的操作记录（谁、何时、run_id、前后值）
+$db->exec('CREATE TABLE IF NOT EXISTS changeset_logs(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, changeset_id INTEGER NOT NULL,
+  action TEXT NOT NULL, actor TEXT NOT NULL, run_id TEXT,
+  before_value TEXT, new_value TEXT, created INTEGER)');
 $db->exec('CREATE TABLE IF NOT EXISTS fails(
   k TEXT PRIMARY KEY, n INTEGER, until INTEGER)');
 // AI 日程生成：个人自定义接入 / 全局策略 / 调用台账
@@ -509,42 +524,124 @@ switch ($a) {
   }
   case 'my': {
     $s = session_ok($db, bearer());
-    $rows = $db->prepare('SELECT id,type,title,point_id,status,created FROM submissions WHERE username=? ORDER BY id DESC LIMIT 50');
+    $rows = $db->prepare('SELECT s.id,s.type,s.title,s.point_id,s.status,s.created,s.target_field,s.new_value,s.source_url,
+      CASE WHEN s.file IS NULL THEN 0 ELSE 1 END has_evidence,
+      (SELECT reason FROM submission_logs WHERE submission_id=s.id ORDER BY id DESC LIMIT 1) reason
+      FROM submissions s WHERE s.username=? ORDER BY s.id DESC LIMIT 50');
     $rows->execute([$s['who']]);
     out(['items' => $rows->fetchAll(PDO::FETCH_ASSOC)]);
   }
   case 'photo': {
-    // 仅管理员可取投稿照片（friend 页承诺"仅管理员可见"；id 自增可被任意登录用户遍历）
+    // 仅管理员可取投稿照片/纠错证据（friend 页承诺"仅管理员可见"；id 自增可被任意登录用户遍历）
     session_ok($db, bearer(), true);
     $id = (int)($_GET['id'] ?? 0);
-    $r = $db->prepare('SELECT file,type FROM submissions WHERE id=?');
+    $r = $db->prepare('SELECT file FROM submissions WHERE id=?');
     $r->execute([$id]);
     $row = $r->fetch(PDO::FETCH_ASSOC);
     if (!$row || !$row['file'] || !is_file($row['file'])) out(['error' => 'not found'], 404);
-    header('Content-Type: ' . ($row['type'] === 'photo' ? mime_content_type($row['file']) : 'application/octet-stream'));
+    header('Content-Type: ' . mime_content_type($row['file']));
     header('Cache-Control: private, max-age=3600');
     readfile($row['file']);
     exit;
   }
   case 'pending': {
+    // 审核队列：按状态与类型筛选（needs_more 也需要复核，默认只看 pending）
     session_ok($db, bearer(), true);
-    $rows = $db->query('SELECT * FROM submissions WHERE status="pending" ORDER BY id DESC LIMIT 100')->fetchAll(PDO::FETCH_ASSOC);
-    foreach ($rows as &$r) unset($r['file']);
-    out(['items' => $rows]);
+    $status = (string)($_GET['status'] ?? 'pending');
+    if (!in_array($status, ['pending', 'needs_more', 'approved', 'rejected', 'removed'], true)) $status = 'pending';
+    $type = (string)($_GET['type'] ?? '');
+    $sql = 'SELECT s.id,s.username,s.type,s.title,s.body,s.point_id,s.target_field,s.new_value,s.source_url,s.status,s.created,
+      CASE WHEN s.file IS NULL THEN 0 ELSE 1 END has_evidence,
+      (SELECT reason FROM submission_logs WHERE submission_id=s.id ORDER BY id DESC LIMIT 1) reason
+      FROM submissions s WHERE s.status=?';
+    $args = [$status];
+    if (in_array($type, ['photo', 'note', 'checkin', 'fact'], true)) { $sql .= ' AND s.type=?'; $args[] = $type; }
+    $sql .= ' ORDER BY s.id DESC LIMIT 100';
+    $q = $db->prepare($sql);
+    $q->execute($args);
+    out(['items' => $q->fetchAll(PDO::FETCH_ASSOC)]);
   }
-  case 'approve': case 'reject': {
-    session_ok($db, bearer(), true);
+  case 'review': {
+    // 审核状态机：pending/needs_more → approved | rejected | needs_more
+    // 每次变更写 submission_logs（操作人/时间/理由）；批准的 fact 只生成 changeset，不直接改 data/
+    $s = session_ok($db, bearer(), true);
     $b = body();
-    $id = (int)($b['id'] ?? 0);
-    $st = $a === 'approve' ? 'approved' : 'rejected';
-    $db->prepare('UPDATE submissions SET status=? WHERE id=?')->execute([$st, $id]);
-    if ($st === 'rejected') {
-      $r = $db->prepare('SELECT file FROM submissions WHERE id=?');
+    $action = (string)($b['action'] ?? '');
+    $to = ['approve' => 'approved', 'reject' => 'rejected', 'needs_more' => 'needs_more'][$action] ?? '';
+    if ($to === '') out(['error' => '审核动作非法'], 400);
+    $reason = trim(mb_substr((string)($b['reason'] ?? ''), 0, 300));
+    if ($action !== 'approve' && mb_strlen($reason) < 2) out(['error' => '请填写理由（至少 2 字）'], 400);
+    if (unsafe_html($reason)) out(['error' => '理由含不允许的脚本代码'], 400);
+    $ids = array_values(array_unique(array_filter(array_map('intval', (array)($b['ids'] ?? [(int)($b['id'] ?? 0)])))));
+    if (!$ids) out(['error' => '缺少投稿 id'], 400);
+    if (count($ids) > 1 && $action !== 'approve') out(['error' => '批量操作仅支持采纳'], 400);
+    $actor = (string)$s['who'];
+    $changed = 0; $skipped = []; $idx = points_index();
+    foreach ($ids as $id) {
+      $r = $db->prepare('SELECT * FROM submissions WHERE id=?');
       $r->execute([$id]);
-      $f = $r->fetchColumn();
-      if ($f && is_file($f)) unlink($f);
+      $row = $r->fetch(PDO::FETCH_ASSOC);
+      if (!$row) { $skipped[] = ['id' => $id, 'why' => '不存在']; continue; }
+      if (!in_array($row['status'], ['pending', 'needs_more'], true)) { $skipped[] = ['id' => $id, 'why' => '已审核']; continue; }
+      $up = $db->prepare('UPDATE submissions SET status=? WHERE id=? AND status IN ("pending","needs_more")');
+      $up->execute([$to, $id]);
+      if ($up->rowCount() < 1) { $skipped[] = ['id' => $id, 'why' => '状态已变更']; continue; }
+      $changed++;
+      $db->prepare('INSERT INTO submission_logs(submission_id,from_status,to_status,actor,reason,created) VALUES(?,?,?,?,?,?)')
+        ->execute([$id, $row['status'], $to, $actor, $reason, time()]);
+      if ($to === 'rejected' && !empty($row['file']) && is_file($row['file'])) unlink($row['file']);
+      if ($to === 'approved' && $row['type'] === 'fact') {
+        $path = FACT_JSON_PATH[(string)$row['target_field']] ?? null;
+        $p = $idx[(string)$row['point_id']] ?? null;
+        if ($path !== null && $p !== null) {
+          $before = array_key_exists($path, $p) ? (string)$p[$path] : null;
+          $db->prepare('INSERT INTO changesets(submission_id,city,point_id,json_path,new_value,before_value,status,created)
+              VALUES(?,?,?,?,?,?,?,?)
+              ON CONFLICT(submission_id) DO UPDATE SET new_value=excluded.new_value,before_value=excluded.before_value,status="ready",created=excluded.created')
+            ->execute([$id, (string)($p['city'] ?? ''), (string)$row['point_id'], $path, (string)$row['new_value'], $before, 'ready', time()]);
+        }
+      }
     }
-    out(['ok' => true]);
+    out(['ok' => true, 'changed' => $changed, 'skipped' => $skipped]);
+  }
+  case 'changesets': {
+    // GET：导出可应用变更（管理页下载 JSON 后交给 tools/apply-changesets.mjs）
+    // POST：工具应用/回滚后回写状态与审计（谁、何时、run_id、前后值）
+    $s = session_ok($db, bearer(), true);
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+      $status = (string)($_GET['status'] ?? 'ready');
+      if (!in_array($status, ['ready', 'applied', 'rolled_back', 'all'], true)) $status = 'ready';
+      $sql = 'SELECT c.*, s.username, s.source_url,
+        (SELECT COUNT(*) FROM changeset_logs WHERE changeset_id=c.id) log_count
+        FROM changesets c LEFT JOIN submissions s ON s.id=c.submission_id';
+      $args = [];
+      if ($status !== 'all') { $sql .= ' WHERE c.status=?'; $args[] = $status; }
+      $sql .= ' ORDER BY c.id';
+      $q = $db->prepare($sql);
+      $q->execute($args);
+      out(['version' => 1, 'items' => $q->fetchAll(PDO::FETCH_ASSOC)]);
+    }
+    $b = body();
+    $runId = mb_substr(preg_replace('/[^\w.-]/', '', (string)($b['run_id'] ?? '')), 0, 64);
+    if ($runId === '') out(['error' => '缺少 run_id'], 400);
+    $status = (string)($b['status'] ?? '');
+    if (!in_array($status, ['applied', 'rolled_back'], true)) out(['error' => '状态非法'], 400);
+    $ids = array_values(array_unique(array_filter(array_map('intval', (array)($b['ids'] ?? [])))));
+    if (!$ids) out(['error' => '缺少 changeset id'], 400);
+    $by = trim(mb_substr((string)($b['by'] ?? ''), 0, 40)) ?: (string)$s['who'];
+    $n = 0;
+    foreach ($ids as $id) {
+      $r = $db->prepare('SELECT * FROM changesets WHERE id=?');
+      $r->execute([$id]);
+      $row = $r->fetch(PDO::FETCH_ASSOC);
+      if (!$row) continue;
+      $db->prepare('UPDATE changesets SET status=?,run_id=?,applied_by=?,applied_at=? WHERE id=?')
+        ->execute([$status, $runId, $by, time(), $id]);
+      $db->prepare('INSERT INTO changeset_logs(changeset_id,action,actor,run_id,before_value,new_value,created) VALUES(?,?,?,?,?,?,?)')
+        ->execute([$id, $status, $by, $runId, $row['before_value'], $row['new_value'], time()]);
+      $n++;
+    }
+    out(['ok' => true, 'changed' => $n]);
   }
   /* ---------- AI 日程生成 ---------- */
   case 'plan': {

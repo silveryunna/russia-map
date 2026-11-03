@@ -9,15 +9,21 @@ const $app = document.getElementById('account-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const LS = 'admin-token';
 const API = './api/index.php';
+const FACT_LABEL = { hours: '营业时间', ticket: '门票', rating: '评分', other: '其他说明' };
+const FACT_PATH = { hours: 'hours', ticket: 'ticket', rating: 'rating', other: 'note' };
+const STATUS_LABEL = { pending: '待审核', needs_more: '需补充', approved: '已采纳', rejected: '未采纳', removed: '已移除' };
+const ACTION_LABEL = { remove: '移除内容', dismiss: '驳回举报', ban: '封禁投稿者', unban: '解除封禁' };
 
 let token = localStorage.getItem(LS) || '';
-let accounts = [], pending = [], points = [];
+let accounts = [], pending = [], points = [], reports = [], reportLogs = [], reportOverdue = 0, reportPending = 0, changesets = [];
 let tab = 'pending';
+let pendingStatus = 'pending', pendingType = '', reportStatus = 'pending';
+let selected = new Set();
 let photoCache = {};
 let lastCreated = '';
 
-async function api(action, body, method = 'POST') {
-  const r = await fetch(`${API}?a=${action}`, {
+async function api(action, body, method = 'POST', query = '') {
+  const r = await fetch(`${API}?a=${action}${query ? '&' + query : ''}`, {
     method,
     headers: { 'Content-Type': 'application/json; charset=utf-8', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body: body ? JSON.stringify(body) : undefined,
@@ -71,10 +77,11 @@ function renderLogin() {
 async function renderMain() {
   $app.innerHTML = `<div class="pl-empty">加载中…</div>`;
   try {
-    [accounts, pending, points] = await Promise.all([
+    [accounts, pending, points, changesets] = await Promise.all([
       api('accounts', undefined, 'GET').then(j => j.accounts),
-      api('pending', undefined, 'GET').then(j => j.items),
+      api('pending', undefined, 'GET', `status=${pendingStatus}${pendingType ? '&type=' + pendingType : ''}`).then(j => j.items),
       fetch('./data/points.json').then(r => r.json()),
+      api('changesets', undefined, 'GET').then(j => j.items),
     ]);
   } catch (e) {
     $app.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}<br><button class="pl-btn" id="ad-retry">重试</button></div>`;
@@ -90,54 +97,145 @@ function renderTabs() {
       <button class="pl-btn small" id="ad-out">退出</button>
     </div>
     <div class="fr-tabs">
-      <button class="fr-tab ${tab === 'pending' ? 'on' : ''}" data-tab="pending">待审核 (${pending.length})</button>
+      <button class="fr-tab ${tab === 'pending' ? 'on' : ''}" data-tab="pending">内容审核 (${pending.length})</button>
+      <button class="fr-tab ${tab === 'changesets' ? 'on' : ''}" data-tab="changesets">变更入库 (${changesets.length})</button>
       <button class="fr-tab ${tab === 'accounts' ? 'on' : ''}" data-tab="accounts">账号 (${accounts.length})</button>
       <button class="fr-tab ${tab === 'ai' ? 'on' : ''}" data-tab="ai">AI 设置</button>
     </div>
     <div id="ad-body"></div>`;
   document.getElementById('ad-out').onclick = async () => { try { await api('logout', {}, 'POST'); } catch {} localStorage.removeItem(LS); token = ''; renderLogin(); };
-  $app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; renderTabs(); });
-  tab === 'pending' ? renderPending() : tab === 'accounts' ? renderAccounts() : renderAI();
+  $app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; selected.clear(); renderTabs(); });
+  tab === 'pending' ? renderPending()
+    : tab === 'changesets' ? renderChangesets()
+    : tab === 'accounts' ? renderAccounts() : renderAI();
 }
 
 async function renderPending() {
   const body = document.getElementById('ad-body');
-  if (!pending.length) { body.innerHTML = `<div class="pl-empty">🎉 没有待审核的投稿</div>`; return; }
   const byId = new Map(points.map(p => [p.id, p]));
-  body.innerHTML = `<div class="ad-list">` + pending.map(it => `
+  const ICON = { photo: '📷', note: '📝', checkin: '📍', fact: '🛠' };
+  const filters = `
+    <div class="card ad-new">
+      <div class="ad-new-row">
+        <label style="flex:1">状态 <select id="ad-st">${['pending', 'needs_more', 'approved', 'rejected', 'removed'].map(k => `<option value="${k}" ${pendingStatus === k ? 'selected' : ''}>${STATUS_LABEL[k]}</option>`).join('')}</select></label>
+        <label style="flex:1">类型 <select id="ad-type">
+          <option value="">全部</option>
+          ${[['photo', '照片'], ['note', '笔记'], ['checkin', '打卡'], ['fact', '纠错']].map(([k, n]) => `<option value="${k}" ${pendingType === k ? 'selected' : ''}>${n}</option>`).join('')}
+        </select></label>
+        <button class="pl-btn small primary" id="ad-bulk">批量采纳</button>
+      </div>
+      <div class="fr-note">驳回与「需补充」必须填写理由；每次状态变更都记录操作人、时间与理由。纠错通过后只生成 changeset，不直接改线上数据。</div>
+    </div>`;
+  if (!pending.length) { body.innerHTML = filters + `<div class="pl-empty">🎉 当前筛选下没有内容</div>`; bindPendingFilters(body); return; }
+  body.innerHTML = filters + `<div class="ad-list">` + pending.map(it => {
+    const p = it.point_id ? byId.get(it.point_id) : null;
+    const curVal = it.type === 'fact' && p ? p[FACT_PATH[it.target_field]] : undefined;
+    return `
     <div class="ad-item card" data-id="${it.id}">
       <div class="ad-item-top">
-        <span class="fr-mine-type">${{ photo: '📷', note: '📝', checkin: '📍' }[it.type]}</span>
+        <input type="checkbox" data-sel="${it.id}" ${selected.has(it.id) ? 'checked' : ''}>
+        <span class="fr-mine-type">${ICON[it.type] || '•'}</span>
         <b>${esc(it.title || { checkin: '打卡' }[it.type] || '')}</b>
         <span class="ad-who">${esc(it.username)}</span>
+        <span class="ad-subcnt">${STATUS_LABEL[it.status] || it.status}</span>
       </div>
-      ${it.type === 'photo' ? `<div class="ad-photo" data-photo="${it.id}">加载照片…</div>` : ''}
+      ${it.type === 'fact' ? `<div class="ad-point">🛠 ${FACT_LABEL[it.target_field] || it.target_field}：现值 ${curVal === undefined ? '（无）' : esc(String(curVal))} → <b>${esc(it.new_value)}</b></div>` : ''}
+      ${it.source_url ? `<div class="ad-point">🔗 <a href="${esc(it.source_url)}" target="_blank" rel="noopener noreferrer">${esc(it.source_url)}</a></div>` : ''}
+      ${it.has_evidence ? `<div class="ad-photo" data-photo="${it.id}">加载证据…</div>` : ''}
       ${it.body ? `<div class="ad-body">${esc(it.body.slice(0, 300))}${it.body.length > 300 ? '…' : ''}</div>` : ''}
-      ${it.point_id && byId.get(it.point_id) ? `<div class="ad-point">📍 ${esc(byId.get(it.point_id).name)}（${esc(byId.get(it.point_id).city)}）</div>` : it.point_id ? `<div class="ad-point">📍 ${esc(it.point_id)}</div>` : ''}
+      ${p ? `<div class="ad-point">📍 ${esc(p.name)}（${esc(p.city)}）</div>` : it.point_id ? `<div class="ad-point">📍 ${esc(it.point_id)}</div>` : ''}
       <div class="pl-ops">
         <button class="pl-btn small primary" data-ok="${it.id}">✅ 采纳</button>
+        <button class="pl-btn small" data-more="${it.id}">💬 需补充</button>
         <button class="pl-btn small danger" data-no="${it.id}">❌ 拒绝</button>
       </div>
-    </div>`).join('') + `</div>`;
+    </div>`;
+  }).join('') + `</div>`;
   body.querySelectorAll('[data-photo]').forEach(d => {
     const id = d.dataset.photo;
     if (!photoCache[id]) photoCache[id] = fetch(`${API}?a=photo&id=${id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.ok ? r.blob() : null);
     photoCache[id].then(b => {
-      if (!b) { d.textContent = '照片加载失败'; return; }
+      if (!b) { d.textContent = '证据加载失败'; return; }
       d.innerHTML = `<img src="${URL.createObjectURL(b)}" alt="">`;
     });
   });
-  body.querySelectorAll('[data-ok]').forEach(b => b.onclick = () => review(b.dataset.ok, 'approve'));
-  body.querySelectorAll('[data-no]').forEach(b => b.onclick = () => review(b.dataset.no, 'reject'));
+  body.querySelectorAll('[data-sel]').forEach(c => c.onchange = () => {
+    const id = +c.dataset.sel;
+    c.checked ? selected.add(id) : selected.delete(id);
+  });
+  body.querySelectorAll('[data-ok]').forEach(b => b.onclick = () => doReview([+b.dataset.ok], 'approve'));
+  body.querySelectorAll('[data-more]').forEach(b => b.onclick = () => {
+    const r = prompt('需要补充什么？（会发给投稿人）');
+    if (r && r.trim().length >= 2) doReview([+b.dataset.more], 'needs_more', r.trim());
+  });
+  body.querySelectorAll('[data-no]').forEach(b => b.onclick = () => {
+    const r = prompt('驳回理由（必填，至少 2 字）');
+    if (r && r.trim().length >= 2) doReview([+b.dataset.no], 'reject', r.trim());
+  });
+  bindPendingFilters(body);
 }
-async function review(id, action) {
+
+function bindPendingFilters(body) {
+  const st = body.querySelector('#ad-st');
+  const ty = body.querySelector('#ad-type');
+  if (st) st.onchange = () => { pendingStatus = st.value; selected.clear(); loadPending().then(renderTabs).catch(e => toast(e.message)); };
+  if (ty) ty.onchange = () => { pendingType = ty.value; selected.clear(); loadPending().then(renderTabs).catch(e => toast(e.message)); };
+  const bulk = body.querySelector('#ad-bulk');
+  if (bulk) bulk.onclick = () => {
+    if (!selected.size) return toast('先勾选要采纳的投稿');
+    doReview([...selected], 'approve');
+  };
+}
+
+async function loadPending() {
+  pending = (await api('pending', undefined, 'GET', `status=${pendingStatus}${pendingType ? '&type=' + pendingType : ''}`)).items;
+}
+async function refreshAfterReview() {
+  await loadPending();
+  changesets = (await api('changesets', undefined, 'GET')).items;
+  renderTabs();
+}
+async function doReview(ids, action, reason = '') {
   try {
-    await api(action, { id: +id });
-    toast(action === 'approve' ? '已采纳（数据入库需 Kimi 协助合并）' : '已拒绝');
-    pending = pending.filter(x => x.id !== +id);
-    renderTabs();
+    const j = await api('review', { ids, action, reason });
+    const label = { approve: '已采纳', needs_more: '已标记需补充', reject: '已拒绝' }[action];
+    toast(label + (j.skipped?.length ? `（${j.skipped.length} 条跳过）` : ''));
+    selected.clear();
+    await refreshAfterReview();
   } catch (e) { toast('失败：' + e.message); }
 }
+
+/* P1-6 changeset：导出待应用变更，交给 tools/apply-changesets.mjs 落盘 */
+function renderChangesets() {
+  const body = document.getElementById('ad-body');
+  const rows = changesets.length ? changesets.map(c => `
+    <div class="ad-item card">
+      <div class="ad-item-top"><b>#${c.id} · 投稿 #${c.submission_id}</b>
+        <span class="ad-subcnt">${c.status}${c.run_id ? ' · ' + esc(c.run_id) : ''}</span>
+      </div>
+      <div class="ad-point">📍 ${esc(c.city || '')} ${esc(c.point_id)} · ${esc(c.json_path)}：${c.before_value === null ? '（原无）' : esc(c.before_value)} → <b>${esc(c.new_value)}</b></div>
+      ${c.applied_by ? `<div class="fr-note">由 ${esc(c.applied_by)} 于 ${new Date(+c.applied_at * 1000).toLocaleString('zh-CN')} 应用</div>` : ''}
+    </div>`).join('') : `<div class="pl-empty">没有待应用变更</div>`;
+  body.innerHTML = `
+    <div class="card ad-new">
+      <div class="ad-new-row"><button class="pl-btn small primary" id="ad-export">⬇ 导出待应用 JSON</button></div>
+      <div class="fr-note">导出后在服务器执行：<code>node tools/apply-changesets.mjs --input ready.json --by "操作人"</code>；重复执行幂等，回滚用 <code>--rollback &lt;run_id&gt;</code>。被后续变更覆盖时会提示冲突并跳过。</div>
+    </div>
+    <div class="ad-list">${rows}</div>`;
+  const btn = body.querySelector('#ad-export');
+  if (btn) btn.onclick = () => {
+    const ready = changesets.filter(c => c.status === 'ready');
+    if (!ready.length) return toast('没有待应用变更');
+    const blob = new Blob([JSON.stringify({ version: 1, items: ready }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `changesets-ready-${Date.now()}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast(`已导出 ${ready.length} 条变更`);
+  };
+}
+
 
 function renderAccounts() {
   const body = document.getElementById('ad-body');
