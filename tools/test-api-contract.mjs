@@ -57,8 +57,9 @@ for (const name of ['accounts', 'pending', 'approve', 'reject']) {
 // 4) 内容投稿（含照片上传）必须 finfo 真实 MIME 探测 + 白名单；photo 端点本身是管理员的文件服务
 {
   const s = find('submit');
-  assert(s && s.body.includes('FILEINFO_MIME_TYPE'), 'submit 用 finfo 探测真实 MIME');
-  assert(s && /image\/(jpeg|png|webp)/.test(s.body), 'submit 照片 MIME 白名单 jpeg/png/webp');
+  assert(s && s.body.includes('save_image_data_url('), 'submit 的图片与证据走统一落盘函数');
+  assert(php.includes('function save_image_data_url(') && php.includes('FILEINFO_MIME_TYPE'), '落盘函数用 finfo 探测真实 MIME');
+  assert(/image\/(jpeg|png|webp)/.test(php), '照片 MIME 白名单 jpeg/png/webp');
   const p = find('photo');
   assert(p && ADMIN_RE.test(p.body), 'photo（文件服务）必须 needAdmin');
 }

@@ -39,6 +39,10 @@ $db->exec('CREATE TABLE IF NOT EXISTS submissions(
   id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL,
   type TEXT NOT NULL, title TEXT, body TEXT, point_id TEXT, file TEXT,
   status TEXT DEFAULT "pending", created INTEGER)');
+// P1-6 投稿类型=fact（事实纠错）：目标字段/新值/来源链接；证据复用 file 列
+try { $db->exec('ALTER TABLE submissions ADD COLUMN target_field TEXT'); } catch (PDOException $e) { /* 已存在 */ }
+try { $db->exec('ALTER TABLE submissions ADD COLUMN new_value TEXT'); } catch (PDOException $e) { /* 已存在 */ }
+try { $db->exec('ALTER TABLE submissions ADD COLUMN source_url TEXT'); } catch (PDOException $e) { /* 已存在 */ }
 $db->exec('CREATE TABLE IF NOT EXISTS fails(
   k TEXT PRIMARY KEY, n INTEGER, until INTEGER)');
 // AI 日程生成：个人自定义接入 / 全局策略 / 调用台账
@@ -161,6 +165,7 @@ function ai_policy(PDO $db): array {
     // IP 维度限流：默认 10 次 / 600 秒（只在实际发起生成时记命中，重放/拒绝不占额度）
     'ip_rate_max' => max(1, (int)($rows['ip_rate_max'] ?? 10)),
     'ip_rate_window' => max(60, (int)($rows['ip_rate_window'] ?? 600)),
+    // 举报防滥用：默认每人（IP）每小时 5 次，参数同样落在配置表
     'models_friend' => $j('models_friend', ['deepseek-v4-pro']),
     'models_admin' => $j('models_admin', ['deepseek-v4-pro']),
   ];
@@ -233,6 +238,73 @@ function ssrf_resolve(string $url): array {
 }
 function ssrf_check(string $url): ?string {
   return ssrf_resolve($url)['error'] ?? null;
+}
+
+/* ---------- P1-6 事实纠错：字段白名单 + 服务端点位/板块校验 ---------- */
+const FACT_FIELDS = ['hours' => '营业时间', 'ticket' => '门票', 'rating' => '评分', 'other' => '其他'];
+// 投稿字段 → data/points.json 的 JSON 路径（apply 工具按这个路径写，before/after 也按此记录）
+const FACT_JSON_PATH = ['hours' => 'hours', 'ticket' => 'ticket', 'rating' => 'rating', 'other' => 'note'];
+
+/** 数据目录只从配置读（config.php 的 data_dir），默认与 api/ 同级的 data/（生产 webroot 结构）。 */
+function data_file(string $name): string {
+  $dir = (string)($GLOBALS['CONF']['data_dir'] ?? dirname(__DIR__) . '/data');
+  return rtrim($dir, '/\\') . DIRECTORY_SEPARATOR . $name;
+}
+/** 点位索引（按 id）。文件缺失时返回空 → 调用方拒绝投稿，避免绕过校验。 */
+function points_index(): array {
+  static $idx = null;
+  if ($idx !== null) return $idx;
+  $idx = [];
+  $f = data_file('points.json');
+  if (is_file($f)) {
+    $raw = json_decode((string)file_get_contents($f), true);
+    if (is_array($raw)) foreach ($raw as $p) if (is_array($p) && isset($p['id'])) $idx[(string)$p['id']] = $p;
+  }
+  return $idx;
+}
+/** 板块可见性：与前端 regions.js 同口径（enabled=false 隐藏；未知板块不隐藏）。 */
+function region_enabled(string $region): bool {
+  if ($region === '') return true;
+  $f = data_file('regions.json');
+  if (!is_file($f)) return true;
+  $doc = json_decode((string)file_get_contents($f), true);
+  foreach ((array)($doc['regions'] ?? []) as $r) {
+    if (is_array($r) && ($r['id'] ?? '') === $region) return ($r['enabled'] ?? true) !== false;
+  }
+  return true;
+}
+/** 字段值格式校验：返回错误文案，合法返回 null。 */
+function fact_value_error(string $field, string $value): ?string {
+  if ($field === 'hours') {
+    if (!preg_match('/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/', $value, $m)) return '营业时间需 HH:MM-HH:MM（如 09:00-18:00）';
+    if ((int)$m[1] > 23 || (int)$m[3] > 23 || (int)$m[2] > 59 || (int)$m[4] > 59) return '时间超出 00:00-23:59';
+    if ((int)$m[3] * 60 + (int)$m[4] <= (int)$m[1] * 60 + (int)$m[2]) return '结束时间必须晚于开始时间（跨天请填「其他」说明）';
+    return null;
+  }
+  if ($field === 'ticket') {
+    if (!preg_match('/^(免费|￥?\d{1,5}(\.\d{1,2})?元?(?:\/人)?)$/u', $value)) return '门票填「免费」或金额（如 100元 / ￥50）';
+    return null;
+  }
+  if ($field === 'rating') {
+    if (!preg_match('/^[0-5](\.[0-9])?$/', $value)) return '评分需 0-5 的数字（可带一位小数）';
+    return null;
+  }
+  if (mb_strlen($value) < 1 || mb_strlen($value) > 200) return '说明需 1-200 字';
+  return null;
+}
+/** 证据图片落盘（复用照片上传的 MIME 白名单与体积上限）。 */
+function save_image_data_url(string $data): string {
+  if (!preg_match('#^data:image/(jpeg|png|webp);base64,#', $data, $m)) out(['error' => '仅支持 JPEG/PNG/WebP'], 400);
+  $bin = base64_decode(substr($data, strlen($m[0])), true);
+  if ($bin === false || strlen($bin) > 8 * 1024 * 1024) out(['error' => '图片需小于 8MB'], 400);
+  $finfo = new finfo(FILEINFO_MIME_TYPE);
+  $mime = $finfo->buffer($bin);
+  if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) out(['error' => '图片类型校验失败'], 400);
+  $ext = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$mime];
+  $file = $GLOBALS['CONF']['upload_dir'] . '/' . date('Ymd') . '-' . bin2hex(random_bytes(8)) . '.' . $ext;
+  file_put_contents($file, $bin);
+  chmod($file, 0640);
+  return $file;
 }
 
 /* ---------- 自定义 AI Key 静态加密（可选） ----------
@@ -362,18 +434,22 @@ switch ($a) {
   }
   case 'submit': {
     $s = session_ok($db, bearer());
+    $who = (string)$s['who'];
     // 日配额（2026-10 审计项）：防认证用户无限投稿耗尽磁盘
     $today = strtotime('today');
     $q = $db->prepare('SELECT COUNT(*) FROM submissions WHERE username=? AND created>=?');
-    $q->execute([$s['who'], $today]);
+    $q->execute([$who, $today]);
     if ($q->fetchColumn() >= 50) out(['error' => '今日投稿已达上限（50 条），明天再来'], 429);
     $b = body();
     $type = (string)($b['type'] ?? '');
-    if (!in_array($type, ['photo', 'note', 'checkin'], true)) out(['error' => '类型非法'], 400);
-    if ($type === 'photo') {
-      $qp = $db->prepare('SELECT COUNT(*) FROM submissions WHERE username=? AND created>=? AND type="photo"');
-      $qp->execute([$s['who'], $today]);
-      if ($qp->fetchColumn() >= 20) out(['error' => '今日照片投稿已达上限（20 张），明天再来'], 429);
+    if (!in_array($type, ['photo', 'note', 'checkin', 'fact'], true)) out(['error' => '类型非法'], 400);
+    // 照片与纠错证据都落盘，单独限条数避免单日磁盘被写满
+    if ($type === 'photo' || $type === 'fact') {
+      $qp = $db->prepare('SELECT COUNT(*) FROM submissions WHERE username=? AND created>=? AND type=?');
+      $qp->execute([$who, $today, $type]);
+      $lim = $type === 'photo' ? 20 : 10;
+      $label = $type === 'photo' ? '照片' : '纠错';
+      if ($qp->fetchColumn() >= $lim) out(['error' => "今日{$label}投稿已达上限（{$lim} 条），明天再来"], 429);
     }
     // 幂等：同一 idem 已提交过则直接返回原记录，不重复入库
     $idem = preg_replace('/[^\w-]/', '', (string)($b['idem'] ?? ''));
@@ -391,27 +467,34 @@ switch ($a) {
     $title = str_replace(['<', '>'], ['&lt;', '&gt;'], $title);
     $text = str_replace(['<', '>'], ['&lt;', '&gt;'], $text);
     $point = preg_replace('/[^p\d]/', '', (string)($b['pointId'] ?? ''));
-    $file = null;
-    if ($type === 'photo') {
-      $data = (string)($b['dataUrl'] ?? '');
-      if (!preg_match('#^data:image/(jpeg|png|webp);base64,#', $data, $m)) out(['error' => '仅支持 JPEG/PNG/WebP'], 400);
-      $bin = base64_decode(substr($data, strlen($m[0])), true);
-      if ($bin === false || strlen($bin) > 8 * 1024 * 1024) out(['error' => '图片需小于 8MB'], 400);
-      $finfo = new finfo(FILEINFO_MIME_TYPE);
-      $mime = $finfo->buffer($bin);
-      if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) out(['error' => '图片类型校验失败'], 400);
-      $ext = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$mime];
-      $file = $CONF['upload_dir'] . '/' . date('Ymd') . '-' . bin2hex(random_bytes(8)) . '.' . $ext;
-      file_put_contents($file, $bin);
-      chmod($file, 0640);
-    }
+    $file = null; $targetField = null; $newValue = null; $sourceUrl = null;
+    if ($type === 'photo') $file = save_image_data_url((string)($b['dataUrl'] ?? ''));
     if ($type === 'checkin') {
       $title = '打卡';
       if (!$point) out(['error' => '缺少点位'], 400);
     }
+    // 事实纠错：字段白名单 + 值格式 + 来源链接/证据至少一项 + 点位存在且板块可见
+    if ($type === 'fact') {
+      $targetField = (string)($b['targetField'] ?? '');
+      if (!isset(FACT_FIELDS[$targetField])) out(['error' => '目标字段非法'], 400);
+      $newValue = trim(mb_substr((string)($b['value'] ?? ''), 0, 200));
+      $err = fact_value_error($targetField, $newValue);
+      if ($err !== null) out(['error' => $err], 400);
+      $sourceUrl = trim(preg_replace('/[\x00-\x1f\x7f]/', '', mb_substr((string)($b['sourceUrl'] ?? ''), 0, 300)));
+      if ($sourceUrl !== '' && !preg_match('#^https?://#i', $sourceUrl)) out(['error' => '来源链接需以 http:// 或 https:// 开头'], 400);
+      $evidence = trim((string)($b['evidence'] ?? ''));
+      if ($sourceUrl === '' && $evidence === '') out(['error' => '来源链接与证据截图至少填一项'], 400);
+      if ($point === '') out(['error' => '请选择要纠错的点位'], 400);
+      $idx = points_index();
+      if (!isset($idx[$point])) out(['error' => '点位不存在或已下线'], 400);
+      if (!region_enabled((string)($idx[$point]['region'] ?? ''))) out(['error' => '该点位所在板块已隐藏，暂不接受投稿'], 403);
+      if ($evidence !== '') $file = save_image_data_url($evidence);
+      $pname = str_replace(['<', '>'], ['&lt;', '&gt;'], (string)($idx[$point]['name'] ?? $point));
+      $title = '纠错：' . FACT_FIELDS[$targetField] . ' · ' . $pname;
+    }
     try {
-      $db->prepare('INSERT INTO submissions(username,type,title,body,point_id,file,created,idem) VALUES(?,?,?,?,?,?,?,?)')
-        ->execute([$s['who'], $type, $title, $text, $point ?: null, $file, time(), $idem ?: null]);
+      $db->prepare('INSERT INTO submissions(username,type,title,body,point_id,file,target_field,new_value,source_url,created,idem) VALUES(?,?,?,?,?,?,?,?,?,?,?)')
+        ->execute([$who, $type, $title, $text, $point ?: null, $file, $targetField, $newValue, $sourceUrl, time(), $idem ?: null]);
     } catch (PDOException $e) {
       // 并发同 idem：返回已存在的那条
       if ($idem) {
