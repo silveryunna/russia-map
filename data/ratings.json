@@ -1,5 +1,5 @@
 {
- "updated": "2026-11-02",
+ "updated": "2026-11-03",
  "source": "携程/大众点评",
  "items": {
   "p533": {
@@ -762,8 +762,7 @@
      "score": 4.4,
      "count": 3,
      "url": "https://www.dianping.com/shop/G4g7FPXJHfoDVznt",
-     "checked": "manual",
-     "page": true
+     "checked": "manual"
     }
    ]
   },
@@ -808,17 +807,143 @@
      "page": true
     }
    ]
+  },
+  "p555": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.6,
+     "count": 4479,
+     "url": "http://m.ctrip.com/webapp/you/sight/sanya61/3224.html",
+     "poiId": "",
+     "matched": "",
+     "checked": "2026-11-03",
+     "page": true
+    }
+   ]
+  },
+  "p567": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.1,
+     "count": 1774,
+     "url": "https://you.ctrip.com/sight/sanya61/5028379.html",
+     "poiId": "",
+     "matched": "",
+     "checked": "2026-11-03",
+     "page": true
+    }
+   ]
+  },
+  "p568": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.6,
+     "count": 490,
+     "url": "https://you.ctrip.com/sight/sanya61/1416785.html",
+     "poiId": "",
+     "matched": "",
+     "checked": "2026-11-03",
+     "page": true
+    }
+   ]
+  },
+  "p580": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.7,
+     "count": 130,
+     "url": "https://gs.ctrip.com/html5/you/comment/61/3204-sight.html",
+     "poiId": "",
+     "matched": "",
+     "checked": "2026-11-03",
+     "page": true
+    }
+   ]
+  },
+  "p582": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.7,
+     "count": 547,
+     "url": "https://gs.ctrip.com/html5/you/sight/lingshui1509/107590.html",
+     "poiId": "",
+     "matched": "",
+     "checked": "2026-11-03",
+     "page": true
+    }
+   ]
+  },
+  "p598": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.6,
+     "count": 23953,
+     "url": "http://m.ctrip.com/webapp/you/sight/sanya61/142210.html?ext-shelfPage=ctrip_shelf_seo",
+     "poiId": "",
+     "matched": "",
+     "checked": "2026-11-03",
+     "page": true
+    }
+   ]
+  },
+  "p603": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.2,
+     "count": 1343,
+     "url": "http://m.ctrip.com/webapp/you/sight/sanya61/2046805.html?ext-shelfPage=ctrip_shelf_seo",
+     "poiId": "",
+     "matched": "",
+     "checked": "2026-11-03",
+     "page": true
+    }
+   ]
+  },
+  "p605": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.6,
+     "count": 0,
+     "url": "https://us.trip.com/restaurant/china/sanya/detail/mslin-s-seafood-176948/",
+     "poiId": "",
+     "matched": "",
+     "checked": "2026-11-03",
+     "page": true
+    }
+   ]
+  },
+  "p608": {
+   "ratings": [
+    {
+     "src": "携程",
+     "score": 4.9,
+     "count": 56,
+     "url": "https://gs.ctrip.com/html5/you/comment/31/24873289-food.html",
+     "poiId": "",
+     "matched": "",
+     "checked": "2026-11-03",
+     "page": true
+    }
+   ]
   }
  },
  "nodata": [
   "p596",
   "p597",
-  "p598",
   "p599",
   "p601",
   "p469",
   "p477",
-  "p483"
+  "p483",
+  "p607"
  ],
  "resolved": {
   "p540": {
@@ -866,10 +991,11 @@
    "checked": "2026-10-26"
   },
   "p554": {
-   "url": "https://gs.ctrip.com/html5/you/sight/sanya61/150395847.html",
+   "url": "https://you.ctrip.com/sight/sanya61/150395847.html",
+   "poiId": "",
+   "matched": "",
    "reason": "no-ctrip-score",
-   "count": 0,
-   "checked": "2026-10-26"
+   "count": 5093
   },
   "p465": {
    "url": "https://m.ctrip.com/webapp/you/gspoi/sight/151/0.html?poiId=77067&seo=0&isHideNavBar=YES&poiType=3",
@@ -989,68 +1115,37 @@
    "llmCount": 185,
    "checked": "2026-10-26"
   },
-  "p555": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/61/0.html?poiId=10558611&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
-   "llmScore": 4.6,
-   "llmCount": 4477,
-   "checked": "2026-10-26"
-  },
   "p558": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/61/0.html?poiId=10558612&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
+   "url": "",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
    "llmScore": 4.7,
-   "llmCount": 15196,
-   "checked": "2026-10-26"
+   "llmCount": 15195
   },
   "p559": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/61/0.html?poiId=22867359&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
+   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/61/0.html?poiId=89388&seo=0&isHideNavBar=YES&poiType=3",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
    "llmScore": 4.6,
-   "llmCount": 960,
-   "checked": "2026-10-26"
-  },
-  "p567": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/61/0.html?poiId=56426196&seo=0&isHideNavBar=YES&poiType=66",
-   "reason": "page-unparseable-sight",
-   "llmScore": 4.1,
-   "llmCount": 1770,
-   "checked": "2026-10-26"
-  },
-  "p568": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/61/0.html?poiId=90752&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
-   "llmScore": 4.6,
-   "llmCount": 488,
-   "checked": "2026-10-26"
+   "llmCount": 47644
   },
   "p577": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/61/0.html?poiId=10558942&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
+   "url": "",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
    "llmScore": 4.6,
-   "llmCount": 18669,
-   "checked": "2026-10-26"
-  },
-  "p580": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/846/0.html?poiId=75971&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
-   "llmScore": 4.7,
-   "llmCount": 201,
-   "checked": "2026-10-26"
-  },
-  "p582": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/1509/0.html?poiId=90753&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
-   "llmScore": 4.7,
-   "llmCount": 538,
-   "checked": "2026-10-26"
+   "llmCount": 72
   },
   "p583": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/1009/0.html?poiId=13664969&seo=0&isHideNavBar=YES&poiType=3",
-   "reason": "page-unparseable-sight",
+   "url": "",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
    "llmScore": 4.6,
-   "llmCount": 14900,
-   "checked": "2026-10-26"
+   "llmCount": 106
   },
   "p585": {
    "url": "https://you.ctrip.com/shopping/yining2058/1746346-dianping.html",
@@ -1086,31 +1181,70 @@
    "matched": "",
    "reason": "unverified",
    "llmScore": 4.7,
-   "llmCount": 9000
+   "llmCount": 8972
   },
   "p597": {
-   "url": "",
+   "url": "https://you.ctrip.com/sight/sanya61/130368173.html",
    "poiId": "",
    "matched": "",
-   "reason": "unverified",
-   "llmScore": 4,
-   "llmCount": 0
-  },
-  "p598": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/61/0.html?poiId=10759147&seo=0&isHideNavBar=YES&poiType=3",
-   "poiId": "",
-   "matched": "",
-   "reason": "unverified",
-   "llmScore": 4.6,
-   "llmCount": 22000
+   "reason": "no-ctrip-score",
+   "count": 0
   },
   "p601": {
-   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/846/0.html?poiId=91345&seo=0&isHideNavBar=YES&poiType=3",
+   "url": "",
    "poiId": "",
    "matched": "",
    "reason": "unverified",
    "llmScore": 4.4,
    "llmCount": 568
+  },
+  "p578": {
+   "url": "",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
+   "llmScore": 1,
+   "llmCount": 0
+  },
+  "p602": {
+   "url": "https://m.ctrip.com/webapp/you/gspoi/sight/1509/0.html?poiId=56212173&seo=0&isHideNavBar=YES&poiType=3",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
+   "llmScore": 4.5,
+   "llmCount": 1029
+  },
+  "p604": {
+   "url": "",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
+   "llmScore": 4.2,
+   "llmCount": 0
+  },
+  "p609": {
+   "url": "",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
+   "llmScore": 4.3,
+   "llmCount": 0
+  },
+  "p610": {
+   "url": "",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
+   "llmScore": 4.6,
+   "llmCount": 201
+  },
+  "p611": {
+   "url": "",
+   "poiId": "",
+   "matched": "",
+   "reason": "unverified",
+   "llmScore": 3.6,
+   "llmCount": 11
   }
  }
 }
