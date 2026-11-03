@@ -27,16 +27,6 @@ async function loadStats() {
     set('stat-list', `${points.length} 个点位 · ${cities} 个城市`);
     set('stat-map', pending ? `${points.length} 个点位（${pending} 个待核坐标）` : `${points.length} 个点位`);
   } catch { /* 数据不可用时保持默认文案 */ }
-
-  try {
-    const notes = await (await fetch('./content/notes/index.json')).json();
-    if (notes.length) set('stat-notes', `${notes.length} 篇笔记`);
-  } catch { /* 同上 */ }
-
-  try {
-    const photos = await (await fetch('./photos/index.json')).json();
-    if (photos.length) set('stat-album', `${photos.length} 张照片`);
-  } catch { /* 同上 */ }
 }
 
 loadStats();
