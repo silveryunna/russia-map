@@ -713,7 +713,8 @@ function refreshMarkers() {
   // 视图钥匙变化时才 fitBounds（筛选/切换页签/选动线），点选/高亮/打卡不移动地图
   const key = state.tab + '|' + state.city + '|' + state.region + '|' + (route ? route.id : '');
   if (bounds.length && !suppressFit && key !== lastFitKey) {
-    map.fitBounds(L.latLngBounds(bounds).pad(0.15));
+    // 关掉动画：首屏 fitBounds 与用户立刻点的板块 chip flyTo 会互相抢动画，首点视野被拉回全量范围
+    map.fitBounds(L.latLngBounds(bounds).pad(0.15), { animate: false });
     lastFitKey = key;
   }
   suppressFit = false;
