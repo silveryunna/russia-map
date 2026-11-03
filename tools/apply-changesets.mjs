@@ -6,6 +6,7 @@
 //
 // 用法:
 //   node tools/apply-changesets.mjs --input ready.json --by "ops" [--data data/points.json] [--ledger <path>] [--dry-run]
+//   node tools/apply-changesets.mjs --rollback <run_id|last> --by "ops" [--data ...] [--ledger ...]
 //   node tools/apply-changesets.mjs --list
 //
 // 退出码：0 成功 / 1 参数或文件错误 / 2 存在冲突（未静默覆盖）
@@ -97,6 +98,40 @@ if (has('list')) {
     run_id: r.run_id, by: r.by, started_at: r.started_at,
     entries: (r.entries || []).length, rolled_back_at: r.rolled_back_at || null, conflicts: r.rollback_conflicts || null,
   })) });
+}
+
+/* ---------- 回滚：按「一次入库操作」（run_id）粒度，逆序写回 before ---------- */
+const rollback = flag('rollback', '');
+if (rollback) {
+  const run = rollback === 'last' ? ledger.runs[ledger.runs.length - 1] : ledger.runs.find((r) => r.run_id === rollback);
+  if (!run) die(`找不到 run：${rollback}`);
+  if (run.rolled_back_at) die(`run ${run.run_id} 已经回滚过（${run.rolled_back_at}）`);
+  const conflicts = []; const restored = [];
+  for (const e of [...(run.entries || [])].reverse()) {
+    if (e.rolled_back) continue;
+    const p = pointIndex.get(String(e.point_id));
+    if (!p) { conflicts.push({ changeset_id: e.changeset_id, point_id: e.point_id, why: '点位已不存在' }); continue; }
+    const current = p[e.json_path];
+    const cur = current === undefined || current === null ? null : String(current);
+    if (cur !== String(e.after)) {
+      // 被后续变更覆盖：给出提示并跳过，绝不静默覆盖
+      conflicts.push({ changeset_id: e.changeset_id, point_id: e.point_id, json_path: e.json_path, why: '当前值已被后续变更覆盖', expected: String(e.after), current: cur });
+      continue;
+    }
+    if (e.before === null) delete p[e.json_path];
+    else p[e.json_path] = e.before;
+    e.rolled_back = { at: new Date().toISOString(), by };
+    restored.push({ changeset_id: e.changeset_id, point_id: e.point_id, json_path: e.json_path, before: e.before, after: e.after });
+  }
+  const now = new Date().toISOString();
+  if (!has('dry-run')) {
+    writeJsonAtomic(dataPath, data);
+    if (conflicts.length) { run.rollback_conflicts = conflicts; run.partial_rollback_at = now; run.partial_rollback_by = by; }
+    else { run.rolled_back_at = now; run.rolled_back_by = by; }
+    writeJsonAtomic(ledgerPath, ledger);
+  }
+  const sync = has('dry-run') ? { skipped: true } : await syncDb('rolled_back', run.run_id, restored.map((x) => x.changeset_id));
+  emit({ ok: !conflicts.length, action: 'rollback', run_id: run.run_id, restored, conflicts, dry_run: has('dry-run'), sync });
 }
 
 /* ---------- 应用：校验 → 写文件（原子替换）→ 记台账 ---------- */
