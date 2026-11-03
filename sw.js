@@ -2,8 +2,8 @@
 // 策略：页面与同源资源网络优先（离线回退缓存）+ 白名单底图瓦片缓存优先（运行时缓存，上限 TILE_CACHE_MAX 块）
 // 新版本激活后通知页面自动刷新
 //
-// 【更新发布流程】每次部署新版本时，把下面的 VERSION 改一个新值（如 tn-v2、tn-v3…），
-// 用户打开页面时会自动检测并刷新到新版本。
+// 【更新发布流程】VERSION 由 tools/publish.mjs 在构建期自动注入当前 git short sha（tn-v<sha>），
+// 不要手改——手改也会在下次 publish 时被覆盖。用户打开页面时 SW 检测到新值即自动刷新缓存。
 const VERSION = 'tn-ve9adc72';
 const SHELL_CACHE = 'tn-shell-' + VERSION;
 const RUNTIME_CACHE = 'tn-runtime-' + VERSION;

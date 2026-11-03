@@ -110,6 +110,13 @@ jobs:
           node tools/test-api-contract.mjs
           node tools/check-asset-budget.mjs
 
+      # 2.93) 产物引用 + 打卡只读（2026-11-03 审计 T0-1/T0-6 落地）
+      #       前者防"产物被删、HTML 仍引用"（当日事故）；后者防"第二可写事实源"复活
+      - name: 产物引用 / 打卡只读
+        run: |
+          node tools/check-artifact-refs.mjs
+          node tools/test-checkin-readonly.mjs
+
       # 2.95) 本地质量门与 CI 一致：清单从 package.json 派生，不再手写
       #        （2026-11-01 事故：CI 少跑 4 个门，手写 required 数组没跟着更新）
       - name: CI 质量门一致性
