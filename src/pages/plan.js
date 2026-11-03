@@ -14,6 +14,8 @@ import { loadCheckins } from '../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
 import { createChangeEvent, tripItemCount } from './trip/schema.js';
 import { diffTrips, summarizeDiff } from './trip/execution.js';
+import { isValidTimeZone, todayInZone } from '../shared/local-date.js';
+import { checkStorageHealth } from '../shared/storage-persist.js';
 import {
   PERIOD_LABEL, STATUS_LABEL, clampNum, fmtSpan, itemName, itemType,
   shortDate, snap5, sourceLabel, weekday,
@@ -36,7 +38,14 @@ import {
 
 const $app = document.getElementById('plan-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const localToday = () => new Date().toISOString().slice(0, 10);
+// 「今天」按行程时区取日历日；未设置时区时回退设备本地（不能用 UTC，见 shared/local-date.js）
+const localToday = () => todayInZone((current && current.homeTimeZone) || '');
+
+// 常用时区（只是输入建议，仍接受任意合法 IANA 时区）
+const TIME_ZONE_OPTIONS = [
+  'Asia/Shanghai', 'Asia/Almaty', 'Asia/Yekaterinburg', 'Asia/Novosibirsk',
+  'Asia/Irkutsk', 'Asia/Vladivostok', 'Europe/Moscow', 'Europe/Kaliningrad', 'UTC',
+];
 
 let meta = { cities: [], cityColors: {} };
 let cache = { pts: [], rts: [], matrix: null, facts: null };
@@ -45,6 +54,7 @@ let store = null;
 let storeWarn = '';
 let dataWarn = [];       // 交通矩阵/事实账本加载失败（离线兜底时为空数组）
 let backupLast = '';     // 上次全量备份日期（meta backup:lastExportAt）
+let storageWarn = '';    // 持久化/配额风险提示（只提示，不阻塞）
 let trips = [];
 let current = null;              // 编辑器里的行程
 let ambiguities = [];            // 迁移遗留的待确认项（仅用于预置候选）
@@ -86,6 +96,7 @@ function banners() {
     if (b) out.push(`<div class="pl-tip warn">💾 ${b.level === 'never' ? '这份行程数据还没有导出过备份' : `上次备份已是 ${b.days} 天前`}——数据只存在这台设备的浏览器里<button class="pl-btn small" id="pl-backup-now">立即备份</button></div>`);
   }
   if (planLoad.recovered) out.push(`<div class="pl-tip warn">⚠️ 检测到损坏的旧本地计划，已备份为 ${esc(planLoad.backupKey || '备份键')}</div>`);
+  if (storageWarn) out.push(`<div class="pl-tip warn">🧷 ${esc(storageWarn)}<button class="pl-btn small" id="pl-backup-now">立即备份</button></div>`);
   const live = current
     ? ambiguities.filter(a => current.days.some(d => d.items.some(it => it.id === a.itemId && it.confirm !== 'ok')))
     : [];
@@ -438,6 +449,10 @@ function renderEditor() {
         <label>出发日期
           <input id="tr-date" type="date" value="${esc(t.startDate || '')}">
         </label>
+        <label>时区
+          <input id="tr-tz" list="tr-tz-options" value="${esc(t.homeTimeZone || '')}" placeholder="设备本地" aria-label="行程时区（IANA）">
+        </label>
+        <datalist id="tr-tz-options">${TIME_ZONE_OPTIONS.map(z => `<option value="${esc(z)}"></option>`).join('')}</datalist>
         ${t.dateMode === 'fixed' ? `<label>改期方式
           <select id="tr-policy">
             <option value="shift_all">整体平移</option>
@@ -531,6 +546,17 @@ function renderEditor() {
     if (!res.ok) { toast(res.error); dateInput.value = current.startDate; return; }
     applyTrip(res.trip);
     if (res.conflicts.length) toast(`已改期，${res.conflicts.length} 处预订仍保留原日期，请逐条核对`);
+  };
+  // 时区：留空＝跟随设备本地；填了就必须是合法 IANA 时区，否则回退（避免落库时被结构校验拒绝）
+  const tzInput = document.getElementById('tr-tz');
+  tzInput.onchange = () => {
+    const raw = tzInput.value.trim();
+    if (raw && !isValidTimeZone(raw)) {
+      toast('时区格式不对：请填 IANA 名称，如 Asia/Shanghai；留空跟随设备');
+      tzInput.value = current.homeTimeZone || '';
+      return;
+    }
+    if (raw !== (current.homeTimeZone || '')) mutate(trip => updateTrip(trip, { homeTimeZone: raw }));
   };
   if (view.picker) wirePicker();
 
@@ -969,6 +995,8 @@ async function runMigration() {
   pointsById = new Map(cache.pts.map(p => [p.id, p]));
   await bootStore();
   backupLast = String(await store.getMeta('backup:lastExportAt').catch(() => '')) || '';
+  // 申请持久化存储 + 看配额水位：失败只提示，不影响使用
+  storageWarn = (await checkStorageHealth()).warning || '';
   await runMigration();
   await refreshTrips();
   render();
