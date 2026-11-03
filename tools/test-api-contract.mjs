@@ -3,7 +3,9 @@
 // 用静态契约守护「每个写端点必须过 session、管理端点必须 needAdmin、登录必须限流、
 // 上传必须 MIME 白名单、AI 代理必须 SSRF 检查」——这些是安全底线，回归即红。
 // 用法: node tools/test-api-contract.mjs
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
 
 const php = readFileSync('api/index.php', 'utf8');
 
@@ -123,6 +125,48 @@ for (const name of ['accounts', 'pending', 'approve', 'reject']) {
   assert(policy && policy.body.includes("'anonymous' =>") && policy.body.includes("'ip_limit' =>"), '配额接口返回 anonymous / ip_limit 结构');
   assert(policy && policy.body.includes("'remaining_today' =>"), '配额接口返回 remaining_today');
   assert(policy && policy.body.includes('if (!$isAdmin)'), '策略写入仍要求管理员');
+}
+
+// 8) 数据库可靠性（P1-8）：WAL/连接 PRAGMA、在线快照备份、恢复演练文档
+{
+  // 连接初始化：WAL + 三条连接级 PRAGMA，失败要降级并留日志，不能白页
+  assert(php.includes("$db->exec('PRAGMA busy_timeout=5000')"), '连接设置 busy_timeout=5000');
+  assert(php.includes("$db->exec('PRAGMA synchronous=NORMAL')"), 'WAL 下 synchronous=NORMAL');
+  assert(php.includes("$db->exec('PRAGMA foreign_keys=ON')"), '开启 foreign_keys');
+  assert(/PRAGMA journal_mode=WAL/.test(php) && /if \(\$mode !== 'wal'\) error_log/.test(php), 'WAL 不可用时记录降级日志');
+  assert(/catch \(PDOException \$e\)[\s\S]{0,160}回退默认 journal/.test(php), 'WAL 抛错时回退默认模式');
+  assert(/连接级 PRAGMA/.test(php) && /journal_mode 持久化/.test(php), '注明哪些 PRAGMA 每次连接都要设');
+
+  const scriptUrl = new URL('../deploy/backup-db.php', import.meta.url);
+  assert(existsSync(scriptUrl), '备份脚本存在（deploy/backup-db.php）');
+  const bak = readFileSync(scriptUrl, 'utf8');
+  assert(/\bVACUUM INTO\b/.test(bak) && !/shell_exec|exec\(\s*['"]cp/.test(bak), '用 VACUUM INTO 在线快照，不做 cp');
+  assert(/PRAGMA integrity_check/.test(bak), '备份后跑 integrity_check');
+  assert(/if \(\$tables < 1\) fail|if \(\(int\)\$tables < 1\)|tables < 1/.test(bak), '校验快照内至少有一张可读表');
+  assert(/--keep=/.test(bak) && /TRAVEL_BACKUP_KEEP/.test(bak), '保留份数参数化（--keep / TRAVEL_BACKUP_KEEP）');
+  assert(/\?\? getenv\('TRAVEL_BACKUP_KEEP'\) \?: 14|getenv\('TRAVEL_BACKUP_KEEP'\) \?: 14/.test(bak), '默认保留 14 份');
+  assert(/array_slice\(\$files, \$keep\)/.test(bak), '按保留份数滚动删除旧快照');
+  assert(/exit\(1\)/.test(bak), '失败路径 exit(1)（非零退出）');
+  assert(/cli_arg\(\$argv, 'db'\)/.test(bak) && /TRAVEL_DB_PATH/.test(bak), '数据库路径来自参数/配置，不写死');
+  assert(!/\/www\/wwwroot|C:\\\\|D:\\\\/.test(bak), '备份脚本无真实路径');
+
+  const docUrl = new URL('../docs/RESTORE-RUNBOOK.md', import.meta.url);
+  assert(existsSync(docUrl), '恢复演练文档存在（docs/RESTORE-RUNBOOK.md）');
+  const doc = readFileSync(docUrl, 'utf8');
+  for (const h of ['## 1. 停写', '## 2. 取快照', '## 3. 恢复到新库', '## 4. 校验表数量与行数', '## 5. 起服务', '## 6. 只读验证', '## 7. 确认没丢最近数据', '## 8. 回滚路径', '## 9. 演练记录']) {
+    assert(doc.includes(h), `演练文档包含章节：${h}`);
+  }
+  assert(doc.includes('| 日期 | 快照名 | 结果'), '演练记录表格存在且留空待填');
+
+  // 实跑失败路径：无参数必须非零退出并给出可读错误（有 PHP 才跑，本机无 PHP 会明确跳过）
+  const probe = spawnSync('php', ['-v'], { encoding: 'utf8' });
+  if (probe.error && probe.error.code === 'ENOENT') {
+    console.log('⚠️ 未检测到 PHP 运行时，跳过备份脚本实跑（静态断言已覆盖参数与退出码）');
+  } else {
+    const r = spawnSync('php', [fileURLToPath(scriptUrl)], { encoding: 'utf8' });
+    assert(r.status !== 0, '无参数调用备份脚本返回非零退出码');
+    assert(/缺少参数/.test(String(r.stderr)), '失败时 stderr 输出可读错误');
+  }
 }
 
 if (bad) { console.error(`\n${bad} 处 API 契约被破坏`); process.exit(1); }
