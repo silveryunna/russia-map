@@ -23,9 +23,17 @@ import { initLayers, countryOf, sortCities, COUNTRY_STYLE } from './map/layers.j
 
 /* 设计门 L1 · 例外 · Leaflet 的 color/fillColor 会写进 SVG 属性，CSS 变量不解析 · 与 --city-other 同值，改令牌要同步这里 */
 const CITY_FALLBACK = '#546570';
+/* 板块配色只用于侧栏板块头；城市与点位仍用 meta.cityColors，避免板块/城市双重分组串色 */
+const REGION_STYLE = {
+  ru: { flag: '🇷🇺', color: 'var(--region-ru)' },
+  kz: { flag: '🇰🇿', color: 'var(--region-kz)' },
+  ge: { flag: '🇬🇪', color: 'var(--region-ge)' },
+  cn: { flag: '🇨🇳', color: 'var(--region-cn)' },
+  other: { flag: '📍', color: 'var(--region-other)' },
+};
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
-import { loadRegions, visiblePoints as filterVisiblePoints } from '../shared/regions.js';
+import { loadRegions, visiblePoints as filterVisiblePoints, regionOf } from '../shared/regions.js';
 
 // 兼容只认全局 L 的老插件（leaflet.markercluster 的 UMD 内部引用自由变量 L）
 window.L = L;
@@ -221,7 +229,8 @@ const state = {
   tab: 'points',          // points | routes | life
   city: '全部',
   query: '',
-  collapsed: new Set(),   // 'country:名' | '市||群' | 'life:市' | 'rg:市' | '__pending'
+  region: '',             // 板块筛选：'' = 全部启用板块
+  collapsed: new Set(),   // 'region:名' | '市||群' | 'life:市' | 'rg:市' | '__pending'
   opened: new Set(),      // 'city:名'（城市默认折叠，点开进这里）
   tagFilter: new Set(),   // 标签筛选（多选 = 并集）
   tagsExpanded: false,
@@ -281,11 +290,12 @@ function routePoints(route) {
   return out;
 }
 
-// 侧栏四级分组：国家 → 城市 → 点位群 → 点位（搜索/标签/城市过滤后）
-function groupedByCountry() {
+// 侧栏四级分组：板块 → 城市 → 点位群 → 点位（搜索/标签/城市/板块过滤后）
+function groupedByRegion() {
   const q = state.query.trim().toLowerCase();
   let list = q ? matchPoints(q).map(x => x.p).filter(matchTags) : geoPoints().filter(matchTags);
   list = list.filter(p => state.city === '全部' || p.city === state.city);
+  if (state.region) list = list.filter(p => regionOf(p, regionIndex) === state.region);
   const byCity = new Map();
   for (const p of list) {
     if (!byCity.has(p.city)) byCity.set(p.city, new Map());
@@ -293,18 +303,26 @@ function groupedByCountry() {
     if (!clusters.has(p.cluster)) clusters.set(p.cluster, []);
     clusters.get(p.cluster).push(p);
   }
-  const byCountry = new Map();
+  const groups = new Map();
   for (const [city, clusters] of byCity) {
-    const cn = countryOf(city);
-    if (!byCountry.has(cn)) byCountry.set(cn, []);
-    byCountry.get(cn).push([city, clusters]);
+    const rid = regionOf(list.find(p => p.city === city) || {}, regionIndex);
+    if (!groups.has(rid)) groups.set(rid, []);
+    groups.get(rid).push([city, clusters]);
   }
-  const out = [];
-  for (const cn of ['中国', '俄罗斯', '哈萨克斯坦', '其他']) {
-    if (!byCountry.has(cn)) continue;
-    out.push({
-      country: cn,
-      cities: byCountry.get(cn)
+  const order = (regionIndex && regionIndex.regions ? regionIndex.regions : []).map(r => r.id);
+  const nameOf = (rid) => {
+    const r = regionIndex && regionIndex.byId ? regionIndex.byId.get(rid) : null;
+    return (r && r.name) || (rid === regionIndex?.fallback ? '其他' : rid || '未分区');
+  };
+  return [...groups.entries()]
+    .sort((a, b) => {
+      const ai = order.indexOf(a[0]); const bi = order.indexOf(b[0]);
+      return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+    })
+    .map(([id, cities]) => ({
+      id,
+      name: nameOf(id),
+      cities: cities
         .sort((a, b) =>
           (meta.cities.indexOf(a[0]) < 0 ? 99 : meta.cities.indexOf(a[0])) -
           (meta.cities.indexOf(b[0]) < 0 ? 99 : meta.cities.indexOf(b[0])))
@@ -312,17 +330,22 @@ function groupedByCountry() {
           city,
           clusters: [...clusters.entries()].map(([cluster, pts]) => ({ cluster, points: pts })),
         })),
-    });
-  }
-  return out;
+    }));
 }
 
-// 待核点位（跟随搜索/标签/城市过滤）
+function focusRegion(id) {
+  const r = regionIndex && regionIndex.byId ? regionIndex.byId.get(id) : null;
+  if (!r || !Array.isArray(r.center) || !map) return;
+  map.flyTo([r.center[0], r.center[1]], r.defaultZoom || 5);
+}
+
+// 待核点位（跟随搜索/标签/城市/板块过滤）
 function filteredPending() {
   const q = state.query.trim().toLowerCase();
   const list = pendingPoints()
     .filter(matchTags)
-    .filter(p => state.city === '全部' || p.city === state.city);
+    .filter(p => state.city === '全部' || p.city === state.city)
+    .filter(p => !state.region || regionOf(p, regionIndex) === state.region);
   return q ? list.filter(p => matchIds(q).has(p.id)) : list;
 }
 
@@ -400,19 +423,31 @@ function pointsTabHtml() {
     return html;
   }
 
-  for (const { country, cities } of groupedByCountry()) {
-    const cs = COUNTRY_STYLE[country] || COUNTRY_STYLE['其他'];
-    const ck = 'country:' + country;
-    const copen = !state.collapsed.has(ck);
-    const ccount = cities.reduce((n, c) => n + c.clusters.reduce((m, cl) => m + cl.points.length, 0), 0);
+  // 板块层：切换板块只改变侧栏分组与地图视野，不动已有的筛选/打卡状态
+  const boards = (regionIndex && regionIndex.regions ? regionIndex.regions : []).filter(r => r.enabled !== false);
+  if (boards.length > 1) {
+    html += `<div class="region-chips">${[''].concat(boards.map(b => b.id)).map(id => {
+      const b = id ? regionIndex.byId.get(id) : null;
+      const n = id ? points.filter(p => regionOf(p, regionIndex) === id).length : points.length;
+      return `<button class="region-chip${state.region === id ? ' active' : ''}" data-region="${esc(id)}">
+        <b>${id ? esc(b.name) : '全部'}</b><span>${n}</span></button>`;
+    }).join('')}</div>`;
+  }
+
+  for (const { id, name, cities } of groupedByRegion()) {
+    const rs = REGION_STYLE[id] || REGION_STYLE.other;
+    const rk = 'region:' + id;
+    const ropen = !state.collapsed.has(rk);
+    const rcount = cities.reduce((n, c) => n + c.clusters.reduce((m, cl) => m + cl.points.length, 0), 0);
     html += `
-      <div class="country-head" data-toggle="${esc(ck)}" style="--cc:${cs.color}">
-        <span class="ch-flag">${cs.flag}</span><span class="ch-name">${esc(country)}</span>
-        <span class="head-pill">${ccount}</span>
-        <span class="ch-arrow">${copen ? '▼' : '▶'}</span>
+      <div class="country-head region-head" data-toggle="${esc(rk)}" style="--cc:${rs.color}">
+        <span class="ch-flag">${rs.flag}</span><span class="ch-name">${esc(name)}</span>
+        <span class="head-pill">${rcount}</span>
+        <button class="star-btn" data-focus-region="${esc(id)}" aria-label="定位到${esc(name)}" title="定位到该板块">◎</button>
+        <span class="ch-arrow">${ropen ? '▼' : '▶'}</span>
       </div>`;
-    if (!copen) continue;
-    html += `<div class="country-children" style="--cc:${cs.color}">`;
+    if (!ropen) continue;
+    html += `<div class="country-children" style="--cc:${rs.color}">`;
     for (const { city, clusters } of cities) {
       const color = meta.cityColors[city] || CITY_FALLBACK;
       const key = 'city:' + city;
@@ -446,20 +481,21 @@ function pointsTabHtml() {
         }
       }
     }
-    // 待核实坐标挂在「其他」国家组末尾（无坐标，不上图）
-    if (country === '其他') {
-      const pend = filteredPending();
-      if (pend.length) {
-        const isCollapsed = state.collapsed.has('__pending');
-        html += `
+    html += `</div>`;
+  }
+  // 待核实坐标单独挂在末尾（无坐标，不上图）
+  const pend = filteredPending();
+  if (pend.length) {
+    const isCollapsed = state.collapsed.has('__pending');
+    html += `
       <div class="city-head pending-head" data-toggle="__pending">
         <span class="head-arrow">${isCollapsed ? '▶' : '▼'}</span>
         <span class="head-dot"></span>📌 待核实坐标
         <span class="head-count">（${pend.length}）</span>
       </div>`;
-        if (!isCollapsed) {
-          for (const p of pend) {
-            html += `
+    if (!isCollapsed) {
+      for (const p of pend) {
+        html += `
         <div class="point-row pending">
           <span class="pr-badge">待核</span>
           <div class="pr-main">
@@ -467,11 +503,8 @@ function pointsTabHtml() {
             <div class="pr-sub">${esc(p.city)} · ${esc(p.type)} · ${esc(p.highlight)}</div>
           </div>
         </div>`;
-          }
-        }
       }
     }
-    html += `</div>`;
   }
   return html;
 }
@@ -963,6 +996,21 @@ function bindEvents() {
       e.stopPropagation();
       e.preventDefault();
       playRoute();
+      return;
+    }
+    // 板块 chips / 定位按钮：只改视野与分组，不动已有筛选与打卡状态
+    const focusBtn = e.target.closest('[data-focus-region]');
+    if (focusBtn) {
+      e.stopPropagation();
+      focusRegion(focusBtn.dataset.focusRegion);
+      return;
+    }
+    const regBtn = e.target.closest('[data-region]');
+    if (regBtn) {
+      const id = regBtn.dataset.region;
+      state.region = state.region === id ? '' : id;
+      if (state.region) focusRegion(state.region);
+      refreshMarkers(); renderSidebar();
       return;
     }
     // 标签筛选 chips——须放在 input/button 提前返回之前（chips 是 button）

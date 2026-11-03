@@ -60,3 +60,20 @@ export async function loadRegions(fetchImpl = fetch) {
     return createRegionIndex(null);
   }
 }
+
+/** 板块级统计（点位数 / 已打卡数 / 覆盖率）——首页、列表页共用同一口径。 */
+export function regionStats(points, index, isChecked = () => false) {
+  return (index && index.regions ? index.regions : [])
+    .map((r) => {
+      const pts = points.filter((p) => regionOf(p, index) === r.id);
+      const done = pts.filter((p) => isChecked(p.id)).length;
+      return {
+        id: r.id,
+        name: r.name,
+        total: pts.length,
+        checked: done,
+        coverage: pts.length ? Math.round((done / pts.length) * 100) : 0,
+      };
+    })
+    .filter((s) => s.total > 0);
+}

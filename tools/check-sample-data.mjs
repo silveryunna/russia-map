@@ -8,7 +8,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { TYPE_VOCAB } from './type-vocab.mjs';
 import { CITY_TIME_ZONES } from '../src/pages/trip/migrate.js';
-import { createRegionIndex, visiblePoints, isPointVisible } from '../src/shared/regions.js';
+import { createRegionIndex, visiblePoints, isPointVisible, regionStats } from '../src/shared/regions.js';
 
 const dir = resolve(process.argv[2] || './data');
 const city = process.argv[3] || '莫斯科';
@@ -163,6 +163,19 @@ console.log(`   票价/预约已知 ${ticketKnown}/${scope.length}（${pct(ticke
     if (!/cache\.visiblePts/.test(srcOf('pages/plan/generate.js'))) err('行程生成未使用可见点位（cache.visiblePts）');
     if (!/isPointVisible/.test(srcOf('pages/today.js'))) err('今日执行未接入板块可见性提示');
     if (!/visiblePoints/.test(srcOf('pages/friend.js'))) err('好友页点库未按板块过滤');
+
+    // 板块级统计口径：regionStats 之和必须等于可见点位总数，覆盖率按已打卡数换算
+    const stats = regionStats(visible, index, (id) => id === visible[0]?.id);
+    const statSum = stats.reduce((n, s) => n + s.total, 0);
+    if (statSum !== visible.length) err(`板块统计点位数之和 ${statSum} ≠ 可见点位 ${visible.length}`);
+    if (stats.length && stats[0].checked !== 1) err('板块统计已打卡数未按回调计算');
+    if (stats.length && stats[0].coverage !== Math.round(100 / stats[0].total)) err('板块覆盖率换算错误');
+
+    // 信息架构：首页/列表共用 regionStats，地图与列表有板块层，地图板块切换能带动视野
+    if (!/regionStats/.test(srcOf('pages/home.js')) || !/regionStats/.test(srcOf('pages/list.js'))) err('首页/列表未共用 regionStats 口径');
+    if (!/l-region-stats/.test(srcOf('pages/list.js'))) err('列表页缺少板块统计/筛选层');
+    if (!/region-head/.test(srcOf('pages/map.js')) || !/data-focus-region/.test(srcOf('pages/map.js'))) err('地图侧栏缺少板块层或板块定位');
+    if (!/flyTo/.test(srcOf('pages/map.js'))) err('地图板块切换未带动中心/缩放');
   }
 }
 

@@ -58,6 +58,27 @@
 }
 .tag-chip.active { background: var(--accent); border-color: var(--accent); color: #fff; font-weight: 700; }
 
+/* 板块筛选与统计 */
+.l-region-stats { display: flex; gap: var(--sp-1); margin-bottom: var(--sp-3); overflow-x: auto; scrollbar-width: none; }
+.l-region-stats::-webkit-scrollbar { display: none; }
+.region-chip {
+  flex: none; display: flex; flex-direction: column; align-items: flex-start;
+  border: 1px solid var(--line); border-radius: var(--r-md); background: var(--card);
+  padding: var(--sp-1) var(--sp-2); font-size: 12px; color: var(--muted); cursor: pointer; white-space: nowrap;
+}
+.region-chip b { font-size: 13px; color: var(--text); }
+.region-chip.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+.region-chip.active b { color: var(--accent); }
+.region-chip.clear { color: var(--muted); justify-content: center; }
+
+.l-region {
+  display: flex; align-items: center; gap: var(--sp-2);
+  margin-top: var(--sp-2); padding: var(--sp-2);
+  font-size: 16px; font-weight: 800;
+  background: var(--card); border-radius: var(--r-sm); cursor: pointer;
+}
+.l-region .head-count { font-size: 12px; color: var(--muted); font-weight: 400; }
+
 .l-city {
   display: flex;
   align-items: center;

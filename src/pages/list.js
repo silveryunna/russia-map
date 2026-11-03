@@ -4,7 +4,7 @@ import { renderIcpFooter } from '../shared/icp-footer.js';
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
 import { showUndoToast } from '../shared/undo-toast.js';
-import { loadRegions, visiblePoints } from '../shared/regions.js';
+import { loadRegions, visiblePoints, regionOf, regionStats } from '../shared/regions.js';
 
 /* 设计门 L1 · 例外 · Leaflet 的 color/fillColor 会写进 SVG 属性，CSS 变量不解析 · 与 --city-other 同值，改令牌要同步这里 */
 const CITY_FALLBACK = '#546570';
@@ -21,6 +21,7 @@ const state = {
   collapsed: new Set(),
   tagFilter: new Set(),   // 标签筛选（多选 = 并集）
   checked: new Set(),
+  region: '',             // 板块筛选：'' = 全部启用板块
 };
 
 const geoPoints = () => points.filter(p => !p.pending);
@@ -31,9 +32,10 @@ function matchTags(p) {
   return !state.tagFilter.size || (p.tags && p.tags.some(t => state.tagFilter.has(t)));
 }
 
-function groupedByCity() {
+function filteredGeo() {
   const q = state.query.trim().toLowerCase();
   let list = geoPoints().filter(matchTags);
+  if (state.region) list = list.filter(p => regionOf(p, regionIndex) === state.region);
   if (q) {
     list = list.filter(p =>
       p.name.toLowerCase().includes(q) || p.cluster.toLowerCase().includes(q) ||
@@ -41,22 +43,45 @@ function groupedByCity() {
       p.city.toLowerCase().includes(q) ||
       (p.tags || []).some(t => t.toLowerCase().includes(q)));
   }
-  const cities = new Map();
-  for (const p of list) {
+  return list;
+}
+
+// 板块 → 城市 → 点位群 → 点位
+function groupedByRegion() {
+  const groups = new Map();
+  for (const p of filteredGeo()) {
+    const rid = regionOf(p, regionIndex);
+    if (!groups.has(rid)) groups.set(rid, new Map());
+    const cities = groups.get(rid);
     if (!cities.has(p.city)) cities.set(p.city, new Map());
     const clusters = cities.get(p.city);
     if (!clusters.has(p.cluster)) clusters.set(p.cluster, []);
     clusters.get(p.cluster).push(p);
   }
-  return [...cities.entries()].map(([city, clusters]) => ({
-    city,
-    clusters: [...clusters.entries()].map(([cluster, pts]) => ({ cluster, points: pts })),
-  }));
+  const order = (regionIndex && regionIndex.regions ? regionIndex.regions : []).map(r => r.id);
+  const nameOf = (rid) => {
+    const r = regionIndex && regionIndex.byId ? regionIndex.byId.get(rid) : null;
+    return (r && r.name) || (rid === regionIndex?.fallback ? '其他' : rid || '未分区');
+  };
+  return [...groups.entries()]
+    .sort((a, b) => {
+      const ai = order.indexOf(a[0]); const bi = order.indexOf(b[0]);
+      return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+    })
+    .map(([id, cities]) => ({
+      id,
+      name: nameOf(id),
+      cities: [...cities.entries()].map(([city, clusters]) => ({
+        city,
+        clusters: [...clusters.entries()].map(([cluster, pts]) => ({ cluster, points: pts })),
+      })),
+    }));
 }
 
 function filteredPending() {
   const q = state.query.trim().toLowerCase();
   let list = pendingPoints().filter(matchTags);
+  if (state.region) list = list.filter(p => regionOf(p, regionIndex) === state.region);
   if (!q) return list;
   return list.filter(p =>
     p.name.toLowerCase().includes(q) || p.type.toLowerCase().includes(q) ||
@@ -83,7 +108,27 @@ function render() {
       `<button class="tag-chip${state.tagFilter.has(t) ? ' active' : ''}" data-tag="${esc(t)}" title="筛选标签（可叠加）">#${esc(t)} ${n}</button>`).join('')}</div>`;
   }
 
-  for (const { city, clusters } of groupedByCity()) {
+  // 板块统计：与首页共用 regionStats 的口径（点位数 / 已打卡 / 覆盖率）
+  const stats = regionStats(points, regionIndex, id => state.checked.has(id));
+  if (stats.length > 1) {
+    html += `<div class="l-region-stats">${stats.map(s => `
+      <button class="region-chip${state.region === s.id ? ' active' : ''}" data-region="${esc(s.id)}" title="只看该板块">
+        <b>${esc(s.name)}</b><span>${s.total} 个 · 已打卡 ${s.checked} · ${s.coverage}%</span>
+      </button>`).join('')}${state.region ? '<button class="region-chip clear" data-region="">显示全部</button>' : ''}</div>`;
+  }
+
+  for (const { id, name, cities } of groupedByRegion()) {
+    const rkey = 'region:' + id;
+    const rCollapsed = state.collapsed.has(rkey);
+    const rTotal = cities.reduce((n, c) => n + c.clusters.reduce((m, cl) => m + cl.points.length, 0), 0);
+    const rDone = cities.reduce((n, c) => n + c.clusters.reduce((m, cl) => m + cl.points.filter(p => state.checked.has(p.id)).length, 0), 0);
+    html += `
+      <div class="l-region" data-toggle="${esc(rkey)}">
+        <span class="head-arrow">${rCollapsed ? '▶' : '▼'}</span>${esc(name)}
+        <span class="head-count">（${rDone}/${rTotal} · ${rTotal ? Math.round(rDone / rTotal * 100) : 0}%）</span>
+      </div>`;
+    if (rCollapsed) continue;
+    for (const { city, clusters } of cities) {
     const color = meta.cityColors[city] || CITY_FALLBACK;
     const key = 'city:' + city;
     const isCollapsed = state.collapsed.has(key);
@@ -118,6 +163,7 @@ function render() {
           <a class="lp-map" href="./map.html" title="打开地图页查看" onclick="event.stopPropagation()">🗺</a>
         </label>`;
       }).join('');
+    }
     }
   }
 
@@ -171,6 +217,13 @@ app.addEventListener('click', (e) => {
     const t = tagBtn.dataset.tag;
     if (state.tagFilter.has(t)) state.tagFilter.delete(t);
     else state.tagFilter.add(t);
+    render();
+    return;
+  }
+  const regBtn = e.target.closest('[data-region]');
+  if (regBtn) {
+    const id = regBtn.dataset.region;
+    state.region = state.region === id ? '' : id;
     render();
     return;
   }
