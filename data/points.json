@@ -1659,8 +1659,8 @@
     ],
     "estimatedDuration": 45,
     "durationBasis": "estimate",
-    "region": "",
-    "country": ""
+    "region": "ru",
+    "country": "RU"
   },
   {
     "id": "p048",
@@ -1675,8 +1675,8 @@
     "lon": 31.264534,
     "estimatedDuration": 120,
     "durationBasis": "estimate",
-    "region": "",
-    "country": ""
+    "region": "ru",
+    "country": "RU"
   },
   {
     "id": "p049",
@@ -1694,8 +1694,8 @@
     ],
     "estimatedDuration": 30,
     "durationBasis": "estimate",
-    "region": "",
-    "country": ""
+    "region": "ru",
+    "country": "RU"
   },
   {
     "id": "p050",
@@ -1710,8 +1710,8 @@
     "lon": 44.827857,
     "estimatedDuration": 15,
     "durationBasis": "estimate",
-    "region": "",
-    "country": ""
+    "region": "ge",
+    "country": "GE"
   },
   {
     "id": "p051",
@@ -3133,8 +3133,8 @@
     "lon": 77.871638,
     "estimatedDuration": 90,
     "durationBasis": "estimate",
-    "region": "",
-    "country": ""
+    "region": "kz",
+    "country": "KZ"
   },
   {
     "id": "p114",
@@ -3149,8 +3149,8 @@
     "lon": 60.588635,
     "estimatedDuration": 45,
     "durationBasis": "estimate",
-    "region": "",
-    "country": ""
+    "region": "ru",
+    "country": "RU"
   },
   {
     "id": "p115",
@@ -8665,8 +8665,8 @@
     "confidence": 75,
     "estimatedDuration": 300,
     "durationBasis": "estimate",
-    "region": "",
-    "country": ""
+    "region": "ru",
+    "country": "RU"
   },
   {
     "id": "p426",

@@ -136,7 +136,18 @@ console.log(`   票价/预约已知 ${ticketKnown}/${scope.length}（${pct(ticke
     if (legacyHidden.length) err(`无 region 的旧数据被隐藏了 ${legacyHidden.length} 个`);
     if (!visiblePoints(points, createRegionIndex(null)).length) err('regions.json 缺失时应降级为全量可见');
 
-    ok(`板块开关生效：${points.length} → ${visible.length} 个可见点位（关闭：${(doc.regions || []).filter((r) => r.enabled === false).map((r) => r.id).join('/') || '无'}）`);
+    // 归属修正后：fallback 不再有点位，板块计数必须与点位总数自洽
+    const orphan = points.filter((p) => !p.region);
+    if (orphan.length) err(`仍有 ${orphan.length} 个点位未归属板块：${orphan.slice(0, 3).map((p) => p.id).join('、')}`);
+    if (!ids.has('ge')) err('缺 ge（格鲁吉亚）板块');
+    const p050 = points.find((p) => p.id === 'p050');
+    if (!p050 || p050.region !== 'ge') err('p050（第比利斯）必须归属 ge');
+    const sum = (doc.regions || []).reduce((k, r) => k + points.filter((p) => p.region === r.id).length, 0);
+    if (sum !== points.length) err(`板块归属计数之和 ${sum} ≠ 点位总数 ${points.length}`);
+    const enabledCount = points.filter((p) => index.isEnabled(p.region)).length;
+    if (visible.length !== enabledCount) err('可见点位数量与启用板块计数不一致');
+
+    ok(`板块开关生效：${points.length} → ${visible.length} 个可见点位（关闭：${(doc.regions || []).filter((r) => r.enabled === false).map((r) => r.id).join('/') || '无'}）；归属 ${(doc.regions || []).map((r) => `${r.id}=${points.filter((p) => p.region === r.id).length}`).join(' ')}`);
   }
 }
 

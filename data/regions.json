@@ -38,6 +38,18 @@
       "reviewNo": ""
     },
     {
+      "id": "ge",
+      "name": "格鲁吉亚",
+      "country": "GE",
+      "center": [41.6934, 44.8015],
+      "defaultZoom": 11,
+      "enabled": true,
+      "basemap": "world",
+      "bounds": { "bbox": [44.75, 41.64, 44.9, 41.75] },
+      "boundaryFile": null,
+      "reviewNo": ""
+    },
+    {
       "id": "other",
       "name": "其他",
       "country": "其他",
