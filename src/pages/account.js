@@ -4,6 +4,7 @@ import './plan.css';
 // 协作管理页（管理员）：账号管理 + 投稿审核 + AI 设置
 
 import { AI_MODELS, modelInfo, modelCost, TIER_CLASS } from '../modules/ai-models.js';
+import { openReportDialog, REPORT_REASONS } from '../shared/report.js';
 
 const $app = document.getElementById('account-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -83,6 +84,11 @@ async function renderMain() {
       fetch('./data/points.json').then(r => r.json()),
       api('changesets', undefined, 'GET').then(j => j.items),
     ]);
+    const rep = await api('reports', undefined, 'GET', `status=${reportStatus}`);
+    reports = rep.items;
+    reportLogs = rep.logs || [];
+    reportOverdue = rep.overdue || 0;
+    reportPending = rep.pending || 0;
   } catch (e) {
     $app.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}<br><button class="pl-btn" id="ad-retry">重试</button></div>`;
     document.getElementById('ad-retry').onclick = () => location.reload();
@@ -98,6 +104,7 @@ function renderTabs() {
     </div>
     <div class="fr-tabs">
       <button class="fr-tab ${tab === 'pending' ? 'on' : ''}" data-tab="pending">内容审核 (${pending.length})</button>
+      <button class="fr-tab ${tab === 'reports' ? 'on' : ''}" data-tab="reports">举报 (${reportPending}${reportOverdue ? ` · 超时 ${reportOverdue}` : ''})</button>
       <button class="fr-tab ${tab === 'changesets' ? 'on' : ''}" data-tab="changesets">变更入库 (${changesets.length})</button>
       <button class="fr-tab ${tab === 'accounts' ? 'on' : ''}" data-tab="accounts">账号 (${accounts.length})</button>
       <button class="fr-tab ${tab === 'ai' ? 'on' : ''}" data-tab="ai">AI 设置</button>
@@ -106,6 +113,7 @@ function renderTabs() {
   document.getElementById('ad-out').onclick = async () => { try { await api('logout', {}, 'POST'); } catch {} localStorage.removeItem(LS); token = ''; renderLogin(); };
   $app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; selected.clear(); renderTabs(); });
   tab === 'pending' ? renderPending()
+    : tab === 'reports' ? renderReports()
     : tab === 'changesets' ? renderChangesets()
     : tab === 'accounts' ? renderAccounts() : renderAI();
 }
@@ -148,6 +156,7 @@ async function renderPending() {
         <button class="pl-btn small primary" data-ok="${it.id}">✅ 采纳</button>
         <button class="pl-btn small" data-more="${it.id}">💬 需补充</button>
         <button class="pl-btn small danger" data-no="${it.id}">❌ 拒绝</button>
+        <button class="pl-btn small" data-report="${it.id}">🚩 举报</button>
       </div>
     </div>`;
   }).join('') + `</div>`;
@@ -172,6 +181,14 @@ async function renderPending() {
     const r = prompt('驳回理由（必填，至少 2 字）');
     if (r && r.trim().length >= 2) doReview([+b.dataset.no], 'reject', r.trim());
   });
+  body.querySelectorAll('[data-report]').forEach(b => b.onclick = () => {
+    const it = pending.find(x => x.id === +b.dataset.report);
+    openReportDialog({
+      targetType: 'submission', targetId: b.dataset.report,
+      label: it?.title || `投稿 #${b.dataset.report}`,
+      submit: payload => api('report', payload),
+    });
+  });
   bindPendingFilters(body);
 }
 
@@ -193,6 +210,9 @@ async function loadPending() {
 async function refreshAfterReview() {
   await loadPending();
   changesets = (await api('changesets', undefined, 'GET')).items;
+  const rep = await api('reports', undefined, 'GET', `status=${reportStatus}`);
+  reports = rep.items; reportLogs = rep.logs || [];
+  reportOverdue = rep.overdue || 0; reportPending = rep.pending || 0;
   renderTabs();
 }
 async function doReview(ids, action, reason = '') {
@@ -203,6 +223,58 @@ async function doReview(ids, action, reason = '') {
     selected.clear();
     await refreshAfterReview();
   } catch (e) { toast('失败：' + e.message); }
+}
+
+/* A-16 举报处理：待处理列表 + 24h 超时提示 + 移除/驳回/封禁 + 日志 */
+async function loadReports() {
+  const rep = await api('reports', undefined, 'GET', `status=${reportStatus}`);
+  reports = rep.items; reportLogs = rep.logs || [];
+  reportOverdue = rep.overdue || 0; reportPending = rep.pending || 0;
+}
+function renderReports() {
+  const body = document.getElementById('ad-body');
+  const reasonLabel = k => (REPORT_REASONS.find(([x]) => x === k) || [k, k])[1];
+  const filters = `
+    <div class="card ad-new">
+      <div class="ad-new-row">
+        <label style="flex:1">状态 <select id="ad-rst">
+          ${[['pending', '待处理'], ['handled', '已处理'], ['all', '全部']].map(([k, n]) => `<option value="${k}" ${reportStatus === k ? 'selected' : ''}>${n}</option>`).join('')}
+        </select></label>
+        <span class="ad-who">处理时限目标 24h${reportOverdue ? ` · ⚠ 已超时 ${reportOverdue} 条` : ''}</span>
+      </div>
+      <div class="fr-note">处理动作写入举报日志；封禁投稿者会同时清掉该账号全部会话。</div>
+    </div>`;
+  const rows = reports.length ? reports.map(r => `
+    <div class="ad-item card">
+      <div class="ad-item-top">
+        <b>#${r.id} ${reasonLabel(r.reason)}</b>
+        <span class="ad-who">${esc(r.reporter)}</span>
+        <span class="ad-subcnt">${r.status === 'pending' ? '待处理' : '已处理'}${r.overdue ? ' · ⚠ 超时' : ''}</span>
+      </div>
+      <div class="ad-point">${r.target_type === 'submission' ? `投稿 #${r.target_id}${r.s_title ? ' · ' + esc(r.s_title) : ''}` : `点位 ${esc(r.target_id)}`}</div>
+      ${r.note ? `<div class="ad-body">${esc(r.note)}</div>` : ''}
+      <div class="fr-note">举报于 ${new Date(+r.created * 1000).toLocaleString('zh-CN')}${r.handled_by ? ` · 由 ${esc(r.handled_by)} ${ACTION_LABEL[r.action] || r.action}` : ''}</div>
+      ${r.status === 'pending' ? `<div class="pl-ops">
+        ${r.target_type === 'submission' ? `<button class="pl-btn small danger" data-h="${r.id}" data-act="remove">移除内容</button>` : ''}
+        <button class="pl-btn small" data-h="${r.id}" data-act="dismiss">驳回举报</button>
+        ${r.s_username ? `<button class="pl-btn small danger" data-h="${r.id}" data-act="ban">封禁投稿者</button>` : ''}
+      </div>` : ''}
+    </div>`).join('') : `<div class="pl-empty">当前筛选下没有举报</div>`;
+  const logs = reportLogs.length ? `<div class="card"><div class="ad-sec-title">处理与封禁日志</div>
+    ${reportLogs.map(l => `<div class="fr-note" style="margin-top:var(--sp-1,4px)">#${l.id} · ${new Date(+l.created * 1000).toLocaleString('zh-CN')} · ${esc(l.actor)} ${ACTION_LABEL[l.action] || l.action}${l.note ? ' · ' + esc(l.note) : ''}</div>`).join('')}
+  </div>` : '';
+  body.innerHTML = filters + `<div class="ad-list">${rows}</div>` + logs;
+  const rst = body.querySelector('#ad-rst');
+  if (rst) rst.onchange = async () => { reportStatus = rst.value; try { await loadReports(); renderReports(); } catch (e) { toast(e.message); } };
+  body.querySelectorAll('[data-h]').forEach(b => b.onclick = async () => {
+    const action = b.dataset.act;
+    const note = action === 'dismiss' ? (prompt('驳回理由（可选）') || '') : (prompt('处理备注（可选）') || '');
+    try {
+      await api('report_handle', { id: +b.dataset.h, action, note });
+      toast('已处理：' + (ACTION_LABEL[action] || action));
+      await loadReports(); renderReports();
+    } catch (e) { toast('失败：' + e.message); }
+  });
 }
 
 /* P1-6 changeset：导出待应用变更，交给 tools/apply-changesets.mjs 落盘 */
@@ -255,8 +327,9 @@ function renderAccounts() {
     <div class="card"><div class="ad-sec-title">已有账号</div>
       ${accounts.length ? accounts.map(a => `
         <div class="fr-ckrow">
-          <span><b>${esc(a.username)}</b>${a.display ? ` <span class="ad-who">${esc(a.display)}</span>` : ''}</span>
+          <span><b>${esc(a.username)}</b>${a.display ? ` <span class="ad-who">${esc(a.display)}</span>` : ''}${a.banned ? ' <span class="ad-subcnt">🚫 已封禁</span>' : ''}</span>
           <span class="ad-subcnt">投稿 ${a.submissions}</span>
+          <button class="pl-btn small" data-ban="${esc(a.username)}" data-on="${a.banned ? 0 : 1}">${a.banned ? '解除封禁' : '封禁'}</button>
           <button class="pl-btn small danger" data-rm="${esc(a.username)}">删除</button>
         </div>`).join('') : '<div class="fr-note">还没有账号</div>'}
     </div>`;
@@ -274,6 +347,16 @@ function renderAccounts() {
       toast('账号已创建 ✓');
     } catch (e) { res.textContent = '失败：' + e.message; }
   };
+  body.querySelectorAll('[data-ban]').forEach(b => b.onclick = async () => {
+    const on = b.dataset.on === '1';
+    if (on && !confirm(`封禁账号 ${b.dataset.ban}？将同时清掉其全部会话。`)) return;
+    try {
+      await api('ban', { user: b.dataset.ban, banned: on });
+      accounts = (await api('accounts', undefined, 'GET')).accounts;
+      renderTabs();
+      toast(on ? '已封禁' : '已解除封禁');
+    } catch (e) { toast('失败：' + e.message); }
+  });
   body.querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => {
     if (!confirm(`删除账号 ${b.dataset.rm}？其投稿保留。`)) return;
     try {
