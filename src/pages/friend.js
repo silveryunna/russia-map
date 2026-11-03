@@ -6,6 +6,7 @@ import './friend.css';
 import { loadCheckins, hasCheckin } from '../modules/checkin.js';
 import { openVisitRepository } from './visits/repository.js';
 import { AI_MODELS, modelInfo } from '../modules/ai-models.js';
+import { loadRegions, visiblePoints } from '../shared/regions.js';
 
 const $app = document.getElementById('friend-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -17,6 +18,7 @@ const newIdem = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toSt
 let token = localStorage.getItem(LS) || '';
 let me = null;
 let points = [];
+let regionIndex = null;  // 板块开关：投稿/打卡的点位候选只取可见板块
 let checkins = {};
 let tab = 'photo';
 let myItems = [];
@@ -151,6 +153,8 @@ async function renderMain() {
     document.getElementById('fr-retry').onclick = () => location.reload();
     return;
   }
+  regionIndex = await loadRegions();
+  points = visiblePoints(points, regionIndex);
   myItems = myItems.items || [];
   renderTabs();
 }

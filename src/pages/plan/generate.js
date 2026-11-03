@@ -106,12 +106,15 @@ export async function runGenerate(ctx, src) {
   if (btn && src === 'ai') { btn.disabled = true; btn.textContent = '✨ 生成中（约 30-60 秒）…'; }
   toast('生成中…');
   try {
+    // 板块开关：候选点位/动线只取可见板块（cache.visiblePts 由 plan.js 统一计算）
+    const pts = cache.visiblePts || cache.pts;
+    const rts = cache.visibleRts || cache.rts;
     const plan = src === 'ai'
       ? await ai.generate(f, {
-          points: cache.pts.filter(p => p.city === f.city),
-          routes: cache.rts.filter(r => r.city === f.city),
+          points: pts.filter(p => p.city === f.city),
+          routes: rts.filter(r => r.city === f.city),
         })
-      : ruleEngine(f, { pts: cache.pts, rts: cache.rts, matrix: cache.matrix, facts: cache.facts });
+      : ruleEngine(f, { pts, rts, matrix: cache.matrix, facts: cache.facts });
     if (!Array.isArray(plan.interests)) plan.interests = Array.isArray(f.interests) ? f.interests : [];
     const mig = migratePlansV1({ plans: [plan], points: cache.pts });
     const trip = mig.trips[0];

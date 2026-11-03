@@ -16,6 +16,7 @@ import { createChangeEvent, tripItemCount } from './trip/schema.js';
 import { diffTrips, summarizeDiff } from './trip/execution.js';
 import { isValidTimeZone, todayInZone } from '../shared/local-date.js';
 import { checkStorageHealth, deviceNotice } from '../shared/storage-persist.js';
+import { loadRegions, visiblePoints as filterVisiblePoints, isPointVisible } from '../shared/regions.js';
 import {
   PERIOD_LABEL, STATUS_LABEL, clampNum, fmtSpan, itemName, itemType,
   shortDate, snap5, sourceLabel, weekday,
@@ -48,8 +49,9 @@ const TIME_ZONE_OPTIONS = [
 ];
 
 let meta = { cities: [], cityColors: {} };
-let cache = { pts: [], rts: [], matrix: null, facts: null };
+let cache = { pts: [], visiblePts: [], rts: [], visibleRts: [], matrix: null, facts: null };
 let pointsById = new Map();
+let regionIndex = null;  // 板块开关：候选点位只能用可见板块，已有行程条目一律保留
 let store = null;
 let storeWarn = '';
 let dataWarn = [];       // 交通矩阵/事实账本加载失败（离线兜底时为空数组）
@@ -171,7 +173,7 @@ function planBAlternatives(it, limit = 2) {
   if (!place) return [];
   const used = new Set();
   for (const d of current.days) for (const x of d.items) if (x.refId) used.add(x.refId);
-  return suggestAlternatives({ target: place, points: cache.pts, usedIds: used, limit });
+  return suggestAlternatives({ target: place, points: cache.visiblePts, usedIds: used, limit });
 }
 
 function alternativesHtml(it) {
@@ -492,6 +494,7 @@ function renderEditor() {
             ${it.pinnedStart ? `<span class="tr-chip pin">🔒 ${esc(it.pinnedStart)}</span>` : ''}
             ${it.mustVisit === false ? '<span class="tr-chip opt">可删</span>' : ''}
             ${it.confirm !== 'ok' ? '<span class="tr-chip warn">待确认</span>' : ''}
+            ${it.refId && !isPointVisible(pointsById.get(it.refId), regionIndex) ? '<span class="tr-chip">⛔ 所在板块已隐藏</span>' : ''}
             ${cf ? `<span class="tr-chip danger">预订 ${shortDate(cf.itemDate)}</span>` : ''}
             <span class="pl-ptype">${esc(itemType(it, pointsById))}</span>
             <span class="tr-ops">
@@ -777,7 +780,7 @@ function pickerHtml() {
         <input id="tr-q" placeholder="搜索点位名 / 英文名 / 类型" value="${esc(p.q)}">
         <select id="tr-city-sel">
           <option value="">全部城市</option>
-          ${[...new Set(cache.pts.map(x => x.city))].sort().map(c => `<option ${c === p.city ? 'selected' : ''}>${esc(c)}</option>`).join('')}
+          ${[...new Set(cache.visiblePts.map(x => x.city))].sort().map(c => `<option ${c === p.city ? 'selected' : ''}>${esc(c)}</option>`).join('')}
         </select>
         <div class="tr-results" id="tr-results">${pickerResultsHtml()}</div>
       </div>
@@ -787,7 +790,7 @@ function pickerHtml() {
 function pickerResultsHtml() {
   const p = view.picker;
   const q = (p.q || '').trim().toLowerCase();
-  let list = cache.pts.filter(x => !x.pending && (!p.city || x.city === p.city));
+  let list = cache.visiblePts.filter(x => !x.pending && (!p.city || x.city === p.city));
   if (q) list = list.filter(x => `${x.name || ''} ${x.name_en || ''} ${x.type || ''} ${x.cluster || ''}`.toLowerCase().includes(q));
   if (p.mode === 'add') {
     const day = current.days[p.dayIndex];
@@ -797,7 +800,7 @@ function pickerResultsHtml() {
   const candIds = p.mode === 'bind'
     ? ((ambiguities.find(a => a.itemId === p.itemId) || {}).candidates || [])
     : [];
-  const cands = candIds.map(id => pointsById.get(id)).filter(Boolean);
+  const cands = candIds.map(id => pointsById.get(id)).filter(Boolean).filter(x => isPointVisible(x, regionIndex));
   const rest = list.filter(x => !candIds.includes(x.id)).slice(0, 60);
   const row = (x, tag) => `
     <button class="tr-result" data-pick="${esc(x.id)}">
@@ -976,16 +979,22 @@ async function runMigration() {
 }
 
 (async () => {
-  const [pts, rts, mt, trs, fts] = await Promise.all([
+  const [pts, rts, mt, trs, fts, regions] = await Promise.all([
     fetch('./data/points.json').then(r => r.json()),
     fetch('./data/routes.json').then(r => r.json()),
     fetch('./data/meta.json').then(r => r.json()),
     fetch('./data/transit-matrix.json').then(r => (r.ok ? r.json() : null)).catch(() => null),
     loadFactLedger(),
+    loadRegions(),
     ai.loadInfo(),
   ]);
   cache.pts = Array.isArray(pts) ? pts : (pts.points || []);
   cache.rts = Array.isArray(rts) ? rts : (rts.routes || []);
+  // 板块开关：候选点位/动线只取可见板块；pointsById 仍保留全量，避免既有行程条目被静默删除
+  regionIndex = regions;
+  cache.visiblePts = filterVisiblePoints(cache.pts, regionIndex);
+  const visibleCities = new Set(cache.visiblePts.map(p => p.city));
+  cache.visibleRts = cache.rts.filter(r => visibleCities.has(r.city));
   cache.matrix = indexTransitMatrix(trs);
   cache.facts = indexFacts(fts);
   // 静默降级不可接受（审计 B2-2）：矩阵/账本没加载成功必须让用户知道结论降级了

@@ -113,5 +113,33 @@ const trip = makeTrip();
   else fail('清单紧急信息缺失');
 }
 
+// 6) 板块隐藏策略：已存在于行程中的隐藏板块条目不被导出静默删除
+{
+  const { createRegionIndex, isPointVisible } = await import('../src/shared/regions.js');
+  const hidden = { id: 'pHidden', name: '中国点位', lat: 31.23, lon: 121.47, region: 'cn', estimatedDuration: 60 };
+  const idx = createRegionIndex({
+    fallback: 'other',
+    regions: [{ id: 'cn', enabled: false }, { id: 'other', enabled: true, center: [0, 0], defaultZoom: 3, basemap: 'world' }],
+  });
+  if (!isPointVisible(hidden, idx)) ok('cn 关闭时该点位不可见（不可新增）');
+  else fail('cn 关闭时点位仍可见');
+
+  const t = createTrip({
+    id: 't2', title: '隐藏板块', status: 'planned', dateMode: 'fixed',
+    startDate: '2026-07-10', endDate: '2026-07-10',
+    days: [createDay({
+      id: 'dd1', index: 1, date: '2026-07-10', city: '上海',
+      items: [createItem({ id: 'h1', dayId: 'dd1', type: 'visit', refId: 'pHidden', order: 0, estimatedDuration: 60, placeNameSnapshot: '中国点位' })],
+    })],
+    notes: '',
+  }, idFn, now());
+  const gj = tripToGeoJSON(t, { pHidden: hidden });
+  if (gj.features.some(f => f.properties.name === '中国点位')) ok('GeoJSON 仍保留既有隐藏板块条目（不静默删除）');
+  else fail('GeoJSON 静默删除了既有隐藏板块条目');
+  const md = tripChecklistMarkdown(t, { pHidden: hidden });
+  if (md.includes('中国点位')) ok('核验清单仍保留既有隐藏板块条目');
+  else fail('核验清单静默删除了既有隐藏板块条目');
+}
+
 console.log(bad ? `\n${bad} 项失败` : '\nM1 离线包质量门全部通过');
 process.exit(bad ? 1 : 0);

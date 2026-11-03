@@ -10,6 +10,7 @@ import {
 import { pointDigest, tripChecklistMarkdown, tripToGeoJSON, tripToGPX, tripToKML } from './trip/offline.js';
 import { indexTransitMatrix } from './plan/transit-matrix.js';
 import { formatMinutesCrossDay } from './plan/feasibility.js';
+import { loadRegions, isPointVisible } from '../shared/regions.js';
 
 const $app = document.getElementById('today-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -38,6 +39,7 @@ const KIND_ICON = {
 let store = null;
 let storeWarn = '';
 let pointsById = new Map();
+let regionIndex = null;  // 板块开关：已存在行程条目保留，只做提示；不允许新增隐藏板块点位
 let matrix = null;
 let trips = [];
 let current = null;
@@ -91,6 +93,8 @@ function rowFlags(row) {
   if (row.calendar === 'unknown' && row.placeId) flags.push('<span class="td-flag unknown">开放时间待核</span>');
   if (row.transitSourceKind === 'model-estimate' && row.transitMinutes > 0) flags.push('<span class="td-flag estimate">交通为估算</span>');
   if (row.transitSourceKind === 'third-party-route') flags.push('<span class="td-flag">第三方路线</span>');
+  const pt = row.placeId ? pointsById.get(row.placeId) : null;
+  if (pt && !isPointVisible(pt, regionIndex)) flags.push('<span class="td-flag">⛔ 该点位所在板块已隐藏</span>');
   return flags.join('');
 }
 
@@ -361,6 +365,7 @@ async function doDownload(kind) {
   if (!current) return;
   const stamp = localToday();
   const opts = { options: evalOptions(current.days[dayIndex] || {}) };
+  // 板块开关策略：导出保留行程中已存在的条目（即使其板块已隐藏），不静默删除；隐藏状态只在 UI 标注
   const tasks = verificationTasks(current, pointsById, { today: stamp });
   if (kind === 'json') {
     const payload = await store.exportAll();
@@ -410,10 +415,12 @@ async function openDefault() {
 }
 
 (async () => {
-  const [pts, trs] = await Promise.all([
+  const [pts, trs, regions] = await Promise.all([
     fetch('./data/points.json').then(r => r.json()),
     fetch('./data/transit-matrix.json').then(r => (r.ok ? r.json() : null)).catch(() => null),
+    loadRegions(),
   ]);
+  regionIndex = regions;
   const list = Array.isArray(pts) ? pts : (pts.points || []);
   pointsById = new Map(list.map(p => [p.id, p]));
   matrix = indexTransitMatrix(trs);

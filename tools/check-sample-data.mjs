@@ -148,6 +148,21 @@ console.log(`   票价/预约已知 ${ticketKnown}/${scope.length}（${pct(ticke
     if (visible.length !== enabledCount) err('可见点位数量与启用板块计数不一致');
 
     ok(`板块开关生效：${points.length} → ${visible.length} 个可见点位（关闭：${(doc.regions || []).filter((r) => r.enabled === false).map((r) => r.id).join('/') || '无'}）；归属 ${(doc.regions || []).map((r) => `${r.id}=${points.filter((p) => p.region === r.id).length}`).join(' ')}`);
+
+    // 可见性判定本身：关闭板块不可见、启用板块可见
+    const cnPt = points.find((p) => p.region === 'cn');
+    const ruPt = points.find((p) => p.region === 'ru');
+    if (cnPt && isPointVisible(cnPt, index)) err(`${cnPt.id} 属关闭板块 cn，不应通过可见性判断`);
+    if (ruPt && !isPointVisible(ruPt, index)) err(`${ruPt.id} 属启用板块 ru，应通过可见性判断`);
+
+    // 消费方贯通：候选点位必须走 shared/regions.js；既有行程条目保留并标注
+    const srcOf = (f) => readFileSync(resolve(dir, '..', 'src', f), 'utf8');
+    const planSrc = srcOf('pages/plan.js');
+    if (!/cache\.visiblePts/.test(planSrc)) err('计划页选点/换点未使用可见点位（cache.visiblePts）');
+    if (!/isPointVisible/.test(planSrc) || !/所在板块已隐藏/.test(planSrc)) err('计划页未标注隐藏板块的既有条目');
+    if (!/cache\.visiblePts/.test(srcOf('pages/plan/generate.js'))) err('行程生成未使用可见点位（cache.visiblePts）');
+    if (!/isPointVisible/.test(srcOf('pages/today.js'))) err('今日执行未接入板块可见性提示');
+    if (!/visiblePoints/.test(srcOf('pages/friend.js'))) err('好友页点库未按板块过滤');
   }
 }
 
