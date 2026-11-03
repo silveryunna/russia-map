@@ -1153,7 +1153,9 @@ async function main() {
 
   // Visit repository 启动时会做一次性迁移；之后 travel-checkin-v2 只是派生缓存
   let overlays = [];
-  [visitRepo, points, routes, meta, overlays, regionIndex] = await Promise.all([
+  // 后 4 项出厂设置（中国边界/评分/字段/笔记索引）只通过 window 钩子消费，不参与解构；
+  // regionIndex 必须对准 loadRegions()（第 10 项），漏项会让板块配置变成别的对象 → 地图白屏
+  [visitRepo, points, routes, meta, overlays, , , , , regionIndex] = await Promise.all([
     openVisitRepository({
       onChange: (checkins) => {
         state.checked = new Set(Object.keys(checkins));
