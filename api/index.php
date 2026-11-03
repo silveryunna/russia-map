@@ -608,7 +608,7 @@ switch ($a) {
     $to = ['approve' => 'approved', 'reject' => 'rejected', 'needs_more' => 'needs_more'][$action] ?? '';
     if ($to === '') out(['error' => '审核动作非法'], 400);
     $reason = trim(mb_substr((string)($b['reason'] ?? ''), 0, 300));
-    if ($action !== 'approve' && mb_strlen($reason) < 2) out(['error' => '请填写理由（至少 2 字）'], 400);
+    if (mb_strlen($reason) < 2) out(['error' => '请填写理由（至少 2 字）'], 400);
     if (unsafe_html($reason)) out(['error' => '理由含不允许的脚本代码'], 400);
     $ids = array_values(array_unique(array_filter(array_map('intval', (array)($b['ids'] ?? [(int)($b['id'] ?? 0)])))));
     if (!$ids) out(['error' => '缺少投稿 id'], 400);

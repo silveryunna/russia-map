@@ -172,7 +172,10 @@ async function renderPending() {
     const id = +c.dataset.sel;
     c.checked ? selected.add(id) : selected.delete(id);
   });
-  body.querySelectorAll('[data-ok]').forEach(b => b.onclick = () => doReview([+b.dataset.ok], 'approve'));
+  body.querySelectorAll('[data-ok]').forEach(b => b.onclick = () => {
+    const r = prompt('采纳理由（会记入审核日志）', '内容真实且符合收录标准');
+    if (r && r.trim().length >= 2) doReview([+b.dataset.ok], 'approve', r.trim());
+  });
   body.querySelectorAll('[data-more]').forEach(b => b.onclick = () => {
     const r = prompt('需要补充什么？（会发给投稿人）');
     if (r && r.trim().length >= 2) doReview([+b.dataset.more], 'needs_more', r.trim());
@@ -200,7 +203,8 @@ function bindPendingFilters(body) {
   const bulk = body.querySelector('#ad-bulk');
   if (bulk) bulk.onclick = () => {
     if (!selected.size) return toast('先勾选要采纳的投稿');
-    doReview([...selected], 'approve');
+    const r = prompt(`批量采纳 ${selected.size} 条的共用理由`, '内容真实且符合收录标准');
+    if (r && r.trim().length >= 2) doReview([...selected], 'approve', r.trim());
   };
 }
 
