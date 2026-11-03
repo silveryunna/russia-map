@@ -4,6 +4,9 @@ import { renderIcpFooter } from '../shared/icp-footer.js';
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
 
+/* 设计门 L1 · 例外 · Leaflet 的 color/fillColor 会写进 SVG 属性，CSS 变量不解析 · 与 --city-other 同值，改令牌要同步这里 */
+const CITY_FALLBACK = '#546570';
+
 // ===== 打卡清单页：与地图/笔记共享同一个 Visit repository =====
 
 const app = document.getElementById('list-app');
@@ -79,7 +82,7 @@ function render() {
   }
 
   for (const { city, clusters } of groupedByCity()) {
-    const color = meta.cityColors[city] || '#546E7A';
+    const color = meta.cityColors[city] || CITY_FALLBACK;
     const key = 'city:' + city;
     const isCollapsed = state.collapsed.has(key);
     const count = clusters.reduce((n, c) => n + c.points.length, 0);

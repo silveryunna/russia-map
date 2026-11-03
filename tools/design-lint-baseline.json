@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-02",
+ "updatedAt": "2026-11-03",
  "files": {
   "src/pages/admin.css": {
    "L7": 28,
@@ -30,10 +30,10 @@
    "L6": 2
   },
   "src/pages/map.css": {
-   "L7": 71,
-   "L1": 74,
-   "L2": 25,
-   "L6": 16
+   "L7": 68,
+   "L1": 69,
+   "L2": 23,
+   "L6": 13
   },
   "src/pages/notes.css": {
    "L7": 15,
@@ -48,20 +48,52 @@
    "L6": 7
   },
   "src/pages/plan.css": {
-   "L7": 82,
-   "L1": 114,
-   "L2": 19,
-   "L6": 34,
+   "L7": 75,
+   "L1": 95,
+   "L2": 16,
+   "L6": 23,
    "L3": 1
   },
   "src/pages/today.css": {
-   "L7": 24,
-   "L1": 29,
-   "L2": 4,
-   "L6": 1
+   "L7": 22,
+   "L1": 25,
+   "L2": 4
   },
   "src/shared/base.css": {
    "L7": 3
+  },
+  "src/pages/account.js": {
+   "L1JS": 1
+  },
+  "src/pages/map/icons.js": {
+   "L1JS": 9
+  },
+  "src/pages/map/layers.js": {
+   "L1JS": 6
+  },
+  "src/pages/map/overlays.js": {
+   "L1JS": 1
+  },
+  "src/pages/map/ratings.js": {
+   "L1JS": 13
+  },
+  "src/pages/map-annotations.js": {
+   "L1JS": 15
+  },
+  "src/pages/map.js": {
+   "L1JS": 37
+  },
+  "src/pages/notes2.js": {
+   "L1JS": 2
+  },
+  "src/pages/plan/timeline.js": {
+   "L1JS": 4
+  },
+  "src/pages/plan.js": {
+   "L1JS": 2
+  },
+  "src/shared/degraded-banner.js": {
+   "L1JS": 1
   }
  }
 }

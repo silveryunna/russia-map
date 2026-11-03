@@ -19,6 +19,9 @@ import { navLinks, navHref } from './map/nav.js';
 import { drawOverlays, rebuildOverlays } from './map/overlays.js';
 import { initPlayer, playRoute, stopPlay } from './map/player.js';
 import { initLayers, countryOf, sortCities, COUNTRY_STYLE } from './map/layers.js';
+
+/* 设计门 L1 · 例外 · Leaflet 的 color/fillColor 会写进 SVG 属性，CSS 变量不解析 · 与 --city-other 同值，改令牌要同步这里 */
+const CITY_FALLBACK = '#546570';
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
 
@@ -347,7 +350,7 @@ function pointRowHtml(p, loc, prefix, withBadges) {
   const d = loc ? fmtDist(map.distance(loc, [p.lat, p.lon])) : null;
   return `
     <div class="point-row${state.selected === p.id ? ' selected' : ''}" data-pid="${esc(p.id)}">
-      <input type="checkbox" data-check="${esc(p.id)}" style="accent-color:${meta.cityColors[p.city] || '#546E7A'}" ${done ? 'checked' : ''} title="标记已打卡">
+      <input type="checkbox" data-check="${esc(p.id)}" style="accent-color:${meta.cityColors[p.city] || CITY_FALLBACK}" ${done ? 'checked' : ''} title="标记已打卡">
       <div class="pr-main">
         <div class="pr-name${done ? ' done' : ''}">${prefix || ''}${hlRaw(esc(p.name), state.query)}${withBadges ? ratingBadges(p.id) : ''}</div>
         <div class="pr-sub">${p.confidence != null && p.confidence < 100 ? '⚠ ' : ''}${esc(p.type)} · ${esc(p.highlight)}${d ? ` · 📏 ${d}` : ''}</div>
@@ -408,7 +411,7 @@ function pointsTabHtml() {
     if (!copen) continue;
     html += `<div class="country-children" style="--cc:${cs.color}">`;
     for (const { city, clusters } of cities) {
-      const color = meta.cityColors[city] || '#546E7A';
+      const color = meta.cityColors[city] || CITY_FALLBACK;
       const key = 'city:' + city;
       const isCollapsed = !state.opened.has(key);
       const count = clusters.reduce((n, c) => n + c.points.length, 0);
@@ -493,7 +496,7 @@ function lifeTabHtml() {
     html += `
     <div class="city-head" data-toggle="${esc(key)}">
       <span class="head-arrow">${coll ? '▶' : '▼'}</span>
-      <span class="head-dot" style="background:${meta.cityColors[city] || '#546E7A'}"></span>${cf} 【${esc(cn)}-${esc(city)}】
+      <span class="head-dot" style="background:${meta.cityColors[city] || CITY_FALLBACK}"></span>${cf} 【${esc(cn)}-${esc(city)}】
       <span class="head-count">（${pts.length}）</span>
     </div>`;
     if (!coll) for (const p of pts) html += pointRowHtml(p, state.myLoc, icons[lifeCat(p)], true);
@@ -516,7 +519,7 @@ function routeListHtml() {
     const rs = byCity.get(city);
     const cn = countryOf(city);
     const cf = (COUNTRY_STYLE[cn] || COUNTRY_STYLE['其他']).flag;
-    const col = meta.cityColors[city] || '#546E7A';
+    const col = meta.cityColors[city] || CITY_FALLBACK;
     const key = 'rg:' + city;
     const coll = state.collapsed.has(key);
     html += `
@@ -527,7 +530,7 @@ function routeListHtml() {
     </div>`;
     if (!coll) {
       for (const r of rs) {
-        const color = meta.cityColors[r.city] || '#546E7A';
+        const color = meta.cityColors[r.city] || CITY_FALLBACK;
         html += `
     <div class="route-card" data-route="${esc(r.id)}" style="border-color:${color}33;border-left-color:${color}">
       <div class="rc-title"><span style="color:${color}">${esc(r.day)}</span> · ${esc(r.name)}</div>
@@ -541,7 +544,7 @@ function routeListHtml() {
 }
 
 function routeDetailHtml(r) {
-  const color = meta.cityColors[r.city] || '#546E7A';
+  const color = meta.cityColors[r.city] || CITY_FALLBACK;
   const numbered = routePoints(r);
   let html = `<button class="route-back">← 返回动线列表</button>
     <div style="padding:0 12px">
@@ -580,7 +583,7 @@ function refreshMarkers() {
   const route = state.tab === 'routes' ? currentRoute() : null;
 
   if (route) {
-    const color = meta.cityColors[route.city] || '#546E7A';
+    const color = meta.cityColors[route.city] || CITY_FALLBACK;
     const pts = [];
     for (const { p, n } of routePoints(route)) {
       const m = L.marker(xy(p.lat, p.lon), { icon: numberIcon(color, n, state.selected === p.id) });
@@ -597,7 +600,7 @@ function refreshMarkers() {
     }
   } else if (state.tab === 'points' || state.tab === 'life') {
     for (const p of visiblePoints()) {
-      const color = meta.cityColors[p.city] || '#546E7A';
+      const color = meta.cityColors[p.city] || CITY_FALLBACK;
       const icon = categoryIcon(p, state.checked.has(p.id), state.selected === p.id) ||
         dotIcon(color, state.checked.has(p.id), state.selected === p.id, isHighlighted(p));
       const m = L.marker(xy(p.lat, p.lon), { icon });
@@ -680,9 +683,9 @@ function renderChrome() {
 
   const pills = ['全部', ...sortCities(meta.cities)];
   document.getElementById('city-pills').innerHTML = pills.map(c => {
-    const color = c === '全部' ? '#111' : (meta.cityColors[c] || '#546E7A');
+    const color = c === '全部' ? 'var(--text-1)' : (meta.cityColors[c] || CITY_FALLBACK);
     const active = state.city === c;
-    return `<button data-city="${esc(c)}" class="${active ? 'active' : ''}" style="border:1.5px solid ${color};background:${active ? color : 'transparent'};color:${active ? '#fff' : color}">${esc(c)}</button>`;
+    return `<button data-city="${esc(c)}" class="${active ? 'active' : ''}" style="border:1.5px solid ${color};background:${active ? color : 'transparent'};color:${active ? 'var(--surface)' : 'var(--text-1)'}">${esc(c)}</button>`;
   }).join('');
 
   const cp = document.getElementById('city-pills');

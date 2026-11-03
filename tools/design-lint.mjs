@@ -121,10 +121,32 @@ for (const rel of iconCandidates) {
   }
 }
 
+// L1-JS：JS 模板里的颜色字面量（此前门只扫 CSS，是盲区：实测 src/**/*.js 里有 152 处）
+// 例外写法：在行内或上一行写 /* 设计门 L1 · 例外 · 证据 · 理由 */（Leaflet 的 SVG 属性不吃 CSS 变量就是合法例外）
+const jsFiles = [];
+(function walkJs(dir) {
+  for (const e of readdirSync(dir, { withFileTypes: true })) {
+    const p = resolve(dir, e.name);
+    if (e.isDirectory()) { if (e.name !== 'node_modules') walkJs(p); }
+    else if (e.name.endsWith('.js')) jsFiles.push(p);
+  }
+})(resolve(root, 'src'));
+for (const file of jsFiles) {
+  const rel = relative(root, file).replace(/\\/g, '/');
+  const lines = readFileSync(file, 'utf8').split('\n');
+  lines.forEach((line, i) => {
+    if (/^\s*(\/\/|\*|\/\*)/.test(line) && !line.includes('#')) return;
+    const hits = line.match(/#[0-9a-fA-F]{6}\b|#[0-9a-fA-F]{3}\b(?![\w])/g);
+    if (!hits) return;
+    if (/设计门 L1 · 例外/.test(line) || /设计门 L1 · 例外/.test(lines[i - 1] || '')) return;
+    add(file, 'L1JS', i + 1, line);
+  });
+}
+
 // 棘轮：与 baseline 比较，只准降不准升
 let baseline = {};
 try { baseline = JSON.parse(readFileSync(resolve(root, BASELINE_FILE), 'utf8')); } catch { baseline = {}; }
-const RULES = ['L1', 'L2', 'L3', 'L6', 'L7'];
+const RULES = ['L1', 'L2', 'L3', 'L6', 'L7', 'L1JS'];
 let regressed = 0, improved = 0;
 const summary = [];
 for (const rel of Object.keys({ ...baseline, ...findings }).sort()) {

@@ -87,12 +87,12 @@
 .point-row .pr-name { font-size: 13px; font-weight: 600; color: #222; }
 .point-row .pr-name.done { color: #AAA; text-decoration: line-through; }
 .point-row .pr-sub {
-  font-size: 11px; color: #999; margin-top: 1px;
+  font-size: 12px; color: var(--text-2); margin-top: 1px;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
 }
 .point-row.pending { cursor: default; }
 .point-row .pr-badge {
-  flex-shrink: 0; font-size: 10px; color: #B26A00; background: #FFF3D6;
+  flex-shrink: 0; font-size: 12px; color: var(--warning-ink); background: var(--brand-soft);
   border-radius: 4px; padding: 1px 5px; margin-top: 2px;
 }
 
@@ -322,14 +322,12 @@ b.hl { color: #B71C1C; font-weight: 700; }
 .country-head .ch-flag { font-size: 19px; line-height: 1; filter: drop-shadow(0 1px 1px rgba(0,0,0,.15)); }
 .country-head .ch-name {
   flex: 1;
-  background: linear-gradient(90deg, var(--cc), color-mix(in srgb, var(--cc) 55%, #000));
-  -webkit-background-clip: text; background-clip: text;
-  -webkit-text-fill-color: transparent; color: var(--cc);
+  color: var(--text-1);
 }
 .country-head .ch-arrow { color: var(--cc); font-size: 11px; opacity: .75; }
 .head-pill {
-  font-size: 11px; font-weight: 700; padding: 2px 10px; border-radius: 99px;
-  background: color-mix(in srgb, var(--cc) 14%, transparent); color: var(--cc);
+  font-size: 12px; font-weight: 700; padding: 2px 10px; border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--cc) 14%, transparent); color: var(--text-1);
   letter-spacing: 0; flex: none;
 }
 .country-children {
