@@ -106,9 +106,13 @@ if (!policy) { console.error('❌ sw.js 未导出 __SW_POLICY__'); process.exit(
   const list = policy.BUILD_ASSETS;
   if (!Array.isArray(list)) fail('__SW_POLICY__ 未导出 BUILD_ASSETS');
   else {
-    const bad = list.filter(a => !/^\.\/assets\/[A-Za-z0-9._-]+\.(js|css)$/.test(a) || a.includes('tdt-key'));
+    const bad = list.filter(a => !/^\.\/(assets\/[A-Za-z0-9._-]+\.(js|css)|data\/[a-z-]+\.json)$/.test(a) || a.includes('tdt-key'));
     if (!bad.length) ok(`BUILD_ASSETS 清单合法（当前 ${list.length} 项；发布产物由 assemble 注入）`);
     else fail(`BUILD_ASSETS 含非法条目：${bad.join('、')}`);
+    // 首屏数据必须由 assemble 注入，否则断网地图/清单页 Promise.all 直接整页失败
+    const ASM = readFileSync(new URL('./assemble.mjs', import.meta.url), 'utf8');
+    if (/DATA_ASSETS[\s\S]*'data\/points\.json'/.test(ASM) && /\[\.\.\.buildAssets, \.\.\.dataAssets\]/.test(ASM)) ok('assemble 会把首屏数据 JSON 注入预缓存（含 points.json）');
+    else fail('assemble 未把 points.json 等首屏数据注入预缓存：断网打开地图/清单会整页失败');
   }
 }
 

@@ -40,18 +40,33 @@ for (const f of ['sw.js', 'manifest.json', 'favicon.png', 'icon-192.png', 'icon-
     // SW 版本号构建期注入：tn-v<git short sha>，保留 tn- 前缀（缓存清理逻辑按此前缀匹配）
     const sha = gitSha();
     const src = readFileSync(join(ROOT, f), 'utf8');
-    // 预缓存清单：本次构建的 JS/CSS（文件名带内容哈希）；tdt-key* 是密钥文件，永不预缓存
+    // 预缓存清单：本次构建的 JS/CSS（文件名带内容哈希）+ 页面首屏必需的数据 JSON。
+    // tdt-key* 是密钥文件，永不预缓存。
     const assetsDir = join(OUT, 'assets');
     const buildAssets = existsSync(assetsDir)
       ? readdirSync(assetsDir).filter(n => /\.(js|css)$/.test(n) && !n.startsWith('tdt-key')).map(n => `./assets/${n}`)
       : [];
+    // 数据文件：地图/清单/计划/今日页在初始化时用 Promise.all 拉取，缺任何一个都会让整页断网不可用。
+    // 只列运行时真正 fetch 的文件；dianping-manual/michelin-manual 等仅构建期使用，不预缓存。
+    const DATA_ASSETS = [
+      'data/points.json',
+      'data/routes.json',
+      'data/meta.json',
+      'data/site.json',
+      'data/transit-matrix.json',
+      'data/overlays.json',
+      'data/ratings.json',
+      'data/field.json',
+      'data/china-boundary.json',
+    ];
+    const dataAssets = DATA_ASSETS.filter((p) => existsSync(join(OUT, p))).map((p) => `./${p}`);
     let out = src.replace(/const VERSION = '[^']*'/, `const VERSION = 'tn-v${sha}'`);
     if (out === src) { console.error('sw.js VERSION 注入失败：未匹配 const VERSION 行'); process.exit(1); }
     const beforeAssets = out;
-    out = out.replace(/const BUILD_ASSETS = \[[^\]]*\];/, `const BUILD_ASSETS = ${JSON.stringify(buildAssets)};`);
+    out = out.replace(/const BUILD_ASSETS = \[[^\]]*\];/, `const BUILD_ASSETS = ${JSON.stringify([...buildAssets, ...dataAssets])};`);
     if (out === beforeAssets) { console.error('sw.js BUILD_ASSETS 注入失败：未匹配 const BUILD_ASSETS 行'); process.exit(1); }
     writeFileSync(join(OUT, f), out);
-    console.log(`sw.js VERSION → tn-v${sha}；预缓存 ${buildAssets.length} 个 JS/CSS`);
+    console.log(`sw.js VERSION → tn-v${sha}；预缓存 ${buildAssets.length} 个 JS/CSS + ${dataAssets.length} 个数据 JSON`);
   } else {
     copyFileSync(join(ROOT, f), join(OUT, f));
   }

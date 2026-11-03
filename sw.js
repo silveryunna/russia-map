@@ -8,8 +8,8 @@ const VERSION = 'tn-v6c4a974';
 const SHELL_CACHE = 'tn-shell-' + VERSION;
 const RUNTIME_CACHE = 'tn-runtime-' + VERSION;
 
-// 构建期注入：vite 产出的 JS/CSS（带内容哈希，文件名每次构建都会变）。
-// 仓库里默认空数组，tools/assemble.mjs 按 site-out/assets 的实际清单注入。
+// 构建期注入：vite 产出的 JS/CSS（带内容哈希）+ 首屏必需的数据 JSON（points/routes/meta 等）。
+// 仓库里默认空数组，tools/assemble.mjs 按 site-out 实际清单注入。
 // 不预缓存这些文件，用户首次访问后一断网就是白屏（只有 HTML 外壳能离线）。
 const BUILD_ASSETS = [];
 
