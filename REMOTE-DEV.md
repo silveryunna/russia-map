@@ -137,6 +137,11 @@ npm run publish -- --wait
 
 `--wait` 会等线上 `git rev-parse HEAD` 追平（cron ≤2 分钟）。根目录 HTML 与 `assets/` 是产物，不要手改；`sw.js` VERSION 由构建注入 git sha。
 
+> **在 CodeBuddy IDE 里跑 publish 会崩**：该 IDE 注入 `NODE_OPTIONS=--require .../node-language-shim.cjs`，把 `fs.rmSync` 劫持成"安全删除"（转调回收站二进制）。清 `assets/` 时它 `ETIMEDOUT`，表现为 `[4] 同步 site-out → 仓库根` 之后进程崩溃、产物被删了一半。
+>
+> 绕过：先 `$env:NODE_OPTIONS=""`（或 `export NODE_OPTIONS=`）再 `npm run publish`。
+> 已经崩过就先还原再重跑：`git checkout -- assets/ DESIGN.md map.html sw.js && git status --short`。
+
 ### 8.3 多人 / 双机并行
 
 - **同一时刻只让一个会话改 `data/`**：JSON 几乎必然冲突，且产物与数据强耦合
