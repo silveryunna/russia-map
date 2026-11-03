@@ -12,6 +12,7 @@ import './map.css';
 import '../shared/leaflet-default-icon.js';
 import { renderIcpFooter } from '../shared/icp-footer.js';
 import { registerSW } from '../shared/sw-register.js';
+import { showUndoToast } from '../shared/undo-toast.js';
 import { xy } from './map/coords.js';
 import { categoryIcon } from './map/icons.js';
 import { ratingTabs, ratingBadges, validRatings } from './map/ratings.js';
@@ -945,9 +946,13 @@ function bindEvents() {
   body.addEventListener('change', async (e) => {
     const id = e.target.dataset?.check;
     if (!id || !visitRepo) return;
-    await visitRepo.toggle(id);
+    const added = await visitRepo.toggle(id);
     state.checked = new Set(Object.keys(visitRepo.getCheckins()));
     refreshMarkers(); renderSidebar(); renderChrome();
+    // 取消打卡只做软删除：给一次 5 分钟内的撤销机会（记录本身不会丢）
+    if (!added && visitRepo.undoable()) {
+      showUndoToast('已取消该点位打卡', () => visitRepo.undoDelete());
+    }
   });
 
   body.addEventListener('click', (e) => {

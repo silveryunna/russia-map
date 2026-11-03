@@ -3,6 +3,7 @@ import './list.css';
 import { renderIcpFooter } from '../shared/icp-footer.js';
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
+import { showUndoToast } from '../shared/undo-toast.js';
 
 /* 设计门 L1 · 例外 · Leaflet 的 color/fillColor 会写进 SVG 属性，CSS 变量不解析 · 与 --city-other 同值，改令牌要同步这里 */
 const CITY_FALLBACK = '#546570';
@@ -156,9 +157,10 @@ app.addEventListener('input', (e) => {
 app.addEventListener('change', async (e) => {
   const id = e.target.dataset?.check;
   if (!id || !visitRepo) return;
-  await visitRepo.toggle(id);
+  const added = await visitRepo.toggle(id);
   state.checked = new Set(Object.keys(visitRepo.getCheckins()));
   render();
+  if (!added && visitRepo.undoable()) showUndoToast('已取消该点位打卡', () => visitRepo.undoDelete());
 });
 
 app.addEventListener('click', (e) => {

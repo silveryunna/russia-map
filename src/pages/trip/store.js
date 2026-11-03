@@ -296,7 +296,8 @@ export async function openTripStore({ driver = createMemoryDriver(), now = () =>
   async function listVisits(filter = {}) {
     const visits = await driver.getAll('visits');
     return visits.filter(v =>
-      (filter.tripId === undefined || v.tripId === filter.tripId)
+      (filter.includeDeleted === true || !v.deletedAt)
+      && (filter.tripId === undefined || v.tripId === filter.tripId)
       && (filter.placeId === undefined || v.placeId === filter.placeId));
   }
 
@@ -311,19 +312,42 @@ export async function openTripStore({ driver = createMemoryDriver(), now = () =>
     });
   }
 
-  async function deleteVisitsByPlace(placeId) {
+  // 取消打卡＝软删除：标记 deletedAt，保留历史、可撤销（不物理删除）
+  async function softDeleteVisitsByPlace(placeId, at = now()) {
     if (!placeId) return { ok: false, removed: 0 };
     return enqueueWrite(() => transact(['visits'], async (tx) => {
       const visits = await tx.getAll('visits');
       let removed = 0;
+      const ids = [];
       for (const visit of visits) {
-        if (visit.placeId === placeId) {
-          await tx.delete('visits', visit.id);
+        if (visit.placeId === placeId && !visit.deletedAt) {
+          await tx.put('visits', { ...visit, deletedAt: at });
           removed += 1;
+          ids.push(visit.id);
         }
       }
-      notify('visits', { placeId, removed });
-      return { ok: true, removed };
+      notify('visits', { placeId, removed, soft: true });
+      return { ok: true, removed, ids, at };
+    }));
+  }
+
+  // 撤销取消打卡：只恢复 since 之后被软删的记录，避免把更早的删除一起复活
+  async function restoreVisitsByPlace(placeId, { since = 0 } = {}) {
+    if (!placeId) return { ok: false, restored: 0 };
+    return enqueueWrite(() => transact(['visits'], async (tx) => {
+      const visits = await tx.getAll('visits');
+      let restored = 0;
+      for (const visit of visits) {
+        if (visit.placeId === placeId && Number.isFinite(visit.deletedAt)
+          && (!since || visit.deletedAt >= since)) {
+          const next = { ...visit };
+          delete next.deletedAt;
+          await tx.put('visits', next);
+          restored += 1;
+        }
+      }
+      notify('visits', { placeId, restored });
+      return { ok: true, restored };
     }));
   }
 
@@ -390,7 +414,8 @@ export async function openTripStore({ driver = createMemoryDriver(), now = () =>
       schemaVersion: TRIP_SCHEMA_VERSION,
       exportedAt: now(),
       trips: await driver.getAll('trips'),
-      visits: await driver.getAll('visits'),
+      // 软删除（取消打卡）的记录不进备份：避免导出计数虚高，也避免导入后"复活"已取消的打卡
+      visits: (await driver.getAll('visits')).filter(v => !v.deletedAt),
       events: await driver.getAll('events'),
       legs: await driver.getAll('legs'),
     };
@@ -546,7 +571,8 @@ export async function openTripStore({ driver = createMemoryDriver(), now = () =>
     deleteTrip,
     listVisits,
     saveVisit,
-    deleteVisitsByPlace,
+    softDeleteVisitsByPlace,
+    restoreVisitsByPlace,
     replaceVisitsForPlace,
     saveEvent,
     listEvents,
