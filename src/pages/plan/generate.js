@@ -36,7 +36,10 @@ export function renderCreateForm(ctx) {
           <button class="pl-btn small" id="ai-cancel">取消</button>
         </div>
       </div>` : ''}
-      ${ai.info ? `<div class="pl-label">${ai.info.has_custom ? '已接入你自己的 AI（不占用本站次数）' : `今日剩余 ${ai.info.remaining_today}/${ai.info.quota} 次`}</div>` : ''}
+      ${ai.info ? (() => {
+        const hint = ai.quotaHint();
+        return hint ? `<div class="pl-label${hint.warn ? ' warn' : ''}">${esc(hint.text)}${hint.warn ? ' · 接近上限' : ''}</div>` : '';
+      })() : ''}
       ${ai.info && !ai.info.has_custom && ai.info.models && ai.info.models.length ? `
       <label>AI 模型
         <select id="pl-model">${ai.info.models.map(m => `<option ${m === ai.model ? 'selected' : ''}>${esc(m)}</option>`).join('')}</select>
