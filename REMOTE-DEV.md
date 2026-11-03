@@ -161,8 +161,24 @@ GitHub 之外保留一份国内可快速恢复的裸仓：
 | NAS | `/volume1/dev/backup/russia-map.git`（bare） | DSM 任务计划定期从 VPS 镜像 `git fetch --prune` |
 
 ```bash
-git remote add backup root@124.221.104.242:/root/russia-map.git
+# 本机（~/.ssh/config 里已有 russia-vps 别名，指向该私钥）
+git remote add backup russia-vps:/root/russia-map.git
 git push origin main && git push backup main
+```
+
+NAS 上执行一次（DSM SSH 或「控制面板 → 任务计划」以 root 运行）：
+
+```bash
+# 首次：建镜像。NAS 能直连 GitHub 用第一种
+mkdir -p /volume1/dev/backup && cd /volume1/dev/backup
+git clone --mirror https://github.com/silveryunna/russia-map.git russia-map.git
+
+# GitHub 不通时，改从 VPS 镜像拉（需 NAS 上有能登 VPS 的私钥）
+# GIT_SSH_COMMAND="ssh -i /volume1/dev/keys/vps_ed25519" \
+#   git clone --mirror root@124.221.104.242:/root/russia-map.git
+
+# 每日更新（写进 DSM 任务计划，root，每天 03:00）
+cd /volume1/dev/backup/russia-map.git && git remote update --prune
 ```
 
 **镜像仓只接收，绝不在上面签出或开发**：webroot 由 cron 每 2 分钟 `reset --hard origin/main`，服务器上的任何手改都会被覆盖（见 `AGENTS.md` §部署）。
