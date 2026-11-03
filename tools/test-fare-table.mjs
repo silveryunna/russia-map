@@ -12,7 +12,9 @@ const assert = (cond, msg) => (cond ? ok(msg) : fail(msg));
 
 const points = JSON.parse(readFileSync(new URL('../data/points.json', import.meta.url), 'utf8'));
 const list = Array.isArray(points) ? points : points.points;
-const cities = [...new Set(list.map((p) => p.city))].filter((c) => c && c !== '其他城市');
+// 只有单点位的城市不会被排进行程内交通，费率留空（taxiFareFor 返回 null），不臆造
+const cities = [...new Set(list.map((p) => p.city))]
+  .filter((c) => c && list.filter((p) => p.city === c).length >= 2);
 const missing = cities.filter((c) => !TAXI_FARES[c]);
 assert(missing.length === 0, `站内城市都有费率：${cities.join('、')}`);
 

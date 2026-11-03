@@ -176,6 +176,26 @@ console.log(`   票价/预约已知 ${ticketKnown}/${scope.length}（${pct(ticke
     if (!/l-region-stats/.test(srcOf('pages/list.js'))) err('列表页缺少板块统计/筛选层');
     if (!/region-head/.test(srcOf('pages/map.js')) || !/data-focus-region/.test(srcOf('pages/map.js'))) err('地图侧栏缺少板块层或板块定位');
     if (!/flyTo/.test(srcOf('pages/map.js'))) err('地图板块切换未带动中心/缩放');
+
+    // 城市名清理：「其他城市」桶已拆，所有城市必须有排程时区，城市配置与点位一致
+    const { CITY_TIME_ZONES } = await import('../src/pages/trip/migrate.js');
+    if (points.some((p) => p.city === '其他城市')) err('仍有城市为「其他城市」，垃圾桶未清理干净');
+    const cityList = [...new Set(points.map((p) => p.city))];
+    if (cityList.some((c) => !CITY_TIME_ZONES[c])) err(`城市缺时区登记：${cityList.filter((c) => !CITY_TIME_ZONES[c]).join('、')}`);
+    const metaCities = new Set(JSON.parse(readFileSync(resolve(dir, 'meta.json'), 'utf8')).cities || []);
+    if (cityList.some((c) => !metaCities.has(c))) err(`meta.cities 缺点位城市：${cityList.filter((c) => !metaCities.has(c)).join('、')}`);
+
+    // 原「其他城市」的 4 条动线已拆到真实城市，动线与点位不得错配
+    const routesDoc = JSON.parse(readFileSync(resolve(dir, 'routes.json'), 'utf8'));
+    const routes = Array.isArray(routesDoc) ? routesDoc : (routesDoc.routes || []);
+    const byId = new Map(points.map((p) => [p.id, p]));
+    for (const rid of ['o-rzhev', 'o-novgorod', 'o-murmansk', 'o-tbilisi']) {
+      const r = routes.find((x) => x.id === rid);
+      if (!r) { err(`缺动线 ${rid}`); continue; }
+      const stepId = (r.steps || [])[0] && (r.steps[0].pointId || r.steps[0].id || r.steps[0]);
+      const city = byId.get(stepId) && byId.get(stepId).city;
+      if (city !== r.city) err(`动线 ${rid} 城市 ${r.city} 与首步点位 ${stepId} 城市 ${city} 错配`);
+    }
   }
 }
 

@@ -218,7 +218,7 @@ ok(`点位 ${points.length} 个（待核 ${pend}），id/name 无重复`);
   }
   let outliers = 0;
   for (const [city, ps] of byCity) {
-    if (city === '其他城市' || ps.length < 5) continue; // 杂项桶/样本太少不做离群判断
+    if (ps.length < 5) continue; // 样本太少不做离群判断
     for (const p of ps) {
       let nearest = Infinity;
       for (const q of ps) {

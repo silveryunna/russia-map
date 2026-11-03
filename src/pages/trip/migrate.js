@@ -16,9 +16,19 @@ export const CITY_TIME_ZONES = {
   '圣彼得堡': 'Europe/Moscow',
   '叶卡捷琳堡': 'Asia/Yekaterinburg',
   '阿拉木图': 'Asia/Almaty',
+  '勒热夫': 'Europe/Moscow',
+  '大诺夫哥罗德': 'Europe/Moscow',
+  '摩尔曼斯克': 'Europe/Moscow',
+  '雅罗斯拉夫尔': 'Europe/Moscow',
+  '第比利斯': 'Asia/Tbilisi',
   '哈尔滨': 'Asia/Shanghai',
   '伊宁': 'Asia/Shanghai',
   '三亚': 'Asia/Shanghai',
+  '赛里木湖': 'Asia/Shanghai',
+  '博乐': 'Asia/Shanghai',
+  '阿拉山口': 'Asia/Shanghai',
+  '霍尔果斯': 'Asia/Shanghai',
+  '乌鲁木齐': 'Asia/Shanghai',
 };
 
 export function indexPlaces(points) {

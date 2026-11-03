@@ -170,7 +170,7 @@ function savePoint() {
   S.points[S.editIdx] = {
     id: S.points[S.editIdx].id || nextPointId(),
     name,
-    city: val('pt-city') || '其他城市',
+    city: val('pt-city') || '莫斯科',
     cluster: val('pt-cluster') || '未分组',
     type: val('pt-type'),
     highlight: val('pt-highlight'),
