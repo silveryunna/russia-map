@@ -8,3 +8,6 @@ dist/
 site-out/
 smoke-*.png
 verify-desktop.png
+
+# 设计试衣间（一次性决策产物，不进版本库；结论写 docs/DESIGN-DECISIONS.md）
+design-previews/
