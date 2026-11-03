@@ -75,5 +75,55 @@ for (const name of ['accounts', 'pending', 'approve', 'reject']) {
   assert((php.match(/[^a-zA-Z_]out\(/g) || []).length >= 5, '端点统一用 out() 响应');
 }
 
+// 7) AI 治理（P1-7）：IP 维度限流、可信代理解析、熔断告警去重、幂等计费、公开配额结构
+{
+  // 429 必须带 Retry-After（客户端/代理据此决定何时重试）
+  assert(php.includes("header('Retry-After: '"), '限流 429 统一带 Retry-After');
+  assert(sections.length > 0 && find('plan') && find('plan').body.includes('out_retry('), 'plan 端点用 out_retry 返回 429');
+
+  // 取 IP：默认只信 REMOTE_ADDR；仅当直连来源命中 trusted_proxies 才解析 XFF
+  assert(php.includes('function client_ip('), '定义 client_ip()');
+  assert(php.includes("$GLOBALS['CONF']['trusted_proxies'] ?? []"), '可信代理列表来自配置，默认空数组');
+  const trustIdx = php.indexOf("['trusted_proxies']");
+  const xffIdx = php.indexOf('HTTP_X_FORWARDED_FOR');
+  assert(trustIdx > 0 && xffIdx > trustIdx, 'XFF 解析位于可信代理判断之后（伪造头默认不生效）');
+  assert(/if \(!\$trusted \|\| !ip_in_list\(\$remote, \$trusted\)\) return \$remote;/.test(php), '非可信直连来源直接返回 REMOTE_ADDR');
+  assert(/foreach \(array_reverse\(array_map\('trim', explode\(',', \$xff\)\)\) as \$hop\)/.test(php), 'XFF 从右往左取第一个不可信地址');
+
+  // IP 维度限流：滑动窗口命中表 + 与账号日额度并存
+  assert(php.includes('function ip_rate_status(') && php.includes('function ip_rate_record('), '定义 IP 滑动窗口计数');
+  assert(/CREATE TABLE IF NOT EXISTS ai_ip_hits/.test(php) && /idx_ai_ip_hits/.test(php), 'IP 命中表与索引');
+  const plan = find('plan');
+  assert(plan && plan.body.includes('ip_rate_status('), 'plan 必须做 IP 维度限流');
+  assert(plan && plan.body.includes('ip_rate_record('), '真正发起生成才记一次 IP 命中（重放/被拒不占额度）');
+  assert(plan && plan.body.includes('$ips[\'remaining\'] <= 0'), 'IP 超限直接 429');
+  // 参数在策略里，不散落代码
+  assert(/function ai_policy\(/.test(php) && /'ip_rate_max' =>/.test(php) && /'ip_rate_window' =>/.test(php), 'IP 限流参数写入 ai_policy 配置');
+  assert(/'ip_rate_max' => max\(1, \(int\)\(\$rows\['ip_rate_max'\] \?\? 10\)\)/.test(php), 'IP 限流默认 10 次');
+  assert(/'ip_rate_window' => max\(60, \(int\)\(\$rows\['ip_rate_window'\] \?\? 600\)\)/.test(php), 'IP 窗口默认 600 秒');
+
+  // 告警：60% / 80%，同周期同阈值只告一次，结构化日志 + 管理页可见
+  assert(/CREATE TABLE IF NOT EXISTS ai_alerts/.test(php), '告警表');
+  assert(/UNIQUE\(period, threshold\)/.test(php), '告警按「周期+阈值」唯一（去重）');
+  assert(/INSERT OR IGNORE INTO ai_alerts/.test(php), '告警写入用 INSERT OR IGNORE');
+  assert(/foreach \(\[60, 80\] as \$th\)/.test(php), '阈值 60% / 80%');
+  assert(/\[ai_alert\]/.test(php) && /json_encode\(\[[\s\S]*?'period' => \$period/.test(php), '告警写结构化 JSON 日志');
+  const usage = find('ai_usage');
+  assert(usage && usage.body.includes("'alerts'"), 'ai_usage 返回告警历史（管理页告警条）');
+  assert(usage && usage.body.includes('ok IN (0,1)'), '用量明细排除待定/幂等占位行');
+
+  // 幂等计费：同 idem 只成功计费一次，重放返回已存结果
+  assert(/CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_calls_idem ON ai_calls\(idem\)/.test(php), 'ai_calls 的 idem 唯一索引');
+  assert(plan && plan.body.includes('duplicate') && /\(int\)\$prev\['ok'\] === 2/.test(plan.body), '同 idem 并发生成直接拒绝，避免重复计费');
+  assert(plan && plan.body.includes('ai_calls WHERE idem=?') && plan.body.includes('result=?'), '成功结果落库供重放');
+
+  // 公开配额结构：未登录也能拿到 IP 维度剩余次数
+  const policy = find('ai_policy');
+  assert(policy && policy.body.includes('session_peek('), 'ai_policy GET 不强制登录（匿名可读配额）');
+  assert(policy && policy.body.includes("'anonymous' =>") && policy.body.includes("'ip_limit' =>"), '配额接口返回 anonymous / ip_limit 结构');
+  assert(policy && policy.body.includes("'remaining_today' =>"), '配额接口返回 remaining_today');
+  assert(policy && policy.body.includes('if (!$isAdmin)'), '策略写入仍要求管理员');
+}
+
 if (bad) { console.error(`\n${bad} 处 API 契约被破坏`); process.exit(1); }
 console.log('\nAPI 契约质量门通过');

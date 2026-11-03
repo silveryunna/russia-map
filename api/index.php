@@ -32,9 +32,20 @@ $db->exec('CREATE TABLE IF NOT EXISTS ai_calls(
   id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, channel TEXT NOT NULL,
   model TEXT, prompt_tokens INTEGER DEFAULT 0, completion_tokens INTEGER DEFAULT 0,
   ok INTEGER DEFAULT 1, created INTEGER)');
+// AI 治理（P1-7）：月用量告警（同周期同阈值唯一，天然去重）+ IP 窗口命中行（滑动窗口计数）
+$db->exec('CREATE TABLE IF NOT EXISTS ai_alerts(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, period TEXT NOT NULL, threshold INTEGER NOT NULL,
+  tokens INTEGER DEFAULT 0, cap INTEGER DEFAULT 0, created INTEGER,
+  UNIQUE(period, threshold))');
+$db->exec('CREATE TABLE IF NOT EXISTS ai_ip_hits(ip TEXT NOT NULL, created INTEGER NOT NULL)');
+$db->exec('CREATE INDEX IF NOT EXISTS idx_ai_ip_hits ON ai_ip_hits(ip, created)');
 // 幂等键列（旧库自动补列；同一次提交重试只入库一次）
 try { $db->exec('ALTER TABLE submissions ADD COLUMN idem TEXT'); } catch (PDOException $e) { /* 已存在 */ }
 $db->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_sub_idem ON submissions(idem)');
+// AI 幂等：同一 idem 重放返回已存结果，避免客户端重试把同一次生成重复计费/重复计数
+try { $db->exec('ALTER TABLE ai_calls ADD COLUMN idem TEXT'); } catch (PDOException $e) { /* 已存在 */ }
+try { $db->exec('ALTER TABLE ai_calls ADD COLUMN result TEXT'); } catch (PDOException $e) { /* 已存在 */ }
+$db->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_calls_idem ON ai_calls(idem)');
 
 // 渲染侧（弹窗/笔记）会拼 HTML，入口拦掉脚本注入
 function unsafe_html(string $s): bool {
@@ -45,20 +56,70 @@ function out($d, int $code = 200): void { http_response_code($code); echo json_e
 function body(): array { $b = json_decode(file_get_contents('php://input') ?: '', true); return is_array($b) ? $b : []; }
 function bearer(): string { return preg_replace('/^Bearer\s+/i', '', $_SERVER['HTTP_AUTHORIZATION'] ?? '') ?: ''; }
 
-function session_ok(PDO $db, string $token, bool $needAdmin = false): array {
-  if (!$token) out(['error' => '未登录'], 401);
+/** 只读会话（不 401）：公开配额状态接口需要「登录就个性化、未登录就给匿名额度」。 */
+function session_peek(PDO $db, string $token): ?array {
+  if ($token === '') return null;
   $s = $db->prepare('SELECT * FROM sessions WHERE token=? AND exp>?');
   $s->execute([$token, time()]);
   $row = $s->fetch(PDO::FETCH_ASSOC);
+  return $row ?: null;
+}
+function session_ok(PDO $db, string $token, bool $needAdmin = false): array {
+  if (!$token) out(['error' => '未登录'], 401);
+  $row = session_peek($db, $token);
   if (!$row || ($needAdmin && !$row['is_admin'])) out(['error' => '未登录或权限不足'], 401);
   return $row;
+}
+/* ---------- 客户端 IP 解析（防 X-Forwarded-For 伪造） ----------
+ * 规则：默认只信任 REMOTE_ADDR。只有直连来源命中 config.php 的 'trusted_proxies'（IP 或 CIDR）
+ * 时才解析 XFF，并从右往左跳过可信代理、取第一个不可信地址。
+ * 理由：XFF 整串都是客户端可写的；无条件信任就能伪造任意 IP 绕过 IP 限流，或把配额栽赃给别人。
+ * 从右往左取，是因为每层代理都会把自己的真实 peer 追加在右侧；左侧内容谁都能编。
+ * 部署示例（config.php）：'trusted_proxies' => ['127.0.0.1', '10.0.0.0/8']。 */
+function ip_in_list(string $ip, array $list): bool {
+  $long = ip2long($ip);
+  if ($long === false) return false;
+  foreach ($list as $entry) {
+    $entry = trim((string)$entry);
+    if ($entry === '') continue;
+    if (strpos($entry, '/') === false) {
+      if (ip2long($entry) === $long) return true;
+      continue;
+    }
+    [$net, $bits] = explode('/', $entry, 2);
+    $base = ip2long($net);
+    $b = (int)$bits;
+    if ($base === false || $b < 0 || $b > 32) continue;
+    $mask = $b === 0 ? 0 : (-1 << (32 - $b));
+    if (($long & $mask) === ($base & $mask)) return true;
+  }
+  return false;
+}
+function client_ip(): string {
+  $remote = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+  if ($remote === '') return '?';
+  $trusted = (array)($GLOBALS['CONF']['trusted_proxies'] ?? []);
+  if (!$trusted || !ip_in_list($remote, $trusted)) return $remote;
+  $xff = (string)($_SERVER['HTTP_X_FORWARDED_FOR'] ?? '');
+  if ($xff === '') return $remote;
+  foreach (array_reverse(array_map('trim', explode(',', $xff))) as $hop) {
+    if (!filter_var($hop, FILTER_VALIDATE_IP)) break;
+    if (ip_in_list($hop, $trusted)) continue;
+    return $hop;
+  }
+  return $remote;
+}
+/** 429 统一带 Retry-After（秒），让客户端与代理知道什么时候可以再来。 */
+function out_retry(array $d, int $sec, int $code = 429): void {
+  header('Retry-After: ' . max(1, $sec));
+  out($d, $code);
 }
 function rate_limit(PDO $db, string $key, int $max = 5, int $lockSec = 900): void {
   $k = 'lf:' . $key;
   $r = $db->prepare('SELECT n,until FROM fails WHERE k=?');
   $r->execute([$k]);
   $row = $r->fetch(PDO::FETCH_ASSOC);
-  if ($row && $row['until'] > time()) out(['error' => '尝试次数过多，请15分钟后再试'], 429);
+  if ($row && $row['until'] > time()) out_retry(['error' => '尝试次数过多，请15分钟后再试'], (int)$row['until'] - time());
   $GLOBALS['__rl'] = function (bool $ok) use ($db, $k, $row, $max, $lockSec) {
     if ($ok) { $db->prepare('DELETE FROM fails WHERE k=?')->execute([$k]); return; }
     $n = ($row['n'] ?? 0) + 1;
@@ -80,9 +141,53 @@ function ai_policy(PDO $db): array {
     'custom_quota' => max(0, (int)($rows['custom_quota'] ?? 20)),
     'month_token_cap' => max(0, (int)($rows['month_token_cap'] ?? 2000000)),
     'site_enabled' => (int)($rows['site_enabled'] ?? 1),
+    // IP 维度限流：默认 10 次 / 600 秒（只在实际发起生成时记命中，重放/拒绝不占额度）
+    'ip_rate_max' => max(1, (int)($rows['ip_rate_max'] ?? 10)),
+    'ip_rate_window' => max(60, (int)($rows['ip_rate_window'] ?? 600)),
     'models_friend' => $j('models_friend', ['deepseek-v4-pro']),
     'models_admin' => $j('models_admin', ['deepseek-v4-pro']),
   ];
+}
+/** 月站内通道 token：熔断与告警的唯一取数口径（只算真实成功调用）。 */
+function ai_month_tokens(PDO $db): int {
+  $q = $db->query("SELECT COALESCE(SUM(prompt_tokens+completion_tokens),0) FROM ai_calls WHERE channel='site' AND ok=1 AND model NOT LIKE 'test:%' AND created>=" . strtotime('first day of this month'));
+  return (int)$q->fetchColumn();
+}
+/** 月 token 达 60% / 80% 时告警：结构化日志 + ai_alerts 行；同周期同阈值唯一索引保证只告一次。 */
+function ai_alert_scan(PDO $db, int $tokens, int $cap): void {
+  if ($cap <= 0) return;
+  $period = date('Y-m');
+  $pct = (int)floor($tokens * 100 / $cap);
+  foreach ([60, 80] as $th) {
+    if ($pct < $th) continue;
+    $st = $db->prepare('INSERT OR IGNORE INTO ai_alerts(period,threshold,tokens,cap,created) VALUES(?,?,?,?,?)');
+    $st->execute([$period, $th, $tokens, $cap, time()]);
+    if ($st->rowCount() > 0) {
+      error_log('[ai_alert] ' . json_encode([
+        'period' => $period, 'threshold' => $th, 'tokens' => $tokens, 'cap' => $cap, 'pct' => $pct,
+      ], JSON_UNESCAPED_UNICODE));
+    }
+  }
+}
+/** 滑动窗口状态：命中行存在 ai_ip_hits，窗口内计数与冷却时间。 */
+function ip_rate_status(PDO $db, string $ip, array $pol): array {
+  $win = max(60, (int)$pol['ip_rate_window']);
+  $max = max(1, (int)$pol['ip_rate_max']);
+  $since = time() - $win;
+  $q = $db->prepare('SELECT COUNT(*), MIN(created) FROM ai_ip_hits WHERE ip=? AND created>=?');
+  $q->execute([$ip, $since]);
+  [$used, $oldest] = $q->fetch(PDO::FETCH_NUM);
+  $used = (int)$used;
+  return [
+    'max' => $max, 'window' => $win, 'used' => $used,
+    'remaining' => max(0, $max - $used),
+    'reset_in' => $used > 0 ? max(1, (int)$oldest + $win - time()) : 0,
+  ];
+}
+function ip_rate_record(PDO $db, string $ip, int $window): void {
+  $db->prepare('INSERT INTO ai_ip_hits(ip,created) VALUES(?,?)')->execute([$ip, time()]);
+  // 只保留两个窗口内的行，避免表无限增长
+  $db->prepare('DELETE FROM ai_ip_hits WHERE created<?')->execute([time() - max(60, $window) * 2]);
 }
 // SSRF 防线：自定义 endpoint 会被服务器代发请求，必须挡住内网/回环地址（2026-10 审计项）
 // 同时返回解析结果，供 cURL 用 CURLOPT_RESOLVE 固定 IP —— 否则校验与真正连接各解析一次，
@@ -175,7 +280,7 @@ function ai_http(string $url, string $key, array $payload, array $pin = []): arr
 }
 
 $a = $_GET['a'] ?? '';
-$ip = $_SERVER['REMOTE_ADDR'] ?? '?';
+$ip = client_ip();
 
 switch ($a) {
   case 'login': {
@@ -346,10 +451,12 @@ switch ($a) {
     $s = session_ok($db, bearer());
     $who = $s['who']; $isAdmin = (bool)$s['is_admin'];
     $pol = ai_policy($db);
-    // 防重入：10 秒内重复调用直接拒绝（pro 模型一次调用 30-60s，连点=连烧）
-    $q = $db->prepare('SELECT MAX(created) FROM ai_calls WHERE username=?');
-    $q->execute([$who]);
-    if ((int)$q->fetchColumn() > time() - 10) out(['error' => '正在生成中，请稍候再试'], 429);
+    $ip = client_ip();
+    // IP 维度限流（与账号日配额并存、取更严者）：先判窗口再干活；命中数只在实际发起生成时累加
+    $ips = ip_rate_status($db, $ip, $pol);
+    if ($ips['remaining'] <= 0) {
+      out_retry(['error' => "同一 IP 生成过于频繁（{$ips['max']} 次 / {$ips['window']} 秒），请稍后再试", 'ip_limit' => $ips], $ips['reset_in'] ?: $ips['window']);
+    }
 
     $b = body();
     $params = (array)($b['params'] ?? []);
@@ -358,6 +465,9 @@ switch ($a) {
     $date = mb_substr(preg_replace('/[^\d-]/', '', (string)($params['date'] ?? '')), 0, 10);
     $interests = array_slice(array_map(fn($x) => mb_substr((string)$x, 0, 10), (array)($params['interests'] ?? [])), 0, 8);
     if ($city === '') out(['error' => '缺少目的地'], 400);
+
+    // 幂等键：客户端一次生成的所有重试共用同一个 idem，服务端据此重放结果、防并发双计费
+    $idem = mb_substr(preg_replace('/[^\w-]/', '', (string)($b['idem'] ?? '')), 0, 64);
 
     // 通道解析：个人自定义接入（ai_settings）优先，否则站内通道（站点 Key 只发往硬编码域名，绝不转发）
     $st = $db->prepare('SELECT * FROM ai_settings WHERE username=?');
@@ -389,11 +499,43 @@ switch ($a) {
     $q = $db->prepare("SELECT COUNT(*) FROM ai_calls WHERE username=? AND created>=? AND ok=1 AND model NOT LIKE 'test:%'");
     $q->execute([$who, strtotime('today')]);
     $used = (int)$q->fetchColumn();
-    if ($used >= $quota) out(['error' => "今日 AI 生成已达上限（{$quota} 次），明天再来"], 429);
-    // 月 token 熔断：只算站内通道（烧站点账单的那条）
+
+    // 幂等重放：同一 idem 已成功 → 直接回存好的结果，不再调模型、不再计费/计数
+    if ($idem !== '') {
+      $q = $db->prepare('SELECT id,ok,result,model,channel,created FROM ai_calls WHERE idem=? AND username=?');
+      $q->execute([$idem, $who]);
+      $prev = $q->fetch(PDO::FETCH_ASSOC);
+      if ($prev && (int)$prev['ok'] === 1 && $prev['result'] !== null) {
+        $stored = json_decode((string)$prev['result'], true);
+        if (is_array($stored)) {
+          out([
+            'plan' => $stored, 'duplicate' => true,
+            'remaining' => max(0, $quota - $used),
+            'model' => $prev['model'], 'channel' => $prev['channel'], 'ip_limit' => $ips,
+          ]);
+        }
+      }
+      // 同 idem 仍在生成中：不再发起第二次真实调用
+      if ($prev && (int)$prev['ok'] === 2 && (int)$prev['created'] > time() - 300) {
+        out_retry(['error' => '同一请求正在生成中，请稍后再试', 'duplicate' => true], 10);
+      }
+      // 失败或过期占位：清掉后允许本次重试重建（唯一索引随删随放）
+      if ($prev) $db->prepare('DELETE FROM ai_calls WHERE id=?')->execute([(int)$prev['id']]);
+    } else {
+      // 防重入（旧客户端无 idem）：10 秒内重复调用直接拒绝（pro 模型一次调用 30-60s，连点=连烧）
+      $q = $db->prepare('SELECT MAX(created) FROM ai_calls WHERE username=?');
+      $q->execute([$who]);
+      if ((int)$q->fetchColumn() > time() - 10) out_retry(['error' => '正在生成中，请稍候再试'], 10);
+    }
+
+    if ($used >= $quota) {
+      out_retry(['error' => "今日 AI 生成已达上限（{$quota} 次），明天再来", 'remaining' => 0], max(1, strtotime('tomorrow') - time()));
+    }
+    // 月 token 熔断 + 告警扫描：只算站内通道（烧站点账单的那条）
     if ($channel === 'site') {
-      $q = $db->query("SELECT COALESCE(SUM(prompt_tokens+completion_tokens),0) FROM ai_calls WHERE channel='site' AND ok=1 AND model NOT LIKE 'test:%' AND created>=" . strtotime('first day of this month'));
-      if ((int)$q->fetchColumn() >= $pol['month_token_cap']) out(['error' => '本月站内 AI 用量已达熔断阈值，请联系管理员'], 503);
+      $monthTok = ai_month_tokens($db);
+      ai_alert_scan($db, $monthTok, (int)$pol['month_token_cap']);
+      if ($monthTok >= $pol['month_token_cap']) out(['error' => '本月站内 AI 用量已达熔断阈值，请联系管理员'], 503);
     }
 
     // context 服务端二次裁剪：同城、白名单字段、封顶 150 个（前端也裁剪，这里不依赖前端自觉）
@@ -416,6 +558,33 @@ switch ($a) {
         ['role' => 'user', 'content' => json_encode(['city' => $city, 'date' => $date, 'days' => $days, 'interests' => $interests, 'points' => $pts, 'routes' => $rts], JSON_UNESCAPED_UNICODE)],
       ],
     ];
+
+    // 占位行：同 idem 的并发请求抢唯一索引失败，只有第一个能进到真实调用
+    $pendingId = 0;
+    if ($idem !== '') {
+      try {
+        $db->prepare('INSERT INTO ai_calls(username,channel,model,prompt_tokens,completion_tokens,ok,created,idem) VALUES(?,?,?,0,0,2,?,?)')
+          ->execute([$who, $channel, $model, time(), $idem]);
+        $pendingId = (int)$db->lastInsertId();
+      } catch (PDOException $e) {
+        $q = $db->prepare('SELECT id,ok,result,model,channel FROM ai_calls WHERE idem=? AND username=?');
+        $q->execute([$idem, $who]);
+        $prev2 = $q->fetch(PDO::FETCH_ASSOC);
+        if ($prev2 && (int)$prev2['ok'] === 1 && $prev2['result'] !== null) {
+          $stored = json_decode((string)$prev2['result'], true);
+          if (is_array($stored)) {
+            out([
+              'plan' => $stored, 'duplicate' => true, 'remaining' => max(0, $quota - $used),
+              'model' => $prev2['model'], 'channel' => $prev2['channel'], 'ip_limit' => $ips,
+            ]);
+          }
+        }
+        out_retry(['error' => '同一请求正在生成中，请稍后重试', 'duplicate' => true], 10);
+      }
+    }
+    // 真正发起生成才记一次 IP 窗口命中（重放/被拒不计）
+    ip_rate_record($db, $ip, (int)$pol['ip_rate_window']);
+    $ips['used']++; $ips['remaining'] = max(0, $ips['max'] - $ips['used']);
 
     $r = ai_http($url, $key, $payload, $pin);
     $pt = 0; $ct = 0; $ok = 0; $plan = null; $errMsg = '';
@@ -457,10 +626,16 @@ switch ($a) {
         if ($dropped) $plan['note'] = '已忽略 AI 建议的未知点位：' . implode('、', array_slice(array_unique($dropped), 0, 5));
       }
     }
-    $db->prepare('INSERT INTO ai_calls(username,channel,model,prompt_tokens,completion_tokens,ok,created) VALUES(?,?,?,?,?,?,?)')
-      ->execute([$who, $channel, $model, $pt, $ct, $ok, time()]);
-    if (!$ok) out(['error' => $errMsg ?: 'AI 生成失败'], 502);
-    out(['plan' => $plan, 'remaining' => max(0, $quota - $used - 1), 'model' => $model, 'channel' => $channel]);
+    if ($idem !== '' && $pendingId) {
+      $db->prepare('UPDATE ai_calls SET prompt_tokens=?, completion_tokens=?, ok=?, result=? WHERE id=?')
+        ->execute([$pt, $ct, $ok, $ok ? json_encode($plan, JSON_UNESCAPED_UNICODE) : null, $pendingId]);
+    } else {
+      $db->prepare('INSERT INTO ai_calls(username,channel,model,prompt_tokens,completion_tokens,ok,created) VALUES(?,?,?,?,?,?,?)')
+        ->execute([$who, $channel, $model, $pt, $ct, $ok, time()]);
+    }
+    if ($channel === 'site' && $ok) ai_alert_scan($db, ai_month_tokens($db), (int)$pol['month_token_cap']);
+    if (!$ok) out(['error' => $errMsg ?: 'AI 生成失败', 'ip_limit' => $ips], 502);
+    out(['plan' => $plan, 'remaining' => max(0, $quota - $used - 1), 'model' => $model, 'channel' => $channel, 'ip_limit' => $ips]);
   }
   case 'ai_settings': {
     $s = session_ok($db, bearer());
@@ -494,10 +669,24 @@ switch ($a) {
     out(['ok' => true]);
   }
   case 'ai_policy': {
-    $s = session_ok($db, bearer());
-    $isAdmin = (bool)$s['is_admin'];
+    // GET 公开：未登录也能拿到 IP 维度的剩余次数（前端在生成前就能显示额度）；
+    // 登录用户拿到的是账号日额度，POST 写入仍然要求管理员。
+    $s = session_peek($db, bearer());
+    $isAdmin = $s ? (bool)$s['is_admin'] : false;
     $pol = ai_policy($db);
+    $ipLimit = ip_rate_status($db, client_ip(), $pol);
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+      if (!$s) {
+        out([
+          'anonymous' => true,
+          'quota' => $ipLimit['max'],
+          'remaining_today' => $ipLimit['remaining'],
+          'models' => $pol['models_friend'],
+          'has_custom' => false,
+          'site_enabled' => (bool)$pol['site_enabled'],
+          'ip_limit' => $ipLimit,
+        ]);
+      }
       $st = $db->prepare('SELECT endpoint FROM ai_settings WHERE username=?');
       $st->execute([$s['who']]);
       $hasCustom = (bool)$st->fetchColumn();
@@ -505,11 +694,13 @@ switch ($a) {
       $q = $db->prepare("SELECT COUNT(*) FROM ai_calls WHERE username=? AND created>=? AND ok=1 AND model NOT LIKE 'test:%'");
       $q->execute([$s['who'], strtotime('today')]);
       out([
+        'anonymous' => false,
         'quota' => $quota,
         'remaining_today' => max(0, $quota - (int)$q->fetchColumn()),
         'models' => $isAdmin ? $pol['models_admin'] : $pol['models_friend'],
         'has_custom' => $hasCustom,
         'site_enabled' => (bool)$pol['site_enabled'],
+        'ip_limit' => $ipLimit,
         // admin 额外拿到完整策略用于后台编辑（不含任何密钥）
         ...($isAdmin ? ['policy' => $pol] : []),
       ]);
@@ -523,6 +714,8 @@ switch ($a) {
       if (isset($b[$qk])) $set($qk, (string)max(0, min(100, (int)$b[$qk])));
     }
     if (isset($b['month_token_cap'])) $set('month_token_cap', (string)max(0, min(50000000, (int)$b['month_token_cap'])));
+    if (isset($b['ip_rate_max'])) $set('ip_rate_max', (string)max(1, min(1000, (int)$b['ip_rate_max'])));
+    if (isset($b['ip_rate_window'])) $set('ip_rate_window', (string)max(60, min(86400, (int)$b['ip_rate_window'])));
     if (isset($b['site_enabled'])) $set('site_enabled', $b['site_enabled'] ? '1' : '0');
     foreach (['models_friend', 'models_admin'] as $mk) {
       if (isset($b[$mk])) {
@@ -542,9 +735,12 @@ switch ($a) {
     $byUser = $db->query("SELECT username, channel, COUNT(*) calls, COALESCE(SUM(prompt_tokens+completion_tokens),0) tok FROM ai_calls WHERE ok=1 AND $noTest AND created>=" . strtotime('-30 days') . " GROUP BY username, channel ORDER BY tok DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
     // 本月站内通道按模型拆（前端折算 ¥）
     $monthByModel = $db->query("SELECT model, SUM(prompt_tokens) pt, SUM(completion_tokens) ct FROM ai_calls WHERE channel='site' AND ok=1 AND $noTest AND created>=" . strtotime('first day of this month') . " GROUP BY model")->fetchAll(PDO::FETCH_ASSOC);
-    $items = $db->query("SELECT username, channel, model, prompt_tokens pt, completion_tokens ct, ok, created FROM ai_calls ORDER BY id DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
+    $items = $db->query("SELECT username, channel, model, prompt_tokens pt, completion_tokens ct, ok, created FROM ai_calls WHERE ok IN (0,1) ORDER BY id DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
     $m = $db->query("SELECT COALESCE(SUM(prompt_tokens+completion_tokens),0) FROM ai_calls WHERE channel='site' AND ok=1 AND $noTest AND created>=" . strtotime('first day of this month'))->fetchColumn();
-    out(['daily' => $daily->fetchAll(PDO::FETCH_ASSOC), 'by_model' => $byModel, 'by_user' => $byUser, 'month_by_model' => $monthByModel, 'items' => $items, 'month_site_tokens' => (int)$m]);
+    // 告警历史（同周期同阈值只一条）+ 阈值，供管理页告警条与历史列表
+    $alerts = $db->query('SELECT id, period, threshold, tokens, cap, created FROM ai_alerts ORDER BY id DESC LIMIT 50')->fetchAll(PDO::FETCH_ASSOC);
+    out(['daily' => $daily->fetchAll(PDO::FETCH_ASSOC), 'by_model' => $byModel, 'by_user' => $byUser, 'month_by_model' => $monthByModel, 'items' => $items, 'month_site_tokens' => (int)$m,
+      'alerts' => $alerts, 'alert_thresholds' => [60, 80]]);
   }
   case 'ai_test': {
     $s = session_ok($db, bearer());
