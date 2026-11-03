@@ -8,6 +8,7 @@
 import { TAXI_FARES } from './fare-table.js';
 import { lookupTransitLeg } from './transit-matrix.js';
 import { factKey, factState, indexFacts } from './facts.js';
+import { dateInZone } from '../../shared/local-date.js';
 
 export const TRANSIT = {
   walkSpeedMPerMin: 80,      // 4.8 km/h，城市步行含找路
@@ -283,7 +284,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
   const factIndex = options.facts
     ? (options.facts instanceof Map ? options.facts : indexFacts(options.facts))
     : null;
-  const evidenceDate = date || new Date().toISOString().slice(0, 10);
+  const evidenceDate = date || dateInZone();
 
   const conflicts = [];
   const timeline = [];

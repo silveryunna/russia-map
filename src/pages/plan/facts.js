@@ -5,6 +5,8 @@
 // - 过期不落库：reviewAfter 与「今天」比较在读取时计算，避免数据文件随时间腐烂
 // - verified 只能来自 official 来源；unknown 是合法终态
 
+import { dateInZone } from '../../shared/local-date.js';
+
 export const FACT_FIELDS = ['openCalendar', 'ticket', 'duration', 'name_local'];
 export const FACT_STATUS = ['pending', 'verified', 'estimated', 'conflict', 'unknown'];
 export const SOURCE_TYPES = ['official', 'curated', 'social', 'estimate'];
@@ -16,7 +18,7 @@ export function factKey(pointId, field) {
 }
 
 function todayISO() {
-  return new Date().toISOString().slice(0, 10);
+  return dateInZone(); // 设备本地日历日（UTC 会在东八区凌晨差一天）
 }
 
 function daysBetween(fromISO, toISO) {

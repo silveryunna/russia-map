@@ -4,6 +4,7 @@ import '../shared/leaflet-default-icon.js';
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { marked } from 'marked';
+import { dateInZone } from '../shared/local-date.js';
 
 marked.setOptions({ gfm: true, breaks: true });
 
@@ -262,7 +263,7 @@ function notesTabHtml() {
 async function openNote(file) {
   if (file === '__new__') {
     S.noteFile = '__new__';
-    S.noteDraft = { meta: { title: '', date: new Date().toISOString().slice(0, 10), summary: '' }, body: '', dirty: false };
+    S.noteDraft = { meta: { title: '', date: dateInZone(), summary: '' }, body: '', dirty: false };
     render();
     return;
   }

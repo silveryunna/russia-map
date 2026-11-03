@@ -5,6 +5,7 @@
 // 契约由 tools/test-plan-io.mjs 守护。
 
 import { PERIOD_LABEL, dateRange, sourceLabel } from './format.js';
+import { dateInZone } from '../../shared/local-date.js';
 
 /** 触发浏览器下载。文件名里的非法字符交给浏览器处理，这里只做 URL 生命周期回收。 */
 export function download(name, text, type = 'application/json') {
@@ -51,7 +52,7 @@ export function exportMarkdown(trip, { nameOf, save = download, toast = () => {}
 /** 全量备份：行程 + 打卡 + 变更日志 + 实际通行记录。 */
 export async function exportBackup({ store, save = download, toast = () => {}, afterExport = null }) {
   const payload = await store.exportAll();
-  save(`trips-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(payload, null, 2));
+  save(`trips-backup-${dateInZone()}.json`, JSON.stringify(payload, null, 2));
   if (afterExport) await afterExport(); // 例如写 meta backup:lastExportAt，供备份提醒用
   toast(`已导出 ${payload.trips.length} 份行程、${payload.visits.length} 条打卡记录`);
 }
