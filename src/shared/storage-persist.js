@@ -62,3 +62,18 @@ export async function checkStorageHealth() {
   const [persist, usage] = await Promise.all([requestPersistentStorage(), storageUsage()]);
   return { persist, usage, warning: storageWarning({ persist, usage }) };
 }
+
+/**
+ * 纯函数：按设备给一条"本地数据可能被清理"的说明（无风险返回 null）。
+ * 一起因不同：iOS 是"长期不访问被系统回收站点数据"，安卓多为用户主动清理浏览数据。
+ * @param {string} ua navigator.userAgent
+ */
+export function deviceNotice(ua = '') {
+  if (/iPhone|iPad|iPod/i.test(ua)) {
+    return 'iPhone/iPad：超过 7 天未打开，系统可能清理本站离线数据（行程与打卡）。建议「添加到主屏幕」，并定期导出备份';
+  }
+  if (/Android/i.test(ua)) {
+    return '安卓：在浏览器里清理浏览数据（或设为关闭时清除）会删除本机行程，请定期导出备份';
+  }
+  return null;
+}

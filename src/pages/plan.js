@@ -15,7 +15,7 @@ import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store
 import { createChangeEvent, tripItemCount } from './trip/schema.js';
 import { diffTrips, summarizeDiff } from './trip/execution.js';
 import { isValidTimeZone, todayInZone } from '../shared/local-date.js';
-import { checkStorageHealth } from '../shared/storage-persist.js';
+import { checkStorageHealth, deviceNotice } from '../shared/storage-persist.js';
 import {
   PERIOD_LABEL, STATUS_LABEL, clampNum, fmtSpan, itemName, itemType,
   shortDate, snap5, sourceLabel, weekday,
@@ -93,10 +93,10 @@ function banners() {
   for (const w of dataWarn) out.push(`<div class="pl-tip warn">⚠️ ${esc(w)}</div>`);
   if (!storeWarn && trips.length) {
     const b = backupReminder(backupLast, localToday());
-    if (b) out.push(`<div class="pl-tip warn">💾 ${b.level === 'never' ? '这份行程数据还没有导出过备份' : `上次备份已是 ${b.days} 天前`}——数据只存在这台设备的浏览器里<button class="pl-btn small" id="pl-backup-now">立即备份</button></div>`);
+    if (b) out.push(`<div class="pl-tip warn">💾 ${b.level === 'never' ? '这份行程数据还没有导出过备份' : `上次备份已是 ${b.days} 天前`}——数据只存在这台设备的浏览器里<button class="pl-btn small" data-backup-now>立即备份</button></div>`);
   }
   if (planLoad.recovered) out.push(`<div class="pl-tip warn">⚠️ 检测到损坏的旧本地计划，已备份为 ${esc(planLoad.backupKey || '备份键')}</div>`);
-  if (storageWarn) out.push(`<div class="pl-tip warn">🧷 ${esc(storageWarn)}<button class="pl-btn small" id="pl-backup-now">立即备份</button></div>`);
+  if (storageWarn) out.push(`<div class="pl-tip warn">🧷 ${esc(storageWarn)}<button class="pl-btn small" data-backup-now>立即备份</button></div>`);
   const live = current
     ? ambiguities.filter(a => current.days.some(d => d.items.some(it => it.id === a.itemId && it.confirm !== 'ok')))
     : [];
@@ -925,7 +925,7 @@ const exportBackup = () => writeBackup({
 
 // 「立即备份」按钮渲染在 banners() 里（列表/编辑器视图都有），用委托绑一次
 $app.addEventListener('click', e => {
-  if (e.target && e.target.id === 'pl-backup-now') { e.preventDefault(); void exportBackup(); }
+  if (e.target && e.target.closest('[data-backup-now]')) { e.preventDefault(); void exportBackup(); }
 });
 
 const importBackup = file => readBackup(file, {
@@ -995,8 +995,9 @@ async function runMigration() {
   pointsById = new Map(cache.pts.map(p => [p.id, p]));
   await bootStore();
   backupLast = String(await store.getMeta('backup:lastExportAt').catch(() => '')) || '';
-  // 申请持久化存储 + 看配额水位：失败只提示，不影响使用
-  storageWarn = (await checkStorageHealth()).warning || '';
+  // 申请持久化存储 + 看配额水位：失败只提示，不影响使用；iOS/安卓再补一条设备专属的清理风险说明
+  const health = await checkStorageHealth();
+  storageWarn = health.warning || deviceNotice(typeof navigator === 'undefined' ? '' : navigator.userAgent) || '';
   await runMigration();
   await refreshTrips();
   render();
