@@ -17,6 +17,8 @@ const REGION_CONF = [
 
 let activeReg = 'world';
 let regionMode = 'auto';
+// 板块开关：中国板块 enabled=false 时（Gate-CN 未过），不提供中国底图方案、不自动切到 GCJ
+let cnRegionEnabled = true;
 
 // ===== 图层选择持久化（nm-layer-v1） =====
 function saveSel() {
@@ -188,6 +190,8 @@ function setRegion(reg) {
 
 function autoRegion() {
   if (regionMode !== 'auto') return;
+  // 中国板块关闭时固定世界底图，避免自动切到需要审图号的国内底图
+  if (!cnRegionEnabled) { if (activeReg !== 'world') setRegion('world'); return; }
   const c = ctx.map.getCenter();
   // GCJ 底图激活时视野数字在 GCJ 空间，先换回 WGS 再判定，避免国界附近误判
   const [lat, lng] = window.__amapActive__ ? gcj2wgs(c.lat, c.lng) : [c.lat, c.lng];
@@ -353,11 +357,15 @@ export const COUNTRY_STYLE = {
 export function initLayers(deps) {
   ctx = deps;
   const saved = loadSel();
-  window.__regionConf__ = REGION_CONF;
+  // 只读站点级板块配置：中国板块 enabled=false 时不提供入口、不自动切换
+  cnRegionEnabled = !ctx.regionIndex || ctx.regionIndex.single || ctx.regionIndex.isEnabled('cn');
+  const regionConf = cnRegionEnabled ? REGION_CONF : REGION_CONF.filter((r) => r.id !== 'cn');
+  window.__regionConf__ = regionConf;
   window.__amapActive__ = false;
   window.__cnSel__ = (saved.cn || '').trim() || '高德';
   window.__worldSelName__ = (saved.world || '').trim() || '当地原文 (OSM)';
   regionMode = saved.mode === 'world' || saved.mode === 'cn' ? saved.mode : 'auto';
+  if (!cnRegionEnabled) regionMode = 'auto';
 
   const { L, map } = ctx;
   map.on('moveend', autoRegion);
@@ -387,13 +395,13 @@ export function initLayers(deps) {
     ic.onclick = () => d.classList.toggle('open');
     d.appendChild(ic);
     mk('auto', '自动');
-    REGION_CONF.forEach((rc) => mk(rc.id, rc.label.replace(/（.*/, '')));
+    regionConf.forEach((rc) => mk(rc.id, rc.label.replace(/（.*/, '')));
     L.DomEvent.disableClickPropagation(d);
     return d;
   };
   regCtl.addTo(map);
   rebuildLayersCtl('world');
-  if (regionMode === 'cn') setRegion('cn'); // 持久化恢复了手动锁定「中国」
+  if (cnRegionEnabled && regionMode === 'cn') setRegion('cn'); // 持久化恢复了手动锁定「中国」
 
   addRefreshControl();
   addCityJumpControl();

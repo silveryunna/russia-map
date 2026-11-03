@@ -25,6 +25,7 @@ import { initLayers, countryOf, sortCities, COUNTRY_STYLE } from './map/layers.j
 const CITY_FALLBACK = '#546570';
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
+import { loadRegions, visiblePoints as filterVisiblePoints } from '../shared/regions.js';
 
 // 兼容只认全局 L 的老插件（leaflet.markercluster 的 UMD 内部引用自由变量 L）
 window.L = L;
@@ -234,7 +235,8 @@ const state = {
   checked: new Set(),     // 打卡 v2：id 集合（见下初始化）
 };
 
-let points = [];          // 全部点位（含 pending）
+let points = [];          // 可见板块的点位（含 pending）；关闭板块的点位在启动时已剔除
+let regionIndex = null;    // 板块配置：enabled=false 的板块不展示、不计入统计
 let routes = [];
 let meta = { cities: [], cityColors: {} };
 let pointByName = new Map();   // 动线 steps 的 point 名称快照索引（pointId 缺失时兜底）
@@ -780,7 +782,7 @@ async function initMap() {
   new SafeFullScreen({ position: 'bottomright', title: '全屏显示', titleCancel: '退出全屏' }).addTo(map);
 
   // 图层方案（世界/中国）、刷新控件、城市快跳、区域遮罩
-  initLayers({ L, map, toast: mapToast, refreshMarkers, meta, geoPoints });
+  initLayers({ L, map, toast: mapToast, refreshMarkers, meta, geoPoints, regionIndex });
 
   // 打卡点搜索（本地点位库，中/俄/英；不再走 Nominatim 地址搜索）
   // 须在 initLayers 之后注册：保持在左上角控件列末尾（线上顺序：图层/快跳/刷新/方案/搜索）
@@ -1044,7 +1046,7 @@ async function main() {
 
   // Visit repository 启动时会做一次性迁移；之后 travel-checkin-v2 只是派生缓存
   let overlays = [];
-  [visitRepo, points, routes, meta, overlays] = await Promise.all([
+  [visitRepo, points, routes, meta, overlays, regionIndex] = await Promise.all([
     openVisitRepository({
       onChange: (checkins) => {
         state.checked = new Set(Object.keys(checkins));
@@ -1059,7 +1061,11 @@ async function main() {
     fetch('./data/ratings.json').then(r => r.json()).catch(() => ({ items: {} })).then(d => (window.__ratings__ = d)),
     fetch('./data/field.json').then(r => r.json()).catch(() => ({})).then(d => (window.__fieldData__ = d)),
     fetch('./content/notes/index.json').then(r => r.json()).catch(() => []).then(d => (window.__notesIndex__ = d)),
+    loadRegions(),
   ]);
+  // 关闭板块（enabled=false，例如 Gate-CN 未过的中国板块）的点位不进地图、不计入统计；数据文件本身保留
+  points = filterVisiblePoints(points, regionIndex);
+  if (meta && Array.isArray(meta.cities)) meta.cities = meta.cities.filter(c => points.some(p => p.city === c));
   state.checked = new Set(Object.keys(visitRepo.getCheckins()));
   if (visitRepo.degraded) showDegradedBanner('IndexedDB 不可用，打卡改动只会留在内存、刷新即丢；请关闭隐私模式或检查浏览器存储权限');
   window.__overlaysData__ = overlays || [];

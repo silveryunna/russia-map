@@ -1,6 +1,7 @@
 import '../shared/base.css';
 import './home.css';
 import { renderIcpFooter } from '../shared/icp-footer.js';
+import { loadRegions, visiblePoints } from '../shared/regions.js';
 
 // 导航页：从数据文件读取统计信息，填充卡片副标题
 async function loadStats() {
@@ -21,7 +22,12 @@ async function loadStats() {
   } catch { /* 数据不可用时保持页面默认文案 */ }
 
   try {
-    const points = await (await fetch('./data/points.json')).json();
+    const [all, regionIndex] = await Promise.all([
+      fetch('./data/points.json').then(r => r.json()),
+      loadRegions(),
+    ]);
+    // 关闭板块不计入统计；配置缺失时单板块降级，统计口径与原来一致
+    const points = visiblePoints(all, regionIndex);
     const pending = points.filter(p => p.pending).length;
     const cities = new Set(points.map(p => p.city)).size;
     set('stat-list', `${points.length} 个点位 · ${cities} 个城市`);

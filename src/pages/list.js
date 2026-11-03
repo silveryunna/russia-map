@@ -4,6 +4,7 @@ import { renderIcpFooter } from '../shared/icp-footer.js';
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
 import { showUndoToast } from '../shared/undo-toast.js';
+import { loadRegions, visiblePoints } from '../shared/regions.js';
 
 /* 设计门 L1 · 例外 · Leaflet 的 color/fillColor 会写进 SVG 属性，CSS 变量不解析 · 与 --city-other 同值，改令牌要同步这里 */
 const CITY_FALLBACK = '#546570';
@@ -13,7 +14,7 @@ const CITY_FALLBACK = '#546570';
 const app = document.getElementById('list-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
-let points = [], meta = { cityColors: {}, cities: [] };
+let points = [], meta = { cityColors: {}, cities: [] }, regionIndex = null;
 let visitRepo = null;
 const state = {
   query: '',
@@ -183,7 +184,7 @@ app.addEventListener('click', (e) => {
 });
 
 async function main() {
-  [visitRepo, points, meta] = await Promise.all([
+  [visitRepo, points, meta, regionIndex] = await Promise.all([
     openVisitRepository({
       onChange: (checkins) => {
         state.checked = new Set(Object.keys(checkins));
@@ -192,7 +193,10 @@ async function main() {
     }),
     fetch('./data/points.json').then(r => r.json()),
     fetch('./data/meta.json').then(r => r.json()),
+    loadRegions(),
   ]);
+  // 关闭板块（enabled=false）的点位不进列表、不计入统计；数据本身保留
+  points = visiblePoints(points, regionIndex);
   state.checked = new Set(Object.keys(visitRepo.getCheckins()));
   if (visitRepo.degraded) showDegradedBanner('IndexedDB 不可用，打卡改动只会留在内存、刷新即丢；请关闭隐私模式或检查浏览器存储权限');
   render();

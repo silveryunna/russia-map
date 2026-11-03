@@ -1,0 +1,53 @@
+{
+  "fallback": "other",
+  "regions": [
+    {
+      "id": "ru",
+      "name": "俄罗斯",
+      "country": "俄罗斯",
+      "center": [58.06, 45.53],
+      "defaultZoom": 4,
+      "enabled": true,
+      "basemap": "world",
+      "bounds": { "bbox": [30.26, 55.41, 60.81, 60.72] },
+      "boundaryFile": null,
+      "reviewNo": ""
+    },
+    {
+      "id": "cn",
+      "name": "中国",
+      "country": "中国",
+      "center": [32.09, 103.55],
+      "defaultZoom": 4,
+      "enabled": false,
+      "basemap": "cn",
+      "bounds": { "bbox": [80.4, 18.19, 126.7, 45.99] },
+      "boundaryFile": "data/china-boundary.json",
+      "reviewNo": ""
+    },
+    {
+      "id": "kz",
+      "name": "哈萨克斯坦",
+      "country": "哈萨克斯坦",
+      "center": [44.09, 79.72],
+      "defaultZoom": 6,
+      "enabled": true,
+      "basemap": "world",
+      "bounds": { "bbox": [76.94, 42.93, 82.5, 45.25] },
+      "boundaryFile": null,
+      "reviewNo": ""
+    },
+    {
+      "id": "other",
+      "name": "其他",
+      "country": "其他",
+      "center": [55.34, 54.57],
+      "defaultZoom": 3,
+      "enabled": true,
+      "basemap": "world",
+      "bounds": { "bbox": [31.27, 41.69, 77.87, 68.99] },
+      "boundaryFile": null,
+      "reviewNo": ""
+    }
+  ]
+}

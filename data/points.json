@@ -28,7 +28,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p002",
@@ -73,7 +75,9 @@
         "note": "官网「Музеи Соборной площади」入口票 1100/600 ₽（含讲解 1600/1100、含语音导览 1600/1100）；军械库 1400/800 ₽"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p003",
@@ -130,7 +134,9 @@
         "note": "官网票价页：俄/欧亚经济联盟成人 700 ₽、外国公民 2000 ₽；学生与 7–17 岁 350 ₽（外国儿童 1000 ₽）；语音导览 400/600 ₽"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p004",
@@ -192,7 +198,9 @@
         "note": "国家历史博物馆票务；官网成人票 700–2000 ₽，按展览/票种"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p005",
@@ -236,7 +244,9 @@
         "note": "古姆是营业中的百货商场，入口不设门票；官网只公布营业时间 10:00–22:00，未单列票价，故按 estimated 记录"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p006",
@@ -262,7 +272,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p007",
@@ -291,7 +303,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p008",
@@ -322,7 +336,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p009",
@@ -372,7 +388,9 @@
         "note": "天主教堂区官网：每日 7:00–20:00，周三/周六至 19:00；教堂可自由入内，团体导览免费需预约"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p010",
@@ -439,7 +457,9 @@
         "note": "普希金博物馆票务；主馆全价票"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p011",
@@ -506,7 +526,9 @@
         "note": "官网价目：常设展全票 400 ₽、优惠 200 ₽；常设展+1 个临展联票 500/250 ₽；每月第三个周日「莫斯科博物馆周」免费"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p012",
@@ -552,7 +574,9 @@
         "note": "高尔基博物馆（ИМЛИ РАН）官网排期页：周三至周日 10:00–18:00，17:30 停止入场；周一、周二闭馆；每月最后一个周四卫生日；票价 PDF 字体编码不可读，票价仍待复核"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p013",
@@ -616,7 +640,9 @@
         "note": "托尔斯泰博物馆官网；周一闭馆；周二/四 12–20，周三/五/六/日 10–18；最后一个周五闭馆"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p014",
@@ -660,7 +686,9 @@
         "note": "官网主厅票价：成人 2400–2700 ₽，儿童 1900–2200 ₽；不同舱位另计"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p015",
@@ -691,7 +719,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p016",
@@ -722,7 +752,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p017",
@@ -784,7 +816,9 @@
         "note": "官网：按场次售票，全票 500 ₽，语音导览 250 ₽；第三方票务页曾显示「от 300 ₽」为最低价口径（通常对应优惠票），本站按官网全票价记录"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p018",
@@ -822,7 +856,9 @@
         "note": "官网「О ВДНХ」列明「пространство открыто круглосуточно; вход свободный」；园内展馆、博物馆、 каток 各自售票，没有全园通票"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p019",
@@ -853,7 +889,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p020",
@@ -882,7 +920,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p021",
@@ -913,7 +953,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p022",
@@ -971,7 +1013,9 @@
         "note": "官网票价页：宫殿博物馆成人 900 ₽，优惠 540 ₽；公园免费"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p023",
@@ -1000,7 +1044,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p024",
@@ -1015,7 +1061,9 @@
     "lon": 37.29732,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p025",
@@ -1056,7 +1104,9 @@
         "note": "特列季亚科夫画廊官网；周一闭馆；周二至周日 10:00–21:00，售票/入场至 20:00"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p026",
@@ -1104,7 +1154,9 @@
         "note": "«Дорога памяти» 博物馆官网 FAQ：教堂每日 8:00–21:00；博物馆周二–周五 10–19、周末 9–21、周一技术维护；整体入场免费"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p027",
@@ -1121,7 +1173,9 @@
       "免费"
     ],
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p028",
@@ -1135,7 +1189,9 @@
     "lat": 56.310694,
     "lon": 38.130214,
     "estimatedDuration": 240,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p029",
@@ -1149,7 +1205,9 @@
     "lat": 56.416004,
     "lon": 40.442115,
     "estimatedDuration": 300,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p030",
@@ -1187,7 +1245,9 @@
         }
       }
     },
-    "ticket": "1200 ₽（11:00–16:00 场次）／700 ₽（16:00 起场次）／500 ₽（18:00 起场次，仅周二/五/六）"
+    "ticket": "1200 ₽（11:00–16:00 场次）／700 ₽（16:00 起场次）／500 ₽（18:00 起场次，仅周二/五/六）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p031",
@@ -1221,7 +1281,9 @@
         }
       }
     },
-    "ticket": "700 ₽（与主馆门票分开购买）"
+    "ticket": "700 ₽（与主馆门票分开购买）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p032",
@@ -1242,7 +1304,9 @@
       "close": "18:00",
       "lastEntry": "17:00"
     },
-    "ticket": "500 ₽（成人票）／300 ₽（学生、пенсионеры）"
+    "ticket": "500 ₽（成人票）／300 ₽（学生、пенсионеры）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p033",
@@ -1261,7 +1325,9 @@
     "estimatedDuration": 45,
     "durationBasis": "estimate",
     "openCalendar": "unknown",
-    "ticket": "免费"
+    "ticket": "免费",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p034",
@@ -1284,7 +1350,9 @@
       "open": "09:00",
       "close": "23:00"
     },
-    "ticket": "免费（书店自由进出）"
+    "ticket": "免费（书店自由进出）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p035",
@@ -1305,7 +1373,9 @@
       "close": "18:00",
       "lastEntry": "17:30"
     },
-    "ticket": "700 ₽（成人票）"
+    "ticket": "700 ₽（成人票）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p036",
@@ -1326,7 +1396,9 @@
     "openCalendar": {
       "alwaysOpen": true
     },
-    "ticket": "免费（城市广场）"
+    "ticket": "免费（城市广场）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p037",
@@ -1347,7 +1419,9 @@
       "close": "18:00",
       "lastEntry": "17:30"
     },
-    "ticket": "700 ₽（参观）＋700 ₽（登顶观景台，无优惠）"
+    "ticket": "700 ₽（参观）＋700 ₽（登顶观景台，无优惠）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p038",
@@ -1368,7 +1442,9 @@
     "openCalendar": {
       "alwaysOpen": true
     },
-    "ticket": "免费（广场纪念碑外观）"
+    "ticket": "免费（广场纪念碑外观）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p039",
@@ -1405,7 +1481,9 @@
         }
       }
     },
-    "ticket": "1500 ₽（3 日联票含大教堂与监狱）／大教堂单买 1000 ₽／登岛免费"
+    "ticket": "1500 ₽（3 日联票含大教堂与监狱）／大教堂单买 1000 ₽／登岛免费",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p040",
@@ -1426,7 +1504,9 @@
     "openCalendar": {
       "alwaysOpen": true
     },
-    "ticket": "免费（岸边外观拍照；登舰博物馆另购票）"
+    "ticket": "免费（岸边外观拍照；登舰博物馆另购票）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p041",
@@ -1444,7 +1524,9 @@
     ],
     "estimatedDuration": 120,
     "durationBasis": "estimate",
-    "openCalendar": "unknown"
+    "openCalendar": "unknown",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p042",
@@ -1459,7 +1541,9 @@
     "lon": 30.295836,
     "estimatedDuration": 150,
     "durationBasis": "estimate",
-    "openCalendar": "unknown"
+    "openCalendar": "unknown",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p043",
@@ -1476,7 +1560,9 @@
       "免费"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p044",
@@ -1509,7 +1595,9 @@
         }
       ]
     },
-    "ticket": "2000 ₽ 起（外国游客全价，按日期浮动，官网观测 2000–2500）／900 ₽ 起（俄与欧亚联盟公民，观测 900–1100）"
+    "ticket": "2000 ₽ 起（外国游客全价，按日期浮动，官网观测 2000–2500）／900 ₽ 起（俄与欧亚联盟公民，观测 900–1100）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p045",
@@ -1530,7 +1618,9 @@
       "close": "18:00",
       "lastEntry": "17:00"
     },
-    "ticket": "2200 ₽（外国游客基准价，含叶卡捷琳娜公园门票）／1200 ₽（俄与欧亚经济联盟公民优惠价）"
+    "ticket": "2200 ₽（外国游客基准价，含叶卡捷琳娜公园门票）／1200 ₽（俄与欧亚经济联盟公民优惠价）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p046",
@@ -1549,7 +1639,9 @@
       "days": "We,Th,Fr,Sa,Su",
       "open": "10:00",
       "close": "18:00"
-    }
+    },
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p047",
@@ -1566,7 +1658,9 @@
       "免费"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "",
+    "country": ""
   },
   {
     "id": "p048",
@@ -1580,7 +1674,9 @@
     "lat": 58.522416,
     "lon": 31.264534,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "",
+    "country": ""
   },
   {
     "id": "p049",
@@ -1597,7 +1693,9 @@
       "免费"
     ],
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "",
+    "country": ""
   },
   {
     "id": "p050",
@@ -1611,7 +1709,9 @@
     "lat": 41.685023,
     "lon": 44.827857,
     "estimatedDuration": 15,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "",
+    "country": ""
   },
   {
     "id": "p051",
@@ -1647,7 +1747,9 @@
           "note": "官网公告 2026-11-12 起闭馆维修，预告至 2026-12-14（可能延长，出行前复核）"
         }
       ]
-    }
+    },
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p052",
@@ -1673,7 +1775,9 @@
         }
       }
     },
-    "ticket": "200 ₽（优惠票 150 ₽）"
+    "ticket": "200 ₽（优惠票 150 ₽）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p053",
@@ -1688,7 +1792,9 @@
     "lon": 37.61803,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p054",
@@ -1718,7 +1824,9 @@
           "note": "夏季（5月1日–9月30日）延长至 18:00、кассы 9:30 起；冬季（10月1日起）10:00–17:00"
         }
       ]
-    }
+    },
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p055",
@@ -1748,7 +1856,9 @@
           "note": "夏季（5月1日–9月30日）延长至 18:00、кассы 9:30 起；冬季（10月1日起）10:00–17:00"
         }
       ]
-    }
+    },
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p056",
@@ -1778,7 +1888,9 @@
           "note": "夏季（5月1日–9月30日）延长至 18:00、кассы 9:30 起；冬季（10月1日起）10:00–17:00"
         }
       ]
-    }
+    },
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p057",
@@ -1826,7 +1938,9 @@
         "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p058",
@@ -1874,7 +1988,9 @@
         "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p059",
@@ -1908,7 +2024,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p060",
@@ -1956,7 +2074,9 @@
         "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p061",
@@ -1990,7 +2110,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p062",
@@ -2024,7 +2146,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p063",
@@ -2058,7 +2182,9 @@
         "reviewAfter": "2027-04-29"
       }
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p064",
@@ -2073,7 +2199,9 @@
     "lon": 37.58291,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p065",
@@ -2085,7 +2213,9 @@
     "highlight": "1930年代多功能综合体：礼堂/演讲厅/图书馆/温室，屋顶曾有天文台",
     "note": "Восточная ул., 4к1；部分区域开放",
     "lat": 55.714414,
-    "lon": 37.657907
+    "lon": 37.657907,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p066",
@@ -2100,7 +2230,9 @@
     "lon": 37.6748,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p067",
@@ -2115,7 +2247,9 @@
     "lon": 37.6313,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p068",
@@ -2130,7 +2264,9 @@
     "lon": 37.7219,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p069",
@@ -2145,7 +2281,9 @@
     "lon": 37.59013,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p070",
@@ -2160,7 +2298,9 @@
     "lon": 37.59934,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p071",
@@ -2175,7 +2315,9 @@
     "lon": 37.64871,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p072",
@@ -2190,7 +2332,9 @@
     "lon": 37.59418,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p073",
@@ -2205,7 +2349,9 @@
     "lon": 37.64098,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p074",
@@ -2226,7 +2372,9 @@
       "open": "05:30",
       "close": "23:00"
     },
-    "ticket": "公园免费；展馆单票 200 ₽ 起（各馆单独购票）"
+    "ticket": "公园免费；展馆单票 200 ₽ 起（各馆单独购票）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p075",
@@ -2245,7 +2393,9 @@
       "close": "18:00",
       "lastEntry": "17:30"
     },
-    "ticket": "公园 100 ₽（优惠 50 ₽）；宫殿与展馆另购 300–1700 ₽"
+    "ticket": "公园 100 ₽（优惠 50 ₽）；宫殿与展馆另购 300–1700 ₽",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p076",
@@ -2257,7 +2407,9 @@
     "highlight": "谢列梅捷夫宫，18世纪木构剧场宫殿",
     "note": "1-я Останкинская ул., 5с1",
     "lat": 55.8237,
-    "lon": 37.6136
+    "lon": 37.6136,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p077",
@@ -2305,7 +2457,9 @@
         "collectedAt": "2026-11-01",
         "reviewAfter": "2027-04-30"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p078",
@@ -2353,7 +2507,9 @@
         "collectedAt": "2026-11-01",
         "reviewAfter": "2027-04-30"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p079",
@@ -2401,7 +2557,9 @@
         "collectedAt": "2026-11-01",
         "reviewAfter": "2027-04-30"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p080",
@@ -2413,7 +2571,9 @@
     "highlight": "作曲家莫斯科故居，钢琴与手稿",
     "note": "Кудринская пл., 46/54с1",
     "lat": 55.76,
-    "lon": 37.5783
+    "lon": 37.5783,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p081",
@@ -2425,7 +2585,9 @@
     "highlight": "作家出生地，玛丽亚医院厢房内",
     "note": "Достоевского ул., 2",
     "lat": 55.7831,
-    "lon": 37.6136
+    "lon": 37.6136,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p082",
@@ -2440,7 +2602,9 @@
     "lon": 37.55899,
     "tags": [
       "水上巴士"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p083",
@@ -2455,7 +2619,9 @@
     "lon": 37.57282,
     "tags": [
       "水上巴士"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p084",
@@ -2470,7 +2636,9 @@
     "lon": 37.5664,
     "tags": [
       "酒店/旅馆"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p085",
@@ -2482,7 +2650,9 @@
     "highlight": "1948–1953 建成；斯摩棱斯克-先纳亚广场，老阿尔巴特街西端入口的巨型门神",
     "note": "Смоленская-Сенная пл. 32-34 → 步行 22 分钟到文化人公寓",
     "lat": 55.7461,
-    "lon": 37.5844
+    "lon": 37.5844,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p086",
@@ -2494,7 +2664,9 @@
     "highlight": "1950–1954 建成；曾是苏联文艺界名流公寓，正对库德林斯卡亚广场",
     "note": "Кудринская пл. 1；近地铁 Баррикадная / Краснопресненская",
     "lat": 55.7583,
-    "lon": 37.5811
+    "lon": 37.5811,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p087",
@@ -2506,7 +2678,9 @@
     "highlight": "1949–1953 建成；七姐妹中最高最大（240 m），与麻雀山观景台同框",
     "note": "Ленинские горы 1；独居西南一隅距其他六座较远，地铁 Воробьёвы горы / Университет",
     "lat": 55.7033,
-    "lon": 37.5306
+    "lon": 37.5306,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p088",
@@ -2518,7 +2692,9 @@
     "highlight": "1949–1953 建成；红门广场旁的重工业部宿舍大楼，注意：顶部 2026 年在维修",
     "note": "Садовая-Спасская 21/1；与列宁格勒酒店相距很近可一并打卡，地铁 Красные ворота",
     "lat": 55.7689,
-    "lon": 37.6489
+    "lon": 37.6489,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p089",
@@ -2533,7 +2709,9 @@
     "lon": 37.6556,
     "tags": [
       "酒店/旅馆"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p090",
@@ -2545,7 +2723,9 @@
     "highlight": "1948–1952 建成；莫斯科河与亚乌扎河交汇口的艺术家公寓，天际线常客",
     "note": "Котельническая наб. 1/15；近中国城码头与扎里亚季耶公园，可与红场一并打卡",
     "lat": 55.7469,
-    "lon": 37.6445
+    "lon": 37.6445,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p091",
@@ -2557,7 +2737,9 @@
     "highlight": "藏在一只蚂蚁市场（Измайлово 维尔尼萨日）里的枪械主题博物馆，逛市场时可顺路打卡",
     "note": "Yandex 地图搜 Museum of Guns；地铁 3 号线 Партизанская（游击队员站）下车步行约 10 分钟；位于市场南区、伊兹麦洛沃克里姆林宫小岛南侧",
     "lat": 55.7677,
-    "lon": 37.7534
+    "lon": 37.7534,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p092",
@@ -2571,7 +2753,9 @@
     "lat": 57.222,
     "lon": 37.9012,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p093",
@@ -2601,7 +2785,9 @@
     ],
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p094",
@@ -2615,7 +2801,9 @@
     "lat": 59.926,
     "lon": 30.2349,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p095",
@@ -2630,7 +2818,9 @@
     "lon": 37.60953,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p096",
@@ -2644,7 +2834,9 @@
     "lat": 59.93348,
     "lon": 30.33431,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p097",
@@ -2661,7 +2853,9 @@
       "需预约"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p098",
@@ -2675,7 +2869,9 @@
     "lat": 59.93441,
     "lon": 30.33781,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p099",
@@ -2687,7 +2883,9 @@
     "highlight": "18 世纪科济茨基公馆，1901 年改建成传奇食品店；水晶吊灯+鎏金雕饰的华丽内饰曾是莫斯科一景（老店 2021 年结业，建筑仍值得一看）",
     "note": "Тверская ул. 14；近地铁 Тверская / Пушкинская；可与普希金广场一并打卡",
     "lat": 55.76429,
-    "lon": 37.60679
+    "lon": 37.60679,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p100",
@@ -2701,7 +2899,9 @@
     "lat": 59.9392,
     "lon": 30.2866,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p101",
@@ -2718,7 +2918,9 @@
       "免费"
     ],
     "estimatedDuration": 40,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p102",
@@ -2735,7 +2937,9 @@
       "免费"
     ],
     "estimatedDuration": 40,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p103",
@@ -2752,7 +2956,9 @@
       "免费"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p104",
@@ -2769,7 +2975,9 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p105",
@@ -2783,7 +2991,9 @@
     "lat": 59.943266,
     "lon": 30.340651,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p106",
@@ -2800,7 +3010,9 @@
       "免费"
     ],
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p107",
@@ -2814,7 +3026,9 @@
     "lat": 59.8623,
     "lon": 29.9985,
     "estimatedDuration": 150,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p108",
@@ -2828,7 +3042,9 @@
     "lat": 59.931939,
     "lon": 30.25174,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p109",
@@ -2842,7 +3058,9 @@
     "lat": 59.940087,
     "lon": 30.326772,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p110",
@@ -2856,7 +3074,9 @@
     "lat": 59.93472,
     "lon": 30.343128,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p111",
@@ -2870,7 +3090,9 @@
     "lat": 59.932179,
     "lon": 30.324931,
     "estimatedDuration": 15,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p112",
@@ -2894,7 +3116,9 @@
       "close": "00:55",
       "crossDay": true
     },
-    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p113",
@@ -2908,7 +3132,9 @@
     "lat": 43.225241,
     "lon": 77.871638,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "",
+    "country": ""
   },
   {
     "id": "p114",
@@ -2922,7 +3148,9 @@
     "lat": 56.886155,
     "lon": 60.588635,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "",
+    "country": ""
   },
   {
     "id": "p115",
@@ -2934,7 +3162,9 @@
     "highlight": "Здание Центросоюза：勒·柯布西耶在苏联唯一建成作品（1928-36，与科利合作）；丝带窗+底层架空柱+自由平面，国际主义风格里程碑，被视作现代建筑五原则的教科书级范本",
     "note": "Мясницкая ул. 39с1；近地铁 Чистые пруды / Красные ворота；现为俄罗斯联邦统计局（Rosstat）办公楼，外观可自由拍摄，内部不开放",
     "lat": 55.767521,
-    "lon": 37.641198
+    "lon": 37.641198,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p116",
@@ -2946,7 +3176,9 @@
     "highlight": "Государственная дума：原为 1932-35 年建的国家计划委员会大楼（兰格曼设计），古典柱廊+庄重体量；1994 年起为俄罗斯联邦会议国家杜马驻地",
     "note": "Охотный Ряд 1；从国家历史博物馆沿特维尔大街走下去即见；只能外观拍照",
     "lat": 55.757853,
-    "lon": 37.615611
+    "lon": 37.615611,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p117",
@@ -2961,7 +3193,9 @@
     "lon": 37.620784,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p118",
@@ -2973,7 +3207,9 @@
     "highlight": "Московский монетный двор：纯竖线条极简立面，伫立街头非常恢弘；就在船屋斜对面，可一并打卡",
     "note": "近地铁 Тульская；铸币重地不对外开放，外观拍照即可",
     "lat": 55.712882,
-    "lon": 37.62604
+    "lon": 37.62604,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p119",
@@ -2990,7 +3226,9 @@
       "酒店/旅馆"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p120",
@@ -3008,7 +3246,9 @@
     "openCalendar": {
       "alwaysOpen": true
     },
-    "ticket": "免费（共和国广场开放空间）"
+    "ticket": "免费（共和国广场开放空间）",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p121",
@@ -3022,7 +3262,9 @@
     "lat": 43.23628,
     "lon": 76.94573,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p122",
@@ -3043,7 +3285,9 @@
       "close": "18:00",
       "lastEntry": "17:30"
     },
-    "ticket": "1500 ₸（本国成人主展）／5000 ₸（外国游客主展）／10000 ₸（外国游客全馆）／学生、пенсионеры 700 ₸"
+    "ticket": "1500 ₸（本国成人主展）／5000 ₸（外国游客主展）／10000 ₸（外国游客全馆）／学生、пенсионеры 700 ₸",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p123",
@@ -3058,7 +3302,9 @@
     "lon": 76.94579,
     "estimatedDuration": 150,
     "durationBasis": "estimate",
-    "openCalendar": "unknown"
+    "openCalendar": "unknown",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p124",
@@ -3072,7 +3318,9 @@
     "lat": 43.2496,
     "lon": 76.9447,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p125",
@@ -3086,7 +3334,9 @@
     "lat": 43.24155,
     "lon": 76.91791,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p126",
@@ -3100,7 +3350,9 @@
     "lat": 43.24404,
     "lon": 76.95592,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p127",
@@ -3114,7 +3366,9 @@
     "lat": 43.2416,
     "lon": 76.95526,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p128",
@@ -3148,7 +3402,9 @@
         }
       }
     },
-    "ticket": "缆车 6000 ₸（单程）／10000 ₸（往返）；6–12 岁 3000／5000 ₸；公园本身免费、游乐项目另计"
+    "ticket": "缆车 6000 ₸（单程）／10000 ₸（往返）；6–12 岁 3000／5000 ₸；公园本身免费、游乐项目另计",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p129",
@@ -3162,7 +3418,9 @@
     "lat": 43.24206,
     "lon": 76.95766,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p130",
@@ -3176,7 +3434,9 @@
     "lat": 43.22718,
     "lon": 76.94903,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p131",
@@ -3190,7 +3450,9 @@
     "lat": 43.25026,
     "lon": 76.92688,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p132",
@@ -3204,7 +3466,9 @@
     "lat": 43.2618,
     "lon": 76.9352,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p133",
@@ -3218,7 +3482,9 @@
     "lat": 43.235,
     "lon": 76.9395,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p134",
@@ -3234,7 +3500,9 @@
     "estimatedDuration": 45,
     "durationBasis": "estimate",
     "openCalendar": "unknown",
-    "ticket": "免费（教堂参观自由捐献）"
+    "ticket": "免费（教堂参观自由捐献）",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p135",
@@ -3248,7 +3516,9 @@
     "lat": 43.2591,
     "lon": 76.9542,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p136",
@@ -3263,7 +3533,9 @@
     "lon": 76.9556,
     "estimatedDuration": 90,
     "durationBasis": "estimate",
-    "openCalendar": "unknown"
+    "openCalendar": "unknown",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p137",
@@ -3287,7 +3559,9 @@
       "close": "00:00",
       "crossDay": true
     },
-    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）"
+    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p138",
@@ -3311,7 +3585,9 @@
       "close": "00:00",
       "crossDay": true
     },
-    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）"
+    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p139",
@@ -3335,7 +3611,9 @@
       "close": "00:00",
       "crossDay": true
     },
-    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）"
+    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p140",
@@ -3359,7 +3637,9 @@
       "close": "00:00",
       "crossDay": true
     },
-    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）"
+    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p141",
@@ -3383,7 +3663,9 @@
       "close": "00:00",
       "crossDay": true
     },
-    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）"
+    "ticket": "120 ₸（单程，смарт-жетон／Onay／银行卡／QR）",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p142",
@@ -3397,7 +3679,9 @@
     "lat": 43.2414,
     "lon": 76.92,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p143",
@@ -3411,7 +3695,9 @@
     "lat": 43.24845,
     "lon": 76.92915,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p144",
@@ -3425,7 +3711,9 @@
     "lat": 43.25218,
     "lon": 76.92891,
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p145",
@@ -3439,7 +3727,9 @@
     "lat": 43.24768,
     "lon": 76.92792,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p146",
@@ -3453,7 +3743,9 @@
     "lat": 43.23873,
     "lon": 76.94168,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p147",
@@ -3470,7 +3762,9 @@
       "酒店/旅馆"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p148",
@@ -3487,7 +3781,9 @@
       "酒店/旅馆"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p149",
@@ -3501,7 +3797,9 @@
     "lat": 43.242,
     "lon": 76.875,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p150",
@@ -3515,7 +3813,9 @@
     "lat": 43.3017,
     "lon": 77.0032,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p151",
@@ -3533,7 +3833,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p152",
@@ -3547,7 +3849,9 @@
     "lat": 43.2415,
     "lon": 76.912,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p153",
@@ -3561,7 +3865,9 @@
     "lat": 43.2327,
     "lon": 76.9457,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p154",
@@ -3575,7 +3881,9 @@
     "lat": 43.2463,
     "lon": 76.9568,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p155",
@@ -3589,7 +3897,9 @@
     "lat": 59.948852,
     "lon": 30.395558,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p156",
@@ -3603,7 +3913,9 @@
     "lat": 59.938676,
     "lon": 30.314494,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p157",
@@ -3617,7 +3929,9 @@
     "lat": 59.928181,
     "lon": 30.348459,
     "estimatedDuration": 40,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p158",
@@ -3629,7 +3943,9 @@
     "highlight": "苏联汽车工业奠基人纪念碑；2022年被中国一汽集团买下运至长春",
     "note": "汽车厂大街，原ZIL主厂门旁；年代：1958年；俄文：Памятник И.А. Лихачёву",
     "lat": 55.7036741,
-    "lon": 37.6420501
+    "lon": 37.6420501,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p159",
@@ -3641,7 +3957,9 @@
     "highlight": "ZIL最初管理总部；后作ZIL博物馆→冰球荣耀博物馆；红色外墙苏联现代主义",
     "note": "汽车厂大街23号；年代：19-20世纪；俄文：Старое заводоуправление (красное здание)",
     "lat": 55.6906068,
-    "lon": 37.6330418
+    "lon": 37.6330418,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p160",
@@ -3653,7 +3971,9 @@
     "highlight": "行政办公+生活配套；保留严格苏联风格办公室（绿色墙面）",
     "note": "汽车厂大街23с2；年代：AMO-ZIS-ZIL时期；俄文：АБК кузнечного цеха",
     "lat": 55.697296,
-    "lon": 37.6523226
+    "lon": 37.6523226,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p161",
@@ -3665,7 +3985,9 @@
     "highlight": "工厂员工福利设施；25米室内泳池，属ZIL\"鱼雷\"体育俱乐部",
     "note": "汽车厂大街附近；年代：20世纪上半叶；俄文：Банно-прачечный комбинат + бассейн «Торпедо»；坐标为近似位置",
     "lat": 55.7123932,
-    "lon": 37.6585664
+    "lon": 37.6585664,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p162",
@@ -3677,7 +3999,9 @@
     "highlight": "莫斯科环形铁路最小客运站之一；新艺术风格；曾服务ZIL货运",
     "note": "莫斯科河南岸；年代：1903-1908年；俄文：Станция Кожухово (МОЖД)",
     "lat": 55.699905,
-    "lon": 37.6512864
+    "lon": 37.6512864,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p163",
@@ -3689,7 +4013,9 @@
     "highlight": "技术上属科茹霍沃车站客运部分；出口设在原ZIL成品车装运平台",
     "note": "利哈乔夫大街高架桥下；年代：2016年；俄文：Станция МЦК «ЗИЛ»",
     "lat": 55.69838,
-    "lon": 37.64774
+    "lon": 37.64774,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p164",
@@ -3701,7 +4027,9 @@
     "highlight": "LSR集团65公顷旗舰项目；30余栋建筑；可远眺\"废墟上的新城\"对比景观",
     "note": "原ZIL厂区东部；年代：2019-2025年；俄文：ЖК «ЗИЛАРТ»",
     "lat": 55.6972236,
-    "lon": 37.6369797
+    "lon": 37.6369797,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p165",
@@ -3713,7 +4041,9 @@
     "highlight": "距МЦК\"ZIL\"站5分钟步行",
     "note": "马克·夏加尔沿岸街；年代：2020年代；俄文：ЖК «Шагал»",
     "lat": 55.6882643,
-    "lon": 37.6416869
+    "lon": 37.6416869,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p166",
@@ -3725,7 +4055,9 @@
     "highlight": "世界首座双曲面网格塔；高148.3米；苏联广播电视诞生地",
     "note": "沙博洛夫卡街；年代：1920-1922年；俄文：Шуховская телебашня",
     "lat": 55.7173066,
-    "lon": 37.6115952
+    "lon": 37.6115952,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p167",
@@ -3737,7 +4069,9 @@
     "highlight": "博尔夏戈夫斯基小说《沙博洛夫卡街上的三棵白杨》原型；仍存一棵老白杨",
     "note": "沙博洛夫卡街21号前；年代：文学记忆；俄文：Три тополя на Шаболовке",
     "lat": 55.7229945,
-    "lon": 37.611335
+    "lon": 37.611335,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p168",
@@ -3749,7 +4083,9 @@
     "highlight": "纪念装甲列车\"政委列斯特瓦\"",
     "note": "沙博洛夫卡区域；年代：1968年命名；俄文：Улица Лестева",
     "lat": 55.7146598,
-    "lon": 37.6189375
+    "lon": 37.6189375,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p169",
@@ -3761,7 +4097,9 @@
     "highlight": "疑似卡扎科夫设计；帕斯捷尔纳克/布洛克曾来访；1996年发现两条共济会秘密隧道",
     "note": "顿斯科伊修道院附近；年代：1780年；俄文：Дача-голубятня",
     "lat": 55.7195352,
-    "lon": 37.6047896
+    "lon": 37.6047896,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p170",
@@ -3773,7 +4111,9 @@
     "highlight": "1.2公顷自然遗迹；原伊万·贝克特庄园；2019年修缮",
     "note": "第三交通环线附近；年代：19世纪；俄文：Пруд Бекет；坐标为近似位置",
     "lat": 55.7003308,
-    "lon": 37.6148718
+    "lon": 37.6148718,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p171",
@@ -3785,7 +4125,9 @@
     "highlight": "原樱桃园村庄→1960年代赫鲁晓夫楼住宅区",
     "note": "切列穆什基区；年代：17世纪起；俄文：Село Черёмушки",
     "lat": 55.6635403,
-    "lon": 37.5610662
+    "lon": 37.5610662,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p172",
@@ -3797,7 +4139,9 @@
     "highlight": "纪念科学家格列布·克尔日扎诺夫斯基",
     "note": "切列穆什基核心；年代：20世纪；俄文：Улица Кржижановского",
     "lat": 55.6826624,
-    "lon": 37.5623613
+    "lon": 37.5623613,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p173",
@@ -3809,7 +4153,9 @@
     "highlight": "沙博洛夫庄园唯一遗存；1614-1754年属多尔戈鲁科夫家族",
     "note": "新切列穆什金斯卡娅街、克尔日扎诺夫斯基街与纳希莫夫斯基大街之间；年代：17世纪起；俄文：Шаболовские пруды；坐标为近似位置",
     "lat": 55.6638789,
-    "lon": 37.5613455
+    "lon": 37.5613455,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p174",
@@ -3821,7 +4167,9 @@
     "highlight": "纪念海军将领帕维尔·纳希莫夫；穿越科特洛夫卡河谷",
     "note": "切列穆什基-沃尔洪卡连接道；年代：1955/1964-1965年；俄文：Нахимовский проспект",
     "lat": 55.6626511,
-    "lon": 37.6056223
+    "lon": 37.6056223,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p175",
@@ -3833,7 +4181,9 @@
     "highlight": "比利时→美国威斯汀豪斯→苏联电机巨头；1932年首台国产电力机车ВЛ19",
     "note": "列宁新村街26号；年代：1897年建厂；俄文：Бывший завод «Динамо»",
     "lat": 55.7104665,
-    "lon": 37.655363
+    "lon": 37.655363,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p176",
@@ -3845,7 +4195,9 @@
     "highlight": "原西蒙诺夫修道院旧址；1380年库利科沃英雄佩列斯韦特/奥斯利亚比亚葬地",
     "note": "列宁新村街区域；年代：1370年起；俄文：Старое Симоново",
     "lat": 55.7137468,
-    "lon": 37.6565921
+    "lon": 37.6565921,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p177",
@@ -3857,7 +4209,9 @@
     "highlight": "1987年归还教会；苏联时期内部改为压缩机车间，建在英雄坟墓上",
     "note": "老西蒙诺沃；年代：1509-1510年建；俄文：Церковь Рождества Богородицы",
     "lat": 55.7111205,
-    "lon": 37.6539643
+    "lon": 37.6539643,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p178",
@@ -3869,7 +4223,9 @@
     "highlight": "两次劳动红旗勋章科研机构",
     "note": "列宁新村街23号；年代：1935/1947年；俄文：ВТИ (Всероссийский теплотехнический институт)",
     "lat": 55.7049922,
-    "lon": 37.6484962
+    "lon": 37.6484962,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p179",
@@ -3881,7 +4237,9 @@
     "highlight": "15米锻铜纪念碑；纪念4万工人编入第3/5/8师参加莫斯科保卫战",
     "note": "汽车厂广场；年代：1980年；俄文：Памятник ополченцам Пролетарского района",
     "lat": 55.7075225,
-    "lon": 37.6586537
+    "lon": 37.6586537,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p180",
@@ -3893,7 +4251,9 @@
     "highlight": "纪念苏联英雄、战斗机飞行员、前\"发电机\"厂工人马斯特尔科夫",
     "note": "马斯特尔科娃街；年代：20世纪；俄文：Памятная доска на ул. Мастеркова",
     "lat": 55.7082808,
-    "lon": 37.6575445
+    "lon": 37.6575445,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p181",
@@ -3905,7 +4265,9 @@
     "highlight": "1941年7月在此组建无产阶级区歼击营，编入881团/158师",
     "note": "列宁新村街9号(原第501学校)；年代：1966年设立；俄文：Мемориальная доска истребительного батальона",
     "lat": 55.710871,
-    "lon": 37.6595706
+    "lon": 37.6595706,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p182",
@@ -3917,7 +4279,9 @@
     "highlight": "0.92公里河滨步道；ZIL码头；可眺望对岸全景",
     "note": "莫斯科河左岸原ZIL厂区；年代：2019年建成；俄文：Набережная Марка Шагала",
     "lat": 55.6998832,
-    "lon": 37.6305968
+    "lon": 37.6305968,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p183",
@@ -3929,7 +4293,9 @@
     "highlight": "11号楼22米金色拱门；12号楼兔子面具；15号楼屋顶布罗茨基鸽子雕塑；10米高东德ERFURT压力机",
     "note": "原ZIL厂区65公顷；年代：2019-2025年；俄文：ЖК «ЗИЛАРТ»",
     "lat": 55.6970882,
-    "lon": 37.6393601
+    "lon": 37.6393601,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p184",
@@ -3941,7 +4307,9 @@
     "highlight": "谢尔盖·乔班设计；60×60米铜立方体；莫尔恰诺夫收藏8000余件；开幕展非洲艺术/圣彼得堡雕塑",
     "note": "ZILART核心；年代：2025年12月开放；俄文：Музей ЗИЛАРТ",
     "lat": 55.6970882,
-    "lon": 37.6393601
+    "lon": 37.6393601,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p185",
@@ -3953,7 +4321,9 @@
     "highlight": "12世纪皇家猎场→1916年ZIL建厂砍伐→2018年荷兰设计师范艾克重建；金属pergola；卡拉姆津《可怜的丽莎》文学地理",
     "note": "ZILART旁；年代：2018年开放；俄文：Парк Тюфелева роща",
     "lat": 55.6966008,
-    "lon": 37.6415217
+    "lon": 37.6415217,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p186",
@@ -3965,7 +4335,9 @@
     "highlight": "切尔托利耶历史地段；原白城普列奇斯坚门旧址",
     "note": "林荫大道起点；年代：1658年命名；俄文：Площадь Пречистенские Ворота",
     "lat": 55.7446493,
-    "lon": 37.6021502
+    "lon": 37.6021502,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p187",
@@ -3977,7 +4349,9 @@
     "highlight": "三级阶梯式地形=古河道剖面；原切尔托雷小溪河谷；19世纪被纳入地下管道",
     "note": "普列奇斯坚门→阿尔巴特门；年代：18-19世纪；俄文：Гоголевский бульвар",
     "lat": 55.7479704,
-    "lon": 37.5998925
+    "lon": 37.5998925,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p188",
@@ -3989,7 +4363,9 @@
     "highlight": "原名多尔吉胡同；纪念博格丹·加加林亲王",
     "note": "果戈里林荫大道旁；年代：19世纪；俄文：Гагаринский переулок",
     "lat": 55.7447165,
-    "lon": 37.5945799
+    "lon": 37.5945799,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p189",
@@ -4001,7 +4377,9 @@
     "highlight": "尼古拉·奥斯特曼设计；文艺复兴风格；疑似康斯坦丁·托恩参与；1990年代修复",
     "note": "果戈里林荫大道5/2号；年代：1850-1853年；俄文：Городская усадьба П.Ф. Секретарёва",
     "lat": 55.7451554,
-    "lon": 37.5998857
+    "lon": 37.5998857,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p190",
@@ -4013,7 +4391,9 @@
     "highlight": "普希金挚友纳绍金宅邸；普希金在此获《杜布罗夫斯基》灵感；1836年最后一次晚餐打翻普罗旺斯油",
     "note": "沃罗特尼科夫胡同12号；年代：19世纪；俄文：Дом Нащокина",
     "lat": 55.770845,
-    "lon": 37.6013298
+    "lon": 37.6013298,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p191",
@@ -4025,7 +4405,9 @@
     "highlight": "1688年牧首妹妹奇迹治愈传说；1812年斯摩棱斯克圣母像暂存地；苏联时期运走一卡车头骨",
     "note": "菲利波夫斯基胡同3/16А；年代：16世纪下半叶始建；俄文：Храм Святителей Афанасия и Кирилла Патриархов Александрийских",
     "lat": 55.7486781,
-    "lon": 37.5982383
+    "lon": 37.5982383,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p192",
@@ -4037,7 +4419,9 @@
     "highlight": "莱蒙托夫纪念碑(1965)；原诗人出生地(1814年)",
     "note": "红门广场北侧；年代：1941年命名；俄文：Лермонтовский сквер",
     "lat": 55.7690244,
-    "lon": 37.6489874
+    "lon": 37.6489874,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p193",
@@ -4049,7 +4433,9 @@
     "highlight": "安娜女皇巴洛克；库拉金亲王建造；莫斯科第一所私人慈善机构(退伍军人济贫院)",
     "note": "新巴斯曼纳亚街；年代：1731-1742年；俄文：Московский дом национальностей",
     "lat": 55.7690523,
-    "lon": 37.6537514
+    "lon": 37.6537514,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p194",
@@ -4061,7 +4447,9 @@
     "highlight": "斯坦尼斯拉夫斯基1863年出生地；瓦西里·日加列夫→罗季翁·卡扎科夫→谢尔盖·阿列克谢耶夫",
     "note": "索尔仁尼琴街29号；年代：18世纪末/1907年；俄文：Городская усадьба Алексеевых",
     "lat": 55.7455169,
-    "lon": 37.6654763
+    "lon": 37.6654763,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p195",
@@ -4073,7 +4461,9 @@
     "highlight": "维什涅韦茨基设计；意大利文艺复兴+中式客厅；现属ВНИИЭМ(俄罗斯航天局)，不对外开放",
     "note": "萨多瓦娅-切尔诺格里亚兹斯卡娅街6号；年代：1886年；俄文：Особняк С.П. фон Дервиза",
     "lat": 55.7663307,
-    "lon": 37.651403
+    "lon": 37.651403,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p196",
@@ -4085,7 +4475,9 @@
     "highlight": "莫斯科最古老胡同之一，385年历史",
     "note": "红门/巴斯曼纳亚区；年代：1635年；俄文：Боярский переулок",
     "lat": 55.768125,
-    "lon": 37.6473927
+    "lon": 37.6473927,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p197",
@@ -4097,7 +4489,9 @@
     "highlight": "帕维尔·谢夫留戈夫(舒伊斯基商人)宅邸；檐口刻名",
     "note": "大科兹洛夫斯基胡同4号1号楼；年代：1874年；俄文：Особняк Павлова — Севрюговых",
     "lat": 55.767701,
-    "lon": 37.6456353
+    "lon": 37.6456353,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p198",
@@ -4109,7 +4503,9 @@
     "highlight": "舒谢夫设计；晚期构成主义；帕特诺斯特电梯；转角双面时钟至今仍运行",
     "note": "萨多瓦娅-斯巴斯卡娅街11/1号；年代：1929-1933年；俄文：Здание Наркомзема",
     "lat": 55.7705038,
-    "lon": 37.6449685
+    "lon": 37.6449685,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p199",
@@ -4121,7 +4517,9 @@
     "highlight": "\"Обрабстрой\"合作社住宅(1931年，莫斯科最高构成主义建筑)；\"火车头\"大楼；铁路诊所(福明，1928年)",
     "note": "巴斯曼纳亚区；年代：1920-1930年代；俄文：Конструктивистские дома；坐标为近似位置",
     "lat": 55.7672809,
-    "lon": 37.6697732
+    "lon": 37.6697732,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p200",
@@ -4133,7 +4531,9 @@
     "highlight": "原奥尔夫霍韦茨小溪(1860年入管)；20世纪初红灯区；伊尔夫与彼得罗夫《十二把椅子》提及",
     "note": "巴斯曼纳亚区；年代：18世纪起；俄文：Домниковская ул. (ул. Маши Порываевой)",
     "lat": 55.7737502,
-    "lon": 37.6489839
+    "lon": 37.6489839,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p201",
@@ -4145,7 +4545,9 @@
     "highlight": "19世纪中叶由房主奥尔利克命名；1968年并入原第一佳科夫胡同",
     "note": "花园环路起始；年代：19世纪中叶；俄文：Орликов переулок",
     "lat": 55.7707256,
-    "lon": 37.6475882
+    "lon": 37.6475882,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p202",
@@ -4157,7 +4559,9 @@
     "highlight": "布格罗夫斯基设计；七层双色混搭；业主尼古拉·斯塔赫耶夫(黄金工业家、希什金主要赞助人)",
     "note": "米亚斯尼茨卡娅街6号/3号1栋；年代：1897年；俄文：Доходный дом Стахеева",
     "lat": 55.7593959,
-    "lon": 37.6288539
+    "lon": 37.6288539,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p203",
@@ -4169,7 +4573,9 @@
     "highlight": "亚历山大·切尔科夫(莫斯科省贵族领袖)购得；俄罗斯最大私人历史图书馆；普希金/果戈理/舒曼足迹",
     "note": "米亚斯尼茨卡娅街7号2栋；年代：1831年起；俄文：Усадьба Салтыковых-Чертковых",
     "lat": 55.7605632,
-    "lon": 37.6309095
+    "lon": 37.6309095,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p204",
@@ -4181,7 +4587,9 @@
     "highlight": "1803年诗人德米特里·韦涅维季诺夫之父购得；古典主义风格",
     "note": "克里沃科连胡同；年代：18世纪下半叶；俄文：Дом Веневитиновых",
     "lat": 55.7622001,
-    "lon": 37.6362389
+    "lon": 37.6362389,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p205",
@@ -4193,7 +4601,9 @@
     "highlight": "克莱因/吉皮乌斯设计；莫斯科唯一伪中国风格建筑；三米高青铜狮子；\"无处可去\"广告出自马雅可夫斯基",
     "note": "米亚斯尼茨卡娅街；年代：1893→1896年；俄文：Чайный дом Перлова",
     "lat": 55.7639778,
-    "lon": 37.6358459
+    "lon": 37.6358459,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p206",
@@ -4205,7 +4615,9 @@
     "highlight": "纪念《聪明误》作者；1919年原址曾有立体未来主义纪念碑",
     "note": "清池林荫道起点；年代：1959年；俄文：Памятник А.С. Грибоедову",
     "lat": 55.7644614,
-    "lon": 37.639259
+    "lon": 37.639259,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p207",
@@ -4217,7 +4629,9 @@
     "highlight": "博韦/格里戈里耶夫设计；旧礼仪派商人索尔达坚科夫；契诃夫常客；1941-1945年为最高统帅部大本营",
     "note": "米亚斯尼茨卡娅街37号；年代：1819-1821年重建；俄文：Усадьба Солдатенкова",
     "lat": 55.766982,
-    "lon": 37.6402641
+    "lon": 37.6402641,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p208",
@@ -4229,7 +4643,9 @@
     "highlight": "乔瓦尼·维塔利设计；四个青铜天使象征悲剧/喜剧/诗歌/音乐；莫斯科唯一保留饮马槽的喷泉；1995年重新启用",
     "note": "剧院广场，大剧院对面；年代：1835年；俄文：Фонтан Витали (Петровский фонтан)",
     "lat": 55.7578957,
-    "lon": 37.6198398
+    "lon": 37.6198398,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p209",
@@ -4245,7 +4661,9 @@
     "lon": 37.62169,
     "tags": [
       "酒店/旅馆"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p210",
@@ -4257,7 +4675,9 @@
     "highlight": "埃尔金斯基按博韦设计改建；1831年首演《聪明误》；屠格涅夫专为其创作剧作",
     "note": "剧院广场1/6号；年代：1824年开幕；俄文：Малый театр",
     "lat": 55.7597497,
-    "lon": 37.6206313
+    "lon": 37.6206313,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p211",
@@ -4269,7 +4689,9 @@
     "highlight": "娜塔莉娅·萨茨创立；世界首个儿童剧院；1936年迁入现址(原济明歌剧院/МХАТ-II旧址)",
     "note": "剧院广场2号；年代：1921年创立；俄文：РАМТ (Российский академический молодёжный театр)",
     "lat": 55.7591792,
-    "lon": 37.6172741
+    "lon": 37.6172741,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p212",
@@ -4281,7 +4703,9 @@
     "highlight": "莫斯科最古老街道之一；布尔加科夫《大师与玛格丽特》多次提及",
     "note": "剧院广场→普希金广场；年代：14世纪；俄文：Улица Дмитровка",
     "lat": 55.7632964,
-    "lon": 37.6129957
+    "lon": 37.6129957,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p213",
@@ -4293,7 +4717,9 @@
     "highlight": "源自德语Kammergericht(宫廷法院)；18-19世纪贵族宅邸",
     "note": "连接特维尔大街与尼基茨基大街；年代：历史胡同；俄文：Камергерский переулок",
     "lat": 55.7599414,
-    "lon": 37.6135265
+    "lon": 37.6135265,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p214",
@@ -4305,7 +4731,9 @@
     "highlight": "斯坦尼斯拉夫斯基/涅米罗维奇-丹琴科创办；舍赫捷利将奥多耶夫斯基亲王宅邸(1767年)改建为剧院",
     "note": "卡梅格尔胡同3号；年代：1898年创立/1902年迁入；俄文：МХАТ им. М. Горького",
     "lat": 55.760505,
-    "lon": 37.612923
+    "lon": 37.612923,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p215",
@@ -4317,7 +4745,9 @@
     "highlight": "米哈伊尔·阿尼库申雕塑；剧院百年华诞竖立",
     "note": "卡梅格尔胡同；年代：1998年；俄文：Памятник А.П. Чехову",
     "lat": 55.7595927,
-    "lon": 37.6130687
+    "lon": 37.6130687,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p216",
@@ -4329,7 +4759,9 @@
     "highlight": "阿列克谢·莫罗佐夫设计；碑座刻有《海鸥》妮娜独白",
     "note": "卡梅格尔胡同；年代：2014年；俄文：Памятник основателям МХТ",
     "lat": 55.7594845,
-    "lon": 37.6123184
+    "lon": 37.6123184,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p217",
@@ -4341,7 +4773,9 @@
     "highlight": "尼古拉·鲁宾斯坦创办；培养拉赫玛尼诺夫/斯克里亚宾/普罗科菲耶夫等大师",
     "note": "大尼基茨卡亚街13号；年代：1866年；俄文：Московская консерватория им. П.И. Чайковского",
     "lat": 55.7562765,
-    "lon": 37.6054314
+    "lon": 37.6054314,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p218",
@@ -4353,7 +4787,9 @@
     "highlight": "维斯宁兄弟设计；构成主义风格；可变舞台与观众厅",
     "note": "大尼基茨卡亚街19/13с1号；年代：20世纪；俄文：Московский академический театр им. Вл. Маяковского",
     "lat": 55.7570088,
-    "lon": 37.6016482
+    "lon": 37.6016482,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p219",
@@ -4365,7 +4801,9 @@
     "highlight": "亚历山大·连斯基等创办；俄罗斯最古老戏剧学府；\"俄罗斯戏剧摇篮\"",
     "note": "小基斯洛夫胡同6号；年代：1878年；俄文：ГИТИС (Российский институт театрального искусства)",
     "lat": 55.7547132,
-    "lon": 37.6034375
+    "lon": 37.6034375,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p220",
@@ -4377,7 +4815,9 @@
     "highlight": "旧名科斯莫达米安胡同/最后的基斯洛夫胡同；莫塞尔普罗马大楼(罗琴科/斯捷潘诺娃设计广告画，马雅可夫斯基写标语)",
     "note": "从大基斯洛夫胡同延伸至沃兹德维任卡街；年代：历史胡同；俄文：Нижний Кисловский переулок",
     "lat": 55.7541795,
-    "lon": 37.6040776
+    "lon": 37.6040776,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p221",
@@ -4389,7 +4829,9 @@
     "highlight": "苏联第一座\"摩天楼\"；罗琴科/斯捷潘诺娃广告画；马雅可夫斯基\"无处可去\"标语",
     "note": "下基斯洛夫胡同10/2号；年代：20世纪；俄文：Дом Моссельпрома",
     "lat": 55.753283,
-    "lon": 37.6021329
+    "lon": 37.6021329,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p222",
@@ -4401,7 +4843,9 @@
     "highlight": "1874年建筑；原\"谢克列塔列夫卡\"剧院；后曾为Габима剧院(1924年前)",
     "note": "下基斯洛夫胡同5号；年代：19世纪；俄文：Бывший театр Секретарёва",
     "lat": 55.7539482,
-    "lon": 37.6036191
+    "lon": 37.6036191,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p223",
@@ -4413,7 +4857,9 @@
     "highlight": "原名\"鬼胡同\"→\"坏胡同\"(旧礼仪派忌讳\"鬼\"字)→1919年\"同志胡同\"",
     "note": "塔甘卡区；年代：19世纪初；俄文：Товарищеский переулок",
     "lat": 55.7427654,
-    "lon": 37.6634016
+    "lon": 37.6634016,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p224",
@@ -4425,7 +4871,9 @@
     "highlight": "画家康斯坦丁/谢尔盖·科罗温出生地；祖父为雅姆(驿站马车)商人",
     "note": "同志胡同24号；年代：19世纪；俄文：Дом, где родились братья Коровины",
     "lat": 55.7429317,
-    "lon": 37.6659628
+    "lon": 37.6659628,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p225",
@@ -4437,7 +4885,9 @@
     "highlight": "位于科罗温兄弟祖母庄园旧址；即兄弟实际出生地",
     "note": "同志胡同30号；年代：20世纪；俄文：МГАХИ им. В.И. Сурикова",
     "lat": 55.743592,
-    "lon": 37.666193
+    "lon": 37.666193,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p226",
@@ -4449,7 +4899,9 @@
     "highlight": "А.К.格列边希科夫创立；其子伊万开发马约利卡/瓷器技术；18世纪末欧洲最佳陶瓷厂之一",
     "note": "同志胡同右侧；年代：1724年；俄文：Первая керамическая фабрика России；坐标为近似位置",
     "lat": 55.7427654,
-    "lon": 37.6634016
+    "lon": 37.6634016,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p227",
@@ -4461,7 +4913,9 @@
     "highlight": "原苹果园(二战期间为莫斯科儿童提供食物)；莫斯科首个互动式水沙游乐场",
     "note": "塔甘斯卡娅街40-42号；年代：2017年重建；俄文：Таганский детский парк им. Н.Н. Прямикова",
     "lat": 55.7389043,
-    "lon": 37.6672394
+    "lon": 37.6672394,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p228",
@@ -4473,7 +4927,9 @@
     "highlight": "原大阿列克谢耶夫斯卡娅→大共产主义街；莫斯科少数整体保留18-19世纪建筑的街道",
     "note": "塔甘卡区；年代：2008年更名；俄文：Улица А. Солженицына",
     "lat": 55.744398,
-    "lon": 37.6637199
+    "lon": 37.6637199,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p229",
@@ -4485,7 +4941,9 @@
     "highlight": "古萨特尼科夫家族(织布/制帽/呢绒/啤酒厂，40多家店铺)→苏联\"儿童世界\"分店\"星星\"→2001年购物中心",
     "note": "索尔仁尼琴街2/1号/塔甘斯卡娅街1号；年代：18-19世纪；俄文：Торговые ряды Гусятникова → магазин «Звёздочка»",
     "lat": 55.7417946,
-    "lon": 37.6557365
+    "lon": 37.6557365,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p230",
@@ -4497,7 +4955,9 @@
     "highlight": "女商人П.С.克列斯托夫尼科娃宅邸",
     "note": "索尔仁尼琴街2а；年代：18-19世纪；俄文：Городская усадьба Крестовниковой",
     "lat": 55.7418229,
-    "lon": 37.6566913
+    "lon": 37.6566913,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p231",
@@ -4509,7 +4969,9 @@
     "highlight": "今卡巴尔达-巴尔卡尔共和国代表处",
     "note": "索尔仁尼琴街4号；年代：19世纪初；俄文：Городская усадьба купца Степанова",
     "lat": 55.7421497,
-    "lon": 37.6572197
+    "lon": 37.6572197,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p232",
@@ -4521,7 +4983,9 @@
     "highlight": "祖博夫为著名音乐收藏家(斯特拉迪瓦里/瓜尔内里/阿马蒂小提琴)；儿子帕维尔·祖博夫为科学家-热化学家",
     "note": "索尔仁尼琴街9号；年代：18世纪末-19世纪；俄文：Усадьба Полежаевых-Зубовых",
     "lat": 55.7427302,
-    "lon": 37.6568957
+    "lon": 37.6568957,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p233",
@@ -4533,7 +4997,9 @@
     "highlight": "建筑师В.莫罗佐夫设计",
     "note": "索尔仁尼琴街14号；年代：1914年；俄文：Доходный дом в стиле модерн",
     "lat": 55.7429761,
-    "lon": 37.6599662
+    "lon": 37.6599662,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p234",
@@ -4545,7 +5011,9 @@
     "highlight": "商人宅邸",
     "note": "索尔仁尼琴街18号；年代：18世纪末-19世纪；俄文：Дом Лоскутова",
     "lat": 55.742876,
-    "lon": 37.6607038
+    "lon": 37.6607038,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p235",
@@ -4557,7 +5025,9 @@
     "highlight": "东正教教堂纪念天主教教皇圣马丁一世；罗季翁·卡扎科夫设计；拉丁十字形；1812年缪拉元帅派兵保护传说；1998年阿列克谢二世重新祝圣",
     "note": "索尔仁尼琴街15号；年代：推测1502年始建/1791-1806年重建；俄文：Храм Мартина Исповедника",
     "lat": 55.7436246,
-    "lon": 37.6603462
+    "lon": 37.6603462,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p236",
@@ -4569,7 +5039,9 @@
     "highlight": "作家全身高立像；灰色花岗岩基座带青铜浮雕",
     "note": "索尔仁尼琴街11-13号庭院；年代：2018年12月11日；俄文：Сквер и памятник А.И. Солженицыну",
     "lat": 55.7434034,
-    "lon": 37.6582958
+    "lon": 37.6582958,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p237",
@@ -4581,7 +5053,9 @@
     "highlight": "莫斯科七大传奇山丘之一(塔甘山)；源自塔甘纳亚村(制作行军锅三脚支架的工匠)；16世纪起形成市场；1963年上下广场合并",
     "note": "塔甘门旧址；年代：16世纪末起；俄文：Таганская площадь",
     "lat": 55.7409704,
-    "lon": 37.6543835
+    "lon": 37.6543835,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p238",
@@ -4593,7 +5067,9 @@
     "highlight": "博韦设计带柱廊石质贸易行；存在一个半世纪；1960年代为修塔甘隧道被毁",
     "note": "塔甘斯卡娅广场；年代：1812年后；俄文：Торговые ряды по проекту О.И. Бове；坐标为近似位置",
     "lat": 55.7409704,
-    "lon": 37.6543835
+    "lon": 37.6543835,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p239",
@@ -4605,7 +5081,9 @@
     "highlight": "П.А.克拉斯诺夫在原砖厂址上建苹果园；1982年列为地方级自然遗迹；独特梨/苹果/浆果品种；夜莺与绿啄木鸟栖息地",
     "note": "纳希莫夫斯基大街对面，科特洛夫卡区；年代：1880年创立；俄文：Коробковские сады；坐标为近似位置",
     "lat": 55.6626511,
-    "lon": 37.6056223
+    "lon": 37.6056223,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p240",
@@ -4617,7 +5095,9 @@
     "highlight": "黏土采掘场遗址上的自然池塘(深4米)",
     "note": "教堂与果园之间；年代：当代；俄文：Сквер Евфросинии Московской",
     "lat": 55.6649852,
-    "lon": 37.6036264
+    "lon": 37.6036264,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p241",
@@ -4629,7 +5109,9 @@
     "highlight": "1980年代为列宁诺村农舍菜园→1990年代初最后木屋拆除→2006-2007年步道更新→2013年补植→2016-2017年全面照明；巴金斯卡亚街老松树林自然遗迹；原察里津诺公园左岸松林残遗",
     "note": "卢甘斯卡亚街/蒂穆鲁夫斯卡亚街/巴金斯卡亚街/高加索林荫道之间；年代：2006-2017年重建；俄文：Парк Сосенки (вход с ул. Тимуровской)",
     "lat": 55.6690559,
-    "lon": 37.5965577
+    "lon": 37.5965577,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p242",
@@ -4641,7 +5123,9 @@
     "highlight": "列宁诺村最后遗存；2007年前仍有木屋居民；\"火灾成为驱逐老住户的有效手段\"；现址为牙科诊所/兽医诊所/输血站",
     "note": "索森基公园西侧；年代：1980-1990年代；俄文：Частные дома на ул. Бакинской；坐标为近似位置",
     "lat": 55.6692,
-    "lon": 37.5935
+    "lon": 37.5935,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p243",
@@ -4653,7 +5137,9 @@
     "highlight": "商人瓦西里·阿尔希诺夫为病子创建私家植物园；长子弗拉基米尔引进全球珍稀树种；1924年自然遗迹(监管失效)；1934年养蜂研究所；二战蓝云杉全部砍伐当柴；1970年代ZIL医院侵占；1987年市级自然遗迹；2013年并入库兹明斯基森林公园",
     "note": "察里津诺区，原沃罗比约夫卡/科特里亚科沃村；年代：1890年代创立；俄文：Аршиновский парк",
     "lat": 55.6192902,
-    "lon": 37.6520194
+    "lon": 37.6520194,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p244",
@@ -4665,7 +5151,9 @@
     "highlight": "原博洛特尼科夫通道；1930年代沃尔洪卡村工人新村；1970年代拆除二层建筑改5-9层砖楼",
     "note": "纳希莫夫斯基大街区域；年代：1965年命名；俄文：Улица Азовская",
     "lat": 55.6626687,
-    "lon": 37.6056033
+    "lon": 37.6056033,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p245",
@@ -4677,7 +5165,9 @@
     "highlight": "纪念苏联英雄伊万·列米佐夫(1901-1939，哈勒欣河战役牺牲)；10号楼为\"纳戈尔纳亚\"美术馆",
     "note": "从塞瓦斯托波尔大街至电解工厂通道；年代：1966年命名；俄文：Улица Ремизова",
     "lat": 55.673167,
-    "lon": 37.6064492
+    "lon": 37.6064492,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p246",
@@ -4689,7 +5179,9 @@
     "highlight": "弗拉基米尔-苏兹达尔风格；约40米高；宗主教府邸；前立有顿斯科伊德米特里大公夫妇纪念碑",
     "note": "纳希莫夫斯基大街8号；年代：2005-2012年；俄文：Храм Евфросинии Московской",
     "lat": 55.6649852,
-    "lon": 37.6036264
+    "lon": 37.6036264,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p247",
@@ -4701,7 +5193,9 @@
     "highlight": "原名\"沟壑胡同\"→\"复活胡同\"→\"叶利谢耶夫胡同\"→今名；纪念象征主义诗人瓦列里·布留索夫(但诗人从未在此居住)",
     "note": "特维尔区；年代：17世纪起；俄文：Брюсов переулок",
     "lat": 55.7583291,
-    "lon": 37.6062929
+    "lon": 37.6062929,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p248",
@@ -4713,7 +5207,9 @@
     "highlight": "1686年安娜·洛巴诺娃-罗斯托夫斯卡娅公主宅邸；后续主人：苏马罗科夫/基谢廖夫/松佐娃-扎塞基娜(留里克后裔)等；1883年地下通道传说：砌炉工坠入深洞，发现通往克里姆林宫的长廊，随即被填平(官方否认)",
     "note": "布留索夫胡同2/14号；年代：17世纪末；俄文：Дворец Якова Брюса",
     "lat": 55.7571222,
-    "lon": 37.6054181
+    "lon": 37.6054181,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p249",
@@ -4725,7 +5221,9 @@
     "highlight": "叶赛宁在此亏本卖书；巴尔蒙特常来此地",
     "note": "布留索夫胡同；年代：1920年代；俄文：Книжная лавка имажинистов；坐标为近似位置",
     "lat": 55.7583291,
-    "lon": 37.6062929
+    "lon": 37.6062929,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p250",
@@ -4737,7 +5235,9 @@
     "highlight": "原名\"斯特罗加诺夫胡同\"(男爵尼·格·斯特罗加诺夫豪宅)→18世纪末\"报纸胡同\"(莫斯科大学印刷厂印《莫斯科新闻报》)→1920年\"奥加廖夫街\"→1993年恢复\"报纸胡同\"",
     "note": "特维尔区；年代：1745年起；俄文：Газетный переулок",
     "lat": 55.7576521,
-    "lon": 37.6087705
+    "lon": 37.6087705,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p251",
@@ -4749,7 +5249,9 @@
     "highlight": "尼古拉一世发现学校大厅大理石板刻有流放十二月党人名字(均为该校毕业生)，勃然大怒；学校改组为第一贵族中学(军事化管理)；纪念牌拆除；建筑改为商业用途(电气剧院/纺织品店/武器店)",
     "note": "报纸胡同贵族寄宿学校；年代：1830年；俄文：Инцидент с мемориальными досками декабристов；坐标为近似位置",
     "lat": 55.7576521,
-    "lon": 37.6087705
+    "lon": 37.6087705,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p252",
@@ -4761,7 +5263,9 @@
     "highlight": "18世纪建筑纪念碑",
     "note": "报纸胡同9号；年代：1728-1737年；俄文：Усадьба Янковых-Давыдовых",
     "lat": 55.7583264,
-    "lon": 37.6081279
+    "lon": 37.6081279,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p253",
@@ -4773,7 +5277,9 @@
     "highlight": "建筑师尼基京；位于圣母升天沟壑旁",
     "note": "报纸胡同15号；年代：1857年重建；俄文：Церковь Успения Пресвятой Богородицы",
     "lat": 55.7585854,
-    "lon": 37.609862
+    "lon": 37.609862,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p254",
@@ -4785,7 +5291,9 @@
     "highlight": "苏联通信部设施；原大学印刷厂旧址",
     "note": "报纸胡同1/12号；年代：1925年起建；俄文：Здание АТС",
     "lat": 55.7567617,
-    "lon": 37.6066771
+    "lon": 37.6066771,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p255",
@@ -4797,7 +5305,9 @@
     "highlight": "贵族宅邸",
     "note": "特维尔大街拐角；年代：18世纪；俄文：Дворец князя Меншикова；坐标为近似位置",
     "lat": 55.7625389,
-    "lon": 37.6089133
+    "lon": 37.6089133,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p256",
@@ -4809,7 +5319,9 @@
     "highlight": "博戈罗季斯科耶区独特骑马雕像——元帅鞍上姿态放松、面带微笑(非严肃俯视)",
     "note": "林荫大道上；年代：2015年5月6日；俄文：Памятник маршалу Рокоссовскому",
     "lat": 55.8117471,
-    "lon": 37.725173
+    "lon": 37.725173,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p257",
@@ -4821,7 +5333,9 @@
     "highlight": "街头艺术家Max 13和Zeaner绘制",
     "note": "27/20号楼侧墙；年代：2015年9月；俄文：Граффити с портретом маршала Рокоссовского",
     "lat": 55.8146404,
-    "lon": 37.7178184
+    "lon": 37.7178184,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p258",
@@ -4833,7 +5347,9 @@
     "highlight": "莫斯科19世纪幸存的三座木制教堂之一",
     "note": "百万街；年代：19世纪；俄文：Храм Спаса Преображения",
     "lat": 55.8146269,
-    "lon": 37.6960247
+    "lon": 37.6960247,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p259",
@@ -4845,7 +5361,9 @@
     "highlight": "历史悠久的街道",
     "note": "博戈罗季斯科耶区；年代：历史街道；俄文：Миллионная улица",
     "lat": 55.8160595,
-    "lon": 37.6987774
+    "lon": 37.6987774,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p260",
@@ -4857,7 +5375,9 @@
     "highlight": "苏联传奇门将童年在此度过；运动场以他命名",
     "note": "附近院子运动场；年代：20世纪；俄文：Места, связанные с Львом Яшиным；坐标为近似位置",
     "lat": 55.8155683,
-    "lon": 37.7077624
+    "lon": 37.7077624,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p261",
@@ -4869,7 +5389,9 @@
     "highlight": "契诃夫/库普林/马雅可夫斯基等作家曾在此乡间别墅度假",
     "note": "博戈罗季斯科耶区；年代：19-20世纪；俄文：Дачи писателей；坐标为近似位置",
     "lat": 55.8125,
-    "lon": 37.708
+    "lon": 37.708,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p262",
@@ -4881,7 +5403,9 @@
     "highlight": "原苏联儿童滑雪胜地；原址为工业废料堆，曾发现放射性物质",
     "note": "博戈罗季斯科耶区；年代：2012年改建；俄文：Народный парк «Янтарная горка»",
     "lat": 55.8095712,
-    "lon": 37.7266528
+    "lon": 37.7266528,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p263",
@@ -4893,7 +5417,9 @@
     "highlight": "索菲亚·维托夫托夫娜遗嘱提及；可能源自谢苗·日列贝茨；与沃龙佐沃/沃罗比约沃同属大领地",
     "note": "旧卡卢加公路沿线，瓦维洛娃街与罗蒙诺索夫大街交汇处；年代：1453年首见文献；俄文：Село Семёновское；坐标为近似位置",
     "lat": 55.687024,
-    "lon": 37.5556948
+    "lon": 37.5556948,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p264",
@@ -4905,7 +5431,9 @@
     "highlight": "14世纪贵族费奥多尔·沃龙涅茨领地→1614年列普宁家族→18世纪彼得·列普宁建巴洛克主楼/阶梯池塘/法式公园→19世纪尼古拉·列普宁建\"土耳其要塞\"凯旋门→1812年拿破仑劫掠/气球实验(托尔斯泰《战争与和平》)→1890年代弹药工厂→1917年后苏维埃农场/监狱(斯皮里多诺娃)→1948年列入国家保护",
     "note": "约48.7公顷；年代：14世纪-20世纪；俄文：Воронцовский парк / усадьба Воронцово",
     "lat": 55.6676315,
-    "lon": 37.5342298
+    "lon": 37.5342298,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p265",
@@ -4917,7 +5445,9 @@
     "highlight": "哥特式入口大门；公园现存遗迹之一",
     "note": "沃龙佐夫公园；年代：19世纪；俄文：Ворота «Турецкой крепости»；坐标为近似位置",
     "lat": 55.6676315,
-    "lon": 37.5342298
+    "lon": 37.5342298,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p266",
@@ -4929,7 +5459,9 @@
     "highlight": "拉缅卡河与科特洛夫卡河的源头",
     "note": "沃龙佐夫公园；年代：18-19世纪；俄文：Каскад из 5 прудов",
     "lat": 55.6635112,
-    "lon": 37.5367573
+    "lon": 37.5367573,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p267",
@@ -4941,7 +5473,9 @@
     "highlight": "苏联改革时期快餐文化地标；可能为早期披萨连锁店郊区首店",
     "note": "\"新切列穆什基\"站周边；年代：1980年代末；俄文：Первая пиццерия на окраинах Москвы；坐标为近似位置",
     "lat": 55.6702787,
-    "lon": 37.5546984
+    "lon": 37.5546984,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p268",
@@ -4953,7 +5487,9 @@
     "highlight": "第174/179号图书馆；专业音乐图书馆\"Sound Stock\"等；社区知识空间",
     "note": "罗蒙诺索夫区；年代：20世纪；俄文：Библиотеки Ломоносовского района；坐标为近似位置",
     "lat": 55.7071424,
-    "lon": 37.5162362
+    "lon": 37.5162362,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p269",
@@ -4968,7 +5504,9 @@
     "lon": 37.5546984,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p270",
@@ -4983,7 +5521,9 @@
     "lon": 37.5217748,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p271",
@@ -4995,7 +5535,9 @@
     "highlight": "谢苗·基尔萨诺夫(1906-1972)诗作；描写公路波浪起伏平原与灰色小村庄；诗人对工业化变迁的忧虑",
     "note": "卡卢加公路沿线；年代：文学记忆；俄文：Места поэмы «Калужское шоссе» С.И. Кирсанова；坐标为近似位置",
     "lat": 55.68702,
-    "lon": 37.55569
+    "lon": 37.55569,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p272",
@@ -5007,7 +5549,9 @@
     "highlight": "现代化交通基础设施嵌入20世纪工业城区",
     "note": "莫斯科河左岸；年代：21世纪；俄文：Пешеходный мост МЦК «Автозаводская»",
     "lat": 55.7057399,
-    "lon": 37.6630252
+    "lon": 37.6630252,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p273",
@@ -5019,7 +5563,9 @@
     "highlight": "同一建筑师在区内的\"最成功\"与\"最不成功\"项目对比",
     "note": "达尼洛夫斯基区内；年代：20世纪；俄文：Проекты А.Н. Душкина；坐标为近似位置",
     "lat": 55.707253,
-    "lon": 37.643517
+    "lon": 37.643517,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p274",
@@ -5031,7 +5577,9 @@
     "highlight": "斯大林时期4-6层砖楼；安置ZIL/\"发电机\"厂工人",
     "note": "达尼洛夫斯基区；年代：1949-1950年代；俄文：Дома 1949—1950-х годов；坐标为近似位置",
     "lat": 55.707253,
-    "lon": 37.643517
+    "lon": 37.643517,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p275",
@@ -5043,7 +5591,9 @@
     "highlight": "纪念苏联英雄弗拉基米尔·特罗菲莫夫(1919-1944)；纪念牌/奠基石位于2/1号和11号楼",
     "note": "原第三科茹霍夫斯卡娅街；年代：1966年命名；俄文：Улица Трофимова",
     "lat": 55.7053874,
-    "lon": 37.6865857
+    "lon": 37.6865857,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p276",
@@ -5055,7 +5605,9 @@
     "highlight": "社会主义城市交通分层；空间分隔器",
     "note": "达尼洛夫斯基区；年代：20世纪；俄文：Путепровод через улицу Сайкина",
     "lat": 55.7077154,
-    "lon": 37.6682534
+    "lon": 37.6682534,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p277",
@@ -5067,7 +5619,9 @@
     "highlight": "典型苏联学校建筑；纪念卫国战争奔赴前线的士兵和民兵",
     "note": "达尼洛夫斯基区；年代：1950年代；俄文：Школы 1950-х + памятник «На дорогах войны»；坐标为近似位置",
     "lat": 55.707253,
-    "lon": 37.643517
+    "lon": 37.643517,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p278",
@@ -5079,7 +5633,9 @@
     "highlight": "大厅880座；单声道音响；2012年5月起关闭改造，后未重开；现商铺用途",
     "note": "特罗菲莫夫街17号；年代：苏联时期/2012年关闭；俄文：Кинотеатр «Свобода»",
     "lat": 55.7035225,
-    "lon": 37.6746763
+    "lon": 37.6746763,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p279",
@@ -5091,7 +5647,9 @@
     "highlight": "当代高层住宅或翻新苏联建筑；居住形态升级",
     "note": "科茹霍沃区域；年代：当代；俄文：5-я Кожуховская улица. Дом нового формата",
     "lat": 55.7051308,
-    "lon": 37.67483
+    "lon": 37.67483,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p280",
@@ -5103,7 +5661,9 @@
     "highlight": "可能指哈夫斯科-沙博洛夫住宅群(1927-1930年理性主义)或绿化率极高的斯大林式住宅",
     "note": "达尼洛夫斯基区；年代：1950年代；俄文：«Зелёные дома» 1950-х；坐标为近似位置",
     "lat": 55.707253,
-    "lon": 37.643517
+    "lon": 37.643517,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p281",
@@ -5115,7 +5675,9 @@
     "highlight": "建筑与建设学院第7号分校；培养建筑师/景观设计师/燃气设备技师",
     "note": "达尼洛夫斯基区；年代：2004年；俄文：Колледж архитектуры；坐标为近似位置",
     "lat": 55.707253,
-    "lon": 37.643517
+    "lon": 37.643517,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p282",
@@ -5127,7 +5689,9 @@
     "highlight": "战前幼儿园(苏联福利体系萌芽)+战后学校(重建时期教育重视)；苏联教育建筑史微观标本",
     "note": "达尼洛夫斯基区；年代：1940/1952年；俄文：Школа 1952 г. + детский сад 1940 г.；坐标为近似位置",
     "lat": 55.707253,
-    "lon": 37.643517
+    "lon": 37.643517,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p283",
@@ -5139,7 +5703,9 @@
     "highlight": "纪念卫国战争英雄或社会主义建设积极分子",
     "note": "达尼洛夫斯基区；年代：20世纪；俄文：Улица Петра Романова",
     "lat": 55.7058834,
-    "lon": 37.6833597
+    "lon": 37.6833597,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p284",
@@ -5151,7 +5717,9 @@
     "highlight": "具有电影拍摄历史的建筑；工业背景现实主义题材外景地",
     "note": "彼得·罗曼诺夫街；年代：20世纪；俄文：Дом, где снимают кино；坐标为近似位置",
     "lat": 55.7058834,
-    "lon": 37.6833597
+    "lon": 37.6833597,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p285",
@@ -5163,7 +5731,9 @@
     "highlight": "柱廊/对称立面/装饰浮雕/红色外墙/顶层阁楼；社会主义城市美学",
     "note": "达尼洛夫斯基区；年代：1930-1950年代；俄文：Сталинский ампир на Южнопортовой улице",
     "lat": 55.6935442,
-    "lon": 37.7142146
+    "lon": 37.7142146,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p286",
@@ -5178,7 +5748,9 @@
     "lon": 37.68505,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p287",
@@ -5190,7 +5762,9 @@
     "highlight": "玛丽亚·列文斯卡娅设计；中央知识之树+四角巨型苹果；模特为雕塑家女儿和朋友的都市传说；原址为巴拉舍夫斯卡娅五旬节教堂(1564年建，1930年代初被毁)",
     "note": "新库兹涅茨卡娅地铁站旁；年代：2008年；俄文：Фонтан «Адам и Ева»",
     "lat": 55.7419492,
-    "lon": 37.6290082
+    "lon": 37.6290082,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p288",
@@ -5202,7 +5776,9 @@
     "highlight": "托尔斯泰从克里米亚战争归来后居于此；与奥斯特洛夫斯基/费特交往；创作《哥萨克》《三死》《堕落者》",
     "note": "皮亚特尼茨卡娅街12号；年代：1857-1858年；俄文：Толстовский центр на Пятницкой",
     "lat": 55.7434163,
-    "lon": 37.6270952
+    "lon": 37.6270952,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p289",
@@ -5214,7 +5790,9 @@
     "highlight": "五头教堂；从克里姆林宫望去极为壮观；保存圣克雷芒教皇圣髑；2002年教区恢复",
     "note": "皮亚特尼茨卡娅街26号1栋；年代：1597年教区/1762-1774年现建筑；俄文：Храм Климента папы Римского",
     "lat": 55.7407293,
-    "lon": 37.6271102
+    "lon": 37.6271102,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p290",
@@ -5226,7 +5804,9 @@
     "highlight": "19世纪初木结构建筑；展出奥斯特洛夫斯基个人物品；《大雷雨》舞台历史专室",
     "note": "小奥尔登卡街9/12号6号楼；年代：1984年开放；俄文：Дом-музей А.Н. Островского",
     "lat": 55.7387976,
-    "lon": 37.626381
+    "lon": 37.626381,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p291",
@@ -5238,7 +5818,9 @@
     "highlight": "斯特列尔茨军团出资建造；莫斯科唯一幸存的斯特列尔茨教堂；1698年斯特列尔茨叛乱后苏里科夫画中蜡烛可能来自此；格里鲍耶陀夫叔叔阿列克谢·费奥多罗维奇(法穆索夫原型)为教区居民",
     "note": "大奥尔登卡街20号；年代：1670-1672年；俄文：Храм Николы в Пыжах",
     "lat": 55.73792,
-    "lon": 37.62454
+    "lon": 37.62454,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p292",
@@ -5250,7 +5832,9 @@
     "highlight": "伊丽莎白·费奥多罗夫娜大公夫人创立；休谢夫(后设计列宁墓)设计；慈善修道院",
     "note": "大奥尔登卡街附近；年代：1908-1912年；俄文：Марфо-Мариинская обитель",
     "lat": 55.7377636,
-    "lon": 37.6228921
+    "lon": 37.6228921,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p293",
@@ -5262,7 +5846,9 @@
     "highlight": "莫斯科第一座自动电话站；8000门容量；报纸宣称\"电话接线员将成考古术语\"",
     "note": "大奥尔登卡街；年代：1926年奠基/1930年开放；俄文：Здание АТС；坐标为近似位置",
     "lat": 55.7403257,
-    "lon": 37.6252873
+    "lon": 37.6252873,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p294",
@@ -5274,7 +5860,9 @@
     "highlight": "阿尔多夫家族家宅；阿赫玛托娃主要莫斯科住址；文学界聚会场所；外墙设纪念碑和纪念牌",
     "note": "大奥尔登卡街17号1号楼；年代：20世纪；俄文：Дом Ахматовой",
     "lat": 55.7425379,
-    "lon": 37.6258043
+    "lon": 37.6258043,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p295",
@@ -5286,7 +5874,9 @@
     "highlight": "1688年奇迹：牧首约阿希姆妹妹叶夫菲米娅·帕皮娜向圣像祈祷后痊愈；巴热诺夫设计钟楼(18世纪建筑明珠)；博韦设计圆形大厅；1990年起归还教会",
     "note": "大奥尔登卡街20号；年代：1683年始建/1791-1806年重建；俄文：Храм Всех Скорбящих Радость",
     "lat": 55.7415014,
-    "lon": 37.6244439
+    "lon": 37.6244439,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p296",
@@ -5298,7 +5888,9 @@
     "highlight": "亚历山大·鲁卡维什尼科夫设计；三幅画框呈\"步枪金字塔\"形；庆祝特列季亚科夫画廊150周年",
     "note": "拉夫鲁申胡同；年代：2006年；俄文：Фонтан «Вдохновение»",
     "lat": 55.740669,
-    "lon": 37.6223738
+    "lon": 37.6223738,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p297",
@@ -5310,7 +5902,9 @@
     "highlight": "阿姆莫斯·杰米多夫；巴洛克与古典主义混合；1760年代铸铁围栏(下塔吉尔工厂铸造)；面具浮雕=杰米多夫家族肖像传说；1942年起为乌申斯基国家教育图书馆",
     "note": "大托尔马切夫斯基胡同；年代：1759年；俄文：Усадьба Демидовых",
     "lat": 55.7405164,
-    "lon": 37.6217723
+    "lon": 37.6217723,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p298",
@@ -5322,7 +5916,9 @@
     "highlight": "伊万·尼古拉耶夫设计；斯大林1932年向高尔基承诺；肖洛霍夫/法捷耶夫/巴甫连科等住户；早期斯大林帝国风格",
     "note": "拉夫鲁申胡同17号；年代：1935-1937年；俄文：Дом писателей",
     "lat": 55.7411039,
-    "lon": 37.6216791
+    "lon": 37.6216791,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p299",
@@ -5340,7 +5936,9 @@
       "免费"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p300",
@@ -5358,7 +5956,9 @@
       "免费"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p302",
@@ -5373,7 +5973,9 @@
     "lon": 30.3534476,
     "confidence": 75,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p303",
@@ -5386,7 +5988,9 @@
     "note": "单程约 200 卢布；约 20 分钟一班；11:00–19:00；旺季约 5–10 月运营，结冰期停运；建议 11:00 或 16:00 避开 12–14 点高峰；白夜傍晚光线最佳。",
     "lat": null,
     "lon": null,
-    "pending": true
+    "pending": true,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p304",
@@ -5404,7 +6008,9 @@
     ],
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p305",
@@ -5423,7 +6029,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p306",
@@ -5438,7 +6046,9 @@
     "lon": 30.3438113,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p307",
@@ -5453,7 +6063,9 @@
     "lon": 30.3592638,
     "confidence": 75,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p308",
@@ -5468,7 +6080,9 @@
     "lon": 30.3586166,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p309",
@@ -5484,7 +6098,9 @@
     "pending": true,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p310",
@@ -5499,7 +6115,9 @@
     "lon": 30.3012968,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p311",
@@ -5517,7 +6135,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p312",
@@ -5535,7 +6155,9 @@
       "免费"
     ],
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p313",
@@ -5553,7 +6175,9 @@
       "免费"
     ],
     "estimatedDuration": 15,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p314",
@@ -5568,7 +6192,9 @@
     "lon": 30.3547737,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p315",
@@ -5584,7 +6210,9 @@
     "confidence": 100,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p316",
@@ -5600,7 +6228,9 @@
     "confidence": 100,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p317",
@@ -5641,7 +6271,9 @@
         "collectedAt": "2026-11-01",
         "reviewAfter": "2027-04-30"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p318",
@@ -5657,7 +6289,9 @@
     "confidence": 100,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p319",
@@ -5673,7 +6307,9 @@
     "tags": [
       "餐厅/咖啡"
     ],
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p320",
@@ -5689,7 +6325,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p321",
@@ -5705,7 +6343,9 @@
     "confidence": 75,
     "tags": [
       "免费"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p322",
@@ -5737,7 +6377,9 @@
         }
       }
     },
-    "ticket": "500 ₽（全票；与科罗廖夫故居联票另计）"
+    "ticket": "500 ₽（全票；与科罗廖夫故居联票另计）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p323",
@@ -5753,7 +6395,9 @@
     "pending": true,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p324",
@@ -5769,7 +6413,9 @@
     "confidence": 75,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p325",
@@ -5782,7 +6428,9 @@
     "note": "晚间营业。",
     "lat": 55.7627259,
     "lon": 37.6145498,
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p326",
@@ -5795,7 +6443,9 @@
     "note": "外部打卡；楼下公园开放。",
     "lat": 55.7488893,
     "lon": 37.5571517,
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p327",
@@ -5810,7 +6460,9 @@
     "lon": 76.9574617,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p328",
@@ -5825,7 +6477,9 @@
     "lon": 76.9457276,
     "confidence": 75,
     "estimatedDuration": 15,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p329",
@@ -5840,7 +6494,9 @@
     "lon": 76.8583226,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p330",
@@ -5853,7 +6509,9 @@
     "note": "外观打卡。",
     "lat": null,
     "lon": null,
-    "pending": true
+    "pending": true,
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p331",
@@ -5868,7 +6526,9 @@
     "lon": 76.917908,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p332",
@@ -5881,7 +6541,9 @@
     "note": "每日 07:00–22:30 营业。",
     "lat": null,
     "lon": null,
-    "pending": true
+    "pending": true,
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p333",
@@ -5896,7 +6558,9 @@
     "lon": 76.94321,
     "confidence": 75,
     "estimatedDuration": 15,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p334",
@@ -5911,7 +6575,9 @@
     "lon": 76.9172843,
     "confidence": 100,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p335",
@@ -5927,7 +6593,9 @@
     "confidence": 100,
     "tags": [
       "交通枢纽"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p336",
@@ -5945,7 +6613,9 @@
       "交通枢纽"
     ],
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p337",
@@ -5993,7 +6663,9 @@
         "reviewAfter": "2027-01-29",
         "note": "2026 年 1 月 2 日起费率：Тройка「Кошелек」75 ₽、单程纸票 90 ₽、非接触银行卡 83 ₽；进站即计一次单程，站厅参观含在车费内"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p338",
@@ -6009,7 +6681,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p339",
@@ -6043,7 +6717,9 @@
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p340",
@@ -6077,7 +6753,9 @@
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p341",
@@ -6093,7 +6771,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p342",
@@ -6109,7 +6789,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p343",
@@ -6125,7 +6807,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p344",
@@ -6141,7 +6825,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p345",
@@ -6175,7 +6861,9 @@
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p346",
@@ -6209,7 +6897,9 @@
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p347",
@@ -6243,7 +6933,9 @@
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p348",
@@ -6277,7 +6969,9 @@
         "collectedAt": "2026-10-29",
         "reviewAfter": "2027-04-29"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p349",
@@ -6293,7 +6987,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p350",
@@ -6309,7 +7005,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p351",
@@ -6325,7 +7023,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p352",
@@ -6341,7 +7041,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p353",
@@ -6357,7 +7059,9 @@
     "confidence": 100,
     "tags": [
       "地铁站"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p354",
@@ -6403,7 +7107,9 @@
         "reviewAfter": "2027-01-29",
         "note": "布尔加科夫博物馆官网：周一闭馆；周二/三/五/六/日 12:00–19:00，周四 14:00–21:00；成人 500 ₽，优惠 250 ₽"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p355",
@@ -6449,7 +7155,9 @@
         "reviewAfter": "2027-01-29",
         "note": "茨维塔耶娃故居博物馆官网：周一闭馆；周二至周日 12:00–19:00，周四 12:00–21:00；成人 400 ₽，优惠 200 ₽"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p356",
@@ -6465,7 +7173,9 @@
     "confidence": 100,
     "tags": [
       "文学"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p357",
@@ -6481,7 +7191,9 @@
     "confidence": 100,
     "tags": [
       "文学"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p358",
@@ -6530,7 +7242,9 @@
     "confidence": 100,
     "tags": [
       "文学"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p359",
@@ -6546,7 +7260,9 @@
     "confidence": 100,
     "tags": [
       "文学"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p360",
@@ -6562,7 +7278,9 @@
     "confidence": 100,
     "tags": [
       "文学"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p368",
@@ -6615,7 +7333,9 @@
         "reviewAfter": "2026-11-30",
         "note": "普希金博物馆票价页：分馆成人 400 ₽，优惠 200 ₽"
       }
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p362",
@@ -6647,7 +7367,9 @@
         }
       }
     },
-    "ticket": "550 ₽（纪念公寓）／850 ₽（含语音导览）"
+    "ticket": "550 ₽（纪念公寓）／850 ₽（含语音导览）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p363",
@@ -6694,7 +7416,9 @@
         }
       ]
     },
-    "ticket": "400 ₽（成人）／500 ₽（含俄语语音导览）／550 ₽（含英语语音导览）"
+    "ticket": "400 ₽（成人）／500 ₽（含俄语语音导览）／550 ₽（含英语语音导览）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p364",
@@ -6719,7 +7443,9 @@
       "open": "12:00",
       "close": "23:00"
     },
-    "ticket": "无门票（餐饮消费自理）"
+    "ticket": "无门票（餐饮消费自理）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p365",
@@ -6744,7 +7470,9 @@
       "open": "11:30",
       "close": "23:00"
     },
-    "ticket": "无门票（演出/餐饮另计）"
+    "ticket": "无门票（演出/餐饮另计）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p366",
@@ -6776,7 +7504,9 @@
         }
       }
     },
-    "ticket": "250 ₽（成人）"
+    "ticket": "250 ₽（成人）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p367",
@@ -6798,7 +7528,9 @@
     "openCalendar": {
       "alwaysOpen": true
     },
-    "ticket": "免费（露天雕像外观）"
+    "ticket": "免费（露天雕像外观）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p393",
@@ -6823,7 +7555,9 @@
       "close": "00:50",
       "crossDay": true
     },
-    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p369",
@@ -6848,7 +7582,9 @@
       "close": "00:57",
       "crossDay": true
     },
-    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p370",
@@ -6873,7 +7609,9 @@
       "close": "00:45",
       "crossDay": true
     },
-    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p371",
@@ -6898,7 +7636,9 @@
       "close": "00:50",
       "crossDay": true
     },
-    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p372",
@@ -6923,7 +7663,9 @@
       "close": "00:50",
       "crossDay": true
     },
-    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p373",
@@ -6948,7 +7690,9 @@
       "close": "00:45",
       "crossDay": true
     },
-    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p374",
@@ -6973,7 +7717,9 @@
       "close": "00:50",
       "crossDay": true
     },
-    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p375",
@@ -6991,7 +7737,9 @@
       "地铁站"
     ],
     "estimatedDuration": 10,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p376",
@@ -7016,7 +7764,9 @@
       "close": "00:51",
       "crossDay": true
     },
-    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p377",
@@ -7041,7 +7791,9 @@
       "close": "00:42",
       "crossDay": true
     },
-    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）"
+    "ticket": "95 ₽（жетон 单程／银行卡）／65 ₽（ЕБ 钱包单次扣费）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p378",
@@ -7059,7 +7811,9 @@
       "City Walk"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p379",
@@ -7077,7 +7831,9 @@
       "City Walk"
     ],
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p380",
@@ -7095,7 +7851,9 @@
       "City Walk"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p381",
@@ -7114,7 +7872,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p382",
@@ -7132,7 +7892,9 @@
       "City Walk"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p383",
@@ -7150,7 +7912,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p384",
@@ -7168,7 +7932,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p385",
@@ -7186,7 +7952,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p386",
@@ -7204,7 +7972,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p387",
@@ -7222,7 +7992,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p388",
@@ -7240,7 +8012,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p389",
@@ -7258,7 +8032,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p390",
@@ -7276,7 +8052,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p391",
@@ -7294,7 +8072,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p392",
@@ -7309,7 +8089,9 @@
     "lon": 30.343811,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p394",
@@ -7327,7 +8109,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p395",
@@ -7345,7 +8129,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p396",
@@ -7363,7 +8149,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p397",
@@ -7381,7 +8169,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p398",
@@ -7399,7 +8189,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p399",
@@ -7417,7 +8209,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p400",
@@ -7435,7 +8229,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p401",
@@ -7453,7 +8249,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p402",
@@ -7471,7 +8269,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p403",
@@ -7486,7 +8286,9 @@
     "lon": 30.330896,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p404",
@@ -7502,7 +8304,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p405",
@@ -7518,7 +8322,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p406",
@@ -7534,7 +8340,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p407",
@@ -7550,7 +8358,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p408",
@@ -7566,7 +8376,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p409",
@@ -7582,7 +8394,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p410",
@@ -7598,7 +8412,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p411",
@@ -7614,7 +8430,9 @@
     "confidence": 100,
     "tags": [
       "餐厅/咖啡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p412",
@@ -7639,7 +8457,9 @@
         }
       }
     },
-    "ticket": "免费（教堂自由捐献；登顶与博物馆另购）"
+    "ticket": "免费（教堂自由捐献；登顶与博物馆另购）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p413",
@@ -7658,7 +8478,9 @@
       "open": "09:30",
       "close": "17:00"
     },
-    "ticket": "博物馆展 500 ₽；外国游客（含入园）1000 ₽；讲解 1000 ₽（外国游客 1500 ₽）"
+    "ticket": "博物馆展 500 ₽；外国游客（含入园）1000 ₽；讲解 1000 ₽（外国游客 1500 ₽）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p414",
@@ -7671,7 +8493,9 @@
     "note": "Триумфальная пл., 4/31；地铁 Маяковская",
     "lat": 55.7695,
     "lon": 37.595421,
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p415",
@@ -7684,7 +8508,9 @@
     "note": "Цветной бульвар, 13；地铁 Цветной бульвар",
     "lat": 55.770419,
     "lon": 37.620174,
-    "confidence": 100
+    "confidence": 100,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p416",
@@ -7697,7 +8523,9 @@
     "note": "проспект Вернадского, 7；地铁 Университет；可与麻雀山同游",
     "lat": 55.69446,
     "lon": 37.540239,
-    "confidence": 100
+    "confidence": 100,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p417",
@@ -7710,7 +8538,9 @@
     "note": "ул. Крымский Вал, 9；地铁 Октябрьская / Парк культуры；与新特列季亚科夫美术馆相邻",
     "lat": 55.727094,
     "lon": 37.600241,
-    "confidence": 100
+    "confidence": 100,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p418",
@@ -7723,7 +8553,9 @@
     "note": "地铁 Площадь Революции / Лубянка；连接红场与卢比扬卡",
     "lat": 55.757088,
     "lon": 37.622387,
-    "confidence": 100
+    "confidence": 100,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p419",
@@ -7736,7 +8568,9 @@
     "note": "地铁 Александровский сад；换岗仪式每小时一次",
     "lat": 55.752146,
     "lon": 37.613507,
-    "confidence": 100
+    "confidence": 100,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p420",
@@ -7749,7 +8583,9 @@
     "note": "Измайловское шоссе, 73Ж；地铁 Партизанская；市场内另有枪械博物馆",
     "lat": 55.7486,
     "lon": 37.5092,
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p421",
@@ -7766,7 +8602,9 @@
     "openCalendar": {
       "alwaysOpen": true
     },
-    "ticket": "免费（露天观景台）"
+    "ticket": "免费（露天观景台）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p422",
@@ -7779,7 +8617,9 @@
     "note": "ул. Советской Армии, 2；个别展厅可能临时维修",
     "lat": 55.78519,
     "lon": 37.615865,
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p423",
@@ -7792,7 +8632,9 @@
     "note": "Кривоарбатский пер., 10；修缮后预计2026年底重新开放，行前查官网",
     "lat": 55.748032,
     "lon": 37.589475,
-    "confidence": 100
+    "confidence": 100,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p424",
@@ -7805,7 +8647,9 @@
     "note": "ул. Варварка, 4А；地铁 Китай-город；周一闭馆",
     "lat": 55.752479,
     "lon": 37.627312,
-    "confidence": 75
+    "confidence": 75,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p425",
@@ -7820,7 +8664,9 @@
     "lon": 39.893371,
     "confidence": 75,
     "estimatedDuration": 300,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "",
+    "country": ""
   },
   {
     "id": "p426",
@@ -7836,7 +8682,9 @@
     "confidence": 100,
     "tags": [
       "酒店/旅馆"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p427",
@@ -7852,7 +8700,9 @@
     "confidence": 100,
     "tags": [
       "酒店/旅馆"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p428",
@@ -7868,7 +8718,9 @@
     "confidence": 100,
     "tags": [
       "机场"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p429",
@@ -7881,7 +8733,9 @@
     "note": "地铁2号线 Павелецкая 与5号环线换乘；每30分钟一班",
     "lat": 55.7298,
     "lon": 37.6391,
-    "confidence": 100
+    "confidence": 100,
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p430",
@@ -7903,7 +8757,9 @@
       "open": "10:00",
       "close": "21:00"
     },
-    "ticket": "按讲解场次 1300–4500 ₽（无自由参观；学生、пенсионеры 750–2000 ₽）"
+    "ticket": "按讲解场次 1300–4500 ₽（无自由参观；学生、пенсионеры 750–2000 ₽）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p431",
@@ -7919,7 +8775,9 @@
     "confidence": 75,
     "tags": [
       "地堡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p432",
@@ -7935,7 +8793,9 @@
     "confidence": 75,
     "tags": [
       "地堡"
-    ]
+    ],
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p433",
@@ -7950,7 +8810,9 @@
     "lon": 77.066158,
     "confidence": 100,
     "estimatedDuration": 240,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p434",
@@ -7971,7 +8833,9 @@
       "open": "10:00",
       "close": "19:00"
     },
-    "ticket": "700 ₽（单一展馆成人票）／300 ₽（露天展区）"
+    "ticket": "700 ₽（单一展馆成人票）／300 ₽（露天展区）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p435",
@@ -7989,7 +8853,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p436",
@@ -8007,7 +8873,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p437",
@@ -8025,7 +8893,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p438",
@@ -8044,7 +8914,9 @@
     "openCalendar": {
       "alwaysOpen": true
     },
-    "ticket": "免费（城市干道街景）"
+    "ticket": "免费（城市干道街景）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p439",
@@ -8059,7 +8931,9 @@
     "lon": 60.592191,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p440",
@@ -8077,7 +8951,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p441",
@@ -8095,7 +8971,9 @@
       "酒店/旅馆"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p442",
@@ -8110,7 +8988,9 @@
     "lon": 60.591182,
     "confidence": 75,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p443",
@@ -8125,7 +9005,9 @@
     "lon": 60.594948,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p444",
@@ -8145,7 +9027,9 @@
       "days": "Mo-Fr",
       "open": "09:00",
       "close": "19:00"
-    }
+    },
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p445",
@@ -8170,7 +9054,9 @@
       "close": "00:00",
       "crossDay": true
     },
-    "ticket": "42 ₽（单程，QR／Екарта／银行卡／生物识别）"
+    "ticket": "42 ₽（单程，QR／Екарта／银行卡／生物识别）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p446",
@@ -8185,7 +9071,9 @@
     "lon": 60.605366,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p447",
@@ -8207,7 +9095,9 @@
       "close": "21:00",
       "lastEntry": "20:30"
     },
-    "ticket": "400 ₽（博物馆）／500 ₽（博物馆＋艺术画廊）／300 ₽（画廊）"
+    "ticket": "400 ₽（博物馆）／500 ₽（博物馆＋艺术画廊）／300 ₽（画廊）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p448",
@@ -8224,7 +9114,9 @@
     "estimatedDuration": 45,
     "durationBasis": "estimate",
     "openCalendar": "unknown",
-    "ticket": "免费（教堂参观自由捐献）"
+    "ticket": "免费（教堂参观自由捐献）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p449",
@@ -8239,7 +9131,9 @@
     "lon": 60.59963,
     "confidence": 100,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p450",
@@ -8254,7 +9148,9 @@
     "lon": 60.597583,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p451",
@@ -8269,7 +9165,9 @@
     "lon": 60.598653,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p452",
@@ -8287,7 +9185,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p453",
@@ -8304,7 +9204,9 @@
     "estimatedDuration": 30,
     "durationBasis": "estimate",
     "openCalendar": "unknown",
-    "ticket": "免费（教堂参观自由捐献）"
+    "ticket": "免费（教堂参观自由捐献）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p454",
@@ -8323,7 +9225,9 @@
     "openCalendar": {
       "alwaysOpen": true
     },
-    "ticket": "免费（开放式街区公园）"
+    "ticket": "免费（开放式街区公园）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p455",
@@ -8338,7 +9242,9 @@
     "lon": 60.606096,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p456",
@@ -8357,7 +9263,9 @@
     "openCalendar": {
       "alwaysOpen": true
     },
-    "ticket": "免费（露天纪念碑外观）"
+    "ticket": "免费（露天纪念碑外观）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p457",
@@ -8375,7 +9283,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p458",
@@ -8391,7 +9301,9 @@
     "confidence": 100,
     "estimatedDuration": 150,
     "durationBasis": "estimate",
-    "openCalendar": "unknown"
+    "openCalendar": "unknown",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p459",
@@ -8406,7 +9318,9 @@
     "lon": 60.614604,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p460",
@@ -8428,7 +9342,9 @@
       "close": "21:00",
       "lastEntry": "20:30"
     },
-    "ticket": "600 ₽（成人）／500 ₽（学生、пенсионеры）／400 ₽（儿童 5–12 岁）"
+    "ticket": "600 ₽（成人）／500 ₽（学生、пенсионеры）／400 ₽（儿童 5–12 岁）",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p461",
@@ -8446,7 +9362,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p462",
@@ -8464,7 +9382,9 @@
       "机场"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "ru",
+    "country": "俄罗斯"
   },
   {
     "id": "p463",
@@ -8485,7 +9405,9 @@
       "open": "08:30",
       "close": "21:00"
     },
-    "ticket": "广场免费；教堂内部参观约 20 元（美团/抖音「索菲亚景区」或入口扫码购票）"
+    "ticket": "广场免费；教堂内部参观约 20 元（美团/抖音「索菲亚景区」或入口扫码购票）",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p464",
@@ -8504,7 +9426,9 @@
     "openCalendar": {
       "alwaysOpen": true
     },
-    "ticket": "免费（步行街）"
+    "ticket": "免费（步行街）",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p465",
@@ -8523,7 +9447,9 @@
     "openCalendar": {
       "alwaysOpen": true
     },
-    "ticket": "免费（江畔纪念塔广场）"
+    "ticket": "免费（江畔纪念塔广场）",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p466",
@@ -8538,7 +9464,9 @@
     "lon": 126.619932,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p467",
@@ -8553,7 +9481,9 @@
     "lon": 126.60913,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p468",
@@ -8568,7 +9498,9 @@
     "lon": 126.608049,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p469",
@@ -8583,7 +9515,9 @@
     "lon": 126.614413,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p470",
@@ -8601,7 +9535,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p471",
@@ -8616,7 +9552,9 @@
     "lon": 126.608558,
     "confidence": 75,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p474",
@@ -8634,7 +9572,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p475",
@@ -8649,7 +9589,9 @@
     "lon": 126.611642,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p476",
@@ -8664,7 +9606,9 @@
     "lon": 126.613956,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p477",
@@ -8679,7 +9623,9 @@
     "lon": 126.650945,
     "confidence": 100,
     "estimatedDuration": 20,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p478",
@@ -8694,7 +9640,9 @@
     "lon": 126.653371,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p479",
@@ -8709,7 +9657,9 @@
     "lon": 126.639995,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p480",
@@ -8724,7 +9674,9 @@
     "lon": 126.64488,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p481",
@@ -8739,7 +9691,9 @@
     "lon": 126.645552,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p482",
@@ -8754,7 +9708,9 @@
     "lon": 126.649934,
     "confidence": 100,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p483",
@@ -8769,7 +9725,9 @@
     "lon": 126.640704,
     "confidence": 100,
     "estimatedDuration": 20,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p484",
@@ -8784,7 +9742,9 @@
     "lon": 126.636293,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p485",
@@ -8799,7 +9759,9 @@
     "lon": 126.636816,
     "confidence": 100,
     "estimatedDuration": 20,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p486",
@@ -8821,7 +9783,9 @@
       "close": "16:30",
       "lastEntry": "15:30"
     },
-    "ticket": "免费（官网/微信公众号实名预约，可提前 7 日）"
+    "ticket": "免费（官网/微信公众号实名预约，可提前 7 日）",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p487",
@@ -8836,7 +9800,9 @@
     "lon": 126.698795,
     "confidence": 100,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p488",
@@ -8851,7 +9817,9 @@
     "lon": 126.625446,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p489",
@@ -8866,7 +9834,9 @@
     "lon": 126.673214,
     "confidence": 100,
     "estimatedDuration": 20,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p490",
@@ -8881,7 +9851,9 @@
     "lon": 126.639812,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p491",
@@ -8896,7 +9868,9 @@
     "lon": 126.635,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p492",
@@ -8911,7 +9885,9 @@
     "lon": 126.637685,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p493",
@@ -8929,7 +9905,9 @@
     "lon": 126.63042,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p494",
@@ -8944,7 +9922,9 @@
     "lon": 126.678214,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p495",
@@ -8959,7 +9939,9 @@
     "lon": 126.595352,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p496",
@@ -8974,7 +9956,9 @@
     "lon": 126.601331,
     "confidence": 100,
     "estimatedDuration": 75,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p497",
@@ -8989,7 +9973,9 @@
     "lon": 126.604131,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p498",
@@ -9004,7 +9990,9 @@
     "lon": 126.605328,
     "confidence": 100,
     "estimatedDuration": 40,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p499",
@@ -9020,7 +10008,9 @@
     "confidence": 100,
     "estimatedDuration": 60,
     "durationBasis": "estimate",
-    "openCalendar": "unknown"
+    "openCalendar": "unknown",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p500",
@@ -9035,7 +10025,9 @@
     "lon": 76.948295,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p501",
@@ -9050,7 +10042,9 @@
     "lon": 76.946031,
     "confidence": 75,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p502",
@@ -9068,7 +10062,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p503",
@@ -9086,7 +10082,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p504",
@@ -9101,7 +10099,9 @@
     "lon": 76.883873,
     "confidence": 75,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p505",
@@ -9122,7 +10122,9 @@
       "open": "10:00",
       "close": "19:00"
     },
-    "ticket": "1000 ₸（成人，地方价目观测）／500 ₸（学生）／300 ₸（пенсионеры）"
+    "ticket": "1000 ₸（成人，地方价目观测）／500 ₸（学生）／300 ₸（пенсионеры）",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p506",
@@ -9139,7 +10141,9 @@
     "estimatedDuration": 30,
     "durationBasis": "estimate",
     "openCalendar": "unknown",
-    "ticket": "免费（清真寺；非穆斯林注意着装与礼拜时段）"
+    "ticket": "免费（清真寺；非穆斯林注意着装与礼拜时段）",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p507",
@@ -9154,7 +10158,9 @@
     "lon": 76.945429,
     "confidence": 75,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p508",
@@ -9167,7 +10173,9 @@
     "note": "11点营业；具体地址待核实",
     "lat": null,
     "lon": null,
-    "pending": true
+    "pending": true,
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p509",
@@ -9182,7 +10190,9 @@
     "lon": 76.943486,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p510",
@@ -9197,7 +10207,9 @@
     "lon": 77.059414,
     "confidence": 100,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p511",
@@ -9212,7 +10224,9 @@
     "lon": 79.058576,
     "confidence": 100,
     "estimatedDuration": 300,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p512",
@@ -9227,7 +10241,9 @@
     "lon": 78.408775,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p513",
@@ -9242,7 +10258,9 @@
     "lon": 78.3123,
     "confidence": 75,
     "estimatedDuration": 180,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p514",
@@ -9257,7 +10275,9 @@
     "lon": 78.4645,
     "confidence": 75,
     "estimatedDuration": 180,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p515",
@@ -9272,7 +10292,9 @@
     "lon": 76.985393,
     "confidence": 100,
     "estimatedDuration": 180,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p516",
@@ -9291,7 +10313,9 @@
     "openCalendar": {
       "alwaysOpen": true
     },
-    "ticket": "免费（历史街区漫游）"
+    "ticket": "免费（历史街区漫游）",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p517",
@@ -9306,7 +10330,9 @@
     "lon": 81.180576,
     "confidence": 100,
     "estimatedDuration": 240,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p518",
@@ -9321,7 +10347,9 @@
     "lon": 81.392615,
     "confidence": 75,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p519",
@@ -9336,7 +10364,9 @@
     "lon": 81.140324,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p520",
@@ -9351,7 +10381,9 @@
     "lon": 82.110926,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p521",
@@ -9369,7 +10401,9 @@
       "机场"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p522",
@@ -9384,7 +10418,9 @@
     "lon": 82.570456,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p523",
@@ -9399,7 +10435,9 @@
     "lon": 80.402995,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p524",
@@ -9414,7 +10452,9 @@
     "lon": 80.422236,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p525",
@@ -9429,7 +10469,9 @@
     "lon": 87.526205,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p526",
@@ -9447,7 +10489,9 @@
       "机场"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p527",
@@ -9462,7 +10506,9 @@
     "lon": 78.897722,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p528",
@@ -9477,7 +10523,9 @@
     "lon": 80.002739,
     "confidence": 100,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p529",
@@ -9492,7 +10540,9 @@
     "lon": 82.4956,
     "confidence": 75,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p530",
@@ -9507,7 +10557,9 @@
     "lon": 76.939088,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "kz",
+    "country": "哈萨克斯坦"
   },
   {
     "id": "p531",
@@ -9525,7 +10577,9 @@
       "机场"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p532",
@@ -9543,7 +10597,9 @@
       "交通枢纽"
     ],
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p533",
@@ -9561,7 +10617,9 @@
       "免费"
     ],
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p534",
@@ -9579,7 +10637,9 @@
       "免费"
     ],
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p535",
@@ -9598,7 +10658,9 @@
     ],
     "hours": "夜市晚间为主",
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p536",
@@ -9616,7 +10678,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p537",
@@ -9631,7 +10695,9 @@
     "lon": 109.574796,
     "confidence": 100,
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p538",
@@ -9646,7 +10712,9 @@
     "lon": 109.525132,
     "confidence": 100,
     "estimatedDuration": 180,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p539",
@@ -9665,7 +10733,9 @@
     ],
     "mustOrder": "鸳鸯锅糟粕醋+椰子鸡、现烤脆皮文昌鸡",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p540",
@@ -9684,7 +10754,9 @@
     ],
     "mustOrder": "砂锅香草鸭（汤汁拌饭）",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p541",
@@ -9702,7 +10774,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p542",
@@ -9720,7 +10794,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p543",
@@ -9738,7 +10814,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p544",
@@ -9756,7 +10834,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p545",
@@ -9774,7 +10854,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p546",
@@ -9793,7 +10875,9 @@
     ],
     "mustOrder": "现开榴莲不限量、波龙/青龙二选一、帝王蟹",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p547",
@@ -9811,7 +10895,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p548",
@@ -9830,7 +10916,9 @@
     ],
     "mustOrder": "三拼锅（糟粕醋+椰子鸡+椰奶鸡）",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p549",
@@ -9849,7 +10937,9 @@
     ],
     "mustOrder": "糟粕醋+椰子水双拼、海岛大转盘",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p550",
@@ -9865,7 +10955,9 @@
     "confidence": 100,
     "ticket": "需预约；观光车25r",
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p551",
@@ -9883,7 +10975,9 @@
       "免费"
     ],
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p552",
@@ -9899,7 +10993,9 @@
     "confidence": 100,
     "ticket": "门票建议线上购；观光车30r",
     "estimatedDuration": 240,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p553",
@@ -9917,7 +11013,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p554",
@@ -9935,7 +11033,9 @@
       "免费"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p555",
@@ -9953,7 +11053,9 @@
       "免费"
     ],
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p556",
@@ -9971,7 +11073,9 @@
       "免费"
     ],
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p557",
@@ -9990,7 +11094,9 @@
     ],
     "ticket": "免费；往返观光车28r",
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p558",
@@ -10008,7 +11114,9 @@
       "免费"
     ],
     "estimatedDuration": 180,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p559",
@@ -10023,7 +11131,9 @@
     "lon": 109.640074,
     "confidence": 100,
     "estimatedDuration": 180,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p560",
@@ -10038,7 +11148,9 @@
     "lon": 109.617896,
     "confidence": 100,
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p561",
@@ -10053,7 +11165,9 @@
     "lon": 109.606506,
     "confidence": 100,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p562",
@@ -10071,7 +11185,9 @@
       "交通枢纽"
     ],
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p563",
@@ -10089,7 +11205,9 @@
       "酒店/旅馆"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p564",
@@ -10104,7 +11222,9 @@
     "lon": 109.701963,
     "confidence": 100,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p565",
@@ -10120,7 +11240,9 @@
     "confidence": 100,
     "hours": "A区3楼免费寄存行李",
     "estimatedDuration": 180,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p566",
@@ -10135,7 +11257,9 @@
     "lon": 109.740904,
     "confidence": 100,
     "estimatedDuration": 240,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p567",
@@ -10152,7 +11276,9 @@
     "ticket": "免费入园，项目单收费",
     "hours": "16:00后开放",
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p568",
@@ -10167,7 +11293,9 @@
     "lon": 109.728282,
     "confidence": 100,
     "estimatedDuration": 180,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p569",
@@ -10183,7 +11311,9 @@
     "confidence": 100,
     "ticket": "线上往返船票133/线下144；船票+游览车套票258",
     "estimatedDuration": 300,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p571",
@@ -10201,7 +11331,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p572",
@@ -10219,7 +11351,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p573",
@@ -10237,7 +11371,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p574",
@@ -10255,7 +11391,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p575",
@@ -10273,7 +11411,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p576",
@@ -10291,7 +11431,9 @@
       "餐厅/咖啡"
     ],
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p577",
@@ -10306,7 +11448,9 @@
     "lon": 109.369467,
     "confidence": 100,
     "estimatedDuration": 180,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p578",
@@ -10324,7 +11468,9 @@
       "免费"
     ],
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p579",
@@ -10340,7 +11486,9 @@
     "confidence": 100,
     "ticket": "门票+往返船票122r，游览车40r",
     "estimatedDuration": 240,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p580",
@@ -10355,7 +11503,9 @@
     "lon": 110.215137,
     "confidence": 100,
     "estimatedDuration": 180,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p581",
@@ -10370,7 +11520,9 @@
     "lon": 110.271121,
     "confidence": 100,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p582",
@@ -10385,7 +11537,9 @@
     "lon": 109.867875,
     "confidence": 100,
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p583",
@@ -10400,7 +11554,9 @@
     "lon": 109.646943,
     "confidence": 100,
     "estimatedDuration": 240,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p584",
@@ -10419,7 +11575,9 @@
     ],
     "url": "https://www.atlantissanya.cn/",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p585",
@@ -10435,7 +11593,9 @@
     "confidence": 100,
     "estimatedDuration": 90,
     "durationBasis": "estimate",
-    "openCalendar": "unknown"
+    "openCalendar": "unknown",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p586",
@@ -10451,7 +11611,9 @@
     "confidence": 100,
     "hours": "仅周六礼拜日开放",
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p587",
@@ -10468,7 +11630,9 @@
     "estimatedDuration": 60,
     "durationBasis": "estimate",
     "openCalendar": "unknown",
-    "ticket": "10元/人"
+    "ticket": "10元/人",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p588",
@@ -10483,7 +11647,9 @@
     "lon": 81.32097,
     "confidence": 100,
     "estimatedDuration": 30,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p589",
@@ -10498,7 +11664,9 @@
     "lon": 81.325496,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p590",
@@ -10515,7 +11683,9 @@
     "estimatedDuration": 30,
     "durationBasis": "estimate",
     "openCalendar": "unknown",
-    "ticket": "免费（教堂参观）"
+    "ticket": "免费（教堂参观）",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p592",
@@ -10530,7 +11700,9 @@
     "lon": 81.30680330690139,
     "confidence": 100,
     "estimatedDuration": 45,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p593",
@@ -10547,7 +11719,9 @@
     "estimatedDuration": 45,
     "durationBasis": "estimate",
     "openCalendar": "unknown",
-    "ticket": "30元/人（含免费讲解与现场手风琴演奏）"
+    "ticket": "30元/人（含免费讲解与现场手风琴演奏）",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p595",
@@ -10567,7 +11741,9 @@
     ],
     "name_en": "Yazhou Central Fishing Port",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p596",
@@ -10587,7 +11763,9 @@
     ],
     "name_en": "Daxiaodongtian Scenic Area",
     "estimatedDuration": 150,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p597",
@@ -10606,7 +11784,9 @@
     ],
     "name_en": "Yiheng Night Market",
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p598",
@@ -10625,7 +11805,9 @@
     ],
     "name_en": "Sanya Romance Park",
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p599",
@@ -10646,7 +11828,9 @@
     ],
     "name_en": "Xiaodonghai Photo Base (Serenity Marina)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p600",
@@ -10666,7 +11850,9 @@
     ],
     "name_en": "Baifu Bay (Baifu Island)",
     "estimatedDuration": 180,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p601",
@@ -10685,7 +11871,9 @@
     ],
     "name_en": "Jiajing Island (Shimei Bay)",
     "estimatedDuration": 150,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p602",
@@ -10705,7 +11893,9 @@
     ],
     "name_en": "Daidai Island (Nanwan Monkey Island)",
     "estimatedDuration": 180,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p603",
@@ -10725,7 +11915,9 @@
     ],
     "name_en": "Sanya Rice National Park",
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p604",
@@ -10744,7 +11936,9 @@
     ],
     "name_en": "Linwang Night Market",
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p605",
@@ -10764,7 +11958,9 @@
     "mustOrder": "香辣蟹、椒盐皮皮虾",
     "name_en": "Linjie Xiangwei Seafood (First Market)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p606",
@@ -10781,7 +11977,9 @@
     "pending": true,
     "name_en": "Hailuohao Seafood Restaurant",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p607",
@@ -10799,7 +11997,9 @@
     "confidence": 100,
     "name_en": "Sichuan Xiaohuzi Seafood (Haitang Bay)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p608",
@@ -10817,7 +12017,9 @@
     "confidence": 100,
     "name_en": "Qiongxiangge Hainan Cuisine (Sanya Bay)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p609",
@@ -10835,7 +12037,9 @@
     "confidence": 100,
     "name_en": "Zheng Apo Qingbuliang (First Market)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p610",
@@ -10854,7 +12058,9 @@
     "confidence": 100,
     "name_en": "Sanya Baoluofen Noodle Shop",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p611",
@@ -10873,7 +12079,9 @@
     "confidence": 100,
     "name_en": "Yucun Fried Chicken (Chunji)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p612",
@@ -10890,7 +12098,9 @@
     "pending": true,
     "name_en": "Agong BBQ",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p613",
@@ -10908,7 +12118,9 @@
     "confidence": 100,
     "name_en": "Aju Cold Drinks (First Market)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p614",
@@ -10927,7 +12139,9 @@
     "confidence": 100,
     "name_en": "Apo Dongshan Mutton (Laohonggang Market)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p615",
@@ -10945,7 +12159,9 @@
     "confidence": 100,
     "name_en": "Dazhong Beef Bone Soup (Fenghuang Road)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p616",
@@ -10963,7 +12179,9 @@
     "confidence": 100,
     "name_en": "Liguo Restaurant (Shoudi Plaza)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p617",
@@ -10982,7 +12200,9 @@
     "confidence": 100,
     "name_en": "Wenma Hou-an Rice Noodles",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p618",
@@ -11001,7 +12221,9 @@
     "confidence": 100,
     "name_en": "Guijing Cape (Pink Broken Bridge, Xiaodonghai)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p619",
@@ -11022,7 +12244,9 @@
     "confidence": 100,
     "name_en": "Sanya Haiyun Resort (Coconut Dream Corridor Lawn Spot)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p620",
@@ -11042,7 +12266,9 @@
     "confidence": 100,
     "name_en": "Sanya Bay Wedding Photo Base",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p621",
@@ -11061,7 +12287,9 @@
     "confidence": 100,
     "name_en": "Mandarin Oriental Coral Bay Sanya (Seaside Stone Gate Spot)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p622",
@@ -11080,7 +12308,9 @@
     "confidence": 100,
     "name_en": "Jianling Hill (Lingshui)",
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p623",
@@ -11099,7 +12329,9 @@
     "confidence": 100,
     "name_en": "Qiaohai Ranch (Wanning)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p624",
@@ -11116,7 +12348,9 @@
     "pending": true,
     "name_en": "Shanhai Langren (Wanning)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p625",
@@ -11135,7 +12369,9 @@
     "confidence": 100,
     "name_en": "Shanqin Bay Swallow Cave (Wanning)",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p626",
@@ -11155,7 +12391,9 @@
     "confidence": 100,
     "name_en": "Mulan Bay (Wenchang)",
     "estimatedDuration": 120,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p627",
@@ -11174,7 +12412,9 @@
     "confidence": 100,
     "name_en": "Stone Park (Wenchang)",
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p628",
@@ -11193,7 +12433,9 @@
     "confidence": 100,
     "name_en": "Mengcaiyuan Milk Sea (Qionghai)",
     "estimatedDuration": 90,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   },
   {
     "id": "p629",
@@ -11213,6 +12455,8 @@
     "confidence": 100,
     "name_en": "Haikou Cloudscape Library",
     "estimatedDuration": 60,
-    "durationBasis": "estimate"
+    "durationBasis": "estimate",
+    "region": "cn",
+    "country": "中国"
   }
 ]

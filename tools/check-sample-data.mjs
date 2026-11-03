@@ -4,10 +4,11 @@
 //           票价/预约（或显式 unknown）、来源条目（collectedAt + url/note）、城市时区已知
 //   • 软性：已知开放日历/票价的比例（只报告，不阻断）——unknown 允许，但必须显式写出来，不许留空
 // 用法: node tools/check-sample-data.mjs [数据目录，默认 ./data] [城市，默认 莫斯科]
-import { readFileSync } from 'node:fs';
+import { readFileSync, existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { TYPE_VOCAB } from './type-vocab.mjs';
 import { CITY_TIME_ZONES } from '../src/pages/trip/migrate.js';
+import { createRegionIndex, visiblePoints, isPointVisible } from '../src/shared/regions.js';
 
 const dir = resolve(process.argv[2] || './data');
 const city = process.argv[3] || '莫斯科';
@@ -98,6 +99,46 @@ const pct = (k) => Math.round((k / n) * 100);
 console.log(`\n覆盖：点位 ${scope.length} 个 / 动线 ${cityRoutes.length} 条`);
 console.log(`   开放日历已知 ${calendarKnown}/${scope.length}（${pct(calendarKnown)}%），其余显式 unknown`);
 console.log(`   票价/预约已知 ${ticketKnown}/${scope.length}（${pct(ticketKnown)}%），其余显式 unknown`);
+
+// --- 板块归属与开关（regions.json 数据层契约）---
+{
+  const regionPath = resolve(dir, 'regions.json');
+  if (!existsSync(regionPath)) err('缺 data/regions.json：板块开关无法生效');
+  else {
+    const doc = read('regions.json');
+    const ids = new Set();
+    for (const r of doc.regions || []) {
+      if (!r.id || !r.name || !r.country) err(`板块缺 id/name/country：${JSON.stringify(r)}`);
+      if (!Array.isArray(r.center) || r.center.length !== 2 || !r.center.every(Number.isFinite)) err(`板块 ${r.id} 的 center 必须是 [lat, lon]`);
+      if (!Number.isFinite(r.defaultZoom)) err(`板块 ${r.id} 缺 defaultZoom`);
+      if (typeof r.enabled !== 'boolean') err(`板块 ${r.id} 的 enabled 必须是布尔值`);
+      if (!r.basemap) err(`板块 ${r.id} 缺 basemap 引用`);
+      if (!r.bounds && !r.boundaryFile) err(`板块 ${r.id} 缺 bounds 或 boundaryFile`);
+      if (typeof r.reviewNo !== 'string') err(`板块 ${r.id} 的 reviewNo 必须是字符串（可为空）`);
+      if (ids.has(r.id)) err(`板块 id 重复：${r.id}`);
+      ids.add(r.id);
+    }
+    if (!ids.has(doc.fallback)) err(`fallback 板块「${doc.fallback}」不在 regions 列表内`);
+
+    const badRef = points.filter((p) => p.region && !ids.has(p.region));
+    if (badRef.length) err(`${badRef.length} 个点位的 region 引用不存在：${badRef.slice(0, 3).map((p) => `${p.id}:${p.region}`).join('、')}`);
+
+    const index = createRegionIndex(doc);
+    const visible = visiblePoints(points, index);
+    for (const id of (doc.regions || []).filter((r) => r.enabled === false).map((r) => r.id)) {
+      const total = points.filter((p) => (p.region || doc.fallback) === id).length;
+      const leaked = visible.filter((p) => (p.region || doc.fallback) === id).length;
+      if (total === 0) err(`关闭板块 ${id} 没有任何点位：开关无法验证`);
+      if (leaked) err(`关闭板块 ${id} 仍有 ${leaked} 个点位出现在筛选结果`);
+    }
+    // 兼容性：无 region 字段的旧数据必须继续可见；配置缺失时降级为全量可见
+    const legacyHidden = points.filter((p) => !p.region && !isPointVisible(p, index));
+    if (legacyHidden.length) err(`无 region 的旧数据被隐藏了 ${legacyHidden.length} 个`);
+    if (!visiblePoints(points, createRegionIndex(null)).length) err('regions.json 缺失时应降级为全量可见');
+
+    ok(`板块开关生效：${points.length} → ${visible.length} 个可见点位（关闭：${(doc.regions || []).filter((r) => r.enabled === false).map((r) => r.id).join('/') || '无'}）`);
+  }
+}
 
 if (fail) { console.error(`\n${fail} 处不满足样板数据契约`); process.exit(1); }
 ok(`${city}样板数据契约通过（${scope.length} 个点位 / ${cityRoutes.length} 条动线）`);

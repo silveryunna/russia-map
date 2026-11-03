@@ -50,6 +50,7 @@ for (const f of ['sw.js', 'manifest.json', 'favicon.png', 'icon-192.png', 'icon-
     // 只列运行时真正 fetch 的文件；dianping-manual/michelin-manual 等仅构建期使用，不预缓存。
     const DATA_ASSETS = [
       'data/points.json',
+      'data/regions.json',
       'data/routes.json',
       'data/meta.json',
       'data/site.json',
