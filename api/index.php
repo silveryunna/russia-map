@@ -13,7 +13,24 @@ $CONF = require $CONF_FILE;
 define('AI_AT_REST_KEY_FILE', (string)($CONF['ai_key_file'] ?? dirname($CONF_FILE) . '/ai-at-rest.key'));
 $db = new PDO('sqlite:' . $CONF['db_path']);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$db->exec('PRAGMA journal_mode=WAL');
+// 连接级 PRAGMA：PHP-FPM 每个请求都是新连接，必须每次设置。
+// busy_timeout=5000 让并发写等锁最多 5s 再失败；synchronous=NORMAL 在 WAL 下仍保证崩溃安全
+// （最坏只丢最后一个未提交事务）；foreign_keys 目前 schema 没外键，开启是防止后续加外键时静默失效。
+try {
+  $db->exec('PRAGMA busy_timeout=5000');
+  $db->exec('PRAGMA synchronous=NORMAL');
+  $db->exec('PRAGMA foreign_keys=ON');
+} catch (PDOException $e) {
+  error_log('[db] 连接 PRAGMA 设置失败，沿用默认值：' . $e->getMessage());
+}
+// journal_mode 持久化在库文件头，但每次连接也设一次：已切换时是无害 no-op；
+// 只读挂载或不支持 WAL 的文件系统会返回原模式或抛错，这里降级为原模式并记录日志，不阻断请求。
+try {
+  $mode = strtolower((string)$db->query('PRAGMA journal_mode=WAL')->fetchColumn());
+  if ($mode !== 'wal') error_log('[db] WAL 不可用，使用 ' . $mode . ' 模式（只读挂载或不支持 WAL 的文件系统）');
+} catch (PDOException $e) {
+  error_log('[db] 切换 WAL 失败，回退默认 journal 模式：' . $e->getMessage());
+}
 $db->exec('CREATE TABLE IF NOT EXISTS accounts(
   username TEXT PRIMARY KEY, pass_hash TEXT NOT NULL, display TEXT, created INTEGER)');
 $db->exec('CREATE TABLE IF NOT EXISTS sessions(
