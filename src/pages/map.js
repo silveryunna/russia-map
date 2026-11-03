@@ -9,6 +9,8 @@ import { GeoSearchControl } from 'leaflet-geosearch';
 import { FullScreen } from 'leaflet.fullscreen';
 import '../shared/base.css';
 import './map.css';
+import '../shared/layout-wide.css';
+import { installShortcuts } from '../shared/shortcuts.js';
 import '../shared/leaflet-default-icon.js';
 import { renderIcpFooter } from '../shared/icp-footer.js';
 import { registerSW } from '../shared/sw-register.js';
@@ -768,6 +770,42 @@ function closeSidebarMobile() {
   document.getElementById('sidebar-toggle').textContent = '▶ 展开';
 }
 
+// ===== 键盘操作（j/k 逐条飞向点位；r 循环板块；b 侧栏；/ 搜索） =====
+let kbdIdx = -1;
+
+function stepPoint(step) {
+  // 侧栏是四级折叠分组，默认没有可见的 .point-row：直接按分组后的顺序取点位
+  const pts = groupedByRegion().flatMap(g => g.cities.flatMap(c => c.clusters.flatMap(cl => cl.points)));
+  if (!pts.length) return;
+  kbdIdx = (kbdIdx + step + pts.length) % pts.length;
+  const p = pts[kbdIdx];
+  if (!p) return;
+  const row = document.querySelector(`#sb-body .point-row[data-pid="${CSS.escape(p.id)}"]`);
+  if (row) row.scrollIntoView({ block: 'center' });
+  flyToPoint(p);
+}
+
+function cycleRegion() {
+  const chips = [...document.querySelectorAll('.region-chips .region-chip[data-region]')];
+  if (chips.length < 2) return;   // 单板块时不循环，避免误触
+  const cur = chips.findIndex(c => c.classList.contains('active'));
+  chips[(cur + 1) % chips.length].click();
+}
+
+// 侧栏收起时先展开，否则搜索框不可见；无侧栏搜索（动线页签）时退到地图控件搜索
+function focusSidebarSearch() {
+  const sb = document.getElementById('sidebar');
+  const focus = () => {
+    const el = sb.querySelector('.sb-search') || (window.__geoControl__ && window.__geoControl__.searchElement
+      ? window.__geoControl__.searchElement.input : null);
+    if (el) el.focus();
+  };
+  if (sb.classList.contains('closed')) {
+    document.getElementById('sidebar-toggle').click();
+    setTimeout(focus, 280);   // 等侧栏宽度过渡结束再聚焦，避免焦点被隐藏元素吞掉
+  } else focus();
+}
+
 // ===== 统计 / 图例 / 城市胶囊 =====
 function renderChrome() {
   const done = geoPoints().filter(p => state.checked.has(p.id)).length;
@@ -1189,6 +1227,15 @@ async function main() {
   refreshMarkers();
   renderSidebar();
   renderChrome();
+  installShortcuts({
+    search: focusSidebarSearch,
+    region: cycleRegion,
+    nextPoint: () => stepPoint(1),
+    prevPoint: () => stepPoint(-1),
+    sidebar: () => document.getElementById('sidebar-toggle').click(),
+    today: () => { location.href = './today.html'; },
+    plan: () => { location.href = './plan.html'; },
+  });
 }
 
 main().catch(err => {

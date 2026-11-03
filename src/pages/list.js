@@ -1,5 +1,7 @@
 import '../shared/base.css';
 import './list.css';
+import '../shared/layout-wide.css';
+import { installShortcuts } from '../shared/shortcuts.js';
 import { renderIcpFooter } from '../shared/icp-footer.js';
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
@@ -92,12 +94,13 @@ function filteredPending() {
 function render() {
   const done = geoPoints().filter(p => state.checked.has(p.id)).length;
   const pct = geoPoints().length ? Math.round(done / geoPoints().length * 100) : 0;
-  let html = `
+  // 侧栏只放总进度与口径说明：大屏作为右栏，窄屏仍在列表上方（搜索/标签/板块统计位置不变）
+  const asideHtml = `
     <div class="list-summary">
       共 ${geoPoints().length} 个点位 · 已打卡 <b>${done}</b> 个 · 完成度 ${pct}%
       <span class="ls-bar"><span class="ls-fill" style="width:${pct}%"></span></span>
-    </div>
-    <input class="list-search" type="text" placeholder="搜索点位 / 类别 / 城市 / 标签…" value="${esc(state.query)}">`;
+    </div>`;
+  let html = `<input class="list-search" type="text" placeholder="搜索点位 / 类别 / 城市 / 标签…" value="${esc(state.query)}">`;
 
   // 标签筛选 chips：全量点位按频次取前 12，多选 = 并集
   const freq = new Map();
@@ -116,6 +119,7 @@ function render() {
         <b>${esc(s.name)}</b><span>${s.total} 个 · 已打卡 ${s.checked} · ${s.coverage}%</span>
       </button>`).join('')}${state.region ? '<button class="region-chip clear" data-region="">显示全部</button>' : ''}</div>`;
   }
+  const asideNote = '<p class="aside-note">板块统计与首页同一口径：点位数含待核坐标，已打卡按当前设备记录。</p>';
 
   for (const { id, name, cities } of groupedByRegion()) {
     const rkey = 'region:' + id;
@@ -188,7 +192,10 @@ function render() {
     }
   }
 
-  app.innerHTML = html;
+  app.innerHTML = `<div class="list-shell">
+    <aside class="list-aside">${asideHtml}${asideNote}</aside>
+    <main class="list-main">${html}</main>
+  </div>`;
 }
 
 app.addEventListener('input', (e) => {
@@ -254,6 +261,32 @@ async function main() {
   if (visitRepo.degraded) showDegradedBanner('IndexedDB 不可用，打卡改动只会留在内存、刷新即丢；请关闭隐私模式或检查浏览器存储权限');
   render();
 }
+
+// 键盘：j/k 在列表内逐条移动（只高亮+滚动，不抢输入焦点，保证连续按仍生效）
+let kbdPoint = -1;
+function moveKbdPoint(step) {
+  const rows = [...app.querySelectorAll('.l-point:not(.pending)')];
+  if (!rows.length) return;
+  kbdPoint = (kbdPoint + step + rows.length) % rows.length;
+  rows.forEach(r => r.classList.remove('is-kbd'));
+  const row = rows[kbdPoint];
+  row.classList.add('is-kbd');
+  row.scrollIntoView({ block: 'center' });
+}
+
+installShortcuts({
+  search: () => app.querySelector('.list-search')?.focus(),
+  region: () => {
+    const chips = [...app.querySelectorAll('.l-region-stats .region-chip[data-region]')];
+    if (!chips.length) return;
+    const cur = chips.findIndex(c => c.classList.contains('active'));
+    chips[(cur + 1) % chips.length].click();
+  },
+  nextPoint: () => moveKbdPoint(1),
+  prevPoint: () => moveKbdPoint(-1),
+  today: () => { location.href = './today.html'; },
+  plan: () => { location.href = './plan.html'; },
+});
 
 main().catch(err => {
   console.error(err);
