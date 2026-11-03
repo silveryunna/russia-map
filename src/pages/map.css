@@ -97,7 +97,7 @@
 }
 
 /* 待核实坐标分组 */
-.pending-head { color: #757575; }
+.pending-head { color: var(--text-3); }
 .pending-head .head-dot { background: #9E9E9E; }
 
 /* 动线卡片 */

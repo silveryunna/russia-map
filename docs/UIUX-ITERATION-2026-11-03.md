@@ -174,3 +174,57 @@ S6 是唯一能立刻阻断的一条，因为它复用已有机制、不新增�
 ## 8. 一个提醒
 
 参考方都强调"实现者不能自评"。本项目目前的设计质量判断只有一道 `design-audit` 的数字，没有独立评审环节——**我改的界面由我来判断好不好看，这本身就是偏差来源**。Phase 1 的试衣间加上"你点选、我记录理由"，是当前产能下最便宜的一层隔离。
+
+## 9. Phase 0 实测记录（2026-11-03 执行）
+
+检测器装在 `D:\tmp\impe`（临时目录，**不进仓库、不改 `package.json`**），只跑一次。
+
+```
+impeccable detect src/                       → 61 files scanned, 4 findings
+impeccable detect <dev>/map.html             → 1 finding + 1 advisory
+impeccable detect --list-rules --json        → 62 条（31 slop + 31 quality）
+```
+
+### 9.1 真实命中（只有 5 处，且高度集中）
+
+| 位置 | 规则 | 内容 |
+|---|---|---|
+| `src/pages/map.css:106` | side-tab | `border-left-width: 4px` |
+| `src/pages/notes.css:73` | side-tab | `border-left: 3px solid var(--accent)` |
+| `src/pages/plan.css:146` | side-tab | `border-left: 4px solid #B08A4A` |
+| `src/pages/plan.js:452` | side-tab | `border-left:4px solid ${col}` |
+| `map.html` 渲染 | undersized-ui-text | 备案号 10px，低于 11px 下限 |
+
+外加一条 advisory：`#757575` on `#fafaf7` = **4.4:1**（差 0.1 不达 4.5:1），来源 `src/pages/map.css:100` 的 `.pending-head`。**已修**：改用 `var(--text-3)`（5.39:1），同时让 L1 基线降 1。
+
+4 处 side-tab 全在行程/笔记/地图的"待办卡片"上——正是 Phase 2 要重构的区域，因此**不单独改**，随日卡分层一并处理，避免改两次。
+
+### 9.2 一个必须记录的局限
+
+`plan.html` / `today.html` / `index.html` 三个页面的 URL 扫描返回 `[]`（空结果）。原因是这三页 DOM 全由 JS 异步构建，检测器抓取时页面还没内容；它没有 `--wait` 参数可调。
+
+**结论：URL 扫描只对服务端直出的页面可靠**（我们只有 `map.html` 是这种），动态页仍必须靠项目自己的 `design-audit`（Playwright 有显式等待）。这条限制了外部工具的适用范围，但不影响源码扫描的判断。
+
+### 9.3 差集：62 条里真正对我们有意义的只有 9 条
+
+| 类 | 条数 | 已覆盖 | 值得补 | 不适用 |
+|---|---|---|---|---|
+| `design-system-*`（色/圆角/字号/字体是否来自 DESIGN.md） | 4 | 4（等价于 L1 / L2 / L1JS） | 0 | 0 |
+| slop 类 | 31 | 0 | 5 | 26 |
+| quality 类（去掉上述 4 条） | 27 | 1（对比度，`design-audit`） | 3 | 23 |
+
+值得补的 5 条，替换原方案里的 S1–S5：
+
+| 编号 | 对应规则 | 理由 |
+|---|---|---|
+| S1 | `side-tab` | 唯一在存量代码命中 4 次的项，且是 AI UI 第一显性特征 |
+| S2 | `nested-cards` | 卡片套卡片，日卡重构时最容易写出来 |
+| S3 | `icon-tile-stack` | 每个标题上一个圆角图标磁贴，模板化特征 |
+| S4 | `undersized-ui-text` | 11px 下限；我们只有"12px 下限"的口头约定，没有检查 |
+| S5 | `ai-color-palette` | 紫蓝渐变；我们是纸色 + 朱红，理论上不会犯，但便宜 |
+
+原来担心的"要补 62 条门"不成立——**先量再改省掉了 53 条无用规则**，这正是 Phase 0 的全部价值。
+
+### 9.4 顺带完成的另一件事
+
+`DESIGN.md` 已脱敏（唯一一处个人绝对路径 `E:/OneDrive/...` 改为"本项目根目录"），随本次一并入库。它是检测器 `--no-design-system` 所读的上下文，也是 `design-system-*` 那 4 条规则的判定依据——不入库，这 4 条在 CI 里等于没有参照物。
