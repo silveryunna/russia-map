@@ -271,8 +271,21 @@ async function renderAI() {
   const maxTok = Math.max(1, ...days.map(d => +d.tok || 0));
   const maxModelTok = Math.max(1, ...(usage.by_model || []).map(r => (+r.pt || 0) + (+r.ct || 0)));
   const maxUserTok = Math.max(1, ...(usage.by_user || []).map(r => +r.tok || 0));
+  const alerts = usage.alerts || [];
+  const alertBar = alerts.length ? `
+    <div class="card ai-alertbar${pct >= 80 ? ' warn' : ''}" role="status">
+      <div class="ad-sec-title">用量告警（阈值 60% / 80%，同周期同阈值只告一次）</div>
+      ${alerts.slice(0, 8).map(a => `
+        <div class="fr-ckrow">
+          <span>${esc(a.period)} · 达 <b>${+a.threshold}%</b></span>
+          <span class="ad-subcnt">${(+a.tokens || 0).toLocaleString()} / ${(+a.cap || 0).toLocaleString()} tok · ${new Date(+a.created * 1000).toLocaleString('zh-CN')}</span>
+        </div>`).join('')}
+      ${alerts.length > 8 ? `<div class="fr-note">另有 ${alerts.length - 8} 条历史，按时间倒序只展示最近 8 条</div>` : ''}
+      <div class="fr-note">同时写入服务端结构化日志（标签 [ai_alert]），无需配置外部 webhook</div>
+    </div>` : '';
 
   body.innerHTML = `
+    ${alertBar}
     <div class="card ad-new">
       <div class="ad-sec-title">本月概览（站内通道）</div>
       <div class="ai-stats">
@@ -333,6 +346,11 @@ async function renderAI() {
         <label style="flex:1">月 token 熔断 <input id="aiq-cap" type="number" min="0" max="50000000" value="${cap}"></label>
         <label style="flex:1">站内通道 <select id="aiq-enabled"><option value="1" ${P.site_enabled ? 'selected' : ''}>开启</option><option value="0" ${!P.site_enabled ? 'selected' : ''}>停用</option></select></label>
       </div>
+      <div class="ad-new-row" style="margin-top:12px">
+        <label style="flex:1">IP 限流次数 <input id="aiq-ipmax" type="number" min="1" max="1000" value="${P.ip_rate_max ?? 10}"></label>
+        <label style="flex:1">窗口秒数 <input id="aiq-ipwin" type="number" min="60" max="86400" value="${P.ip_rate_window ?? 600}"></label>
+      </div>
+      <div class="fr-note">IP 维度按滑动窗口计数，与账号日额度并存、取更严者；只在实际发起生成时计一次（重放/被拒不占额度）</div>
       <button class="pl-btn primary" id="aiq-save" style="margin-top:10px">保存 AI 设置</button>
     </div>
     <div class="card ad-new">
@@ -357,6 +375,8 @@ async function renderAI() {
         admin_quota: +document.getElementById('aiq-admin').value,
         custom_quota: +document.getElementById('aiq-custom').value,
         month_token_cap: +document.getElementById('aiq-cap').value,
+        ip_rate_max: +document.getElementById('aiq-ipmax').value,
+        ip_rate_window: +document.getElementById('aiq-ipwin').value,
         site_enabled: document.getElementById('aiq-enabled').value === '1',
         models_friend: aiSel.friend,
         models_admin: aiSel.admin,
