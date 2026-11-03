@@ -57,7 +57,10 @@ run('node', ['tools/check-data.mjs', './data'], { stdio: 'inherit' });
 
 // ── 3) 构建 + 组装（assemble 内注入 sw.js VERSION = git short sha） ──
 step(3, 'vite build + assemble');
-run('npm', ['run', 'build'], { stdio: 'inherit', shell: process.platform === 'win32' });
+// Windows：execFileSync + shell:true 在含空格的 cwd（如 "kimi code"）下会把参数传丢，
+// 改用 execSync 跑整条命令（cwd 作为选项传入，不参与命令行拼接）
+if (process.platform === 'win32') execSync('npm run build', { cwd: ROOT, stdio: 'inherit' });
+else run('npm', ['run', 'build'], { stdio: 'inherit' });
 try {
   run('node', ['tools/assemble.mjs'], { stdio: 'inherit' });
 } catch (e) {
