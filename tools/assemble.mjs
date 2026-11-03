@@ -40,10 +40,18 @@ for (const f of ['sw.js', 'manifest.json', 'favicon.png', 'icon-192.png', 'icon-
     // SW 版本号构建期注入：tn-v<git short sha>，保留 tn- 前缀（缓存清理逻辑按此前缀匹配）
     const sha = gitSha();
     const src = readFileSync(join(ROOT, f), 'utf8');
-    const out = src.replace(/const VERSION = '[^']*'/, `const VERSION = 'tn-v${sha}'`);
+    // 预缓存清单：本次构建的 JS/CSS（文件名带内容哈希）；tdt-key* 是密钥文件，永不预缓存
+    const assetsDir = join(OUT, 'assets');
+    const buildAssets = existsSync(assetsDir)
+      ? readdirSync(assetsDir).filter(n => /\.(js|css)$/.test(n) && !n.startsWith('tdt-key')).map(n => `./assets/${n}`)
+      : [];
+    let out = src.replace(/const VERSION = '[^']*'/, `const VERSION = 'tn-v${sha}'`);
     if (out === src) { console.error('sw.js VERSION 注入失败：未匹配 const VERSION 行'); process.exit(1); }
+    const beforeAssets = out;
+    out = out.replace(/const BUILD_ASSETS = \[[^\]]*\];/, `const BUILD_ASSETS = ${JSON.stringify(buildAssets)};`);
+    if (out === beforeAssets) { console.error('sw.js BUILD_ASSETS 注入失败：未匹配 const BUILD_ASSETS 行'); process.exit(1); }
     writeFileSync(join(OUT, f), out);
-    console.log(`sw.js VERSION → tn-v${sha}`);
+    console.log(`sw.js VERSION → tn-v${sha}；预缓存 ${buildAssets.length} 个 JS/CSS`);
   } else {
     copyFileSync(join(ROOT, f), join(OUT, f));
   }

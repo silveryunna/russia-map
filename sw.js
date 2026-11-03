@@ -8,7 +8,12 @@ const VERSION = 'tn-v6c4a974';
 const SHELL_CACHE = 'tn-shell-' + VERSION;
 const RUNTIME_CACHE = 'tn-runtime-' + VERSION;
 
-// 应用外壳（HTML 入口 + 清单 + 图标；JS/CSS 带内容哈希，由运行时缓存自动覆盖）
+// 构建期注入：vite 产出的 JS/CSS（带内容哈希，文件名每次构建都会变）。
+// 仓库里默认空数组，tools/assemble.mjs 按 site-out/assets 的实际清单注入。
+// 不预缓存这些文件，用户首次访问后一断网就是白屏（只有 HTML 外壳能离线）。
+const BUILD_ASSETS = [];
+
+// 应用外壳（HTML 入口 + 清单 + 图标）
 const SHELL_ASSETS = [
   './',
   './index.html',
@@ -57,12 +62,20 @@ async function postToClients(msg) {
   for (const c of clients) c.postMessage(msg);
 }
 
-// 安装：缓存应用外壳
+// 安装：缓存应用外壳 + 本次构建的 JS/CSS
 // cache:'reload' 绕过 HTTP 缓存，保证拿到的是当前部署的最新文件
+// 原子安装：任一资源失败（404/网络）即 throw，安装失败→不激活，旧版本缓存原样保留；
+// 宁可继续用旧版本，也不留下一套缺 JS 的"假离线"缓存。
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(SHELL_CACHE);
-    await Promise.allSettled(SHELL_ASSETS.map(u => cache.add(new Request(u, { cache: 'reload' }))));
+    const payload = [...SHELL_ASSETS, ...BUILD_ASSETS];
+    try {
+      await cache.addAll(payload.map(u => new Request(u, { cache: 'reload' })));
+    } catch (e) {
+      await caches.delete(SHELL_CACHE); // 清掉半成品，避免下次安装读到残缺缓存
+      throw e;
+    }
   })());
   self.skipWaiting();
 });
@@ -161,4 +174,4 @@ async function trimCache(name, max) {
 }
 
 // SW 是 classic script（不能 import），把策略挂到 self 上供 tools/sw-policy-test.mjs 在 VM 中校验
-self.__SW_POLICY__ = { VERSION, SHELL_ASSETS, TILE_HOSTS, TILE_CACHE_MAX, isTileUrl };
+self.__SW_POLICY__ = { VERSION, SHELL_ASSETS, BUILD_ASSETS, TILE_HOSTS, TILE_CACHE_MAX, isTileUrl };

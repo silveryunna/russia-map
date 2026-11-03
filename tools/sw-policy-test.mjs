@@ -95,5 +95,22 @@ if (!policy) { console.error('❌ sw.js 未导出 __SW_POLICY__'); process.exit(
   else ok('sw.js 无 Key 明文');
 }
 
+// 7) 首访离线：JS/CSS 必须随安装预缓存，且安装必须原子（失败即失败，不许静默吞掉）
+{
+  if (/Promise\.allSettled/.test(SRC)) fail('安装仍用 allSettled：缺资源也会"安装成功"，首访后断网白屏');
+  else ok('安装未使用 allSettled（任一资源失败即安装失败）');
+  if (/await cache\.addAll\(/.test(SRC)) ok('安装使用 cache.addAll（原子写入）');
+  else fail('安装未使用 cache.addAll，可能出现半套缓存');
+  if (/\[\.\.\.SHELL_ASSETS, \.\.\.BUILD_ASSETS\]/.test(SRC)) ok('安装合并"外壳 + 构建产物 JS/CSS"');
+  else fail('安装未合并 BUILD_ASSETS：JS/CSS 仍要等运行时缓存，首访断网白屏');
+  const list = policy.BUILD_ASSETS;
+  if (!Array.isArray(list)) fail('__SW_POLICY__ 未导出 BUILD_ASSETS');
+  else {
+    const bad = list.filter(a => !/^\.\/assets\/[A-Za-z0-9._-]+\.(js|css)$/.test(a) || a.includes('tdt-key'));
+    if (!bad.length) ok(`BUILD_ASSETS 清单合法（当前 ${list.length} 项；发布产物由 assemble 注入）`);
+    else fail(`BUILD_ASSETS 含非法条目：${bad.join('、')}`);
+  }
+}
+
 if (bad) { console.error(`\n${bad} 项 SW 策略测试失败`); process.exit(1); }
 console.log('\nService Worker 策略质量门通过');
