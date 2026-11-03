@@ -61,7 +61,7 @@ AI 助手在本仓库工作前必读。完整维护知识见 `MAINTENANCE.md`（
 ## 硬约束
 
 - 坐标一律 **WGS84**：腾讯/飞猪返回的 GCJ-02 必须经 `tools/recalibrate-sanya.mjs` 的 `gcj2wgs()` 转换；腾讯 Key 从环境变量 `QQ_LBS_KEY` 读。**百度 Agent Plan（`agent_plan/v1/*`）返回 GCJ-02，不是经典 Place API 的 BD-09**（`SKILL.md` 明写 + 2026-11-03 天安门实测校准），取数走 `gcj2wgs()`；误按 BD-09 反解会整体偏 ~800m。`coords.js` 里的 `bd09ToGcj02/gcj2bd09/bd09ToWgs/wgsToBd09` 是给经典百度 Web 服务预留的，由 `tools/coords-test.mjs` 的 24 点 BD-09 基线守护
-- 国内坐标交叉核对：`tools/audit-china-cross.mjs`（腾讯 + 高德 + 天地图，带 `BAIDU_MAP_AUTH_TOKEN` 时自动加百度第四源）与 `tools/audit-baidu.mjs`（百度单源，按次计费、必须显式选范围、结果带缓存、默认只读）。两者都**只升置信度不改坐标**；百度结果只落 `tools/.cache/`（已 gitignore），不进 `data/`
+- 国内坐标交叉核对：`tools/audit-coords.mjs cross`（腾讯 + 高德 + 天地图，带 `BAIDU_MAP_AUTH_TOKEN` 时自动加百度第四源；`verify --city=X` 子命令做 Yandex 逆地理归属核对）与 `tools/audit-baidu.mjs`（百度单源，按次计费、必须显式选范围、结果带缓存、默认只读）。都**只升置信度不改坐标**；百度结果只落 `tools/.cache/`（已 gitignore），不进 `data/`。合并自原 audit-china-cross / geocode-amap / verify-coords-yandex（git 历史可查）
 - 底图：境外用 OSM 系；中国用天地图（WGS，走同源 `/tdt/` 反代）或 OSM（高德世界地图覆盖俄罗斯但需企业付费开通，个人 Key 无境外权限，详见上条交通矩阵）。高德/腾讯瓦片属 GCJ-02，**前端已统一在 `src/pages/map/coords.js` 的 `xy()` 做 wgs2gcj 补偿**（算法以 coordtransform 为准，2026-10-28 修正过系数错位的历史 bug；`node tools/coords-test.mjs` 守护，CI 强制）。看到点位偏移先跑 coords-test + 查 `__amapActive__`，别改数据（详见 `MAINTENANCE.md` §7.9）；遮罩边界只改 `tools/build_boundary.py` 生成，勿手改 JSON
 - 打卡/Visit 已统一（2026-11-01 M0）：IndexedDB `travel-trips.visits` 是唯一可写事实源，所有打卡入口（地图/清单/笔记）都必须经过 `src/pages/visits/repository.js`（`openVisitRepository`）；`localStorage['travel-checkin-v2']` 只是 repository 维护的只读派生缓存（旧 UI 兼容），**禁止任何页面直接写它**；旧数据在首次打开时一次性迁移且原文备份。新增打卡相关功能一律从 repository 扩展，不得再引入第二份可写状态
 - 密钥绝不写进仓库/聊天记录；权威备份在 NAS 密钥归档包

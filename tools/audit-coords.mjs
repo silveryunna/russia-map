@@ -72,26 +72,48 @@ async function fromTDT(name, city, TDT) {
   return { lat, lon, label: hit.name }; // CGCS2000 ≈ WGS84
 }
 
+// 百度 Agent Plan 语义检索（可选第四源，按次计费）：返回 GCJ-02（非经典 Place API 的 BD-09），nameScore<0.6 视为未命中
+async function fromBD(name, city, BD) {
+  const u = new URL('https://api.map.baidu.com/agent_plan/v1/place');
+  u.searchParams.set('user_raw_request', `帮我确认${city}的「${cleanName(name)}」的具体位置`);
+  u.searchParams.set('region', scopeOf(name, city));
+  const r = await fetch(u, { headers: { authorization: `Bearer ${BD}` }, signal: AbortSignal.timeout(30000) });
+  const d = await r.json();
+  if (d.status !== 0 && d.status !== '0') throw new Error(`BD:${d.status} ${(d.message || '').slice(0, 40)}`);
+  const kw = coreName(name, city);
+  const best = (d.results || [])
+    .filter((x) => x.location && Number.isFinite(x.location.lat) && Number.isFinite(x.location.lng))
+    .map((x) => ({ ...x, s: nameScore(x.name, kw) }))
+    .filter((x) => x.s >= 0.6)
+    .sort((a, b) => b.s - a.s)[0];
+  if (!best) return null;
+  const [wLat, wLon] = gcj2wgs(best.location.lat, best.location.lng);
+  return { lat: wLat, lon: wLon, label: best.name, score: +best.s.toFixed(2) };
+}
+
 /* ================= cross：三源交叉核对 ================= */
 
 async function cross() {
   const QQ = process.env.QQ_LBS_KEY, AM = process.env.AMAP_WEB_KEY, TDT = process.env.TDT_KEY;
-  if (!QQ || !AM || !TDT) { console.error('cross 需要 QQ_LBS_KEY + AMAP_WEB_KEY + TDT_KEY'); process.exit(1); }
+  const BD = process.env.BAIDU_MAP_AUTH_TOKEN || '';
+  if (!QQ || !AM || !TDT) { console.error('cross 需要 QQ_LBS_KEY + AMAP_WEB_KEY + TDT_KEY（BAIDU_MAP_AUTH_TOKEN 可选第四源）'); process.exit(1); }
   const pts = JSON.parse(readFileSync(FILE, 'utf8'));
   const targets = pts.filter((p) => CN_CITIES.has(p.city) && !p.pending && (!CITY || p.city === CITY));
-  console.log(`cross：${targets.length} 个中国点位（${AGREE}m 一致 / ${FAR}m 落单阈值）\n`);
+  console.log(`cross：${targets.length} 个中国点位（${AGREE}m 一致 / ${FAR}m 落单阈值${BD ? ' / 含百度第四源' : ''}）\n`);
 
   const iron = [], good = [], storedWrong = [], chaos = [], srcFail = [];
   let done = 0;
   for (const p of targets) {
     const r = { p };
-    for (const [key, fn] of [['qq', fromQQ], ['am', fromAM], ['tdt', fromTDT]]) {
-      try { r[key] = await fn(p.name, p.city, { qq: QQ, am: AM, tdt: TDT }[key]); }
-      catch (e) { r[key + 'Err'] = e.message; }
-      await sleep(120);
-    }
+    try { r.qq = await fromQQ(p.name, p.city, QQ); } catch (e) { r.qqErr = e.message; }
+    await sleep(120);
+    try { r.am = await fromAM(p.name, p.city, AM); } catch (e) { r.amErr = e.message; }
+    await sleep(120);
+    try { r.tdt = await fromTDT(p.name, p.city, TDT); } catch (e) { r.tdtErr = e.message; }
+    await sleep(120);
+    if (BD) { try { r.bd = await fromBD(p.name, p.city, BD); } catch (e) { r.bdErr = e.message; } await sleep(350); }
     const stored = { lat: p.lat, lon: p.lon };
-    const srcs = [['qq', r.qq], ['am', r.am], ['tdt', r.tdt]].filter(([, v]) => v);
+    const srcs = [['qq', r.qq], ['am', r.am], ['tdt', r.tdt], ['bd', r.bd]].filter(([, v]) => v);
     const okSrcs = srcs.filter(([, v]) => distM(stored, v) < AGREE);
     const nearSrcs = srcs.filter(([, v]) => distM(stored, v) < FAR);
     let srcCluster = [];
@@ -109,7 +131,7 @@ async function cross() {
   }
 
   const fmt = (r) => '  ' + [`${r.p.id} ${r.p.name.slice(0, 14)}`,
-    ...[['qq', r.qq], ['am', r.am], ['tdt', r.tdt]].map(([n, v]) => v ? `${n}:${distM([r.p.lat, r.p.lon], v).toFixed(0)}m` : `${n}:${r[n + 'Err'] ? '错' : '无'}`),
+    ...[['qq', r.qq], ['am', r.am], ['tdt', r.tdt], ['bd', r.bd]].map(([n, v]) => v ? `${n}:${distM([r.p.lat, r.p.lon], v).toFixed(0)}m` : `${n}:${r[n + 'Err'] ? '错' : '无'}`),
   ].join(' | ') + (r.d != null ? `（最近 ${r.d.toFixed(0)}m）` : '');
   console.log(`\n═══ cross 结论 ═══`);
   console.log(`🛡️ 铁证：${iron.length}  🟢 可信：${good.length}  🔴🔴 库存疑似错误：${storedWrong.length}  ❓ 各说各话：${chaos.length}  ⚪ 三源全无：${srcFail.length}`);
