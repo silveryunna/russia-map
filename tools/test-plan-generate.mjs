@@ -112,5 +112,31 @@ function makeCtx(overrides = {}) {
   assert(typeof plan.days === 'object', '（对照）ruleEngine 返回的 plan 形状可用作 AI stub');
 }
 
+// 8) AI 方案保存前必须过可行性引擎（审计 P1-5）：未知点位 → 硬冲突 → 不静默落库
+{
+  const { reviewGeneratedTrip, annotateConflicts } = await import('../src/pages/plan/generate.js');
+  const { migratePlansV1 } = await import('../src/pages/trip/migrate.js');
+  const { validateTrip } = await import('../src/pages/trip/schema.js');
+  const aiPlan = {
+    id: 'ai-test-1', name: 'AI 测试行程', city: '伊宁', source: 'ai', date: '2026-12-01',
+    days: [{ day: 1, slots: { morning: ['不存在的点位'], afternoon: [], evening: [] }, tip: '' }],
+  };
+  const mig = migratePlansV1({ plans: [aiPlan], points: ynPts });
+  const trip = mig.trips[0];
+  const review = reviewGeneratedTrip(trip, { pts: ynPts, rts: ynRts, matrix: null, facts: null });
+  assert(review.errors.length > 0, '未知点位 → 可行性引擎报硬冲突');
+  const annotated = annotateConflicts(trip, review);
+  assert(annotated.days.some(d => (d.note || '').includes('硬冲突')), '坚持保存时把冲突写进当天备注');
+  const v = validateTrip(annotated);
+  assert(v && v.ok !== false, '带冲突备注的 Trip 仍通过 schema 校验');
+
+  const ctx = makeCtx();
+  ctx.ai.generate = async () => aiPlan;
+  await runGenerate(ctx, 'ai');
+  assert(ctx.saves.length === 0, 'AI 方案有硬冲突时不静默落库');
+  assert(ctx.view.aiDraft && ctx.view.aiDraft.review.errors.length > 0, '冲突方案进入待确认面板');
+  assert(ctx.view.aiDraft.trip.days.length > 0, '待确认面板保留原始 Trip');
+}
+
 if (bad) { console.error(`\n${bad} 处生成行为不符合约定`); process.exit(1); }
 console.log('\n新建生成质量门通过');

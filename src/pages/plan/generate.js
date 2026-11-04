@@ -4,6 +4,7 @@
 //           current(setter)/resetUndo/isGenerating()/setGenerating()
 
 import { INTERESTS, PLAN_DAYS_MAX, clampDays, ruleEngine } from './engine.js';
+import { evaluateDay } from './feasibility.js';
 import { createChangeEvent } from '../trip/schema.js';
 import { countNeedsConfirm } from '../trip/edit.js';
 import { migratePlansV1 } from '../trip/migrate.js';
@@ -34,6 +35,16 @@ export function renderCreateForm(ctx) {
           <button class="pl-btn small primary" id="ai-retry">重试 AI</button>
           <button class="pl-btn small" id="ai-fallback">使用离线规则</button>
           <button class="pl-btn small" id="ai-cancel">取消</button>
+        </div>
+      </div>` : ''}
+      ${view.aiDraft ? `
+      <div class="pl-ai-error">
+        <div>⚠️ AI 方案有 ${view.aiDraft.review.errors.length} 处硬冲突，尚未保存：</div>
+        <div class="pl-ai-note">${view.aiDraft.review.errors.slice(0, 4).map(e => `第 ${e.day} 天：${esc(e.message)}`).join('<br>')}</div>
+        <div class="pl-ai-error-ops">
+          <button class="pl-btn small primary" id="ai-draft-save">仍然保存（草稿，保留冲突标记）</button>
+          <button class="pl-btn small" id="ai-draft-rule">改用离线规则</button>
+          <button class="pl-btn small" id="ai-draft-cancel">取消</button>
         </div>
       </div>` : ''}
       ${ai.info ? `<div class="pl-label">${ai.info.has_custom ? '已接入你自己的 AI（不占用本站次数）' : `今日剩余 ${ai.info.remaining_today}/${ai.info.quota} 次`}</div>` : ''}
@@ -87,10 +98,79 @@ export function renderCreateForm(ctx) {
   if (fallback) fallback.onclick = () => { view.aiError = ''; render(); runGenerate(ctx, 'rule'); };
   const cancel = document.getElementById('ai-cancel');
   if (cancel) cancel.onclick = () => { view.aiError = ''; render(); };
+  const draftSave = document.getElementById('ai-draft-save');
+  if (draftSave) draftSave.onclick = () => {
+    const draft = view.aiDraft;
+    view.aiDraft = null;
+    const trip = annotateConflicts(draft.trip, draft.review);
+    void saveGenerated(ctx, trip, draft.plan, { conflictCount: draft.review.errors.length });
+  };
+  const draftRule = document.getElementById('ai-draft-rule');
+  if (draftRule) draftRule.onclick = () => { view.aiDraft = null; render(); runGenerate(ctx, 'rule'); };
+  const draftCancel = document.getElementById('ai-draft-cancel');
+  if (draftCancel) draftCancel.onclick = () => { view.aiDraft = null; render(); };
+}
+
+/**
+ * AI 方案保存前跑一遍可行性引擎（审计 P1-5）：闭馆日 / 最后入场 / 收工超时 / 无坐标
+ * 都是硬错误，不能静默保存。规则引擎自己已经按日历排程，这里只拦 AI。
+ */
+export function reviewGeneratedTrip(trip, cache) {
+  const places = new Map((cache.pts || []).map(p => [p.id, p]));
+  const errors = [];
+  const byDay = new Map();
+  trip.days.forEach((day, index) => {
+    const res = evaluateDay({
+      day: { id: day.id, date: day.date },
+      items: day.items,
+      places,
+      options: { start: day.startTime, end: day.endTime, matrix: cache.matrix, facts: cache.facts },
+    });
+    if (res.errors.length) {
+      byDay.set(index, res.errors);
+      errors.push(...res.errors.map(e => ({ ...e, day: index + 1 })));
+    }
+  });
+  return { errors, byDay };
+}
+
+/** 用户坚持保存时，把冲突写进当天 note，编辑器里仍能看到（状态保持 draft）。 */
+export function annotateConflicts(trip, review) {
+  return {
+    ...trip,
+    days: trip.days.map((day, index) => {
+      const errs = review.byDay.get(index);
+      if (!errs || !errs.length) return day;
+      const line = `AI 生成：${errs.length} 处硬冲突未处理（${errs[0].message}${errs.length > 1 ? ' 等' : ''}）`;
+      return { ...day, note: day.note ? `${day.note}；${line}` : line };
+    }),
+  };
+}
+
+async function saveGenerated(ctx, trip, plan, { conflictCount = 0 } = {}) {
+  const { store, toast, render, refreshTrips, view } = ctx;
+  const saved = await store.saveTrip(trip);
+  if (!saved.ok) { toast('保存失败：' + (saved.errors[0] || {}).message); render(); return; }
+  await refreshTrips();
+  ctx.current = saved.trip;
+  ctx.resetUndo();
+  try {
+    await store.saveEvent(createChangeEvent({
+      tripId: ctx.current.id, at: Date.now(), kind: 'generate',
+      summary: `生成行程（${sourceLabel(ctx.current)}${conflictCount ? ` · ${conflictCount} 处硬冲突` : ''}）`,
+    }));
+  } catch { /* 日志失败不影响生成 */ }
+  view.mode = 'editor';
+  view.sel = null;
+  render();
+  const pending = countNeedsConfirm(ctx.current);
+  const conflicts = conflictCount ? ` · ${conflictCount} 处硬冲突已标在当天备注` : '';
+  toast(`行程已生成（${sourceLabel(ctx.current)}）${pending ? ` · ${pending} 个点位待确认` : ''}${conflicts}`);
+  if (plan.note) setTimeout(() => toast(plan.note), 600);
 }
 
 export async function runGenerate(ctx, src) {
-  const { view, cache, ai, store, toast, render, refreshTrips } = ctx;
+  const { view, cache, ai, toast, render } = ctx;
   const f = view.form;
   if (!f.city) return toast('请选择目的地');
   if (ctx.isGenerating()) return;
@@ -101,6 +181,7 @@ export async function runGenerate(ctx, src) {
     render();
     return;
   }
+  view.aiDraft = null;
   ctx.setGenerating(true);
   const btn = document.getElementById('pl-gen-ai');
   if (btn && src === 'ai') { btn.disabled = true; btn.textContent = '✨ 生成中（约 30-60 秒）…'; }
@@ -121,24 +202,18 @@ export async function runGenerate(ctx, src) {
       render();
       return;
     }
-    const saved = await store.saveTrip(trip);
+    let review = null;
+    if (src === 'ai') {
+      review = reviewGeneratedTrip(trip, cache);
+      if (review.errors.length) {
+        ctx.setGenerating(false);
+        view.aiDraft = { trip, plan, review };
+        render();
+        return;
+      }
+    }
     ctx.setGenerating(false);
-    if (!saved.ok) { toast('保存失败：' + (saved.errors[0] || {}).message); render(); return; }
-    await refreshTrips();
-    ctx.current = saved.trip;
-    ctx.resetUndo();
-    try {
-      await store.saveEvent(createChangeEvent({
-        tripId: ctx.current.id, at: Date.now(), kind: 'generate',
-        summary: `生成行程（${sourceLabel(ctx.current)}）`,
-      }));
-    } catch { /* 日志失败不影响生成 */ }
-    view.mode = 'editor';
-    view.sel = null;
-    render();
-    const pending = countNeedsConfirm(ctx.current);
-    toast(`行程已生成（${sourceLabel(ctx.current)}）${pending ? ` · ${pending} 个点位待确认` : ''}`);
-    if (plan.note) setTimeout(() => toast(plan.note), 600);
+    await saveGenerated(ctx, trip, plan, { conflictCount: 0 });
   } catch (err) {
     ctx.setGenerating(false);
     view.aiError = err.message;
