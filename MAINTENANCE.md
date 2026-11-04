@@ -108,6 +108,7 @@
 ```
 
 - `node tools/check-sample-data.mjs ./data [城市]` 是样板数据质量门：检查动线覆盖点位的上述字段、坐标置信度、城市时区，并打印已知开放日历/票价的覆盖率；`unknown` 允许，但必须显式
+- `node tools/check-route-contract.mjs ./data` 是动线契约棘轮（2026-11-04 审计 P1-6）：把 `routes.json` 覆盖的全部点位按 `pointId|field` 记账到 `tools/fixtures/route-contract-baseline.json`，新增缺口立即失败，补上的跑 `--tighten` 收紧（不准放宽）；当前基线 255 条（莫斯科 0，圣彼得堡 116 / 三亚 83 / 伊宁 21 / 其他城市 20 / 莫斯科州 15）
 - 现有 42 个莫斯科动线点位已按此契约补齐：`estimatedDuration` 为**类型估算**（待实测修正），开放日历与票价全部显式 `unknown`
 
 **文件格式**：UTF-8 + **LF 行尾**（历史为 CRLF，已统一 LF；diff 全文件标红先查行尾）。
@@ -504,7 +505,7 @@ tail -c 25 data/points.json | od -c
 
 - 后端：`api/index.php`（PHP 8 + SQLite，webroot 外配置 `/www/wwwroot/julyyunna-art-data/config.php`，库文件同目录 `friends.db`，上传图在 `api-uploads/`）
 - nginx 需 `location ^~ /api/` → php-fpm（socket `/run/php-fpm/www.sock`，php-fpm 的 `listen.acl_users` 必须含 `www`）+ `fastcgi_param HTTP_AUTHORIZATION $http_authorization;`
-- 安全：登录限流（5 次错锁 15 分钟）、图片 mime 校验、`<script>`/`onerror=` 等注入拦截、投稿幂等键（同 `idem` 只入库一次）、重复账号名返回 409
+- 安全：登录限流（同 IP+账号 5 次错锁 15 分钟 + 同 IP 总量 30 次/15 分钟双阈值）、图片 mime 校验、`<script>`/`onerror=` 等注入拦截、投稿幂等键（同 `idem` 只入库一次）、重复账号名返回 409；删除账号会事务性清掉投稿/照片/AI 设置与用量/会话/失败记录（禁止删 `admin`），登录时顺带回收过期会话与已解锁失败记录（2026-11-04 审计 P2-3/P2-4）
 - 采纳后的投稿**不会自动并入** `data/*.json`，需要人工/让 Kimi 协助合并
 - 冒烟测试：`ADMIN_PASS='...' node tools/api-smoke.mjs`（登录/建号/投稿/审核/幂等/注入/AI 端点 共 35 项）
 
@@ -517,6 +518,7 @@ tail -c 25 data/points.json | od -c
 - **端点**：`?a=plan`（生成）/ `ai_settings`（个人接入读写）/ `ai_policy`（GET 调用者视图，admin 附完整策略；POST 仅 admin）/ `ai_usage`（admin：daily/by_model/by_user/month_by_model/items，供可视化）/ `ai_test`（连通性测试，返回延迟+应答预览）
 - **预设模型表**：`assets/ai-models-v1.js`（刊例价快照 2026-10-27；用 `thcli models get --id <id>` 更新价格，注意 glm-5.3-flashx 比 glm-5.3-flash 贵 2.5 倍这类同名陷阱）
 - **安全**：SSRF 校验（自定义 endpoint 仅 https + 拒私网/回环/CGNAT + 禁跟随重定向）、站点 Key 只发往硬编码 TokenHub 域名、日配额 + 月 token 熔断、同用户 10s 防重入、AI 返回点位名做幻觉过滤（不在点位库的剔除进 plan.note）、AI 接入表单已做 autocomplete 隔离（防浏览器把登录密码填进 Key 框）
+- **排程上下文与落库复核（2026-11-04 审计 P1-5）**：`?a=plan` 给模型的不只是名字/类型，还有压缩后的 `duration`/`hours`/`ticket`（服务端仍只放行白名单字段，point 150 个、route 10 条 × 30 步、字段限长，输出 `max_tokens=2000`）；prompt 明确闭馆日/最后入场/09:00–21:00 约束。客户端生成后先跑 `reviewGeneratedTrip()`（`evaluateDay()`），有硬错误就进「待确认」面板，用户点「仍然保存」才落库并把冲突写进当天 `note`（状态保持 `draft`）——AI 不再能把闭馆日方案静默存进行程
 - **自定义 Key 静态加密**：主密钥 `ai-at-rest.key` 默认与 `config.php` 同目录（webroot 外，`root:apache 640`），新 key 以 `enc:v1:` 落库；主密钥缺失时保存被 503 拒绝（失败关闭，`ALLOW_PLAINTEXT_AI_KEY=1` 才允许明文）。来源优先级、`AI_KEY_FILE` 在 php-fpm 下的真实行为（`clear_env=yes` + `env[]` 才有效，`export` 无效；生产当前走默认路径）、文件格式陷阱（BOM 会静默换钥匙）与恢复步骤见 `docs/AI-KEY-ENV.md`
 - 模型范围改了立即生效；换默认模型改 `config.php` 的 `tokenhub_model` 即可，不用动代码
 
