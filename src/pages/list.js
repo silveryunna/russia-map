@@ -293,5 +293,7 @@ main().catch(err => {
   app.textContent = '⚠️ 加载失败，请刷新重试';
 });
 import { registerSW } from '../shared/sw-register.js';
+import { mountShareButton } from '../shared/share.js';
 registerSW();
 renderIcpFooter();
+mountShareButton({ title: '旅行打卡清单 · 牛马打工人的旅行笔记', text: '想去的地方，一个个勾掉' });

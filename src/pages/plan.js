@@ -3,6 +3,7 @@ import './plan.css';
 import '../shared/layout-wide.css';
 import '../shared/print.css';
 import { installShortcuts, openHelp } from '../shared/shortcuts.js';
+import { mountShareButton } from '../shared/share.js';
 import { evaluateDay, formatMinutes, formatMinutesCrossDay } from './plan/feasibility.js';
 import { indexTransitMatrix, matrixCoverage } from './plan/transit-matrix.js';
 import { indexFacts, loadFactLedger, factCoverage } from './plan/facts.js';
@@ -1179,6 +1180,7 @@ async function runMigration() {
     today: () => { location.href = './today.html'; },
     plan: () => {},   // 已经在本页：不刷新，避免丢掉未保存的编辑状态
   });
+  mountShareButton({ title: '行程计划 · 牛马打工人的旅行笔记', text: '生成逐日行程，可加点位、排序、改期' });
 })().catch(err => {
   $app.innerHTML = `<div class="pl-empty">⚠️ 加载失败：${esc(err.message)}</div>`;
 });
