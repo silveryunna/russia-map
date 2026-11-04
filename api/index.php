@@ -53,18 +53,30 @@ function session_ok(PDO $db, string $token, bool $needAdmin = false): array {
   if (!$row || ($needAdmin && !$row['is_admin'])) out(['error' => '未登录或权限不足'], 401);
   return $row;
 }
-function rate_limit(PDO $db, string $key, int $max = 5, int $lockSec = 900): void {
+function rate_limit(PDO $db, string $key, int $max = 5, int $lockSec = 900): callable {
   $k = 'lf:' . $key;
   $r = $db->prepare('SELECT n,until FROM fails WHERE k=?');
   $r->execute([$k]);
   $row = $r->fetch(PDO::FETCH_ASSOC);
   if ($row && $row['until'] > time()) out(['error' => '尝试次数过多，请15分钟后再试'], 429);
-  $GLOBALS['__rl'] = function (bool $ok) use ($db, $k, $row, $max, $lockSec) {
+  return function (bool $ok) use ($db, $k, $row, $max, $lockSec) {
     if ($ok) { $db->prepare('DELETE FROM fails WHERE k=?')->execute([$k]); return; }
     $n = ($row['n'] ?? 0) + 1;
     $until = $n >= $max ? time() + $lockSec : 0;
     $db->prepare('INSERT INTO fails(k,n,until) VALUES(?,?,?) ON CONFLICT(k) DO UPDATE SET n=excluded.n, until=excluded.until')->execute([$k, $n, $until]);
   };
+}
+
+// 认证表回收（审计 P2-4）：过期会话与已解锁的失败记录不再永久占库；
+// fails 若被恶意刷量超过 5000 行，按最旧 rowid 批量淘汰（登录限流仍按 IP+用户名 + IP 总量双阈值）。
+function gc_auth_tables(PDO $db): void {
+  $now = time();
+  $db->prepare('DELETE FROM sessions WHERE exp < ?')->execute([$now]);
+  $db->prepare('DELETE FROM fails WHERE until > 0 AND until < ?')->execute([$now]);
+  $n = (int)$db->query('SELECT COUNT(*) FROM fails')->fetchColumn();
+  if ($n > 5000) {
+    $db->exec('DELETE FROM fails WHERE rowid IN (SELECT rowid FROM fails ORDER BY rowid ASC LIMIT 1000)');
+  }
 }
 
 /* ---------- AI 日程生成辅助 ---------- */
@@ -191,11 +203,14 @@ switch ($a) {
   case 'login': {
     $b = body();
     $u = trim((string)($b['user'] ?? '')); $p = (string)($b['pass'] ?? '');
-    rate_limit($db, 'login:' . $ip . ':' . $u);
+    gc_auth_tables($db);
+    // 双阈值：同一 IP+账号 5 次/15 分钟；同一 IP 30 次/15 分钟（防换用户名刷爆 fails）
+    $limitIp = rate_limit($db, 'login-ip:' . $ip, 30);
+    $limitUser = rate_limit($db, 'login:' . $ip . ':' . $u);
     if ($u === 'admin' && password_verify($p, $CONF['admin_pass_hash'])) {
       $t = bin2hex(random_bytes(32));
       $db->prepare('INSERT INTO sessions(token,who,is_admin,exp) VALUES(?,?,1,?)')->execute([$t, 'admin', time() + 86400 * 7]);
-      ($GLOBALS['__rl'])(true);
+      $limitIp(true); $limitUser(true);
       out(['token' => $t, 'admin' => true, 'name' => '管理员']);
     }
     $s = $db->prepare('SELECT * FROM accounts WHERE username=?');
@@ -204,10 +219,10 @@ switch ($a) {
     if ($acc && password_verify($p, $acc['pass_hash'])) {
       $t = bin2hex(random_bytes(32));
       $db->prepare('INSERT INTO sessions(token,who,is_admin,exp) VALUES(?,?,0,?)')->execute([$t, $u, time() + 86400 * 7]);
-      ($GLOBALS['__rl'])(true);
+      $limitIp(true); $limitUser(true);
       out(['token' => $t, 'admin' => false, 'name' => $acc['display'] ?: $u]);
     }
-    ($GLOBALS['__rl'])(false);
+    $limitIp(false); $limitUser(false);
     out(['error' => '账号或密码不正确'], 403);
   }
   case 'logout': {
@@ -242,8 +257,31 @@ switch ($a) {
     }
     if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
       $u = (string)($_GET['user'] ?? '');
-      $db->prepare('DELETE FROM accounts WHERE username=?')->execute([$u]);
-      $db->prepare('DELETE FROM sessions WHERE who=?')->execute([$u]);
+      if ($u === '' || $u === 'admin') out(['error' => '不能删除该账号'], 400);
+      // 审计 P2-3：删除账号必须连同投稿、照片文件、AI 设置/用量、会话、失败记录一起清掉，
+      // 否则「删除」只是从列表消失，数据仍留在服务器。
+      $st = $db->prepare('SELECT file FROM submissions WHERE username=? AND file IS NOT NULL');
+      $st->execute([$u]);
+      $files = array_values(array_filter($st->fetchAll(PDO::FETCH_COLUMN)));
+      $db->beginTransaction();
+      try {
+        $db->prepare('DELETE FROM submissions WHERE username=?')->execute([$u]);
+        $db->prepare('DELETE FROM ai_settings WHERE username=?')->execute([$u]);
+        $db->prepare('DELETE FROM ai_calls WHERE username=?')->execute([$u]);
+        $db->prepare('DELETE FROM sessions WHERE who=?')->execute([$u]);
+        $db->prepare('DELETE FROM fails WHERE k LIKE ?')->execute(['lf:login:%:' . $u]);
+        $db->prepare('DELETE FROM accounts WHERE username=?')->execute([$u]);
+        $db->commit();
+      } catch (Throwable $e) {
+        if ($db->inTransaction()) $db->rollBack();
+        out(['error' => '删除失败，请重试'], 500);
+      }
+      // 文件删除放在事务提交之后：提交失败时不会留下「记录还在、照片没了」的半删状态
+      $dir = realpath((string)($CONF['upload_dir'] ?? ''));
+      foreach ($files as $f) {
+        $real = realpath((string)$f);
+        if ($real && $dir && strpos($real, $dir . DIRECTORY_SEPARATOR) === 0 && is_file($real)) @unlink($real);
+      }
       out(['ok' => true]);
     }
     out(['error' => 'method'], 405);
@@ -407,10 +445,44 @@ switch ($a) {
     }
 
     // context 服务端二次裁剪：同城、白名单字段、封顶 150 个（前端也裁剪，这里不依赖前端自觉）
+    // 审计 P1-5：给 AI 补上「时长 + 开放日历 + 票价」压缩字段，否则它只能按名字猜，
+    // 容易把闭馆日/最后入场/3 小时博物馆排成 45 分钟；仍然是紧凑字符串，不直接透传完整对象。
     $ctx = (array)($b['context'] ?? []);
     $pts = array_values(array_filter((array)($ctx['points'] ?? []), fn($p) => is_array($p) && ($p['city'] ?? '') === $city && empty($p['pending'])));
     $pts = array_slice($pts, 0, 150);
-    $pts = array_map(fn($p) => array_intersect_key($p, array_flip(['name', 'type', 'cluster', 'highlight', 'tags'])), $pts);
+    $pts = array_map(function ($p) {
+      $brief = array_intersect_key($p, array_flip(['name', 'type', 'cluster', 'highlight', 'tags']));
+      $dur = (int)($p['estimatedDuration'] ?? 0);
+      if ($dur > 0) $brief['duration'] = $dur;
+      $cal = $p['openCalendar'] ?? null;
+      if (is_array($cal)) {
+        if (!empty($cal['alwaysOpen'])) {
+          $brief['hours'] = '24h';
+        } elseif (!empty($cal['open']) || !empty($cal['days']) || !empty($cal['close'])) {
+          $days = $cal['days'] ?? '';
+          if (is_array($days)) $days = implode(',', $days);
+          $days = mb_substr((string)$days, 0, 40);
+          $open = mb_substr((string)($cal['open'] ?? ''), 0, 5);
+          $close = mb_substr((string)($cal['close'] ?? ''), 0, 5);
+          $span = trim($days . ' ' . $open . '-' . $close);
+          if (!empty($cal['crossDay'])) $span .= '+1';
+          if (!empty($cal['lastEntry'])) $span .= ' last ' . mb_substr((string)$cal['lastEntry'], 0, 5);
+          if (!empty($cal['exceptions']) && is_array($cal['exceptions'])) {
+            $notes = [];
+            foreach (array_slice($cal['exceptions'], 0, 2) as $ex) {
+              if (is_array($ex) && !empty($ex['note'])) $notes[] = mb_substr((string)$ex['note'], 0, 30);
+            }
+            if ($notes) $span .= ' / ' . implode('；', $notes);
+          }
+          $brief['hours'] = $span;
+        }
+      } elseif ($cal === 'unknown') {
+        $brief['hours'] = 'unknown';
+      }
+      $ticket = $p['ticket'] ?? null;
+      if (is_string($ticket) && $ticket !== '') $brief['ticket'] = mb_substr($ticket, 0, 60);
+      return $brief;
+    }, $pts);
     // 审计 P1-4：routes 也要有上限，否则一次请求能把 prompt/token 放大到任意大小
     $rts = array_values(array_filter((array)($ctx['routes'] ?? []), fn($r) => is_array($r) && ($r['city'] ?? '') === $city));
     $rts = array_slice($rts, 0, 10);
@@ -431,9 +503,14 @@ switch ($a) {
       . '{"name":"行程名称","days":[{"day":1,"slots":{"morning":["点位名"],"afternoon":["点位名"],"evening":["点位名"]},"tip":"当日提示"}]}。'
       . '规则：slots 中的点位名必须原样取自候选点位的 name 字段，禁止编造；每天 4-7 个点位；'
       . '同一 cluster（区域）的点位尽量安排在同一天；餐厅/咖啡/酒吧等餐饮类放在 evening；'
-      . 'morning/afternoon/evening 每个时段 1-3 个点位；tip 用中文一句话。';
+      . 'morning/afternoon/evening 每个时段 1-3 个点位；tip 用中文一句话。'
+      . '开放时间：hours 是开放时段（24h 表示全天，unknown 表示未知）；hours 里的星期是闭馆日之外的开放日，'
+      . '闭馆日绝对不能安排；last 是最晚入场时间，必须在该时间前到达；+1 表示营业到次日。'
+      . '安排时必须给每个点位留足 duration 分钟（没有 duration 时按 60 分钟），并预留点位之间的通行时间；'
+      . '每天从 09:00 开始、21:00 前结束，排不下就减少点位，禁止超时。ticket 只用于提示，不影响排程。';
     $payload = [
       'model' => $model,
+      'max_tokens' => 2000,
       'messages' => [
         ['role' => 'system', 'content' => $sys],
         ['role' => 'user', 'content' => json_encode(['city' => $city, 'date' => $date, 'days' => $days, 'interests' => $interests, 'points' => $pts, 'routes' => $rts], JSON_UNESCAPED_UNICODE)],

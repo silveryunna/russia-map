@@ -98,5 +98,35 @@ for (const name of ['accounts', 'pending', 'approve', 'reject']) {
   assert(s && s.body.includes("mb_substr((string)($st['note'] ?? ''), 0, 120)"), '步骤 note 限长');
 }
 
+// 9) AI 排程上下文补时长/开放日历/票价 + 输出封顶（P1-5）
+{
+  const s = find('plan');
+  assert(s && s.body.includes("$brief['duration']"), 'points 上下文含 duration');
+  assert(s && s.body.includes("$brief['hours']"), 'points 上下文含开放日历 hours');
+  assert(s && s.body.includes("$brief['ticket']"), 'points 上下文含 ticket');
+  assert(s && s.body.includes("'max_tokens' => 2000"), 'AI 输出有 max_tokens 上限');
+  assert(s && s.body.includes('last 是最晚入场时间'), 'prompt 明确最晚入场约束');
+  assert(s && s.body.includes('闭馆日绝对不能安排'), 'prompt 明确闭馆日禁止排程');
+}
+
+// 10) 删除账号必须清理关联数据（P2-3）
+{
+  const s = find('accounts');
+  assert(s && s.body.includes('DELETE FROM submissions WHERE username=?'), '删除账号同时删投稿');
+  assert(s && s.body.includes('DELETE FROM ai_settings WHERE username=?'), '删除账号同时删 AI 设置');
+  assert(s && s.body.includes('DELETE FROM ai_calls WHERE username=?'), '删除账号同时删 AI 用量');
+  assert(s && s.body.includes('@unlink'), '删除账号同时删投稿照片文件');
+  assert(s && s.body.includes("$u === 'admin'"), '禁止删除 admin');
+}
+
+// 11) 登录限流双阈值 + 过期数据回收（P2-4）
+{
+  assert(php.includes('function rate_limit(PDO $db, string $key, int $max = 5, int $lockSec = 900): callable'), 'rate_limit 返回可组合回调');
+  assert(php.includes("'login-ip:' . $ip"), '登录有 IP 总量阈值');
+  assert(php.includes('function gc_auth_tables'), '有过期会话/失败记录回收');
+  assert(php.includes('DELETE FROM sessions WHERE exp < ?'), '清理过期会话');
+  assert(php.includes('DELETE FROM fails WHERE until > 0 AND until < ?'), '清理已解锁失败记录');
+}
+
 if (bad) { console.error(`\n${bad} 处 API 契约被破坏`); process.exit(1); }
 console.log('\nAPI 契约质量门通过');
