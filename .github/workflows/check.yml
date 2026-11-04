@@ -21,6 +21,11 @@ jobs:
       - name: 样板数据契约
         run: node tools/check-sample-data.mjs ./data
 
+      # 1.55) 动线契约棘轮（2026-11-04 审计 P1-6）：动线覆盖的全部点位按 pointId|field 记账，
+      #       新缺口立即红，已补上的缺口跑 --tighten 收紧基线（只准降不准升）
+      - name: 动线契约棘轮
+        run: node tools/check-route-contract.mjs ./data
+
       # 1.6) 城市排程字段：非 pending 点位必须有坐标、停留时长与依据
       - name: 城市排程字段
         run: |
@@ -104,6 +109,12 @@ jobs:
       # 2.9) 文档事实：README/AGENTS 里的数量与代码、数据一致（防"21 变异"这类过期数字）
       - name: 文档事实检查
         run: node tools/check-doc-facts.mjs
+
+      # 2.91) Markdown 安全渲染 + sitemap 同步（2026-11-04 审计 P2-5/P2-8）
+      - name: Markdown 安全 / sitemap
+        run: |
+          node tools/test-markdown.mjs
+          node tools/gen-sitemap.mjs --check
 
       # 2.92) 审计快照 + API 安全契约 + 产物体积预算（2026-11-03 复核审计新增）
       - name: 审计快照 / API 契约 / 体积预算
