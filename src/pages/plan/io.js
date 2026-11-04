@@ -5,15 +5,11 @@
 // 契约由 tools/test-plan-io.mjs 守护。
 
 import { PERIOD_LABEL, dateRange, sourceLabel } from './format.js';
+import { download } from '../../shared/download.js';
+import { BACKUP_WARN_DAYS, backupReminder } from '../../shared/backup-reminder.js';
 
-/** 触发浏览器下载。文件名里的非法字符交给浏览器处理，这里只做 URL 生命周期回收。 */
-export function download(name, text, type = 'application/json') {
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(new Blob([text], { type }));
-  a.download = name;
-  a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
-}
+// 下载与备份提醒口径已抽到 shared（全站横幅共用），这里保留导出以兼容既有调用与测试。
+export { download, BACKUP_WARN_DAYS, backupReminder };
 
 /**
  * 纯函数：Trip → Markdown 行程单。
@@ -56,20 +52,9 @@ export async function exportBackup({ store, save = download, toast = () => {}, a
   toast(`已导出 ${payload.trips.length} 份行程、${payload.visits.length} 条打卡记录`);
 }
 
-/* ---------- 备份提醒（N1：数据只存在浏览器里，从不提醒导出等于等着丢） ---------- */
-export const BACKUP_WARN_DAYS = 7;
-
-/**
- * 纯函数：该不该提醒备份。
- * @returns {null | { level: 'never'|'stale', days: number|null }}
- *   never = 从未导出过；stale = 超过 BACKUP_WARN_DAYS 天未导出；否则 null。
- */
-export function backupReminder(lastExport, today) {
-  if (!/^\d{4}-\d{2}-\d{2}/.test(lastExport || '')) return { level: 'never', days: null };
-  const days = Math.floor((Date.parse(today) - Date.parse(lastExport)) / 86400000);
-  if (!Number.isFinite(days) || days <= BACKUP_WARN_DAYS) return null;
-  return { level: 'stale', days };
-}
+/* ---------- 备份提醒（N1：数据只存在浏览器里，从不提醒导出等于等着丢） ----------
+ * 纯函数 backupReminder / BACKUP_WARN_DAYS 已抽到 src/shared/backup-reminder.js，
+ * 全站顶部横幅与计划页共用同一口径；此处只保留从 shared 的再导出。 */
 
 export const IMPORT_CONFIRM = '用备份覆盖本机全部行程吗？\n确定＝覆盖；取消＝合并（同一行程保留修订号更高的版本）';
 

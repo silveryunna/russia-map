@@ -5,6 +5,8 @@ import './notes2.css';
 import { marked } from 'marked';
 import { hasCheckin, totalVisits } from '../modules/checkin.js';
 import { openVisitRepository } from './visits/repository.js';
+import { showDegradedBanner } from '../shared/degraded-banner.js';
+import { initDataSafety } from '../shared/data-safety.js';
 
 marked.setOptions({ gfm: true, breaks: true });
 
@@ -206,7 +208,8 @@ $app.addEventListener('click', async e => {
     const id = saveBtn.dataset.save;
     const box = $app.querySelector(`[data-editor="${CSS.escape(id)}"]`);
     const get = f => box?.querySelector(`[data-f="${f}"]`)?.value ?? '';
-    checked = await visitRepo.update(id, { last: get('last'), n: get('n'), note: get('note') });
+    try { checked = await visitRepo.update(id, { last: get('last'), n: get('n'), note: get('note') }); }
+    catch { checked = visitRepo.getCheckins(); }
     editing = null;
     render();
     return;
@@ -229,7 +232,7 @@ $app.addEventListener('click', async e => {
 $app.addEventListener('change', async e => {
   const cb = e.target.closest('input[data-check]');
   if (!cb || !visitRepo) return;
-  await visitRepo.toggle(cb.dataset.check);
+  try { await visitRepo.toggle(cb.dataset.check); } catch { /* 存储层已广播配额横幅 */ }
   checked = visitRepo.getCheckins();
   if (editing && editing !== cb.dataset.check) editing = null;
   render();
@@ -251,6 +254,8 @@ $app.addEventListener('change', async e => {
   checked = visitRepo.getCheckins();
   points = pts; meta = mt; notes = idx;
   render();
+  if (repo.degraded) showDegradedBanner('IndexedDB 不可用，打卡改动只会留在内存、刷新即丢；请关闭隐私模式或检查浏览器存储权限');
+  else void initDataSafety({ store: repo.store }).catch(() => {});
 })().catch(err => {
   $app.innerHTML = `<div class="empty">⚠️ 加载失败：${esc(err.message)}</div>`;
 });

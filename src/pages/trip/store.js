@@ -4,6 +4,7 @@
 
 import { TRIP_SCHEMA_VERSION, validateChangeEvent, validateTransitLeg, validateTrip, validateVisit } from './schema.js';
 import { migrateCheckinsToVisits, migratePlansV1 } from './migrate.js';
+import { notifyQuotaExceeded } from '../../shared/storage-health.js';
 
 export const TRIP_DB_NAME = 'travel-trips';
 export const TRIP_DB_VERSION = 2;
@@ -16,6 +17,12 @@ export const META_MIGRATION_REPORT = 'migration:report';
 
 const clone = v => (v === undefined ? v : JSON.parse(JSON.stringify(v)));
 const keyOf = (store, rec) => (store === 'meta' ? rec.k : rec.id);
+// IndexedDB 没有统一的错误类型；配额错误在页面层升级为常驻横幅（shared/top-banner.js）
+const idbFail = (err, fallback) => {
+  const e = err || new Error(fallback);
+  notifyQuotaExceeded(e);
+  return e;
+};
 
 export function createMemoryDriver(seed = {}) {
   const data = Object.fromEntries(TRIP_STORES.map(name => [name, new Map()]));
@@ -76,13 +83,13 @@ export function createIdbDriver(factory = globalThis.indexedDB, dbName = TRIP_DB
     const t = db.transaction(store, mode);
     let req;
     t.oncomplete = () => resolve(req ? req.result : undefined);
-    t.onerror = () => reject(t.error || new Error('IndexedDB 事务失败'));
-    t.onabort = () => reject(t.error || new Error('IndexedDB 事务中止'));
-    try { req = fn(t.objectStore(store)); } catch (err) { try { t.abort(); } catch { /* 已中止 */ } reject(err); }
+    t.onerror = () => reject(idbFail(t.error, 'IndexedDB 事务失败'));
+    t.onabort = () => reject(idbFail(t.error, 'IndexedDB 事务中止'));
+    try { req = fn(t.objectStore(store)); } catch (err) { try { t.abort(); } catch { /* 已中止 */ } reject(idbFail(err, 'IndexedDB 请求失败')); }
   }));
   const request = req => new Promise((resolve, reject) => {
     req.onsuccess = () => resolve(req.result);
-    req.onerror = () => reject(req.error || new Error('IndexedDB 请求失败'));
+    req.onerror = () => reject(idbFail(req.error, 'IndexedDB 请求失败'));
   });
   const transact = (stores, mode, fn) => open().then(db => new Promise((resolve, reject) => {
     const names = Array.isArray(stores) ? stores : [stores];
@@ -96,16 +103,16 @@ export function createIdbDriver(factory = globalThis.indexedDB, dbName = TRIP_DB
     };
     let result;
     t.oncomplete = () => resolve(result);
-    t.onerror = () => reject(t.error || new Error('IndexedDB 事务失败'));
-    t.onabort = () => reject(t.error || new Error('IndexedDB 事务中止'));
+    t.onerror = () => reject(idbFail(t.error, 'IndexedDB 事务失败'));
+    t.onabort = () => reject(idbFail(t.error, 'IndexedDB 事务中止'));
     try {
       Promise.resolve(fn(api)).then(value => { result = value; }, err => {
         try { t.abort(); } catch { /* 已中止 */ }
-        reject(err);
+        reject(idbFail(err, 'IndexedDB 事务失败'));
       });
     } catch (err) {
       try { t.abort(); } catch { /* 已中止 */ }
-      reject(err);
+      reject(idbFail(err, 'IndexedDB 事务失败'));
     }
   }));
   return {

@@ -3,6 +3,7 @@ import './list.css';
 import { renderIcpFooter } from '../shared/icp-footer.js';
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
+import { initDataSafety } from '../shared/data-safety.js';
 
 /* 设计门 L1 · 例外 · Leaflet 的 color/fillColor 会写进 SVG 属性，CSS 变量不解析 · 与 --city-other 同值，改令牌要同步这里 */
 const CITY_FALLBACK = '#546570';
@@ -156,7 +157,7 @@ app.addEventListener('input', (e) => {
 app.addEventListener('change', async (e) => {
   const id = e.target.dataset?.check;
   if (!id || !visitRepo) return;
-  await visitRepo.toggle(id);
+  try { await visitRepo.toggle(id); } catch { /* 存储层已广播配额横幅，这里只回读事实状态 */ }
   state.checked = new Set(Object.keys(visitRepo.getCheckins()));
   render();
 });
@@ -193,6 +194,7 @@ async function main() {
   ]);
   state.checked = new Set(Object.keys(visitRepo.getCheckins()));
   if (visitRepo.degraded) showDegradedBanner('IndexedDB 不可用，打卡改动只会留在内存、刷新即丢；请关闭隐私模式或检查浏览器存储权限');
+  else void initDataSafety({ store: visitRepo.store }).catch(() => {});
   render();
 }
 

@@ -91,7 +91,7 @@ self.addEventListener('fetch', (event) => {
         const res = await fetch(req, { cache: 'no-cache' });
         if (res.ok) {
           const cache = await caches.open(SHELL_CACHE);
-          cache.put(req.url, res.clone());
+          void cache.put(req.url, res.clone()).catch(() => {}); // 配额已满时不影响本次网络响应
         }
         return res;
       } catch (e) {
@@ -114,7 +114,7 @@ self.addEventListener('fetch', (event) => {
         const res = await fetch(url, { mode: 'no-cors' });
         if (res && (res.ok || res.type === 'opaque')) {
           const cache = await caches.open(RUNTIME_CACHE);
-          cache.put(url, res.clone()).then(() => trimCache(RUNTIME_CACHE, TILE_CACHE_MAX));
+          void cache.put(url, res.clone()).then(() => trimCache(RUNTIME_CACHE, TILE_CACHE_MAX)).catch(() => {});
         }
         return res;
       } catch (e) {
@@ -133,7 +133,7 @@ self.addEventListener('fetch', (event) => {
         const res = await fetch(req, { cache: 'no-cache' });
         if (res.ok && !isApi) {
           const cache = await caches.open(SHELL_CACHE);
-          cache.put(req, res.clone());
+          void cache.put(req, res.clone()).catch(() => {}); // 配额已满时不影响本次网络响应
         }
         return res;
       } catch (e) {

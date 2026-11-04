@@ -24,6 +24,7 @@ import { initLayers, countryOf, sortCities, COUNTRY_STYLE } from './map/layers.j
 const CITY_FALLBACK = '#546570';
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
+import { initDataSafety } from '../shared/data-safety.js';
 
 // 兼容只认全局 L 的老插件（leaflet.markercluster 的 UMD 内部引用自由变量 L）
 window.L = L;
@@ -945,7 +946,7 @@ function bindEvents() {
   body.addEventListener('change', async (e) => {
     const id = e.target.dataset?.check;
     if (!id || !visitRepo) return;
-    await visitRepo.toggle(id);
+    try { await visitRepo.toggle(id); } catch { /* 存储层已广播配额横幅，这里只回读事实状态 */ }
     state.checked = new Set(Object.keys(visitRepo.getCheckins()));
     refreshMarkers(); renderSidebar(); renderChrome();
   });
@@ -1057,6 +1058,7 @@ async function main() {
   ]);
   state.checked = new Set(Object.keys(visitRepo.getCheckins()));
   if (visitRepo.degraded) showDegradedBanner('IndexedDB 不可用，打卡改动只会留在内存、刷新即丢；请关闭隐私模式或检查浏览器存储权限');
+  else void initDataSafety({ store: visitRepo.store }).catch(() => {});
   window.__overlaysData__ = overlays || [];
   pointByName = new Map(points.map(p => [p.name, p]));
   pointById = new Map(points.map(p => [p.id, p]));

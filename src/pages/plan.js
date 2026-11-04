@@ -19,6 +19,7 @@ import {
   shortDate, snap5, sourceLabel, weekday,
 } from './plan/format.js';
 import { createAIClient } from './plan/ai.js';
+import { initDataSafety } from '../shared/data-safety.js';
 import { download, exportBackup as writeBackup, exportMarkdown, importBackup as readBackup, backupReminder } from './plan/io.js';
 import { renderTripList } from './plan/list.js';
 import { renderCreateForm, runGenerate } from './plan/generate.js';
@@ -833,7 +834,13 @@ async function logChange(kind, before, after) {
 }
 
 async function persistTrip(next) {
-  const r = await store.saveTrip(next);
+  let r;
+  try {
+    r = await store.saveTrip(next);
+  } catch (err) {
+    toast('保存失败：' + ((err && err.message) || '浏览器存储不可用'));
+    return false;
+  }
   if (!r.ok) {
     toast('保存失败：' + ((r.errors && r.errors[0] && r.errors[0].message) || '数据未通过校验'));
     return false;
@@ -894,6 +901,7 @@ const exportBackup = () => writeBackup({
   afterExport: async () => {
     backupLast = localToday();
     await store.setMeta('backup:lastExportAt', backupLast).catch(() => {});
+    render(); // 让页内备份提醒立刻消失，而不是等下一次编辑
   },
 });
 
@@ -971,6 +979,7 @@ async function runMigration() {
   backupLast = String(await store.getMeta('backup:lastExportAt').catch(() => '')) || '';
   await runMigration();
   await refreshTrips();
+  if (!storeWarn) void initDataSafety({ store, showBackup: false }).catch(() => {});
   render();
 })().catch(err => {
   $app.innerHTML = `<div class="pl-empty">⚠️ 加载失败：${esc(err.message)}</div>`;

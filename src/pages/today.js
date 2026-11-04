@@ -4,6 +4,7 @@ import '../shared/base.css';
 import './today.css';
 import { renderIcpFooter } from '../shared/icp-footer.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
+import { initDataSafety } from '../shared/data-safety.js';
 import {
   completeItem, dayExecution, executionReport, nearestDay, recordArrival, skipItem, verificationTasks,
 } from './trip/execution.js';
@@ -304,7 +305,13 @@ async function reloadTrip() {
 
 async function applyExecution(result, okMessage) {
   if (!result.ok) { toast(result.error || '操作失败'); return false; }
-  const r = await store.applyExecution({ trip: result.trip, visit: result.visit || null, event: result.event || null, leg: result.leg || null });
+  let r;
+  try {
+    r = await store.applyExecution({ trip: result.trip, visit: result.visit || null, event: result.event || null, leg: result.leg || null });
+  } catch (err) {
+    toast('保存失败：' + ((err && err.message) || '浏览器存储不可用'));
+    return false;
+  }
   if (!r.ok) {
     if (r.code === 'revision-conflict') { toast('行程已在别处更新，已刷新'); await reloadTrip(); }
     else toast('保存失败：' + ((r.errors && r.errors[0] && r.errors[0].message) || '未知错误'));
@@ -424,6 +431,7 @@ async function openDefault() {
     store = await openTripStore({ driver: createMemoryDriver() });
     storeWarn = 'IndexedDB 不可用，本次会话的改动不会被保存';
   }
+  if (!storeWarn) void initDataSafety({ store }).catch(() => {});
   store.subscribe(change => {
     if (change.origin === store.clientId) return;
     if (change.area === 'trips' || change.area === 'visits' || change.area === 'events' || change.area === 'legs' || change.area === 'execution' || change.area === 'import') {
