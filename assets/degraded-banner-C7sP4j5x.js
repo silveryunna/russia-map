@@ -1,0 +1,1 @@
+import{i as e}from"./data-safety-LICfpApa.js";function t(t){e({id:`degraded-banner`,message:`⚠️ ${t}`,tone:`danger`})}export{t};
