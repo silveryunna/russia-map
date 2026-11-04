@@ -1,0 +1,1 @@
+import{n as e}from"./sw-register-CGfnD3s9.js";function t(t){e({id:`degraded-banner`,message:`⚠️ ${t}`,tone:`danger`})}export{t};

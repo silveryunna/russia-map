@@ -4,7 +4,7 @@
 //
 // 【更新发布流程】VERSION 由 tools/publish.mjs 在构建期自动注入当前 git short sha（tn-v<sha>），
 // 不要手改——手改也会在下次 publish 时被覆盖。用户打开页面时 SW 检测到新值即自动刷新缓存。
-const VERSION = 'tn-v7c489de';
+const VERSION = 'tn-vec4767f';
 const SHELL_CACHE = 'tn-shell-' + VERSION;
 const RUNTIME_CACHE = 'tn-runtime-' + VERSION;
 const PHOTO_CACHE = 'tn-photos';       // 照片跨版本保留（审计 P1-2：更新不再清空离线相册）
