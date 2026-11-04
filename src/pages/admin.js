@@ -3,10 +3,8 @@ import './admin.css';
 import '../shared/leaflet-default-icon.js';
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { marked } from 'marked';
+import { renderMarkdown } from '../shared/markdown.js';
 import { registerSW } from '../shared/sw-register.js';
-
-marked.setOptions({ gfm: true, breaks: true });
 
 // ===== 管理后台（仅站长使用，不公开链接）=====
 // 编辑内容 → 标记变更 → 底部导出变更文件 → 发给 Kimi 完成发布
@@ -414,7 +412,7 @@ function render() {
 function updatePreview() {
   const ta = document.getElementById('nt-body');
   const pv = document.getElementById('nt-preview');
-  if (ta && pv) pv.innerHTML = marked.parse(ta.value);
+  if (ta && pv) pv.innerHTML = renderMarkdown(ta.value);
 }
 
 // ===== 事件 =====

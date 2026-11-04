@@ -1,14 +1,12 @@
 import '../shared/base.css';
 import './notes.css';
-import { marked } from 'marked';
+import { renderMarkdown } from '../shared/markdown.js';
 import { renderIcpFooter } from '../shared/icp-footer.js';
 
 // ===== 旅行笔记页：Markdown 博客，内容在 content/notes/（个人直接改文件即可更新）=====
 
 const app = document.getElementById('notes-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-
-marked.setOptions({ gfm: true, breaks: true });
 
 // 解析 --- front matter ---
 function parseMd(raw) {
@@ -22,7 +20,7 @@ function parseMd(raw) {
       if (kv) meta[kv[1].trim()] = kv[2].trim();
     }
   }
-  return { meta, html: marked.parse(body) };
+  return { meta, html: renderMarkdown(body) };
 }
 
 let index = [];      // index.json：[{ file, title, date, summary }]

@@ -2,14 +2,12 @@ import '../shared/base.css';
 import './notes2.css';
 // 旅行笔记 v2：足迹仪表盘 + 打卡清单 + 笔记（打卡状态 v2：次数/日期/感想）
 
-import { marked } from 'marked';
+import { renderMarkdown } from '../shared/markdown.js';
 import { hasCheckin, totalVisits } from '../modules/checkin.js';
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
 import { initDataSafety } from '../shared/data-safety.js';
 import { registerSW } from '../shared/sw-register.js';
-
-marked.setOptions({ gfm: true, breaks: true });
 
 const $app = document.getElementById('notes-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -146,7 +144,7 @@ function parseMd(raw) {
       if (kv) meta[kv[1].trim()] = kv[2].trim();
     }
   }
-  return { meta, html: marked.parse(body) };
+  return { meta, html: renderMarkdown(body) };
 }
 
 function notesHTML() {
@@ -186,9 +184,11 @@ function render() {
       body.dataset.loaded = '1';
       fetch(`./content/notes/${encodeURIComponent(openNote)}.md`).then(r => r.text()).then(raw => {
         const { meta, html } = parseMd(raw);
-        // 图片优雅降级：懒加载 + 加载失败隐藏（避免破图）
-        const safeHtml = html.replace(/<img\s/gi, '<img loading="lazy" onerror="this.style.display=\'none\'" ');
-        body.innerHTML = `<div class="md">${safeHtml}</div><div class="note-meta">${esc(meta.location || '')}</div>`;
+        body.innerHTML = `<div class="md">${html}</div><div class="note-meta">${esc(meta.location || '')}</div>`;
+        // 图片优雅降级：懒加载 + 加载失败隐藏（避免破图）；事件监听而不是内联 onerror，CSP 不放行内联脚本
+        body.querySelectorAll('.md img').forEach(img => {
+          img.addEventListener('error', () => { img.style.display = 'none'; }, { once: true });
+        });
       });
     }
   }
