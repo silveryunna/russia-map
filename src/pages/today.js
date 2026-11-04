@@ -5,6 +5,7 @@ import './today.css';
 import { renderIcpFooter } from '../shared/icp-footer.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
 import { initDataSafety } from '../shared/data-safety.js';
+import { registerSW } from '../shared/sw-register.js';
 import {
   completeItem, dayExecution, executionReport, nearestDay, recordArrival, skipItem, verificationTasks,
 } from './trip/execution.js';
@@ -446,3 +447,5 @@ async function openDefault() {
 });
 
 window.addEventListener('beforeunload', () => { if (clockTimer) clearInterval(clockTimer); });
+
+registerSW();

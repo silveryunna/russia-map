@@ -4,6 +4,7 @@ import '../shared/leaflet-default-icon.js';
 import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { marked } from 'marked';
+import { registerSW } from '../shared/sw-register.js';
 
 marked.setOptions({ gfm: true, breaks: true });
 
@@ -491,3 +492,5 @@ loadAll().then(render).catch(err => {
   console.error(err);
   app.textContent = '⚠️ 加载失败，请刷新重试';
 });
+
+registerSW();

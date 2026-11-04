@@ -7,6 +7,7 @@ import { hasCheckin, totalVisits } from '../modules/checkin.js';
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
 import { initDataSafety } from '../shared/data-safety.js';
+import { registerSW } from '../shared/sw-register.js';
 
 marked.setOptions({ gfm: true, breaks: true });
 
@@ -259,3 +260,5 @@ $app.addEventListener('change', async e => {
 })().catch(err => {
   $app.innerHTML = `<div class="empty">⚠️ 加载失败：${esc(err.message)}</div>`;
 });
+
+registerSW();

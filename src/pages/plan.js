@@ -10,6 +10,7 @@ import { suggestAlternatives } from './plan/alternatives.js';
 import { optimizeDayOrder } from './plan/solver.js';
 import { currencySymbol, taxiFareFor } from './plan/fare-table.js';
 import { loadPlans } from './plan/store.js';
+import { registerSW } from '../shared/sw-register.js';
 import { loadCheckins } from '../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
 import { createChangeEvent, tripItemCount } from './trip/schema.js';
@@ -984,3 +985,5 @@ async function runMigration() {
 })().catch(err => {
   $app.innerHTML = `<div class="pl-empty">⚠️ 加载失败：${esc(err.message)}</div>`;
 });
+
+registerSW();
