@@ -139,7 +139,7 @@
 .tl-bound b { position: absolute; right: 6px; top: -8px; background: #FCFAF5; padding-left: 4px; font-size: 10px; font-weight: 600; }
 .tl-bound.start b { color: #4F7A4F; }
 .tl-bound.end b { color: #B13B3B; }
-.tl-overrun { position: absolute; left: 44px; right: 0; z-index: 0; background: repeating-linear-gradient(135deg, #FDF1F0 0 8px, #FBEBEA 8px 16px); border-radius: 4px; pointer-events: none; }
+.tl-overrun { position: absolute; left: 44px; right: 0; z-index: 0; background: color-mix(in srgb, var(--danger) 9%, var(--surface)); border: 1px dashed var(--danger); border-radius: 4px; pointer-events: none; }
 .tl-leg { position: absolute; left: 58px; font-size: 9px; pointer-events: none; z-index: 3; }
 .tl-leg span { background: #F1EDE3; border-radius: 999px; padding: 1px 6px; white-space: nowrap; color: #8A8272; font-variant-numeric: tabular-nums; }
 .tl-wait { position: absolute; left: 46px; right: 12px; font-size: 10px; color: #B0A897; display: flex; align-items: center; pointer-events: none; margin-left: 12px; padding-left: 8px; z-index: 3; }

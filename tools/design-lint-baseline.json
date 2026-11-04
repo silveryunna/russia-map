@@ -1,5 +1,5 @@
 {
- "updatedAt": "2026-11-03",
+ "updatedAt": "2026-11-04",
  "files": {
   "src/pages/admin.css": {
    "L7": 28,
@@ -11,7 +11,8 @@
    "L7": 8,
    "L1": 7,
    "L2": 6,
-   "L6": 1
+   "L6": 1,
+   "V1": 1
   },
   "src/pages/friend.css": {
    "L7": 34,
@@ -49,7 +50,7 @@
   },
   "src/pages/plan.css": {
    "L7": 75,
-   "L1": 95,
+   "L1": 94,
    "L2": 16,
    "L6": 23,
    "L3": 1
@@ -63,37 +64,97 @@
    "L7": 3
   },
   "src/pages/account.js": {
-   "L1JS": 1
+   "L1JS": 1,
+   "V1": 25
   },
   "src/pages/map/icons.js": {
-   "L1JS": 9
+   "L1JS": 9,
+   "V1": 6
   },
   "src/pages/map/layers.js": {
-   "L1JS": 6
+   "L1JS": 6,
+   "V1": 4
   },
   "src/pages/map/overlays.js": {
    "L1JS": 1
   },
   "src/pages/map/ratings.js": {
-   "L1JS": 13
+   "L1JS": 13,
+   "V1": 9
   },
   "src/pages/map-annotations.js": {
-   "L1JS": 15
+   "L1JS": 15,
+   "V1": 14
   },
   "src/pages/map.js": {
-   "L1JS": 37
+   "L1JS": 37,
+   "V1": 24
   },
   "src/pages/notes2.js": {
-   "L1JS": 2
+   "L1JS": 2,
+   "V1": 5
   },
   "src/pages/plan/timeline.js": {
-   "L1JS": 4
+   "L1JS": 4,
+   "V1": 2
   },
   "src/pages/plan.js": {
+   "L1JS": 2,
+   "V1": 37
+  },
+  "src/shared/undo-toast.js": {
    "L1JS": 2
   },
+  "src/pages/admin.js": {
+   "V1": 13
+  },
+  "src/pages/album.js": {
+   "V1": 3
+  },
+  "src/pages/friend.js": {
+   "V1": 16
+  },
+  "src/pages/list.js": {
+   "V1": 4
+  },
+  "src/pages/notes.js": {
+   "V1": 5
+  },
+  "src/pages/plan/ai.js": {
+   "V1": 4
+  },
+  "src/pages/plan/generate.js": {
+   "V1": 4
+  },
+  "src/pages/plan/io.js": {
+   "V1": 2
+  },
+  "src/pages/plan/list.js": {
+   "V1": 2
+  },
+  "src/pages/today.js": {
+   "V1": 32
+  },
+  "src/pages/trip/offline.js": {
+   "V1": 5
+  },
+  "src/shared/ai-key-status.js": {
+   "V1": 2
+  },
+  "src/shared/data-safety.js": {
+   "V1": 4
+  },
   "src/shared/degraded-banner.js": {
-   "L1JS": 1
+   "V1": 1
+  },
+  "src/shared/report.js": {
+   "V1": 2
+  },
+  "src/shared/share.js": {
+   "V1": 3
+  },
+  "src/shared/sw-register.js": {
+   "V1": 2
   }
  }
 }

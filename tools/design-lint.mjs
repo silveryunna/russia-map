@@ -143,10 +143,27 @@ for (const file of jsFiles) {
   });
 }
 
+// ===== V1/V2/V3 反 AI 默认审美（2026-11-04 从试衣间自检指标转为可执行棘轮，复用本门，不新增独立门）=====
+// V1 emoji 当图标：DESIGN.md §7.3 允许地图标记/首页入口保留，但界面操作图标应为内联 SVG，故只棘轮不归零
+// V2 渐变：纸色 + 朱红体系不用渐变；唯一的超时斜纹已改为令牌色 + 虚线边框
+// V3 Inter：过劳西文字体，本项目只用系统字体栈（CSP 亦禁止网络字体）
+const EMOJI_RE = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\u{FE0F}]/u;
+const GRAD_RE = /(?:repeating-)?(?:linear|radial|conic)-gradient\s*\(/;
+const OVER_FONT_RE = /\bInter\b/;
+for (const file of [...new Set([...cssFiles, ...jsFiles])]) {
+  const lines = readFileSync(file, 'utf8').split('\n');
+  lines.forEach((line, i) => {
+    if (/^\s*(\/\/|\*|\/\*)/.test(line)) return;   // 注释与文档行不计
+    if (EMOJI_RE.test(line)) add(file, 'V1', i + 1, line);
+    if (GRAD_RE.test(line)) add(file, 'V2', i + 1, line);
+    if (OVER_FONT_RE.test(line)) add(file, 'V3', i + 1, line);
+  });
+}
+
 // 棘轮：与 baseline 比较，只准降不准升
 let baseline = {};
 try { baseline = JSON.parse(readFileSync(resolve(root, BASELINE_FILE), 'utf8')); } catch { baseline = {}; }
-const RULES = ['L1', 'L2', 'L3', 'L6', 'L7', 'L1JS'];
+const RULES = ['L1', 'L2', 'L3', 'L6', 'L7', 'L1JS', 'V1', 'V2', 'V3'];
 let regressed = 0, improved = 0;
 const summary = [];
 for (const rel of Object.keys({ ...baseline, ...findings }).sort()) {
