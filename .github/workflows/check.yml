@@ -110,12 +110,6 @@ jobs:
       - name: 文档事实检查
         run: node tools/check-doc-facts.mjs
 
-      # 2.91) Markdown 安全渲染 + sitemap 同步（2026-11-04 审计 P2-5/P2-8）
-      - name: Markdown 安全 / sitemap
-        run: |
-          node tools/test-markdown.mjs
-          node tools/gen-sitemap.mjs --check
-
       # 2.92) 审计快照 + API 安全契约 + 产物体积预算（2026-11-03 复核审计新增）
       - name: 审计快照 / API 契约 / 体积预算
         run: |
@@ -145,6 +139,13 @@ jobs:
         run: |
           npm ci
           node tools/check-build-sync.mjs
+
+      # 3.6) Markdown 安全渲染 + sitemap 同步（2026-11-04 审计 P2-5/P2-8）
+      #      必须放在 npm ci 之后：test-markdown 要 import 运行时依赖 marked
+      - name: Markdown 安全 / sitemap
+        run: |
+          node tools/test-markdown.mjs
+          node tools/gen-sitemap.mjs --check
 
       # 4) assets/*.js 变更必须同提交改 sw.js（VERSION 随 publish 自动注入新 sha，
       #    保证 SW 激活清旧缓存）。P4 起产物为哈希文件名，旧的 ?v= 具名规则已废除。
