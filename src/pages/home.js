@@ -1,6 +1,8 @@
 import '../shared/base.css';
 import './home.css';
 import { renderIcpFooter } from '../shared/icp-footer.js';
+import { loadRegions, visiblePoints, regionStats } from '../shared/regions.js';
+import { openVisitRepository } from './visits/repository.js';
 
 // 导航页：从数据文件读取统计信息，填充卡片副标题
 async function loadStats() {
@@ -21,22 +23,33 @@ async function loadStats() {
   } catch { /* 数据不可用时保持页面默认文案 */ }
 
   try {
-    const points = await (await fetch('./data/points.json')).json();
+    const [all, regionIndex, checkins] = await Promise.all([
+      fetch('./data/points.json').then(r => r.json()),
+      loadRegions(),
+      openVisitRepository().then(repo => repo.getCheckins()).catch(() => ({})),
+    ]);
+    // 关闭板块不计入统计；配置缺失时单板块降级，统计口径与原来一致
+    const points = visiblePoints(all, regionIndex);
     const pending = points.filter(p => p.pending).length;
     const cities = new Set(points.map(p => p.city)).size;
     set('stat-list', `${points.length} 个点位 · ${cities} 个城市`);
     set('stat-map', pending ? `${points.length} 个点位（${pending} 个待核坐标）` : `${points.length} 个点位`);
+
+    // 板块级统计（与列表页共用 regionStats，口径一致）
+    const checked = new Set(Object.keys(checkins || {}));
+    const stats = regionStats(points, regionIndex, id => checked.has(id));
+    const grid = document.querySelector('.home-grid');
+    if (stats.length > 1 && grid && !document.getElementById('home-regions')) {
+      const bar = document.createElement('div');
+      bar.id = 'home-regions';
+      bar.className = 'home-regions';
+      bar.innerHTML = `<span class="hr-title">板块</span>${stats.map(s => `
+        <a class="hr-item" href="./list.html" title="在打卡清单中查看 ${s.name}">
+          <b>${s.name}</b><span>${s.total} 个 · 已打卡 ${s.checked} · ${s.coverage}%</span>
+        </a>`).join('')}`;
+      grid.insertAdjacentElement('beforebegin', bar);
+    }
   } catch { /* 数据不可用时保持默认文案 */ }
-
-  try {
-    const notes = await (await fetch('./content/notes/index.json')).json();
-    if (notes.length) set('stat-notes', `${notes.length} 篇笔记`);
-  } catch { /* 同上 */ }
-
-  try {
-    const photos = await (await fetch('./photos/index.json')).json();
-    if (photos.length) set('stat-album', `${photos.length} 张照片`);
-  } catch { /* 同上 */ }
 }
 
 loadStats();

@@ -5,6 +5,7 @@ import {
   CITY_TIME_ZONES, indexPlaces, migrateCheckinsToVisits, migratePlansV1, resolvePlaceName,
 } from '../src/pages/trip/migrate.js';
 import { validateTrip } from '../src/pages/trip/schema.js';
+import { evaluateDay } from '../src/pages/plan/feasibility.js';
 
 let bad = 0;
 const fail = (m) => { console.error('❌ ' + m); bad++; };
@@ -14,10 +15,10 @@ let seq = 0;
 const idFn = (p) => `${p}${++seq}`;
 
 const points = [
-  { id: 'p1', name: '红场', city: '莫斯科' },
-  { id: 'p2', name: '圣瓦西里大教堂', city: '莫斯科' },
-  { id: 'p3', name: '同名点', city: '莫斯科' },
-  { id: 'p4', name: '同名点', city: '莫斯科' },
+  { id: 'p1', name: '红场', city: '莫斯科', lat: 55.75, lon: 37.62, estimatedDuration: 60 },
+  { id: 'p2', name: '圣瓦西里大教堂', city: '莫斯科', lat: 55.752, lon: 37.623, estimatedDuration: 60 },
+  { id: 'p3', name: '同名点', city: '莫斯科', lat: 55.754, lon: 37.625, estimatedDuration: 60 },
+  { id: 'p4', name: '同名点', city: '莫斯科', lat: 55.756, lon: 37.627, estimatedDuration: 60 },
 ];
 
 // 1) 名称索引与解析
@@ -154,6 +155,32 @@ const points = [
   const missing = expected.filter(c => !CITY_TIME_ZONES[c]);
   if (!missing.length) ok('主要城市时区表齐全');
   else fail('时区表缺：' + missing.join('、'));
+}
+
+// 6) 旧行程迁移后仍可排程；无 region 的旧点位不会被误标"跨板块长途"（P1-4 兼容）
+{
+  const plan = {
+    id: 'legacy', name: '老行程', city: '莫斯科', date: '', days: [
+      { day: 1, slots: { morning: ['红场'], afternoon: ['圣瓦西里大教堂'], evening: [] }, tip: '' },
+    ],
+  };
+  const r = migratePlansV1({ plans: [plan], points, idFn, now: 1 });
+  const t = r.trips[0];
+  if (!t) { fail('旧行程迁移失败'); }
+  else {
+    const v = validateTrip(t);
+    if (v.ok) ok('旧行程迁移后仍通过 Trip v2 校验');
+    else fail('旧行程迁移后校验失败：' + JSON.stringify(v.errors));
+
+    const placesMap = new Map(points.map(p => [p.id, p]));
+    const res = evaluateDay({ day: t.days[0], items: t.days[0].items, places: placesMap });
+    if (res.timeline.length === 2 && res.unmodeledLegs.length === 0
+      && !res.conflicts.some(c => c.kind === 'cross-region-unmodeled')) {
+      ok('旧行程迁移后仍可评估，且不会误标长途未建模');
+    } else {
+      fail('旧行程评估异常：' + JSON.stringify({ t: res.timeline.length, u: res.unmodeledLegs.length }));
+    }
+  }
 }
 
 if (bad) { console.error(`\n${bad} 项迁移测试失败`); process.exit(1); }

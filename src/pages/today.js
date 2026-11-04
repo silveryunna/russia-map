@@ -12,6 +12,7 @@ import {
 import { pointDigest, tripChecklistMarkdown, tripToGeoJSON, tripToGPX, tripToKML } from './trip/offline.js';
 import { indexTransitMatrix } from './plan/transit-matrix.js';
 import { formatMinutesCrossDay } from './plan/feasibility.js';
+import { loadRegions, isPointVisible } from '../shared/regions.js';
 
 const $app = document.getElementById('today-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -30,6 +31,7 @@ const STRUCT_LABEL = {
   empty: '今天没有排程条目',
   feasible: '✅ 结构可行，证据充分',
   conditional: '⚠️ 条件式可排（仍有待核事实或估算段）',
+  unmodeled: '⚠️ 含长途未建模段（需自行安排航班/长距离交通）',
   infeasible: '⛔ 存在硬冲突，建议回编辑器调整',
 };
 const KIND_ICON = {
@@ -40,6 +42,7 @@ const KIND_ICON = {
 let store = null;
 let storeWarn = '';
 let pointsById = new Map();
+let regionIndex = null;  // 板块开关：已存在行程条目保留，只做提示；不允许新增隐藏板块点位
 let matrix = null;
 let trips = [];
 let current = null;
@@ -62,8 +65,36 @@ function toast(msg) {
   toast._t = setTimeout(() => el.classList.remove('show'), 2200);
 }
 
+// 跨日跨板块：今天从别的板块进入时，只标"长途未建模"，不编造时长（与计划页同一口径）
+function dayRegionOf(d) {
+  if (!d) return '';
+  for (const it of d.items) {
+    if (it.type === 'note' || it.type === 'task' || it.plannedStatus === 'skipped') continue;
+    const p = it.refId ? pointsById.get(it.refId) : null;
+    if (p && typeof p.region === 'string' && p.region) return p.region;
+  }
+  return '';
+}
+function entryRegionFor(i) {
+  const cur = dayRegionOf(current.days[i]);
+  if (!cur) return '';
+  for (let k = i - 1; k >= 0; k -= 1) {
+    const prev = dayRegionOf(current.days[k]);
+    if (prev) return prev === cur ? '' : prev;
+  }
+  return '';
+}
+
 function evalOptions(day) {
-  return { start: day.startTime, end: day.endTime, transportMode: day.transportMode || 'transit', matrix };
+  return {
+    start: day.startTime, end: day.endTime, transportMode: day.transportMode || 'transit', matrix,
+    entryRegion: entryRegionFor(dayIndex), regionNames: regionNamesMap(),
+  };
+}
+function regionNamesMap() {
+  const out = {};
+  if (regionIndex && regionIndex.byId) for (const [id, r] of regionIndex.byId) out[id] = r.name || id;
+  return out;
 }
 
 function executionState() {
@@ -91,8 +122,11 @@ const rowName = row => (pointOf(row)?.name) || row.item?.placeNameSnapshot || ro
 function rowFlags(row) {
   const flags = [];
   if (row.calendar === 'unknown' && row.placeId) flags.push('<span class="td-flag unknown">开放时间待核</span>');
+  if (row.unmodeled) flags.push('<span class="td-flag estimate">✈️ 长途未建模（需自行安排航班/长距离交通）</span>');
   if (row.transitSourceKind === 'model-estimate' && row.transitMinutes > 0) flags.push('<span class="td-flag estimate">交通为估算</span>');
   if (row.transitSourceKind === 'third-party-route') flags.push('<span class="td-flag">第三方路线</span>');
+  const pt = row.placeId ? pointsById.get(row.placeId) : null;
+  if (pt && !isPointVisible(pt, regionIndex)) flags.push('<span class="td-flag">⛔ 该点位所在板块已隐藏</span>');
   return flags.join('');
 }
 
@@ -102,7 +136,7 @@ function render() {
   const { day, state } = executionState();
   const { rows, current: cur, next, bufferMinutes, progress, result } = state;
   const structural = result.structural;
-  const verdictCls = structural === 'infeasible' ? 'is-bad' : structural === 'conditional' ? 'is-warn' : '';
+  const verdictCls = structural === 'infeasible' ? 'is-bad' : structural === 'conditional' || structural === 'unmodeled' ? 'is-warn' : '';
 
   const nowRow = cur || next;
   const bufferHtml = Number.isFinite(bufferMinutes)
@@ -369,6 +403,7 @@ async function doDownload(kind) {
   if (!current) return;
   const stamp = localToday();
   const opts = { options: evalOptions(current.days[dayIndex] || {}) };
+  // 板块开关策略：导出保留行程中已存在的条目（即使其板块已隐藏），不静默删除；隐藏状态只在 UI 标注
   const tasks = verificationTasks(current, pointsById, { today: stamp });
   if (kind === 'json') {
     const payload = await store.exportAll();
@@ -418,10 +453,12 @@ async function openDefault() {
 }
 
 (async () => {
-  const [pts, trs] = await Promise.all([
+  const [pts, trs, regions] = await Promise.all([
     fetch('./data/points.json').then(r => r.json()),
     fetch('./data/transit-matrix.json').then(r => (r.ok ? r.json() : null)).catch(() => null),
+    loadRegions(),
   ]);
+  regionIndex = regions;
   const list = Array.isArray(pts) ? pts : (pts.points || []);
   pointsById = new Map(list.map(p => [p.id, p]));
   matrix = indexTransitMatrix(trs);

@@ -7,6 +7,7 @@ import {
 } from '../src/pages/plan/feasibility.js';
 import { indexTransitMatrix } from '../src/pages/plan/transit-matrix.js';
 import { indexFacts } from '../src/pages/plan/facts.js';
+import { buildDayRail } from '../src/pages/plan/timeline.js';
 
 let bad = 0;
 const fail = (m) => { console.error('❌ ' + m); bad++; };
@@ -548,6 +549,76 @@ const it = (id, refId, extra = {}) => ({
   const r = evaluateDay({ day: { date: '2026-11-10' }, items: [], places });
   assert(r.empty === true && r.feasible === false, '空行程不算可行（避免"看起来成功"）');
   assert(DEFAULT_DAY.start === '09:00' && DEFAULT_DAY.end === '21:00', '默认时间窗 09:00–21:00');
+}
+
+// ── 11) 跨板块长途：标"未建模"、不计时长、结论降权（P1-4） ──
+{
+  const mk = (id, name, lat, lon, region, extra = {}) => P(id, name, lat, lon, {
+    region, estimatedDuration: 60, openCalendar: { alwaysOpen: true }, ...extra,
+  });
+  const crossPlaces = new Map([
+    ['r1', mk('r1', '莫斯科点', 55.75, 37.62, 'ru')],
+    ['k1', mk('k1', '阿拉木图点', 43.24, 76.89, 'kz')],
+    ['g1', mk('g1', '第比利斯点', 41.69, 44.80, 'ge')],
+    ['r2', mk('r2', '莫斯科点 2', 55.76, 37.63, 'ru')],
+    ['r3', mk('r3', '莫斯科点 3', 55.77, 37.64, 'ru')],
+  ]);
+  const leg = estimateLeg(crossPlaces.get('r1'), crossPlaces.get('k1'));
+  assert(leg && leg.unmodeled === true && leg.minutes === 0 && leg.sourceKind === 'unmodeled-long-haul'
+    && leg.label.includes('长途未建模（需自行安排航班/长距离交通）'), '跨板块段 estimateLeg 返回未建模（0 分钟）');
+
+  const trip = evaluateDay({
+    day: { date: '2026-11-10' },
+    items: [it('c1', 'r1'), it('c2', 'k1')],
+    places: crossPlaces,
+  });
+  const c = trip.conflicts.find((x) => x.kind === 'cross-region-unmodeled');
+  assert(trip.unmodeledLegs.length === 1 && trip.unmodeledLegs[0].fromRegion === 'ru' && trip.unmodeledLegs[0].toRegion === 'kz'
+    && trip.unmodeledLegs[0].scope === 'day-leg', '跨板块段被记录为未建模段（无方向误判）');
+  assert(c && c.severity === 'warn' && c.message.includes('长途未建模（需自行安排航班/长距离交通）'),
+    '跨板块行程必有「长途未建模」标注，且不是硬冲突');
+  assert(trip.timeline[1].unmodeled === true && trip.timeline[1].transitMinutes === 0 && trip.timeline[1].mode === 'unmodeled',
+    '跨板块段不计时长、时间轴标记未建模');
+  assert(trip.stats.transitMinutes === 0 && trip.stats.unmodeledLegs === 1, '未建模分钟不计入通行/总时长');
+  assert(trip.structural === 'unmodeled' && trip.feasible === null, '含未建模段时结论降权为"无法自动判定"（不报可行也不报不可行）');
+  assert(trip.errors.length === 0, '跨板块本身不产生硬错误');
+
+  const rail = buildDayRail({ result: trip, day: { startTime: '09:00', endTime: '21:00' }, items: [it('c1', 'r1'), it('c2', 'k1')] });
+  const ul = rail.legs.find((l) => l.unmodeled);
+  assert(ul && ul.label.includes('长途未建模') && ul.detail.includes('航班/长距离交通'), '时间轴轨道显示长途未建模段');
+
+  const cross3 = evaluateDay({
+    day: { date: '2026-11-11' },
+    items: [it('d1', 'k1'), it('d2', 'g1')],
+    places: crossPlaces,
+    options: { entryRegion: 'ru' },
+  });
+  assert(cross3.unmodeledLegs.length === 2 && cross3.unmodeledLegs.some((x) => x.scope === 'day-entry')
+    && cross3.timeline[0].unmodeled === true, '跨日进入另一个板块同样标未建模（ru+kz+ge 串联有 2 段）');
+
+  const entrySame = evaluateDay({
+    day: { date: '2026-11-12' },
+    items: [it('e1', 'r2')],
+    places: crossPlaces,
+    options: { entryRegion: 'ru' },
+  });
+  assert(entrySame.unmodeledLegs.length === 0 && entrySame.structural !== 'unmodeled', '同板块进入不产生长途标注');
+
+  const single = evaluateDay({
+    day: { date: '2026-11-13' },
+    items: [it('s1', 'r2'), it('s2', 'r3')],
+    places: crossPlaces,
+  });
+  assert(single.unmodeledLegs.length === 0 && single.structural !== 'unmodeled'
+    && !single.conflicts.some((x) => x.kind === 'cross-region-unmodeled') && single.timeline[1].transitMinutes > 0,
+    '单板块行程不受影响：仍按城市交通模型计时');
+
+  const legacy = evaluateDay({
+    day: { date: '2026-11-14' },
+    items: [it('l1', 'p1'), it('l2', 'p2')],
+    places,
+  });
+  assert(legacy.unmodeledLegs.length === 0, '旧点位无 region 字段 → 不误标跨板块');
 }
 
 if (bad) { console.error(`\n${bad} 项可行性测试失败`); process.exit(1); }

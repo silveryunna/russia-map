@@ -8,6 +8,14 @@ export const AI_MODEL_KEY = 'planner-ai-model';
 export const LEGACY_AI_KEY = 'planner-ai-config';
 export const SITE_PLAN_ENDPOINT = './api/index.php?a=plan';
 export const SITE_POLICY_ENDPOINT = './api/index.php?a=ai_policy';
+// 失败重试上限（不含首次请求）与指数退避基数：1s → 2s，重试共用同一个 idem，服务端据此防双计费
+export const AI_MAX_RETRIES = 2;
+export const AI_RETRY_BASE_MS = 1000;
+
+function newIdem() {
+  const uuid = globalThis.crypto?.randomUUID?.() || Math.random().toString(36).slice(2);
+  return `a${Date.now().toString(36)}-${String(uuid).replace(/[^\w-]/g, '').slice(0, 12)}`;
+}
 
 /** localStorage 在隐私模式下会抛错，取不到就退化为内存态（本次会话仍可用）。 */
 function safeStorage() {
@@ -29,12 +37,18 @@ function safeStorage() {
  * @param {Function|null} [options.fetchImpl]
  * @param {(msg: string) => void} [options.toast]
  * @param {boolean} [options.readLegacy] 是否执行旧版配置的一次性清理（默认是）
+ * @param {(ms: number) => Promise<void>} [options.sleep] 退避注入点（测试免等待）
+ * @param {number} [options.maxRetries]
+ * @param {number} [options.retryBaseMs]
  */
 export function createAIClient({
   storage = safeStorage(),
   fetchImpl = typeof globalThis.fetch === 'function' ? globalThis.fetch.bind(globalThis) : null,
   toast = () => {},
   readLegacy = true,
+  sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms)),
+  maxRetries = AI_MAX_RETRIES,
+  retryBaseMs = AI_RETRY_BASE_MS,
 } = {}) {
   const read = (k) => {
     try { return storage ? storage.getItem(k) : null; } catch { return null; }
@@ -66,9 +80,11 @@ export function createAIClient({
   }
 
   async function loadInfo() {
-    if (!siteToken() || !fetchImpl) { info = null; return null; }
+    // 未登录也要能显示额度：ai_policy GET 公开，匿名请求拿到的是 IP 维度剩余次数
+    if (!fetchImpl) { info = null; return null; }
     try {
-      const r = await fetchImpl(SITE_POLICY_ENDPOINT, { headers: { Authorization: `Bearer ${siteToken()}` } });
+      const token = siteToken();
+      const r = await fetchImpl(SITE_POLICY_ENDPOINT, token ? { headers: { Authorization: `Bearer ${token}` } } : {});
       const j = await r.json().catch(() => ({}));
       info = r.ok && !j.error ? j : null;
       if (info && Array.isArray(info.models) && info.models.length && !info.models.includes(model)) {
@@ -81,34 +97,82 @@ export function createAIClient({
     return info;
   }
 
+  /** 统一的额度文案：生成前就告诉用户还剩几次，接近上限标红。 */
+  function quotaHint() {
+    if (!info) return null;
+    if (info.has_custom) return { text: '已接入你自己的 AI（不占用本站次数）', warn: false };
+    const q = Number(info.quota);
+    const rem = Number(info.remaining_today);
+    const ip = info.ip_limit && Number.isFinite(Number(info.ip_limit.remaining)) ? info.ip_limit : null;
+    const parts = [];
+    if (Number.isFinite(q) && Number.isFinite(rem)) {
+      parts.push(`${info.anonymous ? '今日剩余（按 IP）' : '今日剩余'} ${rem}/${q} 次`);
+    }
+    if (!info.anonymous && ip) parts.push(`本 IP ${ip.remaining}/${ip.max} 次`);
+    if (!parts.length) return null;
+    const nearQuota = Number.isFinite(q) && Number.isFinite(rem) && rem <= Math.max(1, Math.floor(q * 0.2));
+    const nearIp = !!ip && Number(ip.remaining) <= 1;
+    return { text: parts.join(' · '), warn: nearQuota || nearIp };
+  }
+
   async function generate(params, context) {
     if (!fetchImpl) throw new Error('当前环境不支持网络请求');
     const endpoint = session.endpoint || SITE_PLAN_ENDPOINT;
     const key = session.key || siteToken();
+    const onSite = !session.endpoint;
+    // 同一次生成的所有重试共用 idem：服务端重放已存结果，不再调用模型、不重复计费/计数
+    const idem = onSite ? newIdem() : '';
     const body = { params, context };
     const m = session.model || model;
     if (m) body.model = m;
-    const resp = await fetchImpl(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', ...(key ? { Authorization: `Bearer ${key}` } : {}) },
-      body: JSON.stringify(body),
-    });
-    const data = await resp.json().catch(() => ({}));
-    if (!resp.ok) throw new Error(data.error || `AI 接口 ${resp.status}`);
-    const plan = data.plan || data;
-    if (!plan || !Array.isArray(plan.days)) throw new Error('AI 返回格式不符');
-    if (typeof data.remaining === 'number' && info) info.remaining_today = data.remaining;
-    return {
-      ...plan,
-      id: `p${Date.now().toString(36)}`,
-      name: plan.name || `${params.city}行程`,
-      city: params.city,
-      date: params.date,
-      source: 'ai',
-      channel: session.endpoint ? 'custom' : 'site',
-      model: data.model || m || '',
-      createdAt: Date.now(),
-    };
+    if (idem) body.idem = idem;
+    let lastErr = null;
+    let attempts = 0;
+    for (let attempt = 0; attempt <= maxRetries; attempt++) {
+      attempts++;
+      try {
+        const resp = await fetchImpl(endpoint, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', ...(key ? { Authorization: `Bearer ${key}` } : {}) },
+          body: JSON.stringify(body),
+        });
+        const data = await resp.json().catch(() => ({}));
+        if (!resp.ok) {
+          const e = new Error(data.error || `AI 接口 ${resp.status}`);
+          e.status = resp.status;
+          // 只有网络错误与 5xx/408 值得重试；429（配额/并发）与 4xx 立即失败，避免白烧次数
+          e.retryable = resp.status >= 500 || resp.status === 408;
+          throw e;
+        }
+        const plan = data.plan || data;
+        if (!plan || !Array.isArray(plan.days)) {
+          const e = new Error('AI 返回格式不符');
+          e.retryable = false;
+          throw e;
+        }
+        if (typeof data.remaining === 'number' && info) info.remaining_today = data.remaining;
+        if (data.ip_limit && info) info.ip_limit = data.ip_limit;
+        return {
+          ...plan,
+          id: `p${Date.now().toString(36)}`,
+          name: plan.name || `${params.city}行程`,
+          city: params.city,
+          date: params.date,
+          source: 'ai',
+          channel: session.endpoint ? 'custom' : 'site',
+          model: data.model || m || '',
+          createdAt: Date.now(),
+        };
+      } catch (e) {
+        lastErr = e;
+        const retryable = e && e.retryable !== undefined ? e.retryable : (e && e.status === undefined);
+        if (!retryable || attempt >= maxRetries) break;
+        await sleep(retryBaseMs * Math.pow(2, attempt));
+      }
+    }
+    const msg = (lastErr && lastErr.message) || 'AI 生成失败';
+    const retried = attempts - 1;
+    throw new Error(retried > 0 ? `${msg}（已自动重试 ${retried} 次仍失败，请稍后再试或改用离线规则）` : msg);
   }
 
   return {
@@ -125,6 +189,7 @@ export function createAIClient({
     get ready() { return !!siteToken() || !!session.endpoint; },
     loadInfo,
     generate,
+    quotaHint,
     /** 生成按钮文案：把「为什么点不了」直接写在按钮上，而不是失败后才解释。 */
     buttonLabel() {
       if (session.endpoint) return '✨ AI 生成（自定义接口）';

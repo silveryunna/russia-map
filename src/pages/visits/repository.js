@@ -4,9 +4,12 @@
 import { CHECKIN_KEY, LEGACY_CHECKIN_KEY } from '../../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from '../trip/store.js';
 import { createVisit, isDateString } from '../trip/schema.js';
+import { dateInZone } from '../../shared/local-date.js';
 
 const clone = v => (v === undefined ? v : JSON.parse(JSON.stringify(v)));
 const clampCount = n => Math.max(1, Math.min(99, Number(n) || 1));
+// 取消打卡后的撤销窗口：软删除记录会一直留档，但只有这段时间内可一键恢复
+export const UNDO_WINDOW_MS = 5 * 60 * 1000;
 
 function defaultStorage() {
   try { return globalThis.localStorage || null; } catch { return null; }
@@ -40,6 +43,7 @@ export function projectVisits(visits) {
   const byPlace = new Map();
   for (const visit of Array.isArray(visits) ? visits : []) {
     if (!visit || typeof visit.placeId !== 'string' || !visit.placeId) continue;
+    if (visit.deletedAt) continue; // 软删除（取消打卡）不计入投影；记录仍留档
     if (visit.status === 'skipped') continue; // M1：行中跳过只留痕，不计入打卡
     if (!byPlace.has(visit.placeId)) byPlace.set(visit.placeId, []);
     byPlace.get(visit.placeId).push(visit);
@@ -80,9 +84,12 @@ function buildVisits(placeId, info, existing, now, idFn) {
   return visits;
 }
 
-export async function createVisitRepository({ store, storage = defaultStorage(), now = () => Date.now(), idFn, onChange } = {}) {
+export async function createVisitRepository({
+  store, storage = defaultStorage(), now = () => Date.now(), idFn, onChange, timeZone = '',
+} = {}) {
   if (!store) throw new Error('createVisitRepository 需要 Trip store');
   let cache = {};
+  let lastDelete = null; // { placeId, at, removed }：仅内存，刷新后不可撤销（记录本身仍在）
   const listeners = new Set();
   if (typeof onChange === 'function') listeners.add(onChange);
   const emit = () => {
@@ -122,15 +129,37 @@ export async function createVisitRepository({ store, storage = defaultStorage(),
   async function toggle(placeId) {
     if (!placeId) return false;
     if (cache[placeId]) {
-      await store.deleteVisitsByPlace(placeId);
+      const at = now();
+      const r = await store.softDeleteVisitsByPlace(placeId, at);
+      lastDelete = r.ok && r.removed ? { placeId, at, removed: r.removed } : null;
       await refresh();
       return false;
     }
-    const visits = buildVisits(placeId, { n: 1, last: new Date(now()).toISOString().slice(0, 10), note: '' }, [], now, idFn);
+    const visits = buildVisits(placeId, { n: 1, last: dateInZone(now(), timeZone), note: '' }, [], now, idFn);
     const result = await store.replaceVisitsForPlace(placeId, visits);
     if (!result.ok) throw new Error(result.errors?.[0]?.message || '打卡写入失败');
     await refresh();
     return true;
+  }
+
+  // 撤销取消打卡：窗口内有效，只恢复本次被软删的记录
+  async function undoDelete(placeId = lastDelete && lastDelete.placeId) {
+    if (!lastDelete || !placeId || lastDelete.placeId !== placeId) return { ok: false, reason: 'none' };
+    if (now() - lastDelete.at > UNDO_WINDOW_MS) {
+      lastDelete = null;
+      return { ok: false, reason: 'expired' };
+    }
+    const r = await store.restoreVisitsByPlace(placeId, { since: lastDelete.at });
+    lastDelete = null;
+    await refresh();
+    return { ok: r.ok, restored: r.restored };
+  }
+
+  // 当前可撤销的操作（供页面显示"撤销"入口）；超过窗口返回 null
+  function undoable() {
+    if (!lastDelete) return null;
+    if (now() - lastDelete.at > UNDO_WINDOW_MS) { lastDelete = null; return null; }
+    return { ...lastDelete };
   }
 
   async function update(placeId, info = {}) {
@@ -153,6 +182,8 @@ export async function createVisitRepository({ store, storage = defaultStorage(),
     getCheckins,
     refresh,
     toggle,
+    undoDelete,
+    undoable,
     update,
     store,
     subscribe(listener) {
@@ -162,7 +193,7 @@ export async function createVisitRepository({ store, storage = defaultStorage(),
   };
 }
 
-export async function openVisitRepository({ now = () => Date.now(), idFn, storage = defaultStorage(), onChange } = {}) {
+export async function openVisitRepository({ now = () => Date.now(), idFn, storage = defaultStorage(), onChange, timeZone = '' } = {}) {
   let store;
   let degraded = false;
   try {
@@ -172,7 +203,7 @@ export async function openVisitRepository({ now = () => Date.now(), idFn, storag
     store = await openTripStore({ driver: createMemoryDriver(), now, idFn });
     degraded = true; // IndexedDB 不可用：打卡改动只在内存，刷新即丢——页面必须据此出横幅
   }
-  const repo = await createVisitRepository({ store, storage, now, idFn, onChange });
+  const repo = await createVisitRepository({ store, storage, now, idFn, onChange, timeZone });
   repo.degraded = degraded;
   return repo;
 }

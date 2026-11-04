@@ -1,5 +1,9 @@
 import '../shared/base.css';
 import './plan.css';
+import '../shared/layout-wide.css';
+import '../shared/print.css';
+import { installShortcuts, openHelp } from '../shared/shortcuts.js';
+import { mountShareButton } from '../shared/share.js';
 import { evaluateDay, formatMinutes, formatMinutesCrossDay } from './plan/feasibility.js';
 import { indexTransitMatrix, matrixCoverage } from './plan/transit-matrix.js';
 import { indexFacts, loadFactLedger, factCoverage } from './plan/facts.js';
@@ -15,6 +19,9 @@ import { loadCheckins } from '../modules/checkin.js';
 import { createIdbDriver, createMemoryDriver, openTripStore } from './trip/store.js';
 import { createChangeEvent, tripItemCount } from './trip/schema.js';
 import { diffTrips, summarizeDiff } from './trip/execution.js';
+import { isValidTimeZone, todayInZone } from '../shared/local-date.js';
+import { checkStorageHealth, deviceNotice } from '../shared/storage-persist.js';
+import { loadRegions, visiblePoints as filterVisiblePoints, isPointVisible } from '../shared/regions.js';
 import {
   PERIOD_LABEL, STATUS_LABEL, clampNum, fmtSpan, itemName, itemType,
   shortDate, snap5, sourceLabel, weekday,
@@ -38,15 +45,24 @@ import {
 
 const $app = document.getElementById('plan-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-const localToday = () => new Date().toISOString().slice(0, 10);
+// 「今天」按行程时区取日历日；未设置时区时回退设备本地（不能用 UTC，见 shared/local-date.js）
+const localToday = () => todayInZone((current && current.homeTimeZone) || '');
+
+// 常用时区（只是输入建议，仍接受任意合法 IANA 时区）
+const TIME_ZONE_OPTIONS = [
+  'Asia/Shanghai', 'Asia/Almaty', 'Asia/Yekaterinburg', 'Asia/Novosibirsk',
+  'Asia/Irkutsk', 'Asia/Vladivostok', 'Europe/Moscow', 'Europe/Kaliningrad', 'UTC',
+];
 
 let meta = { cities: [], cityColors: {} };
-let cache = { pts: [], rts: [], matrix: null, facts: null };
+let cache = { pts: [], visiblePts: [], rts: [], visibleRts: [], matrix: null, facts: null };
 let pointsById = new Map();
+let regionIndex = null;  // 板块开关：候选点位只能用可见板块，已有行程条目一律保留
 let store = null;
 let storeWarn = '';
 let dataWarn = [];       // 交通矩阵/事实账本加载失败（离线兜底时为空数组）
 let backupLast = '';     // 上次全量备份日期（meta backup:lastExportAt）
+let storageWarn = '';    // 持久化/配额风险提示（只提示，不阻塞）
 let trips = [];
 let current = null;              // 编辑器里的行程
 let ambiguities = [];            // 迁移遗留的待确认项（仅用于预置候选）
@@ -74,9 +90,67 @@ function toast(msg) {
 
 /* ---------- 渲染 ---------- */
 function render() {
-  if (view.mode === 'create') return renderCreate();
+  if (view.mode === 'create') { removePrintSheet(); return renderCreate(); }
   if (view.mode === 'editor' && current) return renderEditor();
+  removePrintSheet();
   return renderList();
+}
+
+/* ---------- 打印稿（body 级，@media print 时其他节点全隐藏） ---------- */
+function removePrintSheet() {
+  const el = document.getElementById('print-sheet');
+  if (el) el.remove();
+}
+
+function printItemHtml(it, row) {
+  const time = row ? `${formatMinutesCrossDay(row.start)}–${formatMinutesCrossDay(row.end)}` : '未排程';
+  const flags = [
+    row && row.unmodeled ? '✈ 长途未建模' : '',
+    it.confirm !== 'ok' ? '待确认' : '',
+    it.mustVisit === false ? '可删' : '',
+    it.plannedStatus === 'skipped' ? '已跳过' : '',
+  ].filter(Boolean);
+  return `<div class="ps-item">
+      <span class="ps-time">${esc(time)}</span>
+      <div>
+        <span class="ps-name">${esc(itemName(it, pointsById))}${flags.map(f => `<span class="ps-flag">${esc(f)}</span>`).join('')}</span>
+        ${it.notes ? `<span class="ps-note">${esc(it.notes)}</span>` : ''}
+        ${it.placeNameSnapshot !== itemName(it, pointsById) ? `<span class="ps-note">${esc(it.placeNameSnapshot)}</span>` : ''}
+      </div>
+    </div>`;
+}
+
+function renderPrintSheet(t, dayRes) {
+  removePrintSheet();
+  const range = t.startDate ? (t.days.length > 1 ? `${shortDate(t.startDate)} 起 · ${t.days.length} 天` : shortDate(t.startDate)) : `${t.days.length} 天`;
+  const days = t.days.map((d, di) => {
+    const res = dayRes.get(d.id);
+    const rows = res ? res.timeline : [];
+    const rowOf = (id) => rows.find(x => x.itemId === id) || null;
+    const items = d.items.length
+      ? d.items.map(it => printItemHtml(it, rowOf(it.id))).join('')
+      : '<div class="ps-note">这一天还没有安排</div>';
+    const transfer = transferNote(t, di);
+    return `<section class="ps-day">
+        <div class="ps-day-head">
+          <span>Day ${d.index}${d.date ? ` · ${shortDate(d.date)} ${weekday(d.date)}` : ''}</span>
+          <span class="ps-date">${d.items.length} 项</span>
+        </div>
+        ${items}
+        ${d.note ? `<div class="ps-day-note">备注：${esc(d.note)}</div>` : ''}
+        ${transfer ? `<div class="ps-day-note">${transfer.replace(/<[^>]+>/g, '').replace(/^[^\u4e00-\u9fa5A-Za-z0-9]+/, '')}</div>` : ''}
+      </section>`;
+  }).join('');
+  const el = document.createElement('article');
+  el.id = 'print-sheet';
+  el.className = 'print-sheet';
+  el.setAttribute('aria-hidden', 'true');
+  el.innerHTML = `
+    <h1 class="ps-title">${esc(t.title || '行程单')}</h1>
+    <div class="ps-sub">${esc(range)} · ${tripItemCount(t)} 项 · ${esc(STATUS_LABEL[t.status] || '')}${t.notes ? ` · ${esc(t.notes)}` : ''}</div>
+    ${days}
+    <div class="ps-foot">牛马打工人的旅行笔记 · 行程单 · 打印时间 ${esc(new Date().toLocaleString('zh-CN'))} · 页码见页脚</div>`;
+  document.body.append(el);
 }
 
 function banners() {
@@ -85,9 +159,10 @@ function banners() {
   for (const w of dataWarn) out.push(`<div class="pl-tip warn">⚠️ ${esc(w)}</div>`);
   if (!storeWarn && trips.length) {
     const b = backupReminder(backupLast, localToday());
-    if (b) out.push(`<div class="pl-tip warn">💾 ${b.level === 'never' ? '这份行程数据还没有导出过备份' : `上次备份已是 ${b.days} 天前`}——数据只存在这台设备的浏览器里<button class="pl-btn small" id="pl-backup-now">立即备份</button></div>`);
+    if (b) out.push(`<div class="pl-tip warn">💾 ${b.level === 'never' ? '这份行程数据还没有导出过备份' : `上次备份已是 ${b.days} 天前`}——数据只存在这台设备的浏览器里<button class="pl-btn small" data-backup-now>立即备份</button></div>`);
   }
   if (planLoad.recovered) out.push(`<div class="pl-tip warn">⚠️ 检测到损坏的旧本地计划，已备份为 ${esc(planLoad.backupKey || '备份键')}</div>`);
+  if (storageWarn) out.push(`<div class="pl-tip warn">🧷 ${esc(storageWarn)}<button class="pl-btn small" data-backup-now>立即备份</button></div>`);
   const live = current
     ? ambiguities.filter(a => current.days.some(d => d.items.some(it => it.id === a.itemId && it.confirm !== 'ok')))
     : [];
@@ -121,8 +196,51 @@ const FEAS_LABEL = {
   'day-overrun': '超出收工线', closed: '闭馆', 'after-last-entry': '过最后入场', 'after-close': '会跨闭馆',
   overlap: '与预订重叠', 'cross-day': '跨日预订', 'duplicate-place': '重复点位', 'missing-duration': '缺时长',
   'unresolved-place': '未绑定', 'missing-coords': '缺坐标', 'calendar-exceptions': '特殊闭馆未校验',
-  'hours-stale': '开放时间待复核',
+  'hours-stale': '开放时间待复核', 'cross-region-unmodeled': '长途未建模',
 };
+
+const UNMODELED_NOTE = '长途未建模（需自行安排航班/长距离交通）';
+
+// 板块串联：一天里首个/末个可见点位的 region 用来判断跨板块长途段（不新增行程字段，旧数据按 region 缺失跳过）
+function dayRegion(d) {
+  for (const it of d.items) {
+    if (it.type === 'note' || it.type === 'task' || it.plannedStatus === 'skipped') continue;
+    const p = it.refId ? pointsById.get(it.refId) : null;
+    if (p && typeof p.region === 'string' && p.region) return p.region;
+  }
+  return '';
+}
+function prevDayRegion(t, di) {
+  for (let i = di - 1; i >= 0; i -= 1) {
+    const r = dayRegion(t.days[i]);
+    if (r) return r;
+  }
+  return '';
+}
+// 进入第 di 天前所在板块；与当天板块不同 → 该天按"长途未建模"降权
+function transferFromRegion(t, di) {
+  const cur = dayRegion(t.days[di]);
+  const prev = prevDayRegion(t, di);
+  return cur && prev && prev !== cur ? prev : '';
+}
+function regionName(id) {
+  const r = regionIndex && regionIndex.byId ? regionIndex.byId.get(id) : null;
+  return r && r.name ? r.name : id;
+}
+function regionNamesMap() {
+  const out = {};
+  if (regionIndex && regionIndex.byId) for (const [id, r] of regionIndex.byId) out[id] = r.name || id;
+  return out;
+}
+function transferNote(t, di) {
+  const from = transferFromRegion(t, di);
+  const cur = dayRegion(t.days[di]);
+  if (!from || !cur) return '';
+  let prevIdx = -1;
+  for (let i = di - 1; i >= 0; i -= 1) if (dayRegion(t.days[i])) { prevIdx = i; break; }
+  if (prevIdx < 0) return '';
+  return `<div class="tr-feas is-warn"><span>✈️ D${prevIdx + 1}（${esc(regionName(from))}）→ D${di + 1}（${esc(regionName(cur))}）：${UNMODELED_NOTE}，不计入当天排程</span></div>`;
+}
 
 // 每天一条双轴结论：结构是否可排 + 证据有多少仍待核/估算
 function feasibilityLine(d, res) {
@@ -138,9 +256,11 @@ function feasibilityLine(d, res) {
   const start = formatMinutesCrossDay(res.timeline[0].arrive);
   const end = formatMinutesCrossDay(res.timeline[res.timeline.length - 1].end);
   const dwell = (res.stats.dwellMinutes / 60).toFixed(1);
-  const conditional = res.structural === 'conditional';
+  const conditional = res.structural === 'conditional' || res.structural === 'unmodeled';
+  const unmodeled = (res.stats && res.stats.unmodeledLegs) || 0;
   const chips = errs.slice(0, 3).map(c => `<span class="tr-chip danger">${FEAS_LABEL[c.kind] || c.kind}</span>`).join('')
     + (errs.length > 3 ? `<span class="tr-chip danger">+${errs.length - 3}</span>` : '')
+    + (unmodeled ? `<span class="tr-chip warn" title="${UNMODELED_NOTE}">✈️ ${unmodeled} 段长途未建模（需自行安排航班/长距离交通）</span>` : '')
     + (warns.length ? `<span class="tr-chip warn">${warns.length} 条提示</span>` : '')
     + (unknown ? `<span class="tr-chip warn">${unknown} 处开放时间待核</span>` : '')
     + (stale ? `<span class="tr-chip warn">${stale} 处资料待复核</span>` : '')
@@ -149,6 +269,7 @@ function feasibilityLine(d, res) {
       : '');
   const verdict = lead
     ? `${errs.length ? '⚠️' : '🔔'} ${lead.message}`
+    : unmodeled ? `⚠️ 含 ${unmodeled} 段${UNMODELED_NOTE}，无法自动判定`
     : conditional ? '⚠️ 条件式可排（仍有待核事实或估算段）' : '✅ 结构可行，证据充分';
   return `<div class="tr-feas ${errs.length ? 'is-bad' : warns.length || conditional ? 'is-warn' : ''}">
       <span>⏱ 预计 ${start}–${end} · 停留 ${dwell}h · 通行 ${res.stats.transitMinutes}m</span>
@@ -162,7 +283,7 @@ function planBAlternatives(it, limit = 2) {
   if (!place) return [];
   const used = new Set();
   for (const d of current.days) for (const x of d.items) if (x.refId) used.add(x.refId);
-  return suggestAlternatives({ target: place, points: cache.pts, usedIds: used, limit });
+  return suggestAlternatives({ target: place, points: cache.visiblePts, usedIds: used, limit });
 }
 
 function alternativesHtml(it) {
@@ -318,7 +439,7 @@ function timelineDayHtml(d, di, res) {
   }).join('');
 
   const hours = rail.hours.map(h => `<div class="tl-hour" style="top:${h.top}px"><b>${h.label}</b></div>`).join('');
-  const legs = rail.legs.filter(l => l.showLabel).map(l => `<div class="tl-leg" style="top:${l.top}px"><span>${esc(l.label)}</span></div>`).join('');
+  const legs = rail.legs.filter(l => l.showLabel).map(l => `<div class="tl-leg" style="top:${l.top}px" title="${esc(l.detail || '')}"><span>${esc(l.label)}</span></div>`).join('');
   const waits = rail.waits.map(w => `<div class="tl-wait" style="top:${w.top}px;height:${w.height}px"><span>${esc(w.label)}</span></div>`).join('');
   const overrun = rail.overrun ? `<div class="tl-overrun" style="top:${rail.overrun.top}px;height:${rail.overrun.height}px"></div>` : '';
   const unplacedHtml = unplaced.length ? `<div class="tl-unplaced">
@@ -415,21 +536,53 @@ function renderEditor() {
   const conflicts = itemDateConflicts(t);
   const conflictByItem = new Map(conflicts.map(c => [c.itemId, c]));
   const pending = countNeedsConfirm(t);
-  const dayRes = new Map(t.days.map(d => [d.id, evaluateDay({
+  const dayRes = new Map(t.days.map((d, di) => [d.id, evaluateDay({
     day: { id: d.id, date: d.date }, items: d.items, places: pointsById,
-    options: { start: d.startTime, end: d.endTime, transportMode: d.transportMode || 'transit', taxiFare: dayFare(d), matrix: cache.matrix, facts: cache.facts },
+    options: {
+      start: d.startTime, end: d.endTime, transportMode: d.transportMode || 'transit',
+      taxiFare: dayFare(d), matrix: cache.matrix, facts: cache.facts,
+      entryRegion: transferFromRegion(t, di), regionNames: regionNamesMap(),
+    },
   })]));
+  const crossRegionTransfers = t.days.reduce((n, d, di) => n + (transferFromRegion(t, di) ? 1 : 0), 0);
   const tripInterests = Array.isArray(t.origin && t.origin.interests) ? t.origin.interests : [];
+  // 大屏右栏：概览 + 打印/快捷键入口（窄屏由 CSS 隐藏，版面与改动前一致）
+  const range = t.startDate
+    ? (t.days.length > 1 ? `${shortDate(t.startDate)} 起 · ${t.days.length} 天` : shortDate(t.startDate))
+    : `${t.days.length} 天`;
+  const asideHtml = `
+    <aside class="plan-aside" aria-label="行程概览">
+      <div class="aside-card">
+        <h3>行程概览</h3>
+        <div class="aside-stack">
+          <div class="aside-row"><span>日期</span><b>${esc(range)}</b></div>
+          <div class="aside-row"><span>条目</span><b>${tripItemCount(t)} 项</b></div>
+          <div class="aside-row"><span>待确认</span><b>${pending} 项</b></div>
+          ${crossRegionTransfers ? `<div class="aside-row"><span>跨板块</span><b>${crossRegionTransfers} 段长途未建模</b></div>` : ''}
+        </div>
+      </div>
+      <div class="aside-card">
+        <h3>打印与快捷键</h3>
+        <div class="aside-stack">
+          <button type="button" class="pl-btn" data-print>🖨 打印行程单</button>
+          <button type="button" class="pl-btn" data-kbd-open>? 查看全部快捷键</button>
+          <p class="aside-note">打印只输出干净行程单（标题 / 日期 / 每日条目 / 点位与备注 / 长途未建模标记），导航、侧栏、地图控件和彩色背景都不会带进纸面。</p>
+        </div>
+      </div>
+    </aside>`;
   $app.innerHTML = `
     <div class="pl-head">
       <button class="pl-btn small" id="tr-back">← 全部行程</button>
       <div class="tr-head-ops">
         <a class="pl-btn small" href="./today.html">📍 今日执行</a>
+        <button class="pl-btn small pl-print-head" data-print>🖨 打印行程单</button>
         <button class="pl-btn small" id="tr-layout">${view.layout === 'timeline' ? '☰ 列表' : '🗓 时间轴'}</button>
         <button class="pl-btn small" id="tr-undo" ${undoStack.length ? '' : 'disabled'}>↶ 撤销</button>
         <button class="pl-btn small" id="tr-md">导出 MD</button>
       </div>
     </div>
+    <div class="plan-shell">
+      <main class="plan-main">
     ${banners()}
     <div class="card tr-meta">
       <input id="tr-title" class="tr-title-input" value="${esc(t.title)}" aria-label="行程标题">
@@ -440,6 +593,10 @@ function renderEditor() {
         <label>出发日期
           <input id="tr-date" type="date" value="${esc(t.startDate || '')}">
         </label>
+        <label>时区
+          <input id="tr-tz" list="tr-tz-options" value="${esc(t.homeTimeZone || '')}" placeholder="设备本地" aria-label="行程时区（IANA）">
+        </label>
+        <datalist id="tr-tz-options">${TIME_ZONE_OPTIONS.map(z => `<option value="${esc(z)}"></option>`).join('')}</datalist>
         ${t.dateMode === 'fixed' ? `<label>改期方式
           <select id="tr-policy">
             <option value="shift_all">整体平移</option>
@@ -447,7 +604,7 @@ function renderEditor() {
           </select>
         </label>` : ''}
       </div>
-      <div class="pl-meta">${esc(sourceLabel(t))} · ${t.days.length} 天 · ${tripItemCount(t)} 项${pending ? ` · <b class="tr-warn">${pending} 待确认</b>` : ''}${conflicts.length ? ` · <b class="tr-warn">${conflicts.length} 处预订日冲突</b>` : ''} · 修订 ${t.revision}</div>
+      <div class="pl-meta">${esc(sourceLabel(t))} · ${t.days.length} 天 · ${tripItemCount(t)} 项${pending ? ` · <b class="tr-warn">${pending} 待确认</b>` : ''}${conflicts.length ? ` · <b class="tr-warn">${conflicts.length} 处预订日冲突</b>` : ''}${crossRegionTransfers ? ` · <b class="tr-warn">${crossRegionTransfers} 段跨板块长途未建模</b>` : ''} · 修订 ${t.revision}</div>
     </div>
     ${t.notes ? `<div class="pl-tip">📌 ${esc(t.notes)}</div>` : ''}
     ${t.days.map((d, di) => `
@@ -467,6 +624,7 @@ function renderEditor() {
           </select>
         </div>
         ${feasibilityLine(d, dayRes.get(d.id))}
+        ${transferNote(t, di)}
         ${softLine(d, di, dayRes.get(d.id), tripInterests)}
         ${fixBar(d, di, dayRes.get(d.id))}
         ${view.layout === 'timeline' ? timelineDayHtml(d, di, dayRes.get(d.id)) : (d.items.length ? d.items.map((it, ii) => {
@@ -479,6 +637,7 @@ function renderEditor() {
             ${it.pinnedStart ? `<span class="tr-chip pin">🔒 ${esc(it.pinnedStart)}</span>` : ''}
             ${it.mustVisit === false ? '<span class="tr-chip opt">可删</span>' : ''}
             ${it.confirm !== 'ok' ? '<span class="tr-chip warn">待确认</span>' : ''}
+            ${it.refId && !isPointVisible(pointsById.get(it.refId), regionIndex) ? '<span class="tr-chip">⛔ 所在板块已隐藏</span>' : ''}
             ${cf ? `<span class="tr-chip danger">预订 ${shortDate(cf.itemDate)}</span>` : ''}
             <span class="pl-ptype">${esc(itemType(it, pointsById))}</span>
             <span class="tr-ops">
@@ -503,7 +662,11 @@ function renderEditor() {
       <button class="pl-btn" id="tr-add-day">＋ 增加一天</button>
       <button class="pl-btn" id="tr-json">导出本行程 JSON</button>
     </div>
+      </main>
+      ${asideHtml}
+    </div>
     ${view.picker ? pickerHtml() : ''}`;
+  renderPrintSheet(t, dayRes);
 
   document.getElementById('tr-back').onclick = () => { view.mode = 'list'; view.picker = null; view.sel = null; current = null; render(); };
   const undoBtn = document.getElementById('tr-undo');
@@ -534,10 +697,24 @@ function renderEditor() {
     applyTrip(res.trip);
     if (res.conflicts.length) toast(`已改期，${res.conflicts.length} 处预订仍保留原日期，请逐条核对`);
   };
+  // 时区：留空＝跟随设备本地；填了就必须是合法 IANA 时区，否则回退（避免落库时被结构校验拒绝）
+  const tzInput = document.getElementById('tr-tz');
+  tzInput.onchange = () => {
+    const raw = tzInput.value.trim();
+    if (raw && !isValidTimeZone(raw)) {
+      toast('时区格式不对：请填 IANA 名称，如 Asia/Shanghai；留空跟随设备');
+      tzInput.value = current.homeTimeZone || '';
+      return;
+    }
+    if (raw !== (current.homeTimeZone || '')) mutate(trip => updateTrip(trip, { homeTimeZone: raw }));
+  };
   if (view.picker) wirePicker();
 
   // 委托：items 与 day 操作
   $app.onclick = e => {
+    // 打印与快捷键入口（head 与右栏两个按钮共用 data-print / data-kbd-open）
+    if (e.target.closest('[data-print]')) { window.print(); return; }
+    if (e.target.closest('[data-kbd-open]')) { openHelp(); return; }
     const tlBlock = e.target.closest('[data-tl-block]');
     if (tlBlock) {
       if (tlDragged) { tlDragged = false; return; }
@@ -738,6 +915,20 @@ function findItem(id) {
   return null;
 }
 
+/* ---------- 键盘：j/k 在当前行程的条目间移动（列表/时间轴都用同一份条目顺序） ---------- */
+let planKbdIdx = -1;
+
+function stepPlanItem(step) {
+  if (!current) return;
+  const ids = current.days.flatMap(d => d.items.map(it => it.id));
+  if (!ids.length) return;
+  planKbdIdx = (planKbdIdx + step + ids.length) % ids.length;
+  view.sel = ids[planKbdIdx];
+  render();
+  const el = $app.querySelector(`.tr-item[data-item="${CSS.escape(view.sel)}"], .tl-block[data-tl-block="${CSS.escape(view.sel)}"]`);
+  if (el) el.scrollIntoView({ block: 'center' });
+}
+
 function pickerHtml() {
   const p = view.picker;
   const title = p.mode === 'bind'
@@ -753,7 +944,7 @@ function pickerHtml() {
         <input id="tr-q" placeholder="搜索点位名 / 英文名 / 类型" value="${esc(p.q)}">
         <select id="tr-city-sel">
           <option value="">全部城市</option>
-          ${[...new Set(cache.pts.map(x => x.city))].sort().map(c => `<option ${c === p.city ? 'selected' : ''}>${esc(c)}</option>`).join('')}
+          ${[...new Set(cache.visiblePts.map(x => x.city))].sort().map(c => `<option ${c === p.city ? 'selected' : ''}>${esc(c)}</option>`).join('')}
         </select>
         <div class="tr-results" id="tr-results">${pickerResultsHtml()}</div>
       </div>
@@ -763,7 +954,7 @@ function pickerHtml() {
 function pickerResultsHtml() {
   const p = view.picker;
   const q = (p.q || '').trim().toLowerCase();
-  let list = cache.pts.filter(x => !x.pending && (!p.city || x.city === p.city));
+  let list = cache.visiblePts.filter(x => !x.pending && (!p.city || x.city === p.city));
   if (q) list = list.filter(x => `${x.name || ''} ${x.name_en || ''} ${x.type || ''} ${x.cluster || ''}`.toLowerCase().includes(q));
   if (p.mode === 'add') {
     const day = current.days[p.dayIndex];
@@ -773,7 +964,7 @@ function pickerResultsHtml() {
   const candIds = p.mode === 'bind'
     ? ((ambiguities.find(a => a.itemId === p.itemId) || {}).candidates || [])
     : [];
-  const cands = candIds.map(id => pointsById.get(id)).filter(Boolean);
+  const cands = candIds.map(id => pointsById.get(id)).filter(Boolean).filter(x => isPointVisible(x, regionIndex));
   const rest = list.filter(x => !candIds.includes(x.id)).slice(0, 60);
   const row = (x, tag) => `
     <button class="tr-result" data-pick="${esc(x.id)}">
@@ -908,7 +1099,7 @@ const exportBackup = () => writeBackup({
 
 // 「立即备份」按钮渲染在 banners() 里（列表/编辑器视图都有），用委托绑一次
 $app.addEventListener('click', e => {
-  if (e.target && e.target.id === 'pl-backup-now') { e.preventDefault(); void exportBackup(); }
+  if (e.target && e.target.closest('[data-backup-now]')) { e.preventDefault(); void exportBackup(); }
 });
 
 const importBackup = file => readBackup(file, {
@@ -959,16 +1150,22 @@ async function runMigration() {
 }
 
 (async () => {
-  const [pts, rts, mt, trs, fts] = await Promise.all([
+  const [pts, rts, mt, trs, fts, regions] = await Promise.all([
     fetch('./data/points.json').then(r => r.json()),
     fetch('./data/routes.json').then(r => r.json()),
     fetch('./data/meta.json').then(r => r.json()),
     fetch('./data/transit-matrix.json').then(r => (r.ok ? r.json() : null)).catch(() => null),
     loadFactLedger(),
+    loadRegions(),
     ai.loadInfo(),
   ]);
   cache.pts = Array.isArray(pts) ? pts : (pts.points || []);
   cache.rts = Array.isArray(rts) ? rts : (rts.routes || []);
+  // 板块开关：候选点位/动线只取可见板块；pointsById 仍保留全量，避免既有行程条目被静默删除
+  regionIndex = regions;
+  cache.visiblePts = filterVisiblePoints(cache.pts, regionIndex);
+  const visibleCities = new Set(cache.visiblePts.map(p => p.city));
+  cache.visibleRts = cache.rts.filter(r => visibleCities.has(r.city));
   cache.matrix = indexTransitMatrix(trs);
   cache.facts = indexFacts(fts);
   // 静默降级不可接受（审计 B2-2）：矩阵/账本没加载成功必须让用户知道结论降级了
@@ -978,10 +1175,22 @@ async function runMigration() {
   pointsById = new Map(cache.pts.map(p => [p.id, p]));
   await bootStore();
   backupLast = String(await store.getMeta('backup:lastExportAt').catch(() => '')) || '';
+  // 申请持久化存储 + 看配额水位：失败只提示，不影响使用；iOS/安卓再补一条设备专属的清理风险说明
+  const health = await checkStorageHealth();
+  storageWarn = health.warning || deviceNotice(typeof navigator === 'undefined' ? '' : navigator.userAgent) || '';
   await runMigration();
   await refreshTrips();
   if (!storeWarn) void initDataSafety({ store, showBackup: false }).catch(() => {});
   render();
+  installShortcuts({
+    // 有候选面板时优先聚焦面板搜索，否则聚焦标题（计划页唯一的可编辑文本框）
+    search: () => (view.picker && document.getElementById('tr-q') ? document.getElementById('tr-q') : document.getElementById('tr-title'))?.focus(),
+    nextPoint: () => stepPlanItem(1),
+    prevPoint: () => stepPlanItem(-1),
+    today: () => { location.href = './today.html'; },
+    plan: () => {},   // 已经在本页：不刷新，避免丢掉未保存的编辑状态
+  });
+  mountShareButton({ title: '行程计划 · 牛马打工人的旅行笔记', text: '生成逐日行程，可加点位、排序、改期' });
 })().catch(err => {
   $app.innerHTML = `<div class="pl-empty">⚠️ 加载失败：${esc(err.message)}</div>`;
 });

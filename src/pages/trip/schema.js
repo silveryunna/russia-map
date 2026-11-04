@@ -167,6 +167,8 @@ export function createVisit(input = {}, idFn = defaultId, now = Date.now()) {
     actualStart: isLocalTimeValue(input.actualStart) ? input.actualStart : '',
     actualEnd: isLocalTimeValue(input.actualEnd) ? input.actualEnd : '',
     reason: typeof input.reason === 'string' ? input.reason.slice(0, 200) : '',
+    // 软删除标记（取消打卡只标记，不物理删除；缺失＝未删除；同样不升 schemaVersion）
+    ...(Number.isFinite(input.deletedAt) ? { deletedAt: input.deletedAt } : {}),
     createdAt: Number.isFinite(input.createdAt) ? input.createdAt : now,
   };
 }
@@ -318,6 +320,10 @@ export function validateVisit(visit) {
   if (visit.actualStart !== undefined && visit.actualStart !== '' && !isLocalTimeValue(visit.actualStart)) errors.push({ path: 'actualStart', code: 'time', message: 'actualStart 必须是 HH:MM、YYYY-MM-DDTHH:MM 或空串' });
   if (visit.actualEnd !== undefined && visit.actualEnd !== '' && !isLocalTimeValue(visit.actualEnd)) errors.push({ path: 'actualEnd', code: 'time', message: 'actualEnd 必须是 HH:MM、YYYY-MM-DDTHH:MM 或空串' });
   if (visit.reason !== undefined && typeof visit.reason !== 'string') errors.push({ path: 'reason', code: 'type', message: 'reason 必须是字符串' });
+  if (visit.deletedAt !== undefined && visit.deletedAt !== null
+    && (!Number.isFinite(visit.deletedAt) || visit.deletedAt <= 0)) {
+    errors.push({ path: 'deletedAt', code: 'type', message: 'deletedAt 必须是正整数时间戳或省略' });
+  }
   return { ok: errors.length === 0, errors };
 }
 

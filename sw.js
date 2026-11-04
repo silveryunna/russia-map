@@ -13,7 +13,12 @@ const META_KEY = './__sw-active-version__';
 const SHELL_RUNTIME_MAX = 400;         // 同源运行时资源上限（壳预缓存不在此列）
 const PHOTO_CACHE_MAX = 300;           // 照片缓存条数上限
 
-// 应用外壳（HTML 入口 + 清单 + 图标 + 关键数据；JS/CSS 带内容哈希，由运行时缓存自动覆盖）
+// 构建期注入：vite 产出的 JS/CSS（带内容哈希）+ 首屏必需的数据 JSON（points/routes/meta 等）。
+// 仓库里默认空数组，tools/assemble.mjs 按 site-out 实际清单注入。
+// 不预缓存这些 JS/CSS，用户首次访问后一断网就是白屏（只有 HTML 外壳能离线）。
+const BUILD_ASSETS = [];
+
+// 应用外壳（HTML 入口 + 清单 + 图标 + 关键数据）
 const SHELL_ASSETS = [
   './',
   './index.html',
@@ -70,18 +75,25 @@ async function postToClients(msg) {
   for (const c of clients) c.postMessage(msg);
 }
 
-// 安装：缓存应用外壳 + 关键数据（含事实账本；账本清单来自 manifest，浏览器不能列目录）
+// 安装：缓存应用外壳 + 关键数据 + 本次构建的 JS/CSS（含事实账本，清单来自 manifest）
 // cache:'reload' 绕过 HTTP 缓存，保证拿到的是当前部署的最新文件
+// 原子安装：任一资源失败（404/网络）即 throw，安装失败→不激活，旧版本缓存原样保留；
+// 宁可继续用旧版本，也不留下一套缺 JS 的"假离线"缓存。
 self.addEventListener('install', (event) => {
   event.waitUntil((async () => {
     const cache = await caches.open(SHELL_CACHE);
-    await Promise.allSettled(SHELL_ASSETS.map(u => cache.add(new Request(u, { cache: 'reload' }))));
+    const payload = [...SHELL_ASSETS, ...BUILD_ASSETS];
     try {
+      await cache.addAll(payload.map(u => new Request(u, { cache: 'reload' })));
+      // 事实账本逐文件预缓存（清单驱动，浏览器不能列目录；缺账本不影响外壳安装）
       const res = await cache.match('./data/facts/manifest.json');
       const manifest = res ? await res.json() : null;
       const files = Array.isArray(manifest && manifest.files) ? manifest.files : [];
       await Promise.allSettled(files.map(f => cache.add(new Request(`./data/facts/${f}`, { cache: 'reload' }))));
-    } catch { /* 账本缺失不影响外壳安装 */ }
+    } catch (e) {
+      await caches.delete(SHELL_CACHE); // 清掉半成品，避免下次安装读到残缺缓存
+      throw e;
+    }
   })());
   self.skipWaiting();
 });
@@ -245,6 +257,6 @@ async function trimShellCache(max) {
 // SW 是 classic script（不能 import），把策略挂到 self 上供 tools/sw-policy-test.mjs 在 VM 中校验
 self.__SW_POLICY__ = {
   VERSION, SHELL_CACHE, RUNTIME_CACHE, PHOTO_CACHE, META_CACHE,
-  SHELL_ASSETS, SHELL_RUNTIME_MAX, PHOTO_CACHE_MAX,
+  SHELL_ASSETS, BUILD_ASSETS, SHELL_RUNTIME_MAX, PHOTO_CACHE_MAX,
   TILE_HOSTS, TILE_CACHE_MAX, isTileUrl,
 };

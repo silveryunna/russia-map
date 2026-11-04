@@ -31,3 +31,26 @@
 .entry-card .icon { font-size: 30px; }
 .entry-card .name { margin-top: 10px; font-size: 17px; font-weight: 800; }
 .entry-card .desc { margin-top: 6px; font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+/* 板块统计条：与列表页 regionStats 同口径 */
+.home-regions {
+  max-width: 680px;
+  margin: var(--sp-4) auto 0;
+  padding: 0 var(--sp-4);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+}
+.home-regions .hr-title { font-size: 12px; color: var(--muted); font-weight: 700; }
+.home-regions .hr-item {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: var(--card);
+  padding: var(--sp-1) var(--sp-2);
+  font-size: 12px;
+  color: var(--muted);
+}
+.home-regions .hr-item b { font-size: 13px; color: var(--text); }

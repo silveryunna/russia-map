@@ -5,6 +5,7 @@ import * as L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { renderMarkdown } from '../shared/markdown.js';
 import { registerSW } from '../shared/sw-register.js';
+import { dateInZone } from '../shared/local-date.js';
 
 // ===== 管理后台（仅站长使用，不公开链接）=====
 // 编辑内容 → 标记变更 → 底部导出变更文件 → 发给 Kimi 完成发布
@@ -168,7 +169,7 @@ function savePoint() {
   S.points[S.editIdx] = {
     id: S.points[S.editIdx].id || nextPointId(),
     name,
-    city: val('pt-city') || '其他城市',
+    city: val('pt-city') || '莫斯科',
     cluster: val('pt-cluster') || '未分组',
     type: val('pt-type'),
     highlight: val('pt-highlight'),
@@ -261,7 +262,7 @@ function notesTabHtml() {
 async function openNote(file) {
   if (file === '__new__') {
     S.noteFile = '__new__';
-    S.noteDraft = { meta: { title: '', date: new Date().toISOString().slice(0, 10), summary: '' }, body: '', dirty: false };
+    S.noteDraft = { meta: { title: '', date: dateInZone(), summary: '' }, body: '', dirty: false };
     render();
     return;
   }

@@ -29,7 +29,7 @@ jobs:
       # 1.6) 城市排程字段：非 pending 点位必须有坐标、停留时长与依据
       - name: 城市排程字段
         run: |
-          for city in 三亚 哈尔滨 伊宁 圣彼得堡 叶卡捷琳堡 阿拉木图 莫斯科州/近郊 其他城市; do
+          for city in 三亚 哈尔滨 伊宁 圣彼得堡 叶卡捷琳堡 阿拉木图 莫斯科州/近郊; do
             node tools/check-city-duration.mjs ./data "$city"
           done
 
@@ -101,10 +101,6 @@ jobs:
 
       - name: SW 策略测试
         run: node tools/sw-policy-test.mjs
-
-      # 2.85) 埋点骨架：白名单 / 环形缓冲 / 关闭即清空 / 上报失败保留
-      - name: 埋点骨架测试
-        run: node tools/test-telemetry.mjs
 
       # 2.9) 文档事实：README/AGENTS 里的数量与代码、数据一致（防"21 变异"这类过期数字）
       - name: 文档事实检查

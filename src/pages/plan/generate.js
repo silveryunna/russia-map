@@ -47,7 +47,10 @@ export function renderCreateForm(ctx) {
           <button class="pl-btn small" id="ai-draft-cancel">取消</button>
         </div>
       </div>` : ''}
-      ${ai.info ? `<div class="pl-label">${ai.info.has_custom ? '已接入你自己的 AI（不占用本站次数）' : `今日剩余 ${ai.info.remaining_today}/${ai.info.quota} 次`}</div>` : ''}
+      ${ai.info ? (() => {
+        const hint = ai.quotaHint();
+        return hint ? `<div class="pl-label${hint.warn ? ' warn' : ''}">${esc(hint.text)}${hint.warn ? ' · 接近上限' : ''}</div>` : '';
+      })() : ''}
       ${ai.info && !ai.info.has_custom && ai.info.models && ai.info.models.length ? `
       <label>AI 模型
         <select id="pl-model">${ai.info.models.map(m => `<option ${m === ai.model ? 'selected' : ''}>${esc(m)}</option>`).join('')}</select>
@@ -187,12 +190,15 @@ export async function runGenerate(ctx, src) {
   if (btn && src === 'ai') { btn.disabled = true; btn.textContent = '✨ 生成中（约 30-60 秒）…'; }
   toast('生成中…');
   try {
+    // 板块开关：候选点位/动线只取可见板块（cache.visiblePts 由 plan.js 统一计算）
+    const pts = cache.visiblePts || cache.pts;
+    const rts = cache.visibleRts || cache.rts;
     const plan = src === 'ai'
       ? await ai.generate(f, {
-          points: cache.pts.filter(p => p.city === f.city),
-          routes: cache.rts.filter(r => r.city === f.city),
+          points: pts.filter(p => p.city === f.city),
+          routes: rts.filter(r => r.city === f.city),
         })
-      : ruleEngine(f, { pts: cache.pts, rts: cache.rts, matrix: cache.matrix, facts: cache.facts });
+      : ruleEngine(f, { pts, rts, matrix: cache.matrix, facts: cache.facts });
     if (!Array.isArray(plan.interests)) plan.interests = Array.isArray(f.interests) ? f.interests : [];
     const mig = migratePlansV1({ plans: [plan], points: cache.pts });
     const trip = mig.trips[0];

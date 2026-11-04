@@ -4,6 +4,7 @@
 
 import { createChangeEvent, createTransitLeg, createVisit, isDateString } from './schema.js';
 import { evaluateDay } from '../plan/feasibility.js';
+import { dateInZone } from '../../shared/local-date.js';
 
 const clone = v => (v === undefined ? v : JSON.parse(JSON.stringify(v)));
 
@@ -52,7 +53,7 @@ export function dayExecution({ trip, day, visits = [], places = null, options = 
   const result = evaluateDay({ day, items, places, options });
   const doneByVisit = new Set(
     (Array.isArray(visits) ? visits : [])
-      .filter(v => v && v.plannedItemId && v.status !== 'skipped')
+      .filter(v => v && v.plannedItemId && v.status !== 'skipped' && !v.deletedAt)
       .map(v => v.plannedItemId));
   // evaluateDay 会把 skipped（以及缺坐标/缺时长）的条目移出排程，但 Today 必须如实展示：
   // 以日顺序为准合并回 rows，未排程的标 unscheduled
@@ -131,7 +132,7 @@ export function completeItem(trip, itemId, { at, actualStart = '', actualEnd = '
       placeId: item.refId,
       tripId: trip.id,
       plannedItemId: item.id,
-      date: day.date || new Date(stamp).toISOString().slice(0, 10),
+      date: day.date || dateInZone(stamp, item.timeZone || trip.homeTimeZone || ''),
       dateSource: 'actual',
       countIndex: nextCountIndex(existingVisits, item.refId),
       source: 'plan',
@@ -173,7 +174,7 @@ export function skipItem(trip, itemId, { reason = '', at, existingVisits = [], i
       placeId: item.refId,
       tripId: trip.id,
       plannedItemId: item.id,
-      date: day.date || new Date(stamp).toISOString().slice(0, 10),
+      date: day.date || dateInZone(stamp, item.timeZone || trip.homeTimeZone || ''),
       dateSource: 'actual',
       countIndex: nextCountIndex(existingVisits, item.refId),
       source: 'plan',

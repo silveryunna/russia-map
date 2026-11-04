@@ -310,7 +310,25 @@ b.hl { color: #B71C1C; font-weight: 700; }
 }
 .cj-arrow:hover { background: #ECEAE4; color: #555; }
 
-/* 国家分组头（四级侧栏第一级） */
+/* 板块层（侧栏第一级） */
+.region-chips {
+  display: flex; gap: var(--sp-1); padding: var(--sp-1) var(--sp-2) var(--sp-2);
+  overflow-x: auto; scrollbar-width: none;
+}
+.region-chips::-webkit-scrollbar { display: none; }
+.region-chip {
+  flex: none; display: flex; align-items: baseline; gap: var(--sp-1);
+  border: 1px solid var(--line); border-radius: var(--r-pill); background: var(--card);
+  padding: var(--sp-1) var(--sp-3); font-size: 12px; color: var(--muted); cursor: pointer; white-space: nowrap;
+}
+.region-chip b { font-size: 13px; color: var(--text); }
+.region-chip.active { border-color: var(--accent); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+.region-chip.active b { color: var(--accent); }
+
+/* 板块边界（Leaflet path 的 SVG 属性由 CSS 覆盖，颜色统一走令牌） */
+.region-boundary { stroke: var(--muted); stroke-width: 1.5; stroke-opacity: .65; fill: none; }
+
+/* 国家/板块分组头（四级侧栏第一级） */
 .country-head {
   display: flex; align-items: center; gap: 9px;
   margin: 12px 10px 4px; padding: 11px 13px; border-radius: 12px;

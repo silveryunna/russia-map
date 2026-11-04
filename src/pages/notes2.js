@@ -8,6 +8,8 @@ import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
 import { initDataSafety } from '../shared/data-safety.js';
 import { registerSW } from '../shared/sw-register.js';
+import { showUndoToast } from '../shared/undo-toast.js';
+import { dateInZone } from '../shared/local-date.js';
 
 const $app = document.getElementById('notes-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -120,7 +122,7 @@ function checklistHTML() {
         ${isDone ? `<button class="cl-edit" data-edit="${esc(p.id)}" title="记录日期 / 次数 / 感想">✎</button>` : ''}
       </label>`;
       if (editing === p.id) html += `<div class="cl-editor" data-editor="${esc(p.id)}">
-        <label>日期 <input type="date" data-f="last" value="${esc(info.last || new Date().toISOString().slice(0, 10))}"></label>
+        <label>日期 <input type="date" data-f="last" value="${esc(info.last || dateInZone())}"></label>
         <label>第几次 <input type="number" data-f="n" min="1" max="99" value="${info.n || 1}"></label>
         <label>一句话感想 <input type="text" data-f="note" maxlength="100" placeholder="如：夕阳下的红场" value="${esc(info.note || '')}"></label>
         <div class="cl-editor-ops">
@@ -233,10 +235,12 @@ $app.addEventListener('click', async e => {
 $app.addEventListener('change', async e => {
   const cb = e.target.closest('input[data-check]');
   if (!cb || !visitRepo) return;
-  try { await visitRepo.toggle(cb.dataset.check); } catch { /* 存储层已广播配额横幅 */ }
+  let added = false;
+  try { added = await visitRepo.toggle(cb.dataset.check); } catch { /* 存储层已广播配额横幅 */ }
   checked = visitRepo.getCheckins();
   if (editing && editing !== cb.dataset.check) editing = null;
   render();
+  if (!added && visitRepo.undoable()) showUndoToast('已取消该点位打卡', () => visitRepo.undoDelete());
 });
 
 (async () => {

@@ -9,22 +9,35 @@ import { GeoSearchControl } from 'leaflet-geosearch';
 import { FullScreen } from 'leaflet.fullscreen';
 import '../shared/base.css';
 import './map.css';
+import '../shared/layout-wide.css';
+import { installShortcuts } from '../shared/shortcuts.js';
 import '../shared/leaflet-default-icon.js';
 import { renderIcpFooter } from '../shared/icp-footer.js';
 import { registerSW } from '../shared/sw-register.js';
+import { showUndoToast } from '../shared/undo-toast.js';
 import { xy } from './map/coords.js';
 import { categoryIcon } from './map/icons.js';
 import { ratingTabs, ratingBadges, validRatings } from './map/ratings.js';
 import { navLinks, navHref } from './map/nav.js';
 import { drawOverlays, rebuildOverlays } from './map/overlays.js';
 import { initPlayer, playRoute, stopPlay } from './map/player.js';
-import { initLayers, countryOf, sortCities, COUNTRY_STYLE } from './map/layers.js';
+import { initLayers, countryOf, sortCities, COUNTRY_STYLE, syncRegionBasemap } from './map/layers.js';
+import { initBoundaries, showRegionBoundary, clearRegionBoundary } from './map/boundaries.js';
 
 /* 设计门 L1 · 例外 · Leaflet 的 color/fillColor 会写进 SVG 属性，CSS 变量不解析 · 与 --city-other 同值，改令牌要同步这里 */
 const CITY_FALLBACK = '#546570';
+/* 板块配色只用于侧栏板块头；城市与点位仍用 meta.cityColors，避免板块/城市双重分组串色 */
+const REGION_STYLE = {
+  ru: { flag: '🇷🇺', color: 'var(--region-ru)' },
+  kz: { flag: '🇰🇿', color: 'var(--region-kz)' },
+  ge: { flag: '🇬🇪', color: 'var(--region-ge)' },
+  cn: { flag: '🇨🇳', color: 'var(--region-cn)' },
+  other: { flag: '📍', color: 'var(--region-other)' },
+};
 import { openVisitRepository } from './visits/repository.js';
 import { showDegradedBanner } from '../shared/degraded-banner.js';
 import { initDataSafety } from '../shared/data-safety.js';
+import { loadRegions, visiblePoints as filterVisiblePoints, regionOf } from '../shared/regions.js';
 
 // 兼容只认全局 L 的老插件（leaflet.markercluster 的 UMD 内部引用自由变量 L）
 window.L = L;
@@ -220,7 +233,8 @@ const state = {
   tab: 'points',          // points | routes | life
   city: '全部',
   query: '',
-  collapsed: new Set(),   // 'country:名' | '市||群' | 'life:市' | 'rg:市' | '__pending'
+  region: '',             // 板块筛选：'' = 全部启用板块
+  collapsed: new Set(),   // 'region:名' | '市||群' | 'life:市' | 'rg:市' | '__pending'
   opened: new Set(),      // 'city:名'（城市默认折叠，点开进这里）
   tagFilter: new Set(),   // 标签筛选（多选 = 并集）
   tagsExpanded: false,
@@ -234,15 +248,18 @@ const state = {
   checked: new Set(),     // 打卡 v2：id 集合（见下初始化）
 };
 
-let points = [];          // 全部点位（含 pending）
+let points = [];          // 可见板块的点位（含 pending）；关闭板块的点位在启动时已剔除
+let regionIndex = null;    // 板块配置：enabled=false 的板块不展示、不计入统计
 let routes = [];
 let meta = { cities: [], cityColors: {} };
 let pointByName = new Map();   // 动线 steps 的 point 名称快照索引（pointId 缺失时兜底）
 let pointById = new Map();
 
-let map, clusterGroup, routesGroup;
+let map, routesGroup;
 let visitRepo = null;
 const markerById = new Map();
+const groupByPoint = new Map();   // 点位 id → 所属板块聚合层（切换板块只显隐，不重建）
+const regionGroups = new Map();   // 板块 id → markerClusterGroup（按板块懒创建）
 let suppressFit = false;  // 手动飞向点位后，阻止本次重新 fitBounds
 let lastFitKey = '';      // 上次 fitBounds 的视图钥匙
 
@@ -279,11 +296,12 @@ function routePoints(route) {
   return out;
 }
 
-// 侧栏四级分组：国家 → 城市 → 点位群 → 点位（搜索/标签/城市过滤后）
-function groupedByCountry() {
+// 侧栏四级分组：板块 → 城市 → 点位群 → 点位（搜索/标签/城市/板块过滤后）
+function groupedByRegion() {
   const q = state.query.trim().toLowerCase();
   let list = q ? matchPoints(q).map(x => x.p).filter(matchTags) : geoPoints().filter(matchTags);
   list = list.filter(p => state.city === '全部' || p.city === state.city);
+  if (state.region) list = list.filter(p => regionOf(p, regionIndex) === state.region);
   const byCity = new Map();
   for (const p of list) {
     if (!byCity.has(p.city)) byCity.set(p.city, new Map());
@@ -291,18 +309,26 @@ function groupedByCountry() {
     if (!clusters.has(p.cluster)) clusters.set(p.cluster, []);
     clusters.get(p.cluster).push(p);
   }
-  const byCountry = new Map();
+  const groups = new Map();
   for (const [city, clusters] of byCity) {
-    const cn = countryOf(city);
-    if (!byCountry.has(cn)) byCountry.set(cn, []);
-    byCountry.get(cn).push([city, clusters]);
+    const rid = regionOf(list.find(p => p.city === city) || {}, regionIndex);
+    if (!groups.has(rid)) groups.set(rid, []);
+    groups.get(rid).push([city, clusters]);
   }
-  const out = [];
-  for (const cn of ['中国', '俄罗斯', '哈萨克斯坦', '其他']) {
-    if (!byCountry.has(cn)) continue;
-    out.push({
-      country: cn,
-      cities: byCountry.get(cn)
+  const order = (regionIndex && regionIndex.regions ? regionIndex.regions : []).map(r => r.id);
+  const nameOf = (rid) => {
+    const r = regionIndex && regionIndex.byId ? regionIndex.byId.get(rid) : null;
+    return (r && r.name) || (rid === regionIndex?.fallback ? '其他' : rid || '未分区');
+  };
+  return [...groups.entries()]
+    .sort((a, b) => {
+      const ai = order.indexOf(a[0]); const bi = order.indexOf(b[0]);
+      return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi);
+    })
+    .map(([id, cities]) => ({
+      id,
+      name: nameOf(id),
+      cities: cities
         .sort((a, b) =>
           (meta.cities.indexOf(a[0]) < 0 ? 99 : meta.cities.indexOf(a[0])) -
           (meta.cities.indexOf(b[0]) < 0 ? 99 : meta.cities.indexOf(b[0])))
@@ -310,17 +336,24 @@ function groupedByCountry() {
           city,
           clusters: [...clusters.entries()].map(([cluster, pts]) => ({ cluster, points: pts })),
         })),
-    });
-  }
-  return out;
+    }));
 }
 
-// 待核点位（跟随搜索/标签/城市过滤）
+function focusRegion(id) {
+  const r = regionIndex && regionIndex.byId ? regionIndex.byId.get(id) : null;
+  if (!r || !Array.isArray(r.center) || !map) return;
+  showRegionBoundary(r);            // 边界按需加载；失败在模块内降级为 bbox，不阻塞地图
+  syncRegionBasemap(r);             // 板块级底图策略（cn 启用时也只走 WGS，无 GCJ 偏移）
+  map.flyTo([r.center[0], r.center[1]], r.defaultZoom || 5);
+}
+
+// 待核点位（跟随搜索/标签/城市/板块过滤）
 function filteredPending() {
   const q = state.query.trim().toLowerCase();
   const list = pendingPoints()
     .filter(matchTags)
-    .filter(p => state.city === '全部' || p.city === state.city);
+    .filter(p => state.city === '全部' || p.city === state.city)
+    .filter(p => !state.region || regionOf(p, regionIndex) === state.region);
   return q ? list.filter(p => matchIds(q).has(p.id)) : list;
 }
 
@@ -398,19 +431,32 @@ function pointsTabHtml() {
     return html;
   }
 
-  for (const { country, cities } of groupedByCountry()) {
-    const cs = COUNTRY_STYLE[country] || COUNTRY_STYLE['其他'];
-    const ck = 'country:' + country;
-    const copen = !state.collapsed.has(ck);
-    const ccount = cities.reduce((n, c) => n + c.clusters.reduce((m, cl) => m + cl.points.length, 0), 0);
+  // 板块层：切换板块只改变侧栏分组与地图视野，不动已有的筛选/打卡状态
+  const boards = (regionIndex && regionIndex.regions ? regionIndex.regions : [])
+    .filter(r => r.enabled !== false && points.some(p => regionOf(p, regionIndex) === r.id));
+  if (boards.length > 1) {
+    html += `<div class="region-chips">${[''].concat(boards.map(b => b.id)).map(id => {
+      const b = id ? regionIndex.byId.get(id) : null;
+      const n = id ? points.filter(p => regionOf(p, regionIndex) === id).length : points.length;
+      return `<button class="region-chip${state.region === id ? ' active' : ''}" data-region="${esc(id)}">
+        <b>${id ? esc(b.name) : '全部'}</b><span>${n}</span></button>`;
+    }).join('')}</div>`;
+  }
+
+  for (const { id, name, cities } of groupedByRegion()) {
+    const rs = REGION_STYLE[id] || REGION_STYLE.other;
+    const rk = 'region:' + id;
+    const ropen = !state.collapsed.has(rk);
+    const rcount = cities.reduce((n, c) => n + c.clusters.reduce((m, cl) => m + cl.points.length, 0), 0);
     html += `
-      <div class="country-head" data-toggle="${esc(ck)}" style="--cc:${cs.color}">
-        <span class="ch-flag">${cs.flag}</span><span class="ch-name">${esc(country)}</span>
-        <span class="head-pill">${ccount}</span>
-        <span class="ch-arrow">${copen ? '▼' : '▶'}</span>
+      <div class="country-head region-head" data-toggle="${esc(rk)}" style="--cc:${rs.color}">
+        <span class="ch-flag">${rs.flag}</span><span class="ch-name">${esc(name)}</span>
+        <span class="head-pill">${rcount}</span>
+        <button class="star-btn" data-focus-region="${esc(id)}" aria-label="定位到${esc(name)}" title="定位到该板块">◎</button>
+        <span class="ch-arrow">${ropen ? '▼' : '▶'}</span>
       </div>`;
-    if (!copen) continue;
-    html += `<div class="country-children" style="--cc:${cs.color}">`;
+    if (!ropen) continue;
+    html += `<div class="country-children" style="--cc:${rs.color}">`;
     for (const { city, clusters } of cities) {
       const color = meta.cityColors[city] || CITY_FALLBACK;
       const key = 'city:' + city;
@@ -444,20 +490,21 @@ function pointsTabHtml() {
         }
       }
     }
-    // 待核实坐标挂在「其他」国家组末尾（无坐标，不上图）
-    if (country === '其他') {
-      const pend = filteredPending();
-      if (pend.length) {
-        const isCollapsed = state.collapsed.has('__pending');
-        html += `
+    html += `</div>`;
+  }
+  // 待核实坐标单独挂在末尾（无坐标，不上图）
+  const pend = filteredPending();
+  if (pend.length) {
+    const isCollapsed = state.collapsed.has('__pending');
+    html += `
       <div class="city-head pending-head" data-toggle="__pending">
         <span class="head-arrow">${isCollapsed ? '▶' : '▼'}</span>
         <span class="head-dot"></span>📌 待核实坐标
         <span class="head-count">（${pend.length}）</span>
       </div>`;
-        if (!isCollapsed) {
-          for (const p of pend) {
-            html += `
+    if (!isCollapsed) {
+      for (const p of pend) {
+        html += `
         <div class="point-row pending">
           <span class="pr-badge">待核</span>
           <div class="pr-main">
@@ -465,11 +512,8 @@ function pointsTabHtml() {
             <div class="pr-sub">${esc(p.city)} · ${esc(p.type)} · ${esc(p.highlight)}</div>
           </div>
         </div>`;
-          }
-        }
       }
     }
-    html += `</div>`;
   }
   return html;
 }
@@ -576,10 +620,61 @@ function routeDetailHtml(r) {
 }
 
 // ===== 地图标记刷新 =====
+// 板块级聚合层：每个板块一个 markerClusterGroup，只在需要时创建；
+// 板块切换只做显隐（syncRegionVisibility），不 clearLayers/不重建标记。
+const CLUSTER_OPTS = {
+  maxClusterRadius: 35,
+  disableClusteringAtZoom: 12,
+  showCoverageOnHover: false,
+  chunkedLoading: true,
+  iconCreateFunction: (cluster) => L.divIcon({
+    className: '',
+    html: `<div style="width:34px;height:34px;border-radius:50%;background:#B71C1C;color:#fff;` +
+      `font:700 14px/1 system-ui;display:flex;align-items:center;justify-content:center;` +
+      `border:3px solid #FFD54F;box-shadow:0 1px 6px rgba(0,0,0,.5)">${cluster.getChildCount()}</div>`,
+    iconSize: [34, 34],
+  }),
+};
+
+function regionKeyOf(p) {
+  return regionOf(p, regionIndex) || '__default';
+}
+
+function markerGroupFor(rid) {
+  let g = regionGroups.get(rid);
+  if (!g) {
+    g = L.markerClusterGroup(CLUSTER_OPTS);
+    regionGroups.set(rid, g);
+  }
+  return g;
+}
+
+// 板块 chip 切换：按 state.region 只增删图层，标记本身不重建
+function syncRegionVisibility() {
+  for (const [rid, g] of regionGroups) {
+    const on = !state.region || rid === state.region;
+    if (on && !map.hasLayer(g)) g.addTo(map);
+    else if (!on && map.hasLayer(g)) map.removeLayer(g);
+  }
+}
+
+// 切换后若选中点位仍在可见板块，直接重开它的弹窗（不再 zoomToShowLayer，避免把刚 flyTo 的视野拉回点位）
+function reopenSelectedPopup() {
+  if (!state.selected) return;
+  const m = markerById.get(state.selected);
+  const g = groupByPoint.get(state.selected);
+  if (!m || !g || !map.hasLayer(g) || !map.hasLayer(m)) return;
+  m.openPopup();
+}
+
 function refreshMarkers() {
-  clusterGroup.clearLayers();
+  for (const g of regionGroups.values()) {
+    g.clearLayers();
+    if (map.hasLayer(g)) map.removeLayer(g);
+  }
   routesGroup.clearLayers();
   markerById.clear();
+  groupByPoint.clear();
   const bounds = [];
   const route = state.tab === 'routes' ? currentRoute() : null;
 
@@ -607,17 +702,22 @@ function refreshMarkers() {
       const m = L.marker(xy(p.lat, p.lon), { icon });
       m.bindPopup(popupHtml(p), { closeButton: true, autoPan: false });
       m.on('click', () => { state.selected = p.id; refreshMarkers(); renderSidebar(); });
-      clusterGroup.addLayer(m);
+      const g = markerGroupFor(regionKeyOf(p));
+      g.addLayer(m);
+      groupByPoint.set(p.id, g);
       markerById.set(p.id, m);
-      if (state.selected === p.id) clusterGroup.zoomToShowLayer(m, () => m.openPopup());
-      bounds.push(xy(p.lat, p.lon));
+      if (state.selected === p.id && map.hasLayer(g)) g.zoomToShowLayer(m, () => m.openPopup());
+      // fitBounds 只按当前可见板块计算，避免切到单个板块后又被其他板块的点拉远
+      if (!state.region || regionOf(p, regionIndex) === state.region) bounds.push(xy(p.lat, p.lon));
     }
   }
 
+  syncRegionVisibility();
   // 视图钥匙变化时才 fitBounds（筛选/切换页签/选动线），点选/高亮/打卡不移动地图
-  const key = state.tab + '|' + state.city + '|' + (route ? route.id : '');
+  const key = state.tab + '|' + state.city + '|' + state.region + '|' + (route ? route.id : '');
   if (bounds.length && !suppressFit && key !== lastFitKey) {
-    map.fitBounds(L.latLngBounds(bounds).pad(0.15));
+    // 关掉动画：首屏 fitBounds 与用户立刻点的板块 chip flyTo 会互相抢动画，首点视野被拉回全量范围
+    map.fitBounds(L.latLngBounds(bounds).pad(0.15), { animate: false });
     lastFitKey = key;
   }
   suppressFit = false;
@@ -656,7 +756,10 @@ function flyToPoint(p) {
     const m = markerById.get(p.id);
     if (!m) return;
     if (state.tab === 'routes') m.openPopup();
-    else clusterGroup.zoomToShowLayer(m, () => m.openPopup());
+    else {
+      const g = groupByPoint.get(p.id);
+      if (g && map.hasLayer(g)) g.zoomToShowLayer(m, () => m.openPopup());
+    }
   }, 850);
 }
 
@@ -666,6 +769,42 @@ function closeSidebarMobile() {
   const sb = document.getElementById('sidebar');
   sb.classList.add('closed');
   document.getElementById('sidebar-toggle').textContent = '▶ 展开';
+}
+
+// ===== 键盘操作（j/k 逐条飞向点位；r 循环板块；b 侧栏；/ 搜索） =====
+let kbdIdx = -1;
+
+function stepPoint(step) {
+  // 侧栏是四级折叠分组，默认没有可见的 .point-row：直接按分组后的顺序取点位
+  const pts = groupedByRegion().flatMap(g => g.cities.flatMap(c => c.clusters.flatMap(cl => cl.points)));
+  if (!pts.length) return;
+  kbdIdx = (kbdIdx + step + pts.length) % pts.length;
+  const p = pts[kbdIdx];
+  if (!p) return;
+  const row = document.querySelector(`#sb-body .point-row[data-pid="${CSS.escape(p.id)}"]`);
+  if (row) row.scrollIntoView({ block: 'center' });
+  flyToPoint(p);
+}
+
+function cycleRegion() {
+  const chips = [...document.querySelectorAll('.region-chips .region-chip[data-region]')];
+  if (chips.length < 2) return;   // 单板块时不循环，避免误触
+  const cur = chips.findIndex(c => c.classList.contains('active'));
+  chips[(cur + 1) % chips.length].click();
+}
+
+// 侧栏收起时先展开，否则搜索框不可见；无侧栏搜索（动线页签）时退到地图控件搜索
+function focusSidebarSearch() {
+  const sb = document.getElementById('sidebar');
+  const focus = () => {
+    const el = sb.querySelector('.sb-search') || (window.__geoControl__ && window.__geoControl__.searchElement
+      ? window.__geoControl__.searchElement.input : null);
+    if (el) el.focus();
+  };
+  if (sb.classList.contains('closed')) {
+    document.getElementById('sidebar-toggle').click();
+    setTimeout(focus, 280);   // 等侧栏宽度过渡结束再聚焦，避免焦点被隐藏元素吞掉
+  } else focus();
 }
 
 // ===== 统计 / 图例 / 城市胶囊 =====
@@ -739,21 +878,9 @@ async function initMap() {
     }
   });
 
-  // 点位聚合层（红色数字气泡，街区级散开）
-  clusterGroup = L.markerClusterGroup({
-    maxClusterRadius: 35,
-    disableClusteringAtZoom: 12,
-    showCoverageOnHover: false,
-    chunkedLoading: true,
-    iconCreateFunction: (cluster) => L.divIcon({
-      className: '',
-      html: `<div style="width:34px;height:34px;border-radius:50%;background:#B71C1C;color:#fff;` +
-        `font:700 14px/1 system-ui;display:flex;align-items:center;justify-content:center;` +
-        `border:3px solid #FFD54F;box-shadow:0 1px 6px rgba(0,0,0,.5)">${cluster.getChildCount()}</div>`,
-      iconSize: [34, 34],
-    }),
-  }).addTo(map);
+  // 点位聚合层按板块拆分为多个 markerClusterGroup（见 refreshMarkers），这里只建路线层
   routesGroup = L.layerGroup().addTo(map);
+  initBoundaries({ L, map });
 
   // 数据驱动覆盖层（水上巴士航线等，来自 data/overlays.json）
   drawOverlays(L, map);
@@ -780,7 +907,7 @@ async function initMap() {
   new SafeFullScreen({ position: 'bottomright', title: '全屏显示', titleCancel: '退出全屏' }).addTo(map);
 
   // 图层方案（世界/中国）、刷新控件、城市快跳、区域遮罩
-  initLayers({ L, map, toast: mapToast, refreshMarkers, meta, geoPoints });
+  initLayers({ L, map, toast: mapToast, refreshMarkers, meta, geoPoints, regionIndex });
 
   // 打卡点搜索（本地点位库，中/俄/英；不再走 Nominatim 地址搜索）
   // 须在 initLayers 之后注册：保持在左上角控件列末尾（线上顺序：图层/快跳/刷新/方案/搜索）
@@ -946,9 +1073,14 @@ function bindEvents() {
   body.addEventListener('change', async (e) => {
     const id = e.target.dataset?.check;
     if (!id || !visitRepo) return;
-    try { await visitRepo.toggle(id); } catch { /* 存储层已广播配额横幅，这里只回读事实状态 */ }
+    let added = false;
+    try { added = await visitRepo.toggle(id); } catch { /* 存储层已广播配额横幅，这里只回读事实状态 */ }
     state.checked = new Set(Object.keys(visitRepo.getCheckins()));
     refreshMarkers(); renderSidebar(); renderChrome();
+    // 取消打卡只做软删除：给一次 5 分钟内的撤销机会（记录本身不会丢）
+    if (!added && visitRepo.undoable()) {
+      showUndoToast('已取消该点位打卡', () => visitRepo.undoDelete());
+    }
   });
 
   body.addEventListener('click', (e) => {
@@ -957,6 +1089,28 @@ function bindEvents() {
       e.stopPropagation();
       e.preventDefault();
       playRoute();
+      return;
+    }
+    // 板块 chips / 定位按钮：只改视野与分组，不动已有筛选与打卡状态
+    const focusBtn = e.target.closest('[data-focus-region]');
+    if (focusBtn) {
+      e.stopPropagation();
+      focusRegion(focusBtn.dataset.focusRegion);
+      return;
+    }
+    const regBtn = e.target.closest('[data-region]');
+    if (regBtn) {
+      const id = regBtn.dataset.region;
+      state.region = state.region === id ? '' : id;
+      syncRegionVisibility();          // 只显隐板块图层，不重建标记
+      if (state.region) {
+        focusRegion(state.region);     // flyTo 中心/缩放 + 换边界 + 底图策略
+      } else {
+        clearRegionBoundary();
+        syncRegionBasemap(null);       // 全部板块 → 回世界底图
+      }
+      renderSidebar();
+      reopenSelectedPopup();
       return;
     }
     // 标签筛选 chips——须放在 input/button 提前返回之前（chips 是 button）
@@ -1040,7 +1194,9 @@ async function main() {
 
   // Visit repository 启动时会做一次性迁移；之后 travel-checkin-v2 只是派生缓存
   let overlays = [];
-  [visitRepo, points, routes, meta, overlays] = await Promise.all([
+  // 后 4 项出厂设置（中国边界/评分/字段/笔记索引）只通过 window 钩子消费，不参与解构；
+  // regionIndex 必须对准 loadRegions()（第 10 项），漏项会让板块配置变成别的对象 → 地图白屏
+  [visitRepo, points, routes, meta, overlays, , , , , regionIndex] = await Promise.all([
     openVisitRepository({
       onChange: (checkins) => {
         state.checked = new Set(Object.keys(checkins));
@@ -1051,11 +1207,15 @@ async function main() {
     fetch('./data/routes.json').then(r => r.json()),
     fetch('./data/meta.json').then(r => r.json()),
     fetch('./data/overlays.json').then(r => r.json()),
-    fetch('./data/china-boundary.json').then(r => r.json()).then(d => (window.__chinaBoundary__ = d)),
+    fetch('./data/china-boundary.json').then(r => r.json()).then(d => (window.__chinaBoundary__ = d)).catch(() => null),
     fetch('./data/ratings.json').then(r => r.json()).catch(() => ({ items: {} })).then(d => (window.__ratings__ = d)),
     fetch('./data/field.json').then(r => r.json()).catch(() => ({})).then(d => (window.__fieldData__ = d)),
     fetch('./content/notes/index.json').then(r => r.json()).catch(() => []).then(d => (window.__notesIndex__ = d)),
+    loadRegions(),
   ]);
+  // 关闭板块（enabled=false，例如 Gate-CN 未过的中国板块）的点位不进地图、不计入统计；数据文件本身保留
+  points = filterVisiblePoints(points, regionIndex);
+  if (meta && Array.isArray(meta.cities)) meta.cities = meta.cities.filter(c => points.some(p => p.city === c));
   state.checked = new Set(Object.keys(visitRepo.getCheckins()));
   if (visitRepo.degraded) showDegradedBanner('IndexedDB 不可用，打卡改动只会留在内存、刷新即丢；请关闭隐私模式或检查浏览器存储权限');
   else void initDataSafety({ store: visitRepo.store }).catch(() => {});
@@ -1070,6 +1230,15 @@ async function main() {
   refreshMarkers();
   renderSidebar();
   renderChrome();
+  installShortcuts({
+    search: focusSidebarSearch,
+    region: cycleRegion,
+    nextPoint: () => stepPoint(1),
+    prevPoint: () => stepPoint(-1),
+    sidebar: () => document.getElementById('sidebar-toggle').click(),
+    today: () => { location.href = './today.html'; },
+    plan: () => { location.href = './plan.html'; },
+  });
 }
 
 main().catch(err => {

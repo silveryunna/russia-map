@@ -8,6 +8,7 @@
 import { TAXI_FARES } from './fare-table.js';
 import { lookupTransitLeg } from './transit-matrix.js';
 import { factKey, factState, indexFacts } from './facts.js';
+import { dateInZone } from '../../shared/local-date.js';
 
 export const TRANSIT = {
   walkSpeedMPerMin: 80,      // 4.8 km/h，城市步行含找路
@@ -18,6 +19,17 @@ export const TRANSIT = {
 };
 
 export const DEFAULT_DAY = { start: '09:00', end: '21:00' };
+
+// 跨板块长途：两端点位分属不同板块（region）时，城市级交通模型不适用。
+// 约定：标"未建模"、不计入通行/总时长、不参与超时判断；可行性结论降权为"无法自动判定"。
+export const UNMODELED_LEG_NOTE = '长途未建模（需自行安排航班/长距离交通）';
+
+// 两端都声明了 region 且不同 → 跨板块段；缺 region（旧数据）不判定，保持原有行为
+export function isCrossRegionLeg(from, to) {
+  const a = from && typeof from.region === 'string' ? from.region : '';
+  const b = to && typeof to.region === 'string' ? to.region : '';
+  return a && b && a !== b ? { fromRegion: a, toRegion: b } : null;
+}
 
 // 一天里会被消费的事实字段：开放时间决定能不能去，票价决定要不要提前买
 const DAY_FACT_FIELDS = ['openCalendar', 'ticket'];
@@ -57,6 +69,21 @@ export function distanceMeters(a, b) {
 export function estimateLeg(from, to, options = {}) {
   if (!from || !to) return null;
   if (from.id && to.id && from.id === to.id) return { meters: 0, minutes: 0, mode: 'walk', source: 'estimate', sourceKind: 'model-estimate' };
+  const cross = isCrossRegionLeg(from, to);
+  if (cross) {
+    const meters = distanceMeters(from, to);
+    if (meters === null) return null;
+    return {
+      meters,
+      minutes: 0,
+      mode: 'unmodeled',
+      source: 'unmodeled',
+      sourceKind: 'unmodeled-long-haul',
+      unmodeled: true,
+      label: UNMODELED_LEG_NOTE,
+      ...cross,
+    };
+  }
   const matrixMode = options.mode === 'taxi' ? 'car' : 'walking';
   const real = options.matrix ? lookupTransitLeg(options.matrix, from.id, to.id, matrixMode) : null;
   if (real) {
@@ -283,10 +310,11 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
   const factIndex = options.facts
     ? (options.facts instanceof Map ? options.facts : indexFacts(options.facts))
     : null;
-  const evidenceDate = date || new Date().toISOString().slice(0, 10);
+  const evidenceDate = date || dateInZone();
 
   const conflicts = [];
   const timeline = [];
+  const unmodeledLegs = [];
   const push = (kind, severity, itemId, message, extra = {}) =>
     conflicts.push({ kind, severity, itemId, message, ...extra });
 
@@ -305,6 +333,15 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
   // 最后一步若回到起点（环线闭合），按"路过"处理而不是重复点位
   const lastResolvable = [...list].reverse().find((i) => i.refId && placeOf(places, i.refId)) || null;
   const firstResolvable = list.find((i) => i.refId && placeOf(places, i.refId)) || null;
+  // 跨日跨板块：由调用方给出"进入这一天之前的板块"（上一日最后一个点位所属板块）；
+  // 与当日首个点位板块不同 → 同样按长途未建模处理，避免把日界当成都市内通勤
+  const entryRegion = typeof options.entryRegion === 'string' ? options.entryRegion : '';
+  const firstPlace = firstResolvable ? placeOf(places, firstResolvable.refId) : null;
+  const entryCross = entryRegion && firstPlace && firstPlace.region && entryRegion !== firstPlace.region
+    ? { fromRegion: entryRegion, toRegion: firstPlace.region } : null;
+  // 板块名由调用方给（可选）；缺省回落到 region id，保持纯函数可测
+  const regionNames = options.regionNames && typeof options.regionNames === 'object' ? options.regionNames : {};
+  const rname = (id) => regionNames[id] || id || '';
 
   for (const item of list) {
     const place = item.refId ? placeOf(places, item.refId) : null;
@@ -327,6 +364,12 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
             taxiCost += leg.cost || 0;
             taxiCurrency = leg.currency || taxiCurrency;
           }
+        }
+        if (leg && leg.unmodeled) {
+          unmodeledLegs.push({ itemId: item.id, fromId: prevPlace.id, toId: place.id, fromRegion: leg.fromRegion, toRegion: leg.toRegion, meters: leg.meters, scope: 'loop' });
+          push('cross-region-unmodeled', 'warn', item.id, `「${prevPlace.name}」→「${name}」跨板块（${rname(leg.fromRegion)} → ${rname(leg.toRegion)}），${UNMODELED_LEG_NOTE}，不计入总时长`, {
+            fromRegion: leg.fromRegion, toRegion: leg.toRegion, scope: 'loop',
+          });
         }
         push('loop-closure', 'warn', item.id, `「${name}」是回到起点的闭合回路，只计通行不计停留`, {
           backMinutes: leg ? leg.minutes : 0,
@@ -363,6 +406,13 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
         taxiCost += leg.cost || 0;
         taxiCurrency = leg.currency || taxiCurrency;
       }
+    }
+    const legUnmodeled = Boolean(leg && leg.unmodeled);
+    if (legUnmodeled) {
+      unmodeledLegs.push({ itemId: item.id, fromId: prevPlace.id, toId: place.id, fromRegion: leg.fromRegion, toRegion: leg.toRegion, meters: leg.meters, scope: 'day-leg' });
+      push('cross-region-unmodeled', 'warn', item.id, `「${prevPlace.name}」→「${name}」跨板块（${rname(leg.fromRegion)} → ${rname(leg.toRegion)}），${UNMODELED_LEG_NOTE}，不计入总时长`, {
+        fromRegion: leg.fromRegion, toRegion: leg.toRegion, scope: 'day-leg',
+      });
     }
 
     let arrive = cursor + legMinutes;
@@ -441,6 +491,10 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       mode: leg ? leg.mode : 'none',
       transitSource: leg ? leg.source : 'none',
       transitSourceKind: leg ? leg.sourceKind : 'none',
+      unmodeled: legUnmodeled,
+      unmodeledLabel: legUnmodeled ? leg.label : '',
+      fromRegion: legUnmodeled ? leg.fromRegion : '',
+      toRegion: legUnmodeled ? leg.toRegion : '',
       durationSource: Number.isFinite(item.estimatedDuration) ? 'custom'
         : (place && place.durationBasis === 'measured' ? 'first-party-measured' : 'model-estimate'),
       cost: leg && leg.mode === 'taxi' ? leg.cost || 0 : 0,
@@ -451,6 +505,21 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
     });
     cursor = end;
     if (place) prevPlace = place;
+  }
+
+  // 跨日跨板块的"进入段"：只标记当天的第一个点位，不编造时长
+  if (entryCross) {
+    const row = timeline.find((t) => t.itemId === firstResolvable.id);
+    if (row) {
+      row.unmodeled = true;
+      row.unmodeledScope = 'day-entry';
+      row.fromRegion = entryCross.fromRegion;
+      row.toRegion = entryCross.toRegion;
+      unmodeledLegs.push({ itemId: row.itemId, fromId: null, toId: row.placeId, ...entryCross, meters: null, scope: 'day-entry' });
+      push('cross-region-unmodeled', 'warn', row.itemId, `自上一板块（${rname(entryCross.fromRegion)}）进入（${rname(entryCross.toRegion)}）：${UNMODELED_LEG_NOTE}，不计入当天排程`, {
+        ...entryCross, scope: 'day-entry',
+      });
+    }
   }
 
   if (timeline.length && cursor > dayEnd) {
@@ -513,10 +582,13 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
   };
   const conditional = evidence.unknownFacts > 0 || evidence.staleFacts > 0
     || evidence.estimatedLegCoverage > 0 || (placeRows.length > 0 && evidence.measuredDurationCoverage < 1);
+  const unmodeledCount = unmodeledLegs.length;
 
   return {
-    feasible: errors.length === 0 && timeline.length > 0,
-    structural: timeline.length === 0 ? 'empty' : errors.length ? 'infeasible' : conditional ? 'conditional' : 'feasible',
+    // 有长途未建模段时不能给二值结论：feasible=null（无法自动判定），既不说可行也不说不可行
+    feasible: unmodeledCount ? null : (errors.length === 0 && timeline.length > 0),
+    structural: timeline.length === 0 ? 'empty' : errors.length ? 'infeasible' : unmodeledCount ? 'unmodeled' : conditional ? 'conditional' : 'feasible',
+    unmodeledLegs,
     evidence,
     empty: timeline.length === 0,
     conflicts,
@@ -531,6 +603,7 @@ export function evaluateDay({ day = {}, items = [], places = null, options = {} 
       totalMinutes,
       places: timeline.filter((t) => t.placeId).length,
       unknownHours,
+      unmodeledLegs: unmodeledCount,
     },
   };
 }

@@ -8,6 +8,8 @@ import { openVisitRepository } from './visits/repository.js';
 import { AI_MODELS, modelInfo } from '../modules/ai-models.js';
 import { aiKeyStatusText } from '../shared/ai-key-status.js';
 import { registerSW } from '../shared/sw-register.js';
+import { loadRegions, visiblePoints } from '../shared/regions.js';
+import { openReportDialog } from '../shared/report.js';
 
 const $app = document.getElementById('friend-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -19,6 +21,7 @@ const newIdem = () => (crypto.randomUUID ? crypto.randomUUID() : Date.now().toSt
 let token = localStorage.getItem(LS) || '';
 let me = null;
 let points = [];
+let regionIndex = null;  // 板块开关：投稿/打卡的点位候选只取可见板块
 let checkins = {};
 let tab = 'photo';
 let myItems = [];
@@ -154,6 +157,8 @@ async function renderMain() {
     document.getElementById('fr-retry').onclick = () => location.reload();
     return;
   }
+  regionIndex = await loadRegions();
+  points = visiblePoints(points, regionIndex);
   myItems = myItems.items || [];
   renderTabs();
 }
@@ -164,7 +169,7 @@ function renderTabs() {
       <button class="pl-btn small" id="fr-out">退出</button>
     </div>
     <div class="fr-tabs">
-      ${[['photo', '📷 传照片'], ['note', '📝 写笔记'], ['checkin', '📍 打卡'], ['mine', `我的投稿 (${myItems.length})`], ['ai', '🤖 AI 接入']].map(([k, n]) =>
+      ${[['photo', '📷 传照片'], ['note', '📝 写笔记'], ['checkin', '📍 打卡'], ['fact', '🛠 纠错'], ['mine', `我的投稿 (${myItems.length})`], ['ai', '🤖 AI 接入']].map(([k, n]) =>
         `<button class="fr-tab ${tab === k ? 'on' : ''}" data-tab="${k}">${n}</button>`).join('')}
     </div>
     <div id="fr-body"></div>`;
@@ -174,8 +179,23 @@ function renderTabs() {
   if (tab === 'photo') renderPhoto(body);
   else if (tab === 'note') renderNote(body);
   else if (tab === 'checkin') renderCheckin(body);
+  else if (tab === 'fact') renderFact(body);
   else if (tab === 'ai') renderAISettings(body);
   else renderMine(body);
+}
+
+// 本地压缩上传图（最长边 1600，JPEG .82）；照片与纠错证据共用
+function compressImage(file, done) {
+  const img = new Image();
+  img.onload = () => {
+    const max = 1600, k = Math.min(1, max / Math.max(img.width, img.height));
+    const cv = document.createElement('canvas');
+    cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
+    cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+    done(cv.toDataURL('image/jpeg', .82));
+    URL.revokeObjectURL(img.src);
+  };
+  img.src = URL.createObjectURL(file);
 }
 
 /* 照片：本地压缩 → base64 → 投递 */
@@ -194,18 +214,11 @@ function renderPhoto(body) {
   document.getElementById('ph-file').onchange = e => {
     const f = e.target.files[0];
     if (!f) return;
-    const img = new Image();
-    img.onload = () => {
-      const max = 1600, k = Math.min(1, max / Math.max(img.width, img.height));
-      const cv = document.createElement('canvas');
-      cv.width = Math.round(img.width * k); cv.height = Math.round(img.height * k);
-      cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
-      dataUrl = cv.toDataURL('image/jpeg', .82);
+    compressImage(f, data => {
+      dataUrl = data;
       document.getElementById('ph-preview').innerHTML = `<img src="${dataUrl}" alt="">`;
       document.getElementById('ph-send').disabled = false;
-      URL.revokeObjectURL(img.src);
-    };
-    img.src = URL.createObjectURL(f);
+    });
   };
   document.getElementById('ph-send').onclick = async () => {
     const btn = document.getElementById('ph-send');
@@ -273,15 +286,91 @@ function renderCheckin(body) {
   document.getElementById('ck-q').oninput = e => draw(e.target.value.trim().toLowerCase());
 }
 
+/* 事实纠错：字段白名单 + 值格式 + 来源/证据至少一项（服务端二次校验） */
+const FACT_FIELDS = [['hours', '营业时间'], ['ticket', '门票'], ['rating', '评分'], ['other', '其他说明']];
+const FACT_PATH = { hours: 'hours', ticket: 'ticket', rating: 'rating', other: 'note' };
+
+function renderFact(body) {
+  body.innerHTML = `
+    <div class="card fr-form">
+      <label>要纠错的点位 <input id="fc-point" list="pt-list3" placeholder="输入点位名筛选…" autocomplete="off"></label>
+      <datalist id="pt-list3">${points.filter(p => !p.pending).map(p => `<option value="${esc(p.name)}">`).join('')}</datalist>
+      <div class="fr-note" id="fc-current">选择点位后显示当前值</div>
+      <label>要修改的字段
+        <select id="fc-field">${FACT_FIELDS.map(([k, n]) => `<option value="${k}">${n}</option>`).join('')}</select>
+      </label>
+      <label>更正后的值 <input id="fc-value" maxlength="200" placeholder="营业时间 09:00-18:00 / 门票 100元 / 评分 4.5"></label>
+      <label>来源链接（与证据截图至少填一项）<input id="fc-src" type="url" maxlength="300" placeholder="https://…"></label>
+      <label>证据截图（可选）<input id="fc-file" type="file" accept="image/*"></label>
+      <div id="fc-preview"></div>
+      <label>补充说明（可选）<textarea id="fc-body" rows="2" maxlength="500" placeholder="为什么需要修改…"></textarea></label>
+      <button class="pl-btn primary big" id="fc-send">提交纠错</button>
+      <div class="fr-note">审核通过后生成一条可应用变更（changeset），由工具合并进数据并保留前后值，可整批回滚。</div>
+    </div>`;
+  let evidence = '';
+  const cur = () => {
+    const p = points.find(x => x.name === document.getElementById('fc-point').value.trim());
+    const f = document.getElementById('fc-field').value;
+    const el = document.getElementById('fc-current');
+    if (!p) { el.textContent = '选择点位后显示当前值'; return; }
+    const v = p[FACT_PATH[f]];
+    el.textContent = `当前值：${v === undefined || v === null ? '（数据里没有这个字段）' : String(v)}`;
+  };
+  document.getElementById('fc-point').oninput = cur;
+  document.getElementById('fc-field').onchange = cur;
+  document.getElementById('fc-file').onchange = e => {
+    const f = e.target.files[0];
+    if (!f) return;
+    compressImage(f, data => {
+      evidence = data;
+      document.getElementById('fc-preview').innerHTML = `<img src="${evidence}" alt="">`;
+    });
+  };
+  document.getElementById('fc-send').onclick = async () => {
+    const p = points.find(x => x.name === document.getElementById('fc-point').value.trim());
+    if (!p) return toast('请从列表中选择点位');
+    const btn = document.getElementById('fc-send');
+    btn.disabled = true; btn.textContent = '提交中…';
+    try {
+      await api('submit', {
+        type: 'fact', pointId: p.id,
+        targetField: document.getElementById('fc-field').value,
+        value: document.getElementById('fc-value').value.trim(),
+        sourceUrl: document.getElementById('fc-src').value.trim(),
+        evidence,
+        body: document.getElementById('fc-body').value.trim(),
+        idem: newIdem(),
+      });
+      toast('纠错已提交，等待站长审核 ✓');
+      tab = 'mine'; renderMain();
+    } catch (e) { toast('失败：' + e.message); btn.disabled = false; btn.textContent = '提交纠错'; }
+  };
+}
+
 function renderMine(body) {
-  const STATUS = { pending: '⏳ 待审核', approved: '✅ 已采纳', rejected: '❌ 未采纳' };
+  const STATUS = {
+    pending: '⏳ 待审核', approved: '✅ 已采纳', rejected: '❌ 未采纳',
+    needs_more: '💬 需补充', removed: '🚫 已移除',
+  };
+  const ICON = { photo: '📷', note: '📝', checkin: '📍', fact: '🛠' };
   body.innerHTML = myItems.length ? `<div class="card"><div class="fr-mine">
     ${myItems.map(it => `<div class="fr-mine-row">
-      <span class="fr-mine-type">${{ photo: '📷', note: '📝', checkin: '📍' }[it.type] || '•'}</span>
+      <span class="fr-mine-type">${ICON[it.type] || '•'}</span>
       <span class="fr-mine-title">${esc(it.title || it.point_id || '')}</span>
+      ${it.target_field ? `<span class="ad-who">${esc(it.target_field)} → ${esc(it.new_value || '')}</span>` : ''}
       <span class="fr-mine-st">${STATUS[it.status] || it.status}</span>
+      ${it.reason && (it.status === 'needs_more' || it.status === 'rejected') ? `<span class="fr-note" style="margin-top:0">理由：${esc(it.reason)}</span>` : ''}
+      ${it.status !== 'removed' ? `<button class="pl-btn small" data-report="${it.id}">🚩 举报</button>` : ''}
     </div>`).join('')}
-  </div></div>` : `<div class="pl-empty">还没有投稿<br><span>上传照片、写笔记或帮打卡</span></div>`;
+  </div></div>` : `<div class="pl-empty">还没有投稿<br><span>上传照片、写笔记、帮打卡或纠错</span></div>`;
+  body.querySelectorAll('[data-report]').forEach(b => b.onclick = () => {
+    const it = myItems.find(x => x.id === +b.dataset.report);
+    openReportDialog({
+      targetType: 'submission', targetId: b.dataset.report,
+      label: it?.title || `投稿 #${b.dataset.report}`,
+      submit: payload => api('report', payload),
+    });
+  });
 }
 
 (async () => {

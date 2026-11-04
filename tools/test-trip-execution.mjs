@@ -184,6 +184,23 @@ function makeTrip() {
   else fail('countIndex 续接错误：' + third.visit.countIndex);
 }
 
+// 4b) 完成/跳过的回填日期按行程时区取日历日（不能用 UTC）
+{
+  const day = createDay({
+    id: 'dr', index: 1, date: '', city: '莫斯科',
+    items: [createItem({ id: 'ir', dayId: 'dr', type: 'visit', refId: 'p1', order: 0, placeNameSnapshot: '红场' })],
+  });
+  const rel = createTrip({ id: 'tr', title: '相对日期', days: [day], homeTimeZone: 'Asia/Shanghai' }, idFn, now());
+  const at = Date.parse('2026-07-10T17:30:00Z'); // 上海 2026-07-11 01:30，UTC 仍是 07-10
+  const done = completeItem(rel, 'ir', { at, idFn, now });
+  if (done.ok && done.visit.date === '2026-07-11') ok('完成日期按行程时区取日历日（UTC 会落到 07-10）');
+  else fail('完成日期时区错误：' + JSON.stringify(done.visit && done.visit.date));
+
+  const skipped = skipItem(rel, 'ir', { at, idFn, now });
+  if (skipped.ok && skipped.visit.date === '2026-07-11') ok('跳过日期同样按行程时区取日历日');
+  else fail('跳过日期时区错误：' + JSON.stringify(skipped.visit && skipped.visit.date));
+}
+
 // 5) 到达打点：实际 TransitLeg + 事件；非法输入拒绝
 {
   const trip = makeTrip();

@@ -6,20 +6,27 @@ import './plan.css';
 import { AI_MODELS, modelInfo, modelCost, TIER_CLASS } from '../modules/ai-models.js';
 import { aiKeyStatusText } from '../shared/ai-key-status.js';
 import { registerSW } from '../shared/sw-register.js';
+import { openReportDialog, REPORT_REASONS } from '../shared/report.js';
 
 const $app = document.getElementById('account-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
 const LS = 'admin-token';
 const API = './api/index.php';
+const FACT_LABEL = { hours: '营业时间', ticket: '门票', rating: '评分', other: '其他说明' };
+const FACT_PATH = { hours: 'hours', ticket: 'ticket', rating: 'rating', other: 'note' };
+const STATUS_LABEL = { pending: '待审核', needs_more: '需补充', approved: '已采纳', rejected: '未采纳', removed: '已移除' };
+const ACTION_LABEL = { remove: '移除内容', dismiss: '驳回举报', ban: '封禁投稿者', unban: '解除封禁' };
 
 let token = localStorage.getItem(LS) || '';
-let accounts = [], pending = [], points = [];
+let accounts = [], pending = [], points = [], reports = [], reportLogs = [], reportOverdue = 0, reportPending = 0, changesets = [];
 let tab = 'pending';
+let pendingStatus = 'pending', pendingType = '', reportStatus = 'pending';
+let selected = new Set();
 let photoCache = {};
 let lastCreated = '';
 
-async function api(action, body, method = 'POST') {
-  const r = await fetch(`${API}?a=${action}`, {
+async function api(action, body, method = 'POST', query = '') {
+  const r = await fetch(`${API}?a=${action}${query ? '&' + query : ''}`, {
     method,
     headers: { 'Content-Type': 'application/json; charset=utf-8', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
     body: body ? JSON.stringify(body) : undefined,
@@ -73,11 +80,17 @@ function renderLogin() {
 async function renderMain() {
   $app.innerHTML = `<div class="pl-empty">加载中…</div>`;
   try {
-    [accounts, pending, points] = await Promise.all([
+    [accounts, pending, points, changesets] = await Promise.all([
       api('accounts', undefined, 'GET').then(j => j.accounts),
-      api('pending', undefined, 'GET').then(j => j.items),
+      api('pending', undefined, 'GET', `status=${pendingStatus}${pendingType ? '&type=' + pendingType : ''}`).then(j => j.items),
       fetch('./data/points.json').then(r => r.json()),
+      api('changesets', undefined, 'GET').then(j => j.items),
     ]);
+    const rep = await api('reports', undefined, 'GET', `status=${reportStatus}`);
+    reports = rep.items;
+    reportLogs = rep.logs || [];
+    reportOverdue = rep.overdue || 0;
+    reportPending = rep.pending || 0;
   } catch (e) {
     $app.innerHTML = `<div class="pl-empty">加载失败：${esc(e.message)}<br><button class="pl-btn" id="ad-retry">重试</button></div>`;
     document.getElementById('ad-retry').onclick = () => location.reload();
@@ -92,54 +105,215 @@ function renderTabs() {
       <button class="pl-btn small" id="ad-out">退出</button>
     </div>
     <div class="fr-tabs">
-      <button class="fr-tab ${tab === 'pending' ? 'on' : ''}" data-tab="pending">待审核 (${pending.length})</button>
+      <button class="fr-tab ${tab === 'pending' ? 'on' : ''}" data-tab="pending">内容审核 (${pending.length})</button>
+      <button class="fr-tab ${tab === 'reports' ? 'on' : ''}" data-tab="reports">举报 (${reportPending}${reportOverdue ? ` · 超时 ${reportOverdue}` : ''})</button>
+      <button class="fr-tab ${tab === 'changesets' ? 'on' : ''}" data-tab="changesets">变更入库 (${changesets.length})</button>
       <button class="fr-tab ${tab === 'accounts' ? 'on' : ''}" data-tab="accounts">账号 (${accounts.length})</button>
       <button class="fr-tab ${tab === 'ai' ? 'on' : ''}" data-tab="ai">AI 设置</button>
     </div>
     <div id="ad-body"></div>`;
   document.getElementById('ad-out').onclick = async () => { try { await api('logout', {}, 'POST'); } catch {} localStorage.removeItem(LS); token = ''; renderLogin(); };
-  $app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; renderTabs(); });
-  tab === 'pending' ? renderPending() : tab === 'accounts' ? renderAccounts() : renderAI();
+  $app.querySelectorAll('[data-tab]').forEach(b => b.onclick = () => { tab = b.dataset.tab; selected.clear(); renderTabs(); });
+  tab === 'pending' ? renderPending()
+    : tab === 'reports' ? renderReports()
+    : tab === 'changesets' ? renderChangesets()
+    : tab === 'accounts' ? renderAccounts() : renderAI();
 }
 
 async function renderPending() {
   const body = document.getElementById('ad-body');
-  if (!pending.length) { body.innerHTML = `<div class="pl-empty">🎉 没有待审核的投稿</div>`; return; }
   const byId = new Map(points.map(p => [p.id, p]));
-  body.innerHTML = `<div class="ad-list">` + pending.map(it => `
+  const ICON = { photo: '📷', note: '📝', checkin: '📍', fact: '🛠' };
+  const filters = `
+    <div class="card ad-new">
+      <div class="ad-new-row">
+        <label style="flex:1">状态 <select id="ad-st">${['pending', 'needs_more', 'approved', 'rejected', 'removed'].map(k => `<option value="${k}" ${pendingStatus === k ? 'selected' : ''}>${STATUS_LABEL[k]}</option>`).join('')}</select></label>
+        <label style="flex:1">类型 <select id="ad-type">
+          <option value="">全部</option>
+          ${[['photo', '照片'], ['note', '笔记'], ['checkin', '打卡'], ['fact', '纠错']].map(([k, n]) => `<option value="${k}" ${pendingType === k ? 'selected' : ''}>${n}</option>`).join('')}
+        </select></label>
+        <button class="pl-btn small primary" id="ad-bulk">批量采纳</button>
+      </div>
+      <div class="fr-note">驳回与「需补充」必须填写理由；每次状态变更都记录操作人、时间与理由。纠错通过后只生成 changeset，不直接改线上数据。</div>
+    </div>`;
+  if (!pending.length) { body.innerHTML = filters + `<div class="pl-empty">🎉 当前筛选下没有内容</div>`; bindPendingFilters(body); return; }
+  body.innerHTML = filters + `<div class="ad-list">` + pending.map(it => {
+    const p = it.point_id ? byId.get(it.point_id) : null;
+    const curVal = it.type === 'fact' && p ? p[FACT_PATH[it.target_field]] : undefined;
+    return `
     <div class="ad-item card" data-id="${it.id}">
       <div class="ad-item-top">
-        <span class="fr-mine-type">${{ photo: '📷', note: '📝', checkin: '📍' }[it.type]}</span>
+        <input type="checkbox" data-sel="${it.id}" ${selected.has(it.id) ? 'checked' : ''}>
+        <span class="fr-mine-type">${ICON[it.type] || '•'}</span>
         <b>${esc(it.title || { checkin: '打卡' }[it.type] || '')}</b>
         <span class="ad-who">${esc(it.username)}</span>
+        <span class="ad-subcnt">${STATUS_LABEL[it.status] || it.status}</span>
       </div>
-      ${it.type === 'photo' ? `<div class="ad-photo" data-photo="${it.id}">加载照片…</div>` : ''}
+      ${it.type === 'fact' ? `<div class="ad-point">🛠 ${FACT_LABEL[it.target_field] || it.target_field}：现值 ${curVal === undefined ? '（无）' : esc(String(curVal))} → <b>${esc(it.new_value)}</b></div>` : ''}
+      ${it.source_url ? `<div class="ad-point">🔗 <a href="${esc(it.source_url)}" target="_blank" rel="noopener noreferrer">${esc(it.source_url)}</a></div>` : ''}
+      ${it.has_evidence ? `<div class="ad-photo" data-photo="${it.id}">加载证据…</div>` : ''}
       ${it.body ? `<div class="ad-body">${esc(it.body.slice(0, 300))}${it.body.length > 300 ? '…' : ''}</div>` : ''}
-      ${it.point_id && byId.get(it.point_id) ? `<div class="ad-point">📍 ${esc(byId.get(it.point_id).name)}（${esc(byId.get(it.point_id).city)}）</div>` : it.point_id ? `<div class="ad-point">📍 ${esc(it.point_id)}</div>` : ''}
+      ${p ? `<div class="ad-point">📍 ${esc(p.name)}（${esc(p.city)}）</div>` : it.point_id ? `<div class="ad-point">📍 ${esc(it.point_id)}</div>` : ''}
       <div class="pl-ops">
         <button class="pl-btn small primary" data-ok="${it.id}">✅ 采纳</button>
+        <button class="pl-btn small" data-more="${it.id}">💬 需补充</button>
         <button class="pl-btn small danger" data-no="${it.id}">❌ 拒绝</button>
+        <button class="pl-btn small" data-report="${it.id}">🚩 举报</button>
       </div>
-    </div>`).join('') + `</div>`;
+    </div>`;
+  }).join('') + `</div>`;
   body.querySelectorAll('[data-photo]').forEach(d => {
     const id = d.dataset.photo;
     if (!photoCache[id]) photoCache[id] = fetch(`${API}?a=photo&id=${id}`, { headers: { Authorization: `Bearer ${token}` } }).then(r => r.ok ? r.blob() : null);
     photoCache[id].then(b => {
-      if (!b) { d.textContent = '照片加载失败'; return; }
+      if (!b) { d.textContent = '证据加载失败'; return; }
       d.innerHTML = `<img src="${URL.createObjectURL(b)}" alt="">`;
     });
   });
-  body.querySelectorAll('[data-ok]').forEach(b => b.onclick = () => review(b.dataset.ok, 'approve'));
-  body.querySelectorAll('[data-no]').forEach(b => b.onclick = () => review(b.dataset.no, 'reject'));
+  body.querySelectorAll('[data-sel]').forEach(c => c.onchange = () => {
+    const id = +c.dataset.sel;
+    c.checked ? selected.add(id) : selected.delete(id);
+  });
+  body.querySelectorAll('[data-ok]').forEach(b => b.onclick = () => {
+    const r = prompt('采纳理由（会记入审核日志）', '内容真实且符合收录标准');
+    if (r && r.trim().length >= 2) doReview([+b.dataset.ok], 'approve', r.trim());
+  });
+  body.querySelectorAll('[data-more]').forEach(b => b.onclick = () => {
+    const r = prompt('需要补充什么？（会发给投稿人）');
+    if (r && r.trim().length >= 2) doReview([+b.dataset.more], 'needs_more', r.trim());
+  });
+  body.querySelectorAll('[data-no]').forEach(b => b.onclick = () => {
+    const r = prompt('驳回理由（必填，至少 2 字）');
+    if (r && r.trim().length >= 2) doReview([+b.dataset.no], 'reject', r.trim());
+  });
+  body.querySelectorAll('[data-report]').forEach(b => b.onclick = () => {
+    const it = pending.find(x => x.id === +b.dataset.report);
+    openReportDialog({
+      targetType: 'submission', targetId: b.dataset.report,
+      label: it?.title || `投稿 #${b.dataset.report}`,
+      submit: payload => api('report', payload),
+    });
+  });
+  bindPendingFilters(body);
 }
-async function review(id, action) {
+
+function bindPendingFilters(body) {
+  const st = body.querySelector('#ad-st');
+  const ty = body.querySelector('#ad-type');
+  if (st) st.onchange = () => { pendingStatus = st.value; selected.clear(); loadPending().then(renderTabs).catch(e => toast(e.message)); };
+  if (ty) ty.onchange = () => { pendingType = ty.value; selected.clear(); loadPending().then(renderTabs).catch(e => toast(e.message)); };
+  const bulk = body.querySelector('#ad-bulk');
+  if (bulk) bulk.onclick = () => {
+    if (!selected.size) return toast('先勾选要采纳的投稿');
+    const r = prompt(`批量采纳 ${selected.size} 条的共用理由`, '内容真实且符合收录标准');
+    if (r && r.trim().length >= 2) doReview([...selected], 'approve', r.trim());
+  };
+}
+
+async function loadPending() {
+  pending = (await api('pending', undefined, 'GET', `status=${pendingStatus}${pendingType ? '&type=' + pendingType : ''}`)).items;
+}
+async function refreshAfterReview() {
+  await loadPending();
+  changesets = (await api('changesets', undefined, 'GET')).items;
+  const rep = await api('reports', undefined, 'GET', `status=${reportStatus}`);
+  reports = rep.items; reportLogs = rep.logs || [];
+  reportOverdue = rep.overdue || 0; reportPending = rep.pending || 0;
+  renderTabs();
+}
+async function doReview(ids, action, reason = '') {
   try {
-    await api(action, { id: +id });
-    toast(action === 'approve' ? '已采纳（数据入库需 Kimi 协助合并）' : '已拒绝');
-    pending = pending.filter(x => x.id !== +id);
-    renderTabs();
+    const j = await api('review', { ids, action, reason });
+    const label = { approve: '已采纳', needs_more: '已标记需补充', reject: '已拒绝' }[action];
+    toast(label + (j.skipped?.length ? `（${j.skipped.length} 条跳过）` : ''));
+    selected.clear();
+    await refreshAfterReview();
   } catch (e) { toast('失败：' + e.message); }
 }
+
+/* A-16 举报处理：待处理列表 + 24h 超时提示 + 移除/驳回/封禁 + 日志 */
+async function loadReports() {
+  const rep = await api('reports', undefined, 'GET', `status=${reportStatus}`);
+  reports = rep.items; reportLogs = rep.logs || [];
+  reportOverdue = rep.overdue || 0; reportPending = rep.pending || 0;
+}
+function renderReports() {
+  const body = document.getElementById('ad-body');
+  const reasonLabel = k => (REPORT_REASONS.find(([x]) => x === k) || [k, k])[1];
+  const filters = `
+    <div class="card ad-new">
+      <div class="ad-new-row">
+        <label style="flex:1">状态 <select id="ad-rst">
+          ${[['pending', '待处理'], ['handled', '已处理'], ['all', '全部']].map(([k, n]) => `<option value="${k}" ${reportStatus === k ? 'selected' : ''}>${n}</option>`).join('')}
+        </select></label>
+        <span class="ad-who">处理时限目标 24h${reportOverdue ? ` · ⚠ 已超时 ${reportOverdue} 条` : ''}</span>
+      </div>
+      <div class="fr-note">处理动作写入举报日志；封禁投稿者会同时清掉该账号全部会话。</div>
+    </div>`;
+  const rows = reports.length ? reports.map(r => `
+    <div class="ad-item card">
+      <div class="ad-item-top">
+        <b>#${r.id} ${reasonLabel(r.reason)}</b>
+        <span class="ad-who">${esc(r.reporter)}</span>
+        <span class="ad-subcnt">${r.status === 'pending' ? '待处理' : '已处理'}${r.overdue ? ' · ⚠ 超时' : ''}</span>
+      </div>
+      <div class="ad-point">${r.target_type === 'submission' ? `投稿 #${r.target_id}${r.s_title ? ' · ' + esc(r.s_title) : ''}` : `点位 ${esc(r.target_id)}`}</div>
+      ${r.note ? `<div class="ad-body">${esc(r.note)}</div>` : ''}
+      <div class="fr-note">举报于 ${new Date(+r.created * 1000).toLocaleString('zh-CN')}${r.handled_by ? ` · 由 ${esc(r.handled_by)} ${ACTION_LABEL[r.action] || r.action}` : ''}</div>
+      ${r.status === 'pending' ? `<div class="pl-ops">
+        ${r.target_type === 'submission' ? `<button class="pl-btn small danger" data-h="${r.id}" data-act="remove">移除内容</button>` : ''}
+        <button class="pl-btn small" data-h="${r.id}" data-act="dismiss">驳回举报</button>
+        ${r.s_username ? `<button class="pl-btn small danger" data-h="${r.id}" data-act="ban">封禁投稿者</button>` : ''}
+      </div>` : ''}
+    </div>`).join('') : `<div class="pl-empty">当前筛选下没有举报</div>`;
+  const logs = reportLogs.length ? `<div class="card"><div class="ad-sec-title">处理与封禁日志</div>
+    ${reportLogs.map(l => `<div class="fr-note" style="margin-top:var(--sp-1,4px)">#${l.id} · ${new Date(+l.created * 1000).toLocaleString('zh-CN')} · ${esc(l.actor)} ${ACTION_LABEL[l.action] || l.action}${l.note ? ' · ' + esc(l.note) : ''}</div>`).join('')}
+  </div>` : '';
+  body.innerHTML = filters + `<div class="ad-list">${rows}</div>` + logs;
+  const rst = body.querySelector('#ad-rst');
+  if (rst) rst.onchange = async () => { reportStatus = rst.value; try { await loadReports(); renderReports(); } catch (e) { toast(e.message); } };
+  body.querySelectorAll('[data-h]').forEach(b => b.onclick = async () => {
+    const action = b.dataset.act;
+    const note = action === 'dismiss' ? (prompt('驳回理由（可选）') || '') : (prompt('处理备注（可选）') || '');
+    try {
+      await api('report_handle', { id: +b.dataset.h, action, note });
+      toast('已处理：' + (ACTION_LABEL[action] || action));
+      await loadReports(); renderReports();
+    } catch (e) { toast('失败：' + e.message); }
+  });
+}
+
+/* P1-6 changeset：导出待应用变更，交给 tools/apply-changesets.mjs 落盘 */
+function renderChangesets() {
+  const body = document.getElementById('ad-body');
+  const rows = changesets.length ? changesets.map(c => `
+    <div class="ad-item card">
+      <div class="ad-item-top"><b>#${c.id} · 投稿 #${c.submission_id}</b>
+        <span class="ad-subcnt">${c.status}${c.run_id ? ' · ' + esc(c.run_id) : ''}</span>
+      </div>
+      <div class="ad-point">📍 ${esc(c.city || '')} ${esc(c.point_id)} · ${esc(c.json_path)}：${c.before_value === null ? '（原无）' : esc(c.before_value)} → <b>${esc(c.new_value)}</b></div>
+      ${c.applied_by ? `<div class="fr-note">由 ${esc(c.applied_by)} 于 ${new Date(+c.applied_at * 1000).toLocaleString('zh-CN')} 应用</div>` : ''}
+    </div>`).join('') : `<div class="pl-empty">没有待应用变更</div>`;
+  body.innerHTML = `
+    <div class="card ad-new">
+      <div class="ad-new-row"><button class="pl-btn small primary" id="ad-export">⬇ 导出待应用 JSON</button></div>
+      <div class="fr-note">导出后在服务器执行：<code>node tools/apply-changesets.mjs --input ready.json --by "操作人"</code>；重复执行幂等，回滚用 <code>--rollback &lt;run_id&gt;</code>。被后续变更覆盖时会提示冲突并跳过。</div>
+    </div>
+    <div class="ad-list">${rows}</div>`;
+  const btn = body.querySelector('#ad-export');
+  if (btn) btn.onclick = () => {
+    const ready = changesets.filter(c => c.status === 'ready');
+    if (!ready.length) return toast('没有待应用变更');
+    const blob = new Blob([JSON.stringify({ version: 1, items: ready }, null, 2)], { type: 'application/json' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `changesets-ready-${Date.now()}.json`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    toast(`已导出 ${ready.length} 条变更`);
+  };
+}
+
 
 function renderAccounts() {
   const body = document.getElementById('ad-body');
@@ -159,8 +333,9 @@ function renderAccounts() {
     <div class="card"><div class="ad-sec-title">已有账号</div>
       ${accounts.length ? accounts.map(a => `
         <div class="fr-ckrow">
-          <span><b>${esc(a.username)}</b>${a.display ? ` <span class="ad-who">${esc(a.display)}</span>` : ''}</span>
+          <span><b>${esc(a.username)}</b>${a.display ? ` <span class="ad-who">${esc(a.display)}</span>` : ''}${a.banned ? ' <span class="ad-subcnt">🚫 已封禁</span>' : ''}</span>
           <span class="ad-subcnt">投稿 ${a.submissions}</span>
+          <button class="pl-btn small" data-ban="${esc(a.username)}" data-on="${a.banned ? 0 : 1}">${a.banned ? '解除封禁' : '封禁'}</button>
           <button class="pl-btn small danger" data-rm="${esc(a.username)}">删除</button>
         </div>`).join('') : '<div class="fr-note">还没有账号</div>'}
     </div>`;
@@ -178,6 +353,16 @@ function renderAccounts() {
       toast('账号已创建 ✓');
     } catch (e) { res.textContent = '失败：' + e.message; }
   };
+  body.querySelectorAll('[data-ban]').forEach(b => b.onclick = async () => {
+    const on = b.dataset.on === '1';
+    if (on && !confirm(`封禁账号 ${b.dataset.ban}？将同时清掉其全部会话。`)) return;
+    try {
+      await api('ban', { user: b.dataset.ban, banned: on });
+      accounts = (await api('accounts', undefined, 'GET')).accounts;
+      renderTabs();
+      toast(on ? '已封禁' : '已解除封禁');
+    } catch (e) { toast('失败：' + e.message); }
+  });
   body.querySelectorAll('[data-rm]').forEach(b => b.onclick = async () => {
     if (!confirm(`删除账号 ${b.dataset.rm}？其投稿保留。`)) return;
     try {
@@ -273,8 +458,21 @@ async function renderAI() {
   const maxTok = Math.max(1, ...days.map(d => +d.tok || 0));
   const maxModelTok = Math.max(1, ...(usage.by_model || []).map(r => (+r.pt || 0) + (+r.ct || 0)));
   const maxUserTok = Math.max(1, ...(usage.by_user || []).map(r => +r.tok || 0));
+  const alerts = usage.alerts || [];
+  const alertBar = alerts.length ? `
+    <div class="card ai-alertbar${pct >= 80 ? ' warn' : ''}" role="status">
+      <div class="ad-sec-title">用量告警（阈值 60% / 80%，同周期同阈值只告一次）</div>
+      ${alerts.slice(0, 8).map(a => `
+        <div class="fr-ckrow">
+          <span>${esc(a.period)} · 达 <b>${+a.threshold}%</b></span>
+          <span class="ad-subcnt">${(+a.tokens || 0).toLocaleString()} / ${(+a.cap || 0).toLocaleString()} tok · ${new Date(+a.created * 1000).toLocaleString('zh-CN')}</span>
+        </div>`).join('')}
+      ${alerts.length > 8 ? `<div class="fr-note">另有 ${alerts.length - 8} 条历史，按时间倒序只展示最近 8 条</div>` : ''}
+      <div class="fr-note">同时写入服务端结构化日志（标签 [ai_alert]），无需配置外部 webhook</div>
+    </div>` : '';
 
   body.innerHTML = `
+    ${alertBar}
     <div class="card ad-new">
       <div class="ad-sec-title">本月概览（站内通道）</div>
       <div class="ai-stats">
@@ -335,6 +533,11 @@ async function renderAI() {
         <label style="flex:1">月 token 熔断 <input id="aiq-cap" type="number" min="0" max="50000000" value="${cap}"></label>
         <label style="flex:1">站内通道 <select id="aiq-enabled"><option value="1" ${P.site_enabled ? 'selected' : ''}>开启</option><option value="0" ${!P.site_enabled ? 'selected' : ''}>停用</option></select></label>
       </div>
+      <div class="ad-new-row" style="margin-top:12px">
+        <label style="flex:1">IP 限流次数 <input id="aiq-ipmax" type="number" min="1" max="1000" value="${P.ip_rate_max ?? 10}"></label>
+        <label style="flex:1">窗口秒数 <input id="aiq-ipwin" type="number" min="60" max="86400" value="${P.ip_rate_window ?? 600}"></label>
+      </div>
+      <div class="fr-note">IP 维度按滑动窗口计数，与账号日额度并存、取更严者；只在实际发起生成时计一次（重放/被拒不占额度）</div>
       <button class="pl-btn primary" id="aiq-save" style="margin-top:10px">保存 AI 设置</button>
     </div>
     <div class="card ad-new">
@@ -360,6 +563,8 @@ async function renderAI() {
         admin_quota: +document.getElementById('aiq-admin').value,
         custom_quota: +document.getElementById('aiq-custom').value,
         month_token_cap: +document.getElementById('aiq-cap').value,
+        ip_rate_max: +document.getElementById('aiq-ipmax').value,
+        ip_rate_window: +document.getElementById('aiq-ipwin').value,
         site_enabled: document.getElementById('aiq-enabled').value === '1',
         models_friend: aiSel.friend,
         models_admin: aiSel.admin,

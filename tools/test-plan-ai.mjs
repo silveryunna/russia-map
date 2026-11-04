@@ -70,10 +70,31 @@ const planBody = {
   assert(c.buttonLabel() === '✨ AI 生成（站内通道停用）', '通道停用写在按钮上，不静默降级');
 }
 
-// 4) loadInfo 失败与无 token
+// 4) loadInfo：未登录也拿统一配额状态；失败降级
 {
-  const noToken = createAIClient({ storage: memStorage(), readLegacy: false, fetchImpl: async () => { throw new Error('should not call'); } });
-  assert(await noToken.loadInfo() === null, '无 token 时不请求策略接口');
+  const calls = [];
+  const anon = createAIClient({
+    storage: memStorage(), readLegacy: false,
+    fetchImpl: async (url, init) => {
+      calls.push({ url, init });
+      return jsonResp({
+        anonymous: true, quota: 10, remaining_today: 7, has_custom: false, site_enabled: true,
+        models: ['m1'], ip_limit: { max: 10, remaining: 7, window: 600, used: 3, reset_in: 120 },
+      });
+    },
+  });
+  const info = await anon.loadInfo();
+  assert(calls.length === 1, '未登录也请求配额状态接口（不再静默跳过）');
+  assert(!calls[0].init.headers || !calls[0].init.headers.Authorization, '匿名请求不带鉴权头');
+  assert(info && info.anonymous === true && info.remaining_today === 7, '匿名也能拿到剩余次数');
+  assert(info.ip_limit && info.ip_limit.max === 10 && info.ip_limit.window === 600, '返回 IP 限额结构');
+  const hint = anon.quotaHint();
+  assert(hint && hint.text.includes('按 IP') && hint.warn === false, '无账号时显示 IP 维度剩余次数');
+  assert(anon.ready === false, '匿名仍不可生成（按钮提示需登录）');
+
+  const noFetch = createAIClient({ storage: memStorage(), readLegacy: false, fetchImpl: null });
+  assert(await noFetch.loadInfo() === null, '无网络实现时配额状态为 null');
+
   const broken = createAIClient({
     storage: memStorage({ 'friend-token': 't' }),
     readLegacy: false,
@@ -145,7 +166,8 @@ const planBody = {
 // 8) generate：错误分支
 {
   const mk = (resp) => createAIClient({
-    storage: memStorage({ 'friend-token': 't' }), readLegacy: false, fetchImpl: async () => resp,
+    storage: memStorage({ 'friend-token': 't' }), readLegacy: false, sleep: async () => {},
+    fetchImpl: async () => resp,
   });
   const expectThrow = async (client, match, msg) => {
     try { await client.generate({ city: 'x' }, {}); fail(msg + '（没有抛错）'); }
@@ -195,6 +217,93 @@ const planBody = {
   const c = createAIClient({ storage: memStorage({ 'friend-token': 't' }), readLegacy: false, fetchImpl: null });
   try { await c.generate({ city: 'x' }, {}); fail('无网络实现时应当抛错'); }
   catch (e) { assert(/不支持网络请求/.test(e.message), '无网络实现时给出明确错误'); }
+}
+
+// 13) 重试上限与指数退避：网络失败重试 2 次后成功
+{
+  const waits = [];
+  const bodies = [];
+  let n = 0;
+  const c = createAIClient({
+    storage: memStorage({ 'friend-token': 't' }), readLegacy: false,
+    sleep: async (ms) => { waits.push(ms); },
+    fetchImpl: async (url, init) => {
+      n++;
+      bodies.push(JSON.parse(init.body));
+      if (n < 3) throw new TypeError('network down');
+      return jsonResp(planBody);
+    },
+  });
+  const plan = await c.generate({ city: '莫斯科' }, {});
+  assert(n === 3, '失败两次后第三次成功（重试上限 2）');
+  assert(waits.join(',') === '1000,2000', '指数退避 1s → 2s');
+  assert(plan.days.length === 1, '重试成功后正常返回计划');
+  assert(bodies[0].idem && bodies[0].idem === bodies[1].idem && bodies[1].idem === bodies[2].idem, '同一次生成的多次重试共用 idem');
+  assert(bodies[0].idem.startsWith('a'), 'idem 带固定前缀');
+}
+
+// 14) 重试耗尽：可读提示 + 调用次数封顶
+{
+  let n = 0;
+  const c = createAIClient({
+    storage: memStorage({ 'friend-token': 't' }), readLegacy: false,
+    sleep: async () => {},
+    fetchImpl: async () => { n++; throw new TypeError('network down'); },
+  });
+  try { await c.generate({ city: 'x' }, {}); fail('持续失败时应当抛错'); }
+  catch (e) {
+    assert(n === 3, '总共只发起 3 次请求（1 次 + 2 次重试）');
+    assert(/已自动重试 2 次仍失败/.test(e.message), '超限后给出可读失败提示');
+    assert(/改用离线规则/.test(e.message), '提示可改用离线规则');
+  }
+}
+
+// 15) 4xx/429 不重试（避免白烧配额）
+{
+  const statuses = [429, 400];
+  for (const status of statuses) {
+    let n = 0;
+    const c = createAIClient({
+      storage: memStorage({ 'friend-token': 't' }), readLegacy: false,
+      sleep: async () => {},
+      fetchImpl: async () => { n++; return jsonResp({ error: '配额用完' }, { ok: false, status }); },
+    });
+    try { await c.generate({ city: 'x' }, {}); fail(`${status} 应当抛错`); }
+    catch (e) { assert(n === 1, `${status} 不重试`); assert(/配额用完/.test(e.message), `${status} 透传服务端文案`); }
+  }
+}
+
+// 16) 自定义接口不带 idem（避免污染第三方请求体），站内通道才带
+{
+  const bodies = [];
+  const c = createAIClient({
+    storage: memStorage({ 'friend-token': 't' }), readLegacy: false,
+    fetchImpl: async (url, init) => { bodies.push(JSON.parse(init.body)); return jsonResp({ days: [] }); },
+  });
+  c.session = { endpoint: 'https://custom.example/v1/plan', key: 'sk-fake' };
+  await c.generate({ city: '三亚' }, {});
+  assert(bodies[0].idem === undefined, '自定义接口不发送 idem');
+}
+
+// 17) 额度文案：接近上限标红；登录用户同时展示 IP 维度
+{
+  const near = createAIClient({
+    storage: memStorage({ 'friend-token': 't' }), readLegacy: false,
+    fetchImpl: async () => jsonResp({ anonymous: false, quota: 3, remaining_today: 0, ip_limit: { max: 10, remaining: 9, window: 600 } }),
+  });
+  await near.loadInfo();
+  const hint = near.quotaHint();
+  assert(hint && hint.text.includes('今日剩余 0/3'), '登录用户显示账号日额度');
+  assert(hint.text.includes('本 IP 9/10'), '同时展示 IP 维度剩余');
+  assert(hint.warn === true, '剩余 0 次标红提示');
+
+  const fresh = createAIClient({
+    storage: memStorage({ 'friend-token': 't' }), readLegacy: false,
+    fetchImpl: async () => jsonResp({ anonymous: false, quota: 30, remaining_today: 28, ip_limit: { max: 10, remaining: 10, window: 600 } }),
+  });
+  await fresh.loadInfo();
+  assert(fresh.quotaHint().warn === false, '额度充足时不标红');
+  assert(fresh.quotaHint().text.includes('今日剩余 28/30'), '额度充足时文案正确');
 }
 
 if (bad) { console.error(`\n${bad} 处 AI 客户端行为不符合约定`); process.exit(1); }

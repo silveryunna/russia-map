@@ -60,6 +60,9 @@
 .ai-progress { height: 10px; background: #F0EADB; border-radius: 999px; overflow: hidden; }
 .ai-progress i { display: block; height: 100%; background: #B71C1C; border-radius: 999px; transition: width .3s; }
 .ai-progress.warn i { background: #D32F2F; animation: ai-pulse 1.2s infinite alternate; }
+.ai-alertbar { border-left: 4px solid var(--danger); background: var(--brand-soft); }
+.ai-alertbar.warn { box-shadow: var(--e2); }
+.ai-alertbar .ad-sec-title { color: var(--danger); }
 @keyframes ai-pulse { from { opacity: 1; } to { opacity: .55; } }
 .ai-bars { display: flex; align-items: flex-end; gap: 4px; height: 120px; padding-top: 8px; border-bottom: 1px solid #DDD5C2; }
 .ai-bar { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; min-width: 6px; }

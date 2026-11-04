@@ -1,6 +1,7 @@
 <?php
 // 协作投稿 API —— 密钥/配置在 webroot 外（julyyunna-art-data/config.php）
-// 端点：?a=login|logout|me|submit|my|photo|pending|approve|reject|accounts
+// 端点：?a=login|logout|me|submit|my|photo|pending|review|accounts|ban
+//       |changesets|report|reports|report_handle
 //       |plan|ai_settings|ai_policy|ai_usage|ai_test
 declare(strict_types=1);
 header('Content-Type: application/json; charset=utf-8');
@@ -13,7 +14,24 @@ $CONF = require $CONF_FILE;
 define('AI_AT_REST_KEY_FILE', (string)($CONF['ai_key_file'] ?? dirname($CONF_FILE) . '/ai-at-rest.key'));
 $db = new PDO('sqlite:' . $CONF['db_path']);
 $db->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-$db->exec('PRAGMA journal_mode=WAL');
+// 连接级 PRAGMA：PHP-FPM 每个请求都是新连接，必须每次设置。
+// busy_timeout=5000 让并发写等锁最多 5s 再失败；synchronous=NORMAL 在 WAL 下仍保证崩溃安全
+// （最坏只丢最后一个未提交事务）；foreign_keys 目前 schema 没外键，开启是防止后续加外键时静默失效。
+try {
+  $db->exec('PRAGMA busy_timeout=5000');
+  $db->exec('PRAGMA synchronous=NORMAL');
+  $db->exec('PRAGMA foreign_keys=ON');
+} catch (PDOException $e) {
+  error_log('[db] 连接 PRAGMA 设置失败，沿用默认值：' . $e->getMessage());
+}
+// journal_mode 持久化在库文件头，但每次连接也设一次：已切换时是无害 no-op；
+// 只读挂载或不支持 WAL 的文件系统会返回原模式或抛错，这里降级为原模式并记录日志，不阻断请求。
+try {
+  $mode = strtolower((string)$db->query('PRAGMA journal_mode=WAL')->fetchColumn());
+  if ($mode !== 'wal') error_log('[db] WAL 不可用，使用 ' . $mode . ' 模式（只读挂载或不支持 WAL 的文件系统）');
+} catch (PDOException $e) {
+  error_log('[db] 切换 WAL 失败，回退默认 journal 模式：' . $e->getMessage());
+}
 $db->exec('CREATE TABLE IF NOT EXISTS accounts(
   username TEXT PRIMARY KEY, pass_hash TEXT NOT NULL, display TEXT, created INTEGER)');
 $db->exec('CREATE TABLE IF NOT EXISTS sessions(
@@ -22,6 +40,38 @@ $db->exec('CREATE TABLE IF NOT EXISTS submissions(
   id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL,
   type TEXT NOT NULL, title TEXT, body TEXT, point_id TEXT, file TEXT,
   status TEXT DEFAULT "pending", created INTEGER)');
+// P1-6 投稿类型=fact（事实纠错）：目标字段/新值/来源链接；证据复用 file 列
+try { $db->exec('ALTER TABLE submissions ADD COLUMN target_field TEXT'); } catch (PDOException $e) { /* 已存在 */ }
+try { $db->exec('ALTER TABLE submissions ADD COLUMN new_value TEXT'); } catch (PDOException $e) { /* 已存在 */ }
+try { $db->exec('ALTER TABLE submissions ADD COLUMN source_url TEXT'); } catch (PDOException $e) { /* 已存在 */ }
+// 状态机审计：每次 pending/needs_more → approved/rejected 都留操作人、时间、理由
+$db->exec('CREATE TABLE IF NOT EXISTS submission_logs(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, submission_id INTEGER NOT NULL,
+  from_status TEXT, to_status TEXT NOT NULL, actor TEXT NOT NULL, reason TEXT, created INTEGER)');
+// changeset：审核通过只生成「可应用变更」，绝不直接改 data/points.json，before 由 apply 工具回填
+$db->exec('CREATE TABLE IF NOT EXISTS changesets(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, submission_id INTEGER NOT NULL UNIQUE,
+  city TEXT, point_id TEXT NOT NULL, json_path TEXT NOT NULL, new_value TEXT NOT NULL,
+  before_value TEXT, status TEXT DEFAULT "ready", run_id TEXT,
+  applied_by TEXT, applied_at INTEGER, created INTEGER)');
+// changeset 审计：工具应用/回滚后回写的操作记录（谁、何时、run_id、前后值）
+$db->exec('CREATE TABLE IF NOT EXISTS changeset_logs(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, changeset_id INTEGER NOT NULL,
+  action TEXT NOT NULL, actor TEXT NOT NULL, run_id TEXT,
+  before_value TEXT, new_value TEXT, created INTEGER)');
+$db->exec('CREATE TABLE IF NOT EXISTS reports(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, reporter TEXT NOT NULL,
+  target_type TEXT NOT NULL, target_id TEXT NOT NULL,
+  reason TEXT NOT NULL, note TEXT, status TEXT DEFAULT "pending", created INTEGER,
+  handled_by TEXT, handled_at INTEGER, action TEXT,
+  UNIQUE(reporter, target_type, target_id))');
+// report_logs：处理动作（remove/dismiss/ban/unban）与封禁日志，管理员可查
+$db->exec('CREATE TABLE IF NOT EXISTS report_logs(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, report_id INTEGER, actor TEXT NOT NULL,
+  action TEXT NOT NULL, note TEXT, created INTEGER)');
+$db->exec('CREATE TABLE IF NOT EXISTS report_hits(ip TEXT NOT NULL, created INTEGER NOT NULL)');
+$db->exec('CREATE INDEX IF NOT EXISTS idx_report_hits ON report_hits(ip, created)');
+try { $db->exec('ALTER TABLE accounts ADD COLUMN banned INTEGER DEFAULT 0'); } catch (PDOException $e) { /* 已存在 */ }
 $db->exec('CREATE TABLE IF NOT EXISTS fails(
   k TEXT PRIMARY KEY, n INTEGER, until INTEGER)');
 // AI 日程生成：个人自定义接入 / 全局策略 / 调用台账
@@ -32,9 +82,20 @@ $db->exec('CREATE TABLE IF NOT EXISTS ai_calls(
   id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT NOT NULL, channel TEXT NOT NULL,
   model TEXT, prompt_tokens INTEGER DEFAULT 0, completion_tokens INTEGER DEFAULT 0,
   ok INTEGER DEFAULT 1, created INTEGER)');
+// AI 治理（P1-7）：月用量告警（同周期同阈值唯一，天然去重）+ IP 窗口命中行（滑动窗口计数）
+$db->exec('CREATE TABLE IF NOT EXISTS ai_alerts(
+  id INTEGER PRIMARY KEY AUTOINCREMENT, period TEXT NOT NULL, threshold INTEGER NOT NULL,
+  tokens INTEGER DEFAULT 0, cap INTEGER DEFAULT 0, created INTEGER,
+  UNIQUE(period, threshold))');
+$db->exec('CREATE TABLE IF NOT EXISTS ai_ip_hits(ip TEXT NOT NULL, created INTEGER NOT NULL)');
+$db->exec('CREATE INDEX IF NOT EXISTS idx_ai_ip_hits ON ai_ip_hits(ip, created)');
 // 幂等键列（旧库自动补列；同一次提交重试只入库一次）
 try { $db->exec('ALTER TABLE submissions ADD COLUMN idem TEXT'); } catch (PDOException $e) { /* 已存在 */ }
 $db->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_sub_idem ON submissions(idem)');
+// AI 幂等：同一 idem 重放返回已存结果，避免客户端重试把同一次生成重复计费/重复计数
+try { $db->exec('ALTER TABLE ai_calls ADD COLUMN idem TEXT'); } catch (PDOException $e) { /* 已存在 */ }
+try { $db->exec('ALTER TABLE ai_calls ADD COLUMN result TEXT'); } catch (PDOException $e) { /* 已存在 */ }
+$db->exec('CREATE UNIQUE INDEX IF NOT EXISTS idx_ai_calls_idem ON ai_calls(idem)');
 
 // 渲染侧（弹窗/笔记）会拼 HTML，入口拦掉脚本注入
 function unsafe_html(string $s): bool {
@@ -45,20 +106,70 @@ function out($d, int $code = 200): void { http_response_code($code); echo json_e
 function body(): array { $b = json_decode(file_get_contents('php://input') ?: '', true); return is_array($b) ? $b : []; }
 function bearer(): string { return preg_replace('/^Bearer\s+/i', '', $_SERVER['HTTP_AUTHORIZATION'] ?? '') ?: ''; }
 
-function session_ok(PDO $db, string $token, bool $needAdmin = false): array {
-  if (!$token) out(['error' => '未登录'], 401);
+/** 只读会话（不 401）：公开配额状态接口需要「登录就个性化、未登录就给匿名额度」。 */
+function session_peek(PDO $db, string $token): ?array {
+  if ($token === '') return null;
   $s = $db->prepare('SELECT * FROM sessions WHERE token=? AND exp>?');
   $s->execute([$token, time()]);
   $row = $s->fetch(PDO::FETCH_ASSOC);
+  return $row ?: null;
+}
+function session_ok(PDO $db, string $token, bool $needAdmin = false): array {
+  if (!$token) out(['error' => '未登录'], 401);
+  $row = session_peek($db, $token);
   if (!$row || ($needAdmin && !$row['is_admin'])) out(['error' => '未登录或权限不足'], 401);
   return $row;
+}
+/* ---------- 客户端 IP 解析（防 X-Forwarded-For 伪造） ----------
+ * 规则：默认只信任 REMOTE_ADDR。只有直连来源命中 config.php 的 'trusted_proxies'（IP 或 CIDR）
+ * 时才解析 XFF，并从右往左跳过可信代理、取第一个不可信地址。
+ * 理由：XFF 整串都是客户端可写的；无条件信任就能伪造任意 IP 绕过 IP 限流，或把配额栽赃给别人。
+ * 从右往左取，是因为每层代理都会把自己的真实 peer 追加在右侧；左侧内容谁都能编。
+ * 部署示例（config.php）：'trusted_proxies' => ['127.0.0.1', '10.0.0.0/8']。 */
+function ip_in_list(string $ip, array $list): bool {
+  $long = ip2long($ip);
+  if ($long === false) return false;
+  foreach ($list as $entry) {
+    $entry = trim((string)$entry);
+    if ($entry === '') continue;
+    if (strpos($entry, '/') === false) {
+      if (ip2long($entry) === $long) return true;
+      continue;
+    }
+    [$net, $bits] = explode('/', $entry, 2);
+    $base = ip2long($net);
+    $b = (int)$bits;
+    if ($base === false || $b < 0 || $b > 32) continue;
+    $mask = $b === 0 ? 0 : (-1 << (32 - $b));
+    if (($long & $mask) === ($base & $mask)) return true;
+  }
+  return false;
+}
+function client_ip(): string {
+  $remote = (string)($_SERVER['REMOTE_ADDR'] ?? '');
+  if ($remote === '') return '?';
+  $trusted = (array)($GLOBALS['CONF']['trusted_proxies'] ?? []);
+  if (!$trusted || !ip_in_list($remote, $trusted)) return $remote;
+  $xff = (string)($_SERVER['HTTP_X_FORWARDED_FOR'] ?? '');
+  if ($xff === '') return $remote;
+  foreach (array_reverse(array_map('trim', explode(',', $xff))) as $hop) {
+    if (!filter_var($hop, FILTER_VALIDATE_IP)) break;
+    if (ip_in_list($hop, $trusted)) continue;
+    return $hop;
+  }
+  return $remote;
+}
+/** 429 统一带 Retry-After（秒），让客户端与代理知道什么时候可以再来。 */
+function out_retry(array $d, int $sec, int $code = 429): void {
+  header('Retry-After: ' . max(1, $sec));
+  out($d, $code);
 }
 function rate_limit(PDO $db, string $key, int $max = 5, int $lockSec = 900): callable {
   $k = 'lf:' . $key;
   $r = $db->prepare('SELECT n,until FROM fails WHERE k=?');
   $r->execute([$k]);
   $row = $r->fetch(PDO::FETCH_ASSOC);
-  if ($row && $row['until'] > time()) out(['error' => '尝试次数过多，请15分钟后再试'], 429);
+  if ($row && $row['until'] > time()) out_retry(['error' => '尝试次数过多，请15分钟后再试'], (int)$row['until'] - time());
   return function (bool $ok) use ($db, $k, $row, $max, $lockSec) {
     if ($ok) { $db->prepare('DELETE FROM fails WHERE k=?')->execute([$k]); return; }
     $n = ($row['n'] ?? 0) + 1;
@@ -92,9 +203,56 @@ function ai_policy(PDO $db): array {
     'custom_quota' => max(0, (int)($rows['custom_quota'] ?? 20)),
     'month_token_cap' => max(0, (int)($rows['month_token_cap'] ?? 2000000)),
     'site_enabled' => (int)($rows['site_enabled'] ?? 1),
+    // IP 维度限流：默认 10 次 / 600 秒（只在实际发起生成时记命中，重放/拒绝不占额度）
+    'ip_rate_max' => max(1, (int)($rows['ip_rate_max'] ?? 10)),
+    'ip_rate_window' => max(60, (int)($rows['ip_rate_window'] ?? 600)),
+    // 举报防滥用：默认每人（IP）每小时 5 次，参数同样落在配置表
+    'report_rate_max' => max(1, (int)($rows['report_rate_max'] ?? 5)),
+    'report_rate_window' => max(60, (int)($rows['report_rate_window'] ?? 3600)),
     'models_friend' => $j('models_friend', ['deepseek-v4-pro']),
     'models_admin' => $j('models_admin', ['deepseek-v4-pro']),
   ];
+}
+/** 月站内通道 token：熔断与告警的唯一取数口径（只算真实成功调用）。 */
+function ai_month_tokens(PDO $db): int {
+  $q = $db->query("SELECT COALESCE(SUM(prompt_tokens+completion_tokens),0) FROM ai_calls WHERE channel='site' AND ok=1 AND model NOT LIKE 'test:%' AND created>=" . strtotime('first day of this month'));
+  return (int)$q->fetchColumn();
+}
+/** 月 token 达 60% / 80% 时告警：结构化日志 + ai_alerts 行；同周期同阈值唯一索引保证只告一次。 */
+function ai_alert_scan(PDO $db, int $tokens, int $cap): void {
+  if ($cap <= 0) return;
+  $period = date('Y-m');
+  $pct = (int)floor($tokens * 100 / $cap);
+  foreach ([60, 80] as $th) {
+    if ($pct < $th) continue;
+    $st = $db->prepare('INSERT OR IGNORE INTO ai_alerts(period,threshold,tokens,cap,created) VALUES(?,?,?,?,?)');
+    $st->execute([$period, $th, $tokens, $cap, time()]);
+    if ($st->rowCount() > 0) {
+      error_log('[ai_alert] ' . json_encode([
+        'period' => $period, 'threshold' => $th, 'tokens' => $tokens, 'cap' => $cap, 'pct' => $pct,
+      ], JSON_UNESCAPED_UNICODE));
+    }
+  }
+}
+/** 滑动窗口状态：命中行存在 ai_ip_hits，窗口内计数与冷却时间。 */
+function ip_rate_status(PDO $db, string $ip, array $pol): array {
+  $win = max(60, (int)$pol['ip_rate_window']);
+  $max = max(1, (int)$pol['ip_rate_max']);
+  $since = time() - $win;
+  $q = $db->prepare('SELECT COUNT(*), MIN(created) FROM ai_ip_hits WHERE ip=? AND created>=?');
+  $q->execute([$ip, $since]);
+  [$used, $oldest] = $q->fetch(PDO::FETCH_NUM);
+  $used = (int)$used;
+  return [
+    'max' => $max, 'window' => $win, 'used' => $used,
+    'remaining' => max(0, $max - $used),
+    'reset_in' => $used > 0 ? max(1, (int)$oldest + $win - time()) : 0,
+  ];
+}
+function ip_rate_record(PDO $db, string $ip, int $window): void {
+  $db->prepare('INSERT INTO ai_ip_hits(ip,created) VALUES(?,?)')->execute([$ip, time()]);
+  // 只保留两个窗口内的行，避免表无限增长
+  $db->prepare('DELETE FROM ai_ip_hits WHERE created<?')->execute([time() - max(60, $window) * 2]);
 }
 // SSRF 防线：自定义 endpoint 会被服务器代发请求，必须挡住内网/回环地址（2026-10 审计项）
 // 同时返回解析结果，供 cURL 用 CURLOPT_RESOLVE 固定 IP —— 否则校验与真正连接各解析一次，
@@ -123,6 +281,88 @@ function ssrf_resolve(string $url): array {
 }
 function ssrf_check(string $url): ?string {
   return ssrf_resolve($url)['error'] ?? null;
+}
+
+/* ---------- P1-6 事实纠错：字段白名单 + 服务端点位/板块校验 ---------- */
+const FACT_FIELDS = ['hours' => '营业时间', 'ticket' => '门票', 'rating' => '评分', 'other' => '其他'];
+// 投稿字段 → data/points.json 的 JSON 路径（apply 工具按这个路径写，before/after 也按此记录）
+const FACT_JSON_PATH = ['hours' => 'hours', 'ticket' => 'ticket', 'rating' => 'rating', 'other' => 'note'];
+const REPORT_REASONS = ['fake' => '虚假信息', 'copyright' => '侵权', 'privacy' => '隐私', 'spam' => '垃圾信息', 'other' => '其他'];
+
+/** 数据目录只从配置读（config.php 的 data_dir），默认与 api/ 同级的 data/（生产 webroot 结构）。 */
+function data_file(string $name): string {
+  $dir = (string)($GLOBALS['CONF']['data_dir'] ?? dirname(__DIR__) . '/data');
+  return rtrim($dir, '/\\') . DIRECTORY_SEPARATOR . $name;
+}
+/** 点位索引（按 id）。文件缺失时返回空 → 调用方拒绝投稿，避免绕过校验。 */
+function points_index(): array {
+  static $idx = null;
+  if ($idx !== null) return $idx;
+  $idx = [];
+  $f = data_file('points.json');
+  if (is_file($f)) {
+    $raw = json_decode((string)file_get_contents($f), true);
+    if (is_array($raw)) foreach ($raw as $p) if (is_array($p) && isset($p['id'])) $idx[(string)$p['id']] = $p;
+  }
+  return $idx;
+}
+/** 板块可见性：与前端 regions.js 同口径（enabled=false 隐藏；未知板块不隐藏）。 */
+function region_enabled(string $region): bool {
+  if ($region === '') return true;
+  $f = data_file('regions.json');
+  if (!is_file($f)) return true;
+  $doc = json_decode((string)file_get_contents($f), true);
+  foreach ((array)($doc['regions'] ?? []) as $r) {
+    if (is_array($r) && ($r['id'] ?? '') === $region) return ($r['enabled'] ?? true) !== false;
+  }
+  return true;
+}
+/** 字段值格式校验：返回错误文案，合法返回 null。 */
+function fact_value_error(string $field, string $value): ?string {
+  if ($field === 'hours') {
+    if (!preg_match('/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/', $value, $m)) return '营业时间需 HH:MM-HH:MM（如 09:00-18:00）';
+    if ((int)$m[1] > 23 || (int)$m[3] > 23 || (int)$m[2] > 59 || (int)$m[4] > 59) return '时间超出 00:00-23:59';
+    if ((int)$m[3] * 60 + (int)$m[4] <= (int)$m[1] * 60 + (int)$m[2]) return '结束时间必须晚于开始时间（跨天请填「其他」说明）';
+    return null;
+  }
+  if ($field === 'ticket') {
+    if (!preg_match('/^(免费|￥?\d{1,5}(\.\d{1,2})?元?(?:\/人)?)$/u', $value)) return '门票填「免费」或金额（如 100元 / ￥50）';
+    return null;
+  }
+  if ($field === 'rating') {
+    if (!preg_match('/^[0-5](\.[0-9])?$/', $value)) return '评分需 0-5 的数字（可带一位小数）';
+    return null;
+  }
+  if (mb_strlen($value) < 1 || mb_strlen($value) > 200) return '说明需 1-200 字';
+  return null;
+}
+/** 证据图片落盘（复用照片上传的 MIME 白名单与体积上限）。 */
+function save_image_data_url(string $data): string {
+  if (!preg_match('#^data:image/(jpeg|png|webp);base64,#', $data, $m)) out(['error' => '仅支持 JPEG/PNG/WebP'], 400);
+  $bin = base64_decode(substr($data, strlen($m[0])), true);
+  if ($bin === false || strlen($bin) > 8 * 1024 * 1024) out(['error' => '图片需小于 8MB'], 400);
+  $finfo = new finfo(FILEINFO_MIME_TYPE);
+  $mime = $finfo->buffer($bin);
+  if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) out(['error' => '图片类型校验失败'], 400);
+  $ext = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$mime];
+  $file = $GLOBALS['CONF']['upload_dir'] . '/' . date('Ymd') . '-' . bin2hex(random_bytes(8)) . '.' . $ext;
+  file_put_contents($file, $bin);
+  chmod($file, 0640);
+  return $file;
+}
+/** 举报 IP 频率：滑动窗口命中行，参数来自 ai_policy（report_rate_max / report_rate_window）。 */
+function report_rate_status(PDO $db, string $ip, array $pol): array {
+  $win = max(60, (int)$pol['report_rate_window']);
+  $max = max(1, (int)$pol['report_rate_max']);
+  $q = $db->prepare('SELECT COUNT(*), MIN(created) FROM report_hits WHERE ip=? AND created>=?');
+  $q->execute([$ip, time() - $win]);
+  [$used, $oldest] = $q->fetch(PDO::FETCH_NUM);
+  $used = (int)$used;
+  return ['max' => $max, 'window' => $win, 'used' => $used, 'remaining' => max(0, $max - $used), 'reset_in' => $used > 0 ? max(1, (int)$oldest + $win - time()) : 0];
+}
+function report_rate_record(PDO $db, string $ip, int $window): void {
+  $db->prepare('INSERT INTO report_hits(ip,created) VALUES(?,?)')->execute([$ip, time()]);
+  $db->prepare('DELETE FROM report_hits WHERE created<?')->execute([time() - max(60, $window) * 2]);
 }
 
 /* ---------- 自定义 AI Key 静态加密（失败关闭） ----------
@@ -197,7 +437,7 @@ function ai_http(string $url, string $key, array $payload, array $pin = []): arr
 }
 
 $a = $_GET['a'] ?? '';
-$ip = $_SERVER['REMOTE_ADDR'] ?? '?';
+$ip = client_ip();
 
 switch ($a) {
   case 'login': {
@@ -217,6 +457,7 @@ switch ($a) {
     $s->execute([$u]);
     $acc = $s->fetch(PDO::FETCH_ASSOC);
     if ($acc && password_verify($p, $acc['pass_hash'])) {
+      if ((int)($acc['banned'] ?? 0) > 0) out(['error' => '账号已被封禁，请联系站长'], 403);
       $t = bin2hex(random_bytes(32));
       $db->prepare('INSERT INTO sessions(token,who,is_admin,exp) VALUES(?,?,0,?)')->execute([$t, $u, time() + 86400 * 7]);
       $limitIp(true); $limitUser(true);
@@ -236,7 +477,7 @@ switch ($a) {
   case 'accounts': {
     $s = session_ok($db, bearer(), true);
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-      $rows = $db->query('SELECT username, display, created FROM accounts ORDER BY created DESC')->fetchAll(PDO::FETCH_ASSOC);
+      $rows = $db->query('SELECT username, display, created, banned FROM accounts ORDER BY created DESC')->fetchAll(PDO::FETCH_ASSOC);
       $cnt = $db->query('SELECT username, COUNT(*) c FROM submissions GROUP BY username')->fetchAll(PDO::FETCH_KEY_PAIR);
       foreach ($rows as &$r) $r['submissions'] = (int)($cnt[$r['username']] ?? 0);
       out(['accounts' => $rows]);
@@ -288,18 +529,28 @@ switch ($a) {
   }
   case 'submit': {
     $s = session_ok($db, bearer());
+    $who = (string)$s['who'];
+    // 封禁拦截（A-16：举报处理可封禁投稿者，封禁时同时清掉会话）
+    if ($who !== 'admin') {
+      $qb = $db->prepare('SELECT banned FROM accounts WHERE username=?');
+      $qb->execute([$who]);
+      if ((int)$qb->fetchColumn() > 0) out(['error' => '账号已被封禁，无法投稿'], 403);
+    }
     // 日配额（2026-10 审计项）：防认证用户无限投稿耗尽磁盘
     $today = strtotime('today');
     $q = $db->prepare('SELECT COUNT(*) FROM submissions WHERE username=? AND created>=?');
-    $q->execute([$s['who'], $today]);
+    $q->execute([$who, $today]);
     if ($q->fetchColumn() >= 50) out(['error' => '今日投稿已达上限（50 条），明天再来'], 429);
     $b = body();
     $type = (string)($b['type'] ?? '');
-    if (!in_array($type, ['photo', 'note', 'checkin'], true)) out(['error' => '类型非法'], 400);
-    if ($type === 'photo') {
-      $qp = $db->prepare('SELECT COUNT(*) FROM submissions WHERE username=? AND created>=? AND type="photo"');
-      $qp->execute([$s['who'], $today]);
-      if ($qp->fetchColumn() >= 20) out(['error' => '今日照片投稿已达上限（20 张），明天再来'], 429);
+    if (!in_array($type, ['photo', 'note', 'checkin', 'fact'], true)) out(['error' => '类型非法'], 400);
+    // 照片与纠错证据都落盘，单独限条数避免单日磁盘被写满
+    if ($type === 'photo' || $type === 'fact') {
+      $qp = $db->prepare('SELECT COUNT(*) FROM submissions WHERE username=? AND created>=? AND type=?');
+      $qp->execute([$who, $today, $type]);
+      $lim = $type === 'photo' ? 20 : 10;
+      $label = $type === 'photo' ? '照片' : '纠错';
+      if ($qp->fetchColumn() >= $lim) out(['error' => "今日{$label}投稿已达上限（{$lim} 条），明天再来"], 429);
     }
     // 幂等：同一 idem 已提交过则直接返回原记录，不重复入库
     $idem = preg_replace('/[^\w-]/', '', (string)($b['idem'] ?? ''));
@@ -317,27 +568,34 @@ switch ($a) {
     $title = str_replace(['<', '>'], ['&lt;', '&gt;'], $title);
     $text = str_replace(['<', '>'], ['&lt;', '&gt;'], $text);
     $point = preg_replace('/[^p\d]/', '', (string)($b['pointId'] ?? ''));
-    $file = null;
-    if ($type === 'photo') {
-      $data = (string)($b['dataUrl'] ?? '');
-      if (!preg_match('#^data:image/(jpeg|png|webp);base64,#', $data, $m)) out(['error' => '仅支持 JPEG/PNG/WebP'], 400);
-      $bin = base64_decode(substr($data, strlen($m[0])), true);
-      if ($bin === false || strlen($bin) > 8 * 1024 * 1024) out(['error' => '图片需小于 8MB'], 400);
-      $finfo = new finfo(FILEINFO_MIME_TYPE);
-      $mime = $finfo->buffer($bin);
-      if (!in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)) out(['error' => '图片类型校验失败'], 400);
-      $ext = ['image/jpeg' => 'jpg', 'image/png' => 'png', 'image/webp' => 'webp'][$mime];
-      $file = $CONF['upload_dir'] . '/' . date('Ymd') . '-' . bin2hex(random_bytes(8)) . '.' . $ext;
-      file_put_contents($file, $bin);
-      chmod($file, 0640);
-    }
+    $file = null; $targetField = null; $newValue = null; $sourceUrl = null;
+    if ($type === 'photo') $file = save_image_data_url((string)($b['dataUrl'] ?? ''));
     if ($type === 'checkin') {
       $title = '打卡';
       if (!$point) out(['error' => '缺少点位'], 400);
     }
+    // 事实纠错：字段白名单 + 值格式 + 来源链接/证据至少一项 + 点位存在且板块可见
+    if ($type === 'fact') {
+      $targetField = (string)($b['targetField'] ?? '');
+      if (!isset(FACT_FIELDS[$targetField])) out(['error' => '目标字段非法'], 400);
+      $newValue = trim(mb_substr((string)($b['value'] ?? ''), 0, 200));
+      $err = fact_value_error($targetField, $newValue);
+      if ($err !== null) out(['error' => $err], 400);
+      $sourceUrl = trim(preg_replace('/[\x00-\x1f\x7f]/', '', mb_substr((string)($b['sourceUrl'] ?? ''), 0, 300)));
+      if ($sourceUrl !== '' && !preg_match('#^https?://#i', $sourceUrl)) out(['error' => '来源链接需以 http:// 或 https:// 开头'], 400);
+      $evidence = trim((string)($b['evidence'] ?? ''));
+      if ($sourceUrl === '' && $evidence === '') out(['error' => '来源链接与证据截图至少填一项'], 400);
+      if ($point === '') out(['error' => '请选择要纠错的点位'], 400);
+      $idx = points_index();
+      if (!isset($idx[$point])) out(['error' => '点位不存在或已下线'], 400);
+      if (!region_enabled((string)($idx[$point]['region'] ?? ''))) out(['error' => '该点位所在板块已隐藏，暂不接受投稿'], 403);
+      if ($evidence !== '') $file = save_image_data_url($evidence);
+      $pname = str_replace(['<', '>'], ['&lt;', '&gt;'], (string)($idx[$point]['name'] ?? $point));
+      $title = '纠错：' . FACT_FIELDS[$targetField] . ' · ' . $pname;
+    }
     try {
-      $db->prepare('INSERT INTO submissions(username,type,title,body,point_id,file,created,idem) VALUES(?,?,?,?,?,?,?,?)')
-        ->execute([$s['who'], $type, $title, $text, $point ?: null, $file, time(), $idem ?: null]);
+      $db->prepare('INSERT INTO submissions(username,type,title,body,point_id,file,target_field,new_value,source_url,created,idem) VALUES(?,?,?,?,?,?,?,?,?,?,?)')
+        ->execute([$who, $type, $title, $text, $point ?: null, $file, $targetField, $newValue, $sourceUrl, time(), $idem ?: null]);
     } catch (PDOException $e) {
       // 并发同 idem：返回已存在的那条
       if ($idem) {
@@ -352,52 +610,270 @@ switch ($a) {
   }
   case 'my': {
     $s = session_ok($db, bearer());
-    $rows = $db->prepare('SELECT id,type,title,point_id,status,created FROM submissions WHERE username=? ORDER BY id DESC LIMIT 50');
+    $rows = $db->prepare('SELECT s.id,s.type,s.title,s.point_id,s.status,s.created,s.target_field,s.new_value,s.source_url,
+      CASE WHEN s.file IS NULL THEN 0 ELSE 1 END has_evidence,
+      (SELECT reason FROM submission_logs WHERE submission_id=s.id ORDER BY id DESC LIMIT 1) reason
+      FROM submissions s WHERE s.username=? ORDER BY s.id DESC LIMIT 50');
     $rows->execute([$s['who']]);
     out(['items' => $rows->fetchAll(PDO::FETCH_ASSOC)]);
   }
   case 'photo': {
-    // 仅管理员可取投稿照片（friend 页承诺"仅管理员可见"；id 自增可被任意登录用户遍历）
+    // 仅管理员可取投稿照片/纠错证据（friend 页承诺"仅管理员可见"；id 自增可被任意登录用户遍历）
     session_ok($db, bearer(), true);
     $id = (int)($_GET['id'] ?? 0);
-    $r = $db->prepare('SELECT file,type FROM submissions WHERE id=?');
+    $r = $db->prepare('SELECT file FROM submissions WHERE id=?');
     $r->execute([$id]);
     $row = $r->fetch(PDO::FETCH_ASSOC);
     if (!$row || !$row['file'] || !is_file($row['file'])) out(['error' => 'not found'], 404);
-    header('Content-Type: ' . ($row['type'] === 'photo' ? mime_content_type($row['file']) : 'application/octet-stream'));
+    header('Content-Type: ' . mime_content_type($row['file']));
     header('Cache-Control: private, max-age=3600');
     readfile($row['file']);
     exit;
   }
   case 'pending': {
+    // 审核队列：按状态与类型筛选（needs_more 也需要复核，默认只看 pending）
     session_ok($db, bearer(), true);
-    $rows = $db->query('SELECT * FROM submissions WHERE status="pending" ORDER BY id DESC LIMIT 100')->fetchAll(PDO::FETCH_ASSOC);
-    foreach ($rows as &$r) unset($r['file']);
-    out(['items' => $rows]);
+    $status = (string)($_GET['status'] ?? 'pending');
+    if (!in_array($status, ['pending', 'needs_more', 'approved', 'rejected', 'removed'], true)) $status = 'pending';
+    $type = (string)($_GET['type'] ?? '');
+    $sql = 'SELECT s.id,s.username,s.type,s.title,s.body,s.point_id,s.target_field,s.new_value,s.source_url,s.status,s.created,
+      CASE WHEN s.file IS NULL THEN 0 ELSE 1 END has_evidence,
+      (SELECT reason FROM submission_logs WHERE submission_id=s.id ORDER BY id DESC LIMIT 1) reason
+      FROM submissions s WHERE s.status=?';
+    $args = [$status];
+    if (in_array($type, ['photo', 'note', 'checkin', 'fact'], true)) { $sql .= ' AND s.type=?'; $args[] = $type; }
+    $sql .= ' ORDER BY s.id DESC LIMIT 100';
+    $q = $db->prepare($sql);
+    $q->execute($args);
+    out(['items' => $q->fetchAll(PDO::FETCH_ASSOC)]);
   }
-  case 'approve': case 'reject': {
+  case 'review': {
+    // 审核状态机：pending/needs_more → approved | rejected | needs_more
+    // 每次变更写 submission_logs（操作人/时间/理由）；批准的 fact 只生成 changeset，不直接改 data/
+    $s = session_ok($db, bearer(), true);
+    $b = body();
+    $action = (string)($b['action'] ?? '');
+    $to = ['approve' => 'approved', 'reject' => 'rejected', 'needs_more' => 'needs_more'][$action] ?? '';
+    if ($to === '') out(['error' => '审核动作非法'], 400);
+    $reason = trim(mb_substr((string)($b['reason'] ?? ''), 0, 300));
+    if (mb_strlen($reason) < 2) out(['error' => '请填写理由（至少 2 字）'], 400);
+    if (unsafe_html($reason)) out(['error' => '理由含不允许的脚本代码'], 400);
+    $ids = array_values(array_unique(array_filter(array_map('intval', (array)($b['ids'] ?? [(int)($b['id'] ?? 0)])))));
+    if (!$ids) out(['error' => '缺少投稿 id'], 400);
+    if (count($ids) > 1 && $action !== 'approve') out(['error' => '批量操作仅支持采纳'], 400);
+    $actor = (string)$s['who'];
+    $changed = 0; $skipped = []; $idx = points_index();
+    foreach ($ids as $id) {
+      $r = $db->prepare('SELECT * FROM submissions WHERE id=?');
+      $r->execute([$id]);
+      $row = $r->fetch(PDO::FETCH_ASSOC);
+      if (!$row) { $skipped[] = ['id' => $id, 'why' => '不存在']; continue; }
+      if (!in_array($row['status'], ['pending', 'needs_more'], true)) { $skipped[] = ['id' => $id, 'why' => '已审核']; continue; }
+      $up = $db->prepare('UPDATE submissions SET status=? WHERE id=? AND status IN ("pending","needs_more")');
+      $up->execute([$to, $id]);
+      if ($up->rowCount() < 1) { $skipped[] = ['id' => $id, 'why' => '状态已变更']; continue; }
+      $changed++;
+      $db->prepare('INSERT INTO submission_logs(submission_id,from_status,to_status,actor,reason,created) VALUES(?,?,?,?,?,?)')
+        ->execute([$id, $row['status'], $to, $actor, $reason, time()]);
+      if ($to === 'rejected' && !empty($row['file']) && is_file($row['file'])) unlink($row['file']);
+      if ($to === 'approved' && $row['type'] === 'fact') {
+        $path = FACT_JSON_PATH[(string)$row['target_field']] ?? null;
+        $p = $idx[(string)$row['point_id']] ?? null;
+        if ($path !== null && $p !== null) {
+          $before = array_key_exists($path, $p) ? (string)$p[$path] : null;
+          $db->prepare('INSERT INTO changesets(submission_id,city,point_id,json_path,new_value,before_value,status,created)
+              VALUES(?,?,?,?,?,?,?,?)
+              ON CONFLICT(submission_id) DO UPDATE SET new_value=excluded.new_value,before_value=excluded.before_value,status="ready",created=excluded.created')
+            ->execute([$id, (string)($p['city'] ?? ''), (string)$row['point_id'], $path, (string)$row['new_value'], $before, 'ready', time()]);
+        }
+      }
+    }
+    out(['ok' => true, 'changed' => $changed, 'skipped' => $skipped]);
+  }
+  case 'changesets': {
+    // GET：导出可应用变更（管理页下载 JSON 后交给 tools/apply-changesets.mjs）
+    // POST：工具应用/回滚后回写状态与审计（谁、何时、run_id、前后值）
+    $s = session_ok($db, bearer(), true);
+    if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+      $status = (string)($_GET['status'] ?? 'ready');
+      if (!in_array($status, ['ready', 'applied', 'rolled_back', 'all'], true)) $status = 'ready';
+      $sql = 'SELECT c.*, s.username, s.source_url,
+        (SELECT COUNT(*) FROM changeset_logs WHERE changeset_id=c.id) log_count
+        FROM changesets c LEFT JOIN submissions s ON s.id=c.submission_id';
+      $args = [];
+      if ($status !== 'all') { $sql .= ' WHERE c.status=?'; $args[] = $status; }
+      $sql .= ' ORDER BY c.id';
+      $q = $db->prepare($sql);
+      $q->execute($args);
+      out(['version' => 1, 'items' => $q->fetchAll(PDO::FETCH_ASSOC)]);
+    }
+    $b = body();
+    $runId = mb_substr(preg_replace('/[^\w.-]/', '', (string)($b['run_id'] ?? '')), 0, 64);
+    if ($runId === '') out(['error' => '缺少 run_id'], 400);
+    $status = (string)($b['status'] ?? '');
+    if (!in_array($status, ['applied', 'rolled_back'], true)) out(['error' => '状态非法'], 400);
+    $ids = array_values(array_unique(array_filter(array_map('intval', (array)($b['ids'] ?? [])))));
+    if (!$ids) out(['error' => '缺少 changeset id'], 400);
+    $by = trim(mb_substr((string)($b['by'] ?? ''), 0, 40)) ?: (string)$s['who'];
+    $n = 0;
+    foreach ($ids as $id) {
+      $r = $db->prepare('SELECT * FROM changesets WHERE id=?');
+      $r->execute([$id]);
+      $row = $r->fetch(PDO::FETCH_ASSOC);
+      if (!$row) continue;
+      $db->prepare('UPDATE changesets SET status=?,run_id=?,applied_by=?,applied_at=? WHERE id=?')
+        ->execute([$status, $runId, $by, time(), $id]);
+      $db->prepare('INSERT INTO changeset_logs(changeset_id,action,actor,run_id,before_value,new_value,created) VALUES(?,?,?,?,?,?,?)')
+        ->execute([$id, $status, $by, $runId, $row['before_value'], $row['new_value'], time()]);
+      $n++;
+    }
+    out(['ok' => true, 'changed' => $n]);
+  }
+  case 'report': {
+    // 举报入口（登录用户）：对象存在性 → 去重 → 频率限制 → 入库
+    $s = session_ok($db, bearer());
+    $who = (string)$s['who'];
+    if ($who !== 'admin') {
+      $qb = $db->prepare('SELECT banned FROM accounts WHERE username=?');
+      $qb->execute([$who]);
+      if ((int)$qb->fetchColumn() > 0) out(['error' => '账号已被封禁，无法举报'], 403);
+    }
+    $b = body();
+    $targetType = (string)($b['targetType'] ?? 'submission');
+    if (!in_array($targetType, ['submission', 'point'], true)) out(['error' => '举报对象类型非法'], 400);
+    $targetId = preg_replace('/[^\w-]/', '', (string)($b['targetId'] ?? ''));
+    if ($targetId === '') out(['error' => '缺少举报对象'], 400);
+    $reason = (string)($b['reason'] ?? '');
+    if (!isset(REPORT_REASONS[$reason])) out(['error' => '举报原因非法'], 400);
+    $note = trim(mb_substr((string)($b['note'] ?? ''), 0, 500));
+    if (unsafe_html($note)) out(['error' => '说明含不允许的脚本代码'], 400);
+    if ($reason === 'other' && mb_strlen($note) < 2) out(['error' => '选择「其他」时请填写说明'], 400);
+    if ($targetType === 'submission') {
+      $q = $db->prepare('SELECT id,status FROM submissions WHERE id=?');
+      $q->execute([(int)$targetId]);
+      $t = $q->fetch(PDO::FETCH_ASSOC);
+      if (!$t) out(['error' => '举报对象不存在'], 404);
+      if ($t['status'] === 'removed') out(['error' => '该内容已被移除'], 409);
+    } else {
+      $idx = points_index();
+      if (!isset($idx[$targetId])) out(['error' => '举报对象不存在'], 404);
+    }
+    // 同一人对同一对象只记一次；重复举报直接返回原记录，不占限流额度
+    $dupq = $db->prepare('SELECT id,status FROM reports WHERE reporter=? AND target_type=? AND target_id=?');
+    $dupq->execute([$who, $targetType, $targetId]);
+    if ($dup = $dupq->fetch(PDO::FETCH_ASSOC)) out(['ok' => true, 'id' => (int)$dup['id'], 'duplicate' => true, 'status' => $dup['status']]);
+    // 频率限制（IP 维度，复用 P1-7 的滑动窗口思路；参数在 ai_policy）
+    $pol = ai_policy($db);
+    $ip = client_ip();
+    $rs = report_rate_status($db, $ip, $pol);
+    if ($rs['remaining'] <= 0) {
+      out_retry(['error' => "举报过于频繁（{$rs['max']} 次 / {$rs['window']} 秒），请稍后再试", 'rate' => $rs], $rs['reset_in'] ?: $rs['window']);
+    }
+    try {
+      $db->prepare('INSERT INTO reports(reporter,target_type,target_id,reason,note,status,created) VALUES(?,?,?,?,?,?,?)')
+        ->execute([$who, $targetType, $targetId, $reason, $note ?: null, 'pending', time()]);
+    } catch (PDOException $e) {
+      $dupq->execute([$who, $targetType, $targetId]);
+      if ($dup = $dupq->fetch(PDO::FETCH_ASSOC)) out(['ok' => true, 'id' => (int)$dup['id'], 'duplicate' => true, 'status' => $dup['status']]);
+      out(['error' => '举报提交失败，请重试'], 500);
+    }
+    report_rate_record($db, $ip, $pol['report_rate_window']);
+    out(['ok' => true, 'id' => (int)$db->lastInsertId()]);
+  }
+  case 'reports': {
+    // 管理端：待处理/已处理列表 + 24h 超时标记 + 处理与封禁日志
     session_ok($db, bearer(), true);
+    $status = (string)($_GET['status'] ?? 'pending');
+    if (!in_array($status, ['pending', 'handled', 'all'], true)) $status = 'pending';
+    $sql = 'SELECT r.*, s.username s_username, s.title s_title, s.type s_type,
+      CASE WHEN s.file IS NULL THEN 0 ELSE 1 END s_has_evidence
+      FROM reports r LEFT JOIN submissions s ON r.target_type="submission" AND s.id=CAST(r.target_id AS INTEGER)';
+    $args = [];
+    if ($status !== 'all') { $sql .= ' WHERE r.status=?'; $args[] = $status; }
+    $sql .= ' ORDER BY r.id DESC LIMIT 100';
+    $q = $db->prepare($sql);
+    $q->execute($args);
+    $items = $q->fetchAll(PDO::FETCH_ASSOC);
+    $now = time();
+    foreach ($items as &$it) $it['overdue'] = ($it['status'] === 'pending' && (int)$it['created'] < $now - 86400) ? 1 : 0;
+    unset($it);
+    $oq = $db->prepare('SELECT COUNT(*) FROM reports WHERE status="pending" AND created<?');
+    $oq->execute([$now - 86400]);
+    $overdue = (int)$oq->fetchColumn();
+    $pending = (int)$db->query('SELECT COUNT(*) FROM reports WHERE status="pending"')->fetchColumn();
+    $logs = $db->query('SELECT * FROM report_logs ORDER BY id DESC LIMIT 50')->fetchAll(PDO::FETCH_ASSOC);
+    out(['items' => $items, 'pending' => $pending, 'overdue' => $overdue, 'logs' => $logs, 'reasons' => REPORT_REASONS]);
+  }
+  case 'report_handle': {
+    // 处理动作：remove（移除内容）/ dismiss（驳回举报）/ ban（封禁投稿者）
+    $s = session_ok($db, bearer(), true);
     $b = body();
     $id = (int)($b['id'] ?? 0);
-    $st = $a === 'approve' ? 'approved' : 'rejected';
-    $db->prepare('UPDATE submissions SET status=? WHERE id=?')->execute([$st, $id]);
-    if ($st === 'rejected') {
-      $r = $db->prepare('SELECT file FROM submissions WHERE id=?');
-      $r->execute([$id]);
-      $f = $r->fetchColumn();
+    $action = (string)($b['action'] ?? '');
+    if (!in_array($action, ['remove', 'dismiss', 'ban'], true)) out(['error' => '处理动作非法'], 400);
+    $note = trim(mb_substr((string)($b['note'] ?? ''), 0, 300));
+    if (unsafe_html($note)) out(['error' => '备注含不允许的脚本代码'], 400);
+    $r = $db->prepare('SELECT * FROM reports WHERE id=?');
+    $r->execute([$id]);
+    $row = $r->fetch(PDO::FETCH_ASSOC);
+    if (!$row) out(['error' => '举报不存在'], 404);
+    $targetUser = null;
+    if ($row['target_type'] === 'submission') {
+      $q = $db->prepare('SELECT username FROM submissions WHERE id=?');
+      $q->execute([(int)$row['target_id']]);
+      $targetUser = $q->fetchColumn() ?: null;
+    }
+    if ($action === 'remove' && $row['target_type'] !== 'submission') out(['error' => '点位类举报请选择驳回或封禁'], 400);
+    if ($action === 'ban' && $targetUser === null) out(['error' => '该举报对象没有可封禁的投稿者'], 400);
+    $actor = (string)$s['who'];
+    // 先原子占用这条举报，避免双管理员重复处理
+    $up = $db->prepare('UPDATE reports SET status="handled",action=?,handled_by=?,handled_at=? WHERE id=? AND status="pending"');
+    $up->execute([$action, $actor, time(), $id]);
+    if ($up->rowCount() < 1) out(['error' => '该举报已被处理'], 409);
+    if ($action === 'remove') {
+      $q = $db->prepare('SELECT file FROM submissions WHERE id=?');
+      $q->execute([(int)$row['target_id']]);
+      $f = $q->fetchColumn();
+      $db->prepare('UPDATE submissions SET status="removed" WHERE id=?')->execute([(int)$row['target_id']]);
       if ($f && is_file($f)) unlink($f);
     }
-    out(['ok' => true]);
+    if ($action === 'ban') {
+      $db->prepare('UPDATE accounts SET banned=1 WHERE username=?')->execute([$targetUser]);
+      $db->prepare('DELETE FROM sessions WHERE who=?')->execute([$targetUser]);
+      $db->prepare('INSERT INTO report_logs(report_id,actor,action,note,created) VALUES(?,?,?,?,?)')
+        ->execute([null, $actor, 'ban', trim('封禁账号 ' . $targetUser . ($note !== '' ? ' · ' . $note : '')), time()]);
+    }
+    $db->prepare('INSERT INTO report_logs(report_id,actor,action,note,created) VALUES(?,?,?,?,?)')
+      ->execute([$id, $actor, $action, $note ?: null, time()]);
+    out(['ok' => true, 'action' => $action]);
+  }
+  case 'ban': {
+    // 账号封禁/解封（与举报处理共用 report_logs 审计）
+    $s = session_ok($db, bearer(), true);
+    $b = body();
+    $u = (string)($b['user'] ?? '');
+    if ($u === '' || $u === 'admin') out(['error' => '账号非法'], 400);
+    $q = $db->prepare('SELECT username FROM accounts WHERE username=?');
+    $q->execute([$u]);
+    if (!$q->fetchColumn()) out(['error' => '账号不存在'], 404);
+    $on = !empty($b['banned']);
+    $db->prepare('UPDATE accounts SET banned=? WHERE username=?')->execute([$on ? 1 : 0, $u]);
+    if ($on) $db->prepare('DELETE FROM sessions WHERE who=?')->execute([$u]);
+    $db->prepare('INSERT INTO report_logs(report_id,actor,action,note,created) VALUES(?,?,?,?,?)')
+      ->execute([null, (string)$s['who'], $on ? 'ban' : 'unban', ($on ? '封禁账号 ' : '解除封禁 ') . $u, time()]);
+    out(['ok' => true, 'banned' => $on]);
   }
   /* ---------- AI 日程生成 ---------- */
   case 'plan': {
     $s = session_ok($db, bearer());
     $who = $s['who']; $isAdmin = (bool)$s['is_admin'];
     $pol = ai_policy($db);
-    // 防重入：10 秒内重复调用直接拒绝（pro 模型一次调用 30-60s，连点=连烧）
-    $q = $db->prepare('SELECT MAX(created) FROM ai_calls WHERE username=?');
-    $q->execute([$who]);
-    if ((int)$q->fetchColumn() > time() - 10) out(['error' => '正在生成中，请稍候再试'], 429);
+    $ip = client_ip();
+    // IP 维度限流（与账号日配额并存、取更严者）：先判窗口再干活；命中数只在实际发起生成时累加
+    $ips = ip_rate_status($db, $ip, $pol);
+    if ($ips['remaining'] <= 0) {
+      out_retry(['error' => "同一 IP 生成过于频繁（{$ips['max']} 次 / {$ips['window']} 秒），请稍后再试", 'ip_limit' => $ips], $ips['reset_in'] ?: $ips['window']);
+    }
 
     $b = body();
     $params = (array)($b['params'] ?? []);
@@ -406,6 +882,9 @@ switch ($a) {
     $date = mb_substr(preg_replace('/[^\d-]/', '', (string)($params['date'] ?? '')), 0, 10);
     $interests = array_slice(array_map(fn($x) => mb_substr((string)$x, 0, 10), (array)($params['interests'] ?? [])), 0, 8);
     if ($city === '') out(['error' => '缺少目的地'], 400);
+
+    // 幂等键：客户端一次生成的所有重试共用同一个 idem，服务端据此重放结果、防并发双计费
+    $idem = mb_substr(preg_replace('/[^\w-]/', '', (string)($b['idem'] ?? '')), 0, 64);
 
     // 通道解析：个人自定义接入（ai_settings）优先，否则站内通道（站点 Key 只发往硬编码域名，绝不转发）
     $st = $db->prepare('SELECT * FROM ai_settings WHERE username=?');
@@ -437,11 +916,43 @@ switch ($a) {
     $q = $db->prepare("SELECT COUNT(*) FROM ai_calls WHERE username=? AND created>=? AND ok=1 AND model NOT LIKE 'test:%'");
     $q->execute([$who, strtotime('today')]);
     $used = (int)$q->fetchColumn();
-    if ($used >= $quota) out(['error' => "今日 AI 生成已达上限（{$quota} 次），明天再来"], 429);
-    // 月 token 熔断：只算站内通道（烧站点账单的那条）
+
+    // 幂等重放：同一 idem 已成功 → 直接回存好的结果，不再调模型、不再计费/计数
+    if ($idem !== '') {
+      $q = $db->prepare('SELECT id,ok,result,model,channel,created FROM ai_calls WHERE idem=? AND username=?');
+      $q->execute([$idem, $who]);
+      $prev = $q->fetch(PDO::FETCH_ASSOC);
+      if ($prev && (int)$prev['ok'] === 1 && $prev['result'] !== null) {
+        $stored = json_decode((string)$prev['result'], true);
+        if (is_array($stored)) {
+          out([
+            'plan' => $stored, 'duplicate' => true,
+            'remaining' => max(0, $quota - $used),
+            'model' => $prev['model'], 'channel' => $prev['channel'], 'ip_limit' => $ips,
+          ]);
+        }
+      }
+      // 同 idem 仍在生成中：不再发起第二次真实调用
+      if ($prev && (int)$prev['ok'] === 2 && (int)$prev['created'] > time() - 300) {
+        out_retry(['error' => '同一请求正在生成中，请稍后再试', 'duplicate' => true], 10);
+      }
+      // 失败或过期占位：清掉后允许本次重试重建（唯一索引随删随放）
+      if ($prev) $db->prepare('DELETE FROM ai_calls WHERE id=?')->execute([(int)$prev['id']]);
+    } else {
+      // 防重入（旧客户端无 idem）：10 秒内重复调用直接拒绝（pro 模型一次调用 30-60s，连点=连烧）
+      $q = $db->prepare('SELECT MAX(created) FROM ai_calls WHERE username=?');
+      $q->execute([$who]);
+      if ((int)$q->fetchColumn() > time() - 10) out_retry(['error' => '正在生成中，请稍候再试'], 10);
+    }
+
+    if ($used >= $quota) {
+      out_retry(['error' => "今日 AI 生成已达上限（{$quota} 次），明天再来", 'remaining' => 0], max(1, strtotime('tomorrow') - time()));
+    }
+    // 月 token 熔断 + 告警扫描：只算站内通道（烧站点账单的那条）
     if ($channel === 'site') {
-      $q = $db->query("SELECT COALESCE(SUM(prompt_tokens+completion_tokens),0) FROM ai_calls WHERE channel='site' AND ok=1 AND model NOT LIKE 'test:%' AND created>=" . strtotime('first day of this month'));
-      if ((int)$q->fetchColumn() >= $pol['month_token_cap']) out(['error' => '本月站内 AI 用量已达熔断阈值，请联系管理员'], 503);
+      $monthTok = ai_month_tokens($db);
+      ai_alert_scan($db, $monthTok, (int)$pol['month_token_cap']);
+      if ($monthTok >= $pol['month_token_cap']) out(['error' => '本月站内 AI 用量已达熔断阈值，请联系管理员'], 503);
     }
 
     // context 服务端二次裁剪：同城、白名单字段、封顶 150 个（前端也裁剪，这里不依赖前端自觉）
@@ -517,6 +1028,33 @@ switch ($a) {
       ],
     ];
 
+    // 占位行：同 idem 的并发请求抢唯一索引失败，只有第一个能进到真实调用
+    $pendingId = 0;
+    if ($idem !== '') {
+      try {
+        $db->prepare('INSERT INTO ai_calls(username,channel,model,prompt_tokens,completion_tokens,ok,created,idem) VALUES(?,?,?,0,0,2,?,?)')
+          ->execute([$who, $channel, $model, time(), $idem]);
+        $pendingId = (int)$db->lastInsertId();
+      } catch (PDOException $e) {
+        $q = $db->prepare('SELECT id,ok,result,model,channel FROM ai_calls WHERE idem=? AND username=?');
+        $q->execute([$idem, $who]);
+        $prev2 = $q->fetch(PDO::FETCH_ASSOC);
+        if ($prev2 && (int)$prev2['ok'] === 1 && $prev2['result'] !== null) {
+          $stored = json_decode((string)$prev2['result'], true);
+          if (is_array($stored)) {
+            out([
+              'plan' => $stored, 'duplicate' => true, 'remaining' => max(0, $quota - $used),
+              'model' => $prev2['model'], 'channel' => $prev2['channel'], 'ip_limit' => $ips,
+            ]);
+          }
+        }
+        out_retry(['error' => '同一请求正在生成中，请稍后重试', 'duplicate' => true], 10);
+      }
+    }
+    // 真正发起生成才记一次 IP 窗口命中（重放/被拒不计）
+    ip_rate_record($db, $ip, (int)$pol['ip_rate_window']);
+    $ips['used']++; $ips['remaining'] = max(0, $ips['max'] - $ips['used']);
+
     $r = ai_http($url, $key, $payload, $pin);
     $pt = 0; $ct = 0; $ok = 0; $plan = null; $errMsg = '';
     if (isset($r['error'])) {
@@ -557,10 +1095,16 @@ switch ($a) {
         if ($dropped) $plan['note'] = '已忽略 AI 建议的未知点位：' . implode('、', array_slice(array_unique($dropped), 0, 5));
       }
     }
-    $db->prepare('INSERT INTO ai_calls(username,channel,model,prompt_tokens,completion_tokens,ok,created) VALUES(?,?,?,?,?,?,?)')
-      ->execute([$who, $channel, $model, $pt, $ct, $ok, time()]);
-    if (!$ok) out(['error' => $errMsg ?: 'AI 生成失败'], 502);
-    out(['plan' => $plan, 'remaining' => max(0, $quota - $used - 1), 'model' => $model, 'channel' => $channel]);
+    if ($idem !== '' && $pendingId) {
+      $db->prepare('UPDATE ai_calls SET prompt_tokens=?, completion_tokens=?, ok=?, result=? WHERE id=?')
+        ->execute([$pt, $ct, $ok, $ok ? json_encode($plan, JSON_UNESCAPED_UNICODE) : null, $pendingId]);
+    } else {
+      $db->prepare('INSERT INTO ai_calls(username,channel,model,prompt_tokens,completion_tokens,ok,created) VALUES(?,?,?,?,?,?,?)')
+        ->execute([$who, $channel, $model, $pt, $ct, $ok, time()]);
+    }
+    if ($channel === 'site' && $ok) ai_alert_scan($db, ai_month_tokens($db), (int)$pol['month_token_cap']);
+    if (!$ok) out(['error' => $errMsg ?: 'AI 生成失败', 'ip_limit' => $ips], 502);
+    out(['plan' => $plan, 'remaining' => max(0, $quota - $used - 1), 'model' => $model, 'channel' => $channel, 'ip_limit' => $ips]);
   }
   case 'ai_settings': {
     $s = session_ok($db, bearer());
@@ -606,10 +1150,24 @@ switch ($a) {
     out(['ok' => true]);
   }
   case 'ai_policy': {
-    $s = session_ok($db, bearer());
-    $isAdmin = (bool)$s['is_admin'];
+    // GET 公开：未登录也能拿到 IP 维度的剩余次数（前端在生成前就能显示额度）；
+    // 登录用户拿到的是账号日额度，POST 写入仍然要求管理员。
+    $s = session_peek($db, bearer());
+    $isAdmin = $s ? (bool)$s['is_admin'] : false;
     $pol = ai_policy($db);
+    $ipLimit = ip_rate_status($db, client_ip(), $pol);
     if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+      if (!$s) {
+        out([
+          'anonymous' => true,
+          'quota' => $ipLimit['max'],
+          'remaining_today' => $ipLimit['remaining'],
+          'models' => $pol['models_friend'],
+          'has_custom' => false,
+          'site_enabled' => (bool)$pol['site_enabled'],
+          'ip_limit' => $ipLimit,
+        ]);
+      }
       $st = $db->prepare('SELECT endpoint FROM ai_settings WHERE username=?');
       $st->execute([$s['who']]);
       $hasCustom = (bool)$st->fetchColumn();
@@ -617,11 +1175,13 @@ switch ($a) {
       $q = $db->prepare("SELECT COUNT(*) FROM ai_calls WHERE username=? AND created>=? AND ok=1 AND model NOT LIKE 'test:%'");
       $q->execute([$s['who'], strtotime('today')]);
       out([
+        'anonymous' => false,
         'quota' => $quota,
         'remaining_today' => max(0, $quota - (int)$q->fetchColumn()),
         'models' => $isAdmin ? $pol['models_admin'] : $pol['models_friend'],
         'has_custom' => $hasCustom,
         'site_enabled' => (bool)$pol['site_enabled'],
+        'ip_limit' => $ipLimit,
         // admin 额外拿到完整策略用于后台编辑（不含任何密钥）
         ...($isAdmin ? ['policy' => $pol] : []),
       ]);
@@ -635,6 +1195,10 @@ switch ($a) {
       if (isset($b[$qk])) $set($qk, (string)max(0, min(100, (int)$b[$qk])));
     }
     if (isset($b['month_token_cap'])) $set('month_token_cap', (string)max(0, min(50000000, (int)$b['month_token_cap'])));
+    if (isset($b['ip_rate_max'])) $set('ip_rate_max', (string)max(1, min(1000, (int)$b['ip_rate_max'])));
+    if (isset($b['ip_rate_window'])) $set('ip_rate_window', (string)max(60, min(86400, (int)$b['ip_rate_window'])));
+    if (isset($b['report_rate_max'])) $set('report_rate_max', (string)max(1, min(1000, (int)$b['report_rate_max'])));
+    if (isset($b['report_rate_window'])) $set('report_rate_window', (string)max(60, min(86400, (int)$b['report_rate_window'])));
     if (isset($b['site_enabled'])) $set('site_enabled', $b['site_enabled'] ? '1' : '0');
     foreach (['models_friend', 'models_admin'] as $mk) {
       if (isset($b[$mk])) {
@@ -654,9 +1218,12 @@ switch ($a) {
     $byUser = $db->query("SELECT username, channel, COUNT(*) calls, COALESCE(SUM(prompt_tokens+completion_tokens),0) tok FROM ai_calls WHERE ok=1 AND $noTest AND created>=" . strtotime('-30 days') . " GROUP BY username, channel ORDER BY tok DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
     // 本月站内通道按模型拆（前端折算 ¥）
     $monthByModel = $db->query("SELECT model, SUM(prompt_tokens) pt, SUM(completion_tokens) ct FROM ai_calls WHERE channel='site' AND ok=1 AND $noTest AND created>=" . strtotime('first day of this month') . " GROUP BY model")->fetchAll(PDO::FETCH_ASSOC);
-    $items = $db->query("SELECT username, channel, model, prompt_tokens pt, completion_tokens ct, ok, created FROM ai_calls ORDER BY id DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
+    $items = $db->query("SELECT username, channel, model, prompt_tokens pt, completion_tokens ct, ok, created FROM ai_calls WHERE ok IN (0,1) ORDER BY id DESC LIMIT 10")->fetchAll(PDO::FETCH_ASSOC);
     $m = $db->query("SELECT COALESCE(SUM(prompt_tokens+completion_tokens),0) FROM ai_calls WHERE channel='site' AND ok=1 AND $noTest AND created>=" . strtotime('first day of this month'))->fetchColumn();
-    out(['daily' => $daily->fetchAll(PDO::FETCH_ASSOC), 'by_model' => $byModel, 'by_user' => $byUser, 'month_by_model' => $monthByModel, 'items' => $items, 'month_site_tokens' => (int)$m]);
+    // 告警历史（同周期同阈值只一条）+ 阈值，供管理页告警条与历史列表
+    $alerts = $db->query('SELECT id, period, threshold, tokens, cap, created FROM ai_alerts ORDER BY id DESC LIMIT 50')->fetchAll(PDO::FETCH_ASSOC);
+    out(['daily' => $daily->fetchAll(PDO::FETCH_ASSOC), 'by_model' => $byModel, 'by_user' => $byUser, 'month_by_model' => $monthByModel, 'items' => $items, 'month_site_tokens' => (int)$m,
+      'alerts' => $alerts, 'alert_thresholds' => [60, 80]]);
   }
   case 'ai_test': {
     $s = session_ok($db, bearer());

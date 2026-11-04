@@ -175,5 +175,55 @@ if (tighten) {
   console.log('⚠️  无基线文件：先跑 `node tools/design-lint.mjs --tighten` 登记现状，此后只准降不准升');
 }
 
+// ===== P1-5 桌面优先：断点集中 / 打印样式 / 快捷键映射（沿用本门，不新增独立门） =====
+const readSrc = (rel) => { try { return readFileSync(resolve(root, rel), 'utf8'); } catch { return null; } };
+const stripComments = (s) => s.replace(/\/\*[\s\S]*?\*\//g, '');
+
+const tokensCss = readSrc('src/shared/tokens.css') || '';
+if (!/--bp-wide\s*:\s*1280px/.test(tokensCss) || !/--bp-mobile\s*:\s*768px/.test(tokensCss)) {
+  fail('tokens.css：断点令牌缺失（需 --bp-wide: 1280px 与 --bp-mobile: 768px，且只在此处定义）');
+} else ok('断点令牌在 tokens.css 集中定义（--bp-wide / --bp-mobile）');
+
+// 除 tokens.css 外不得出现 1280 字面量：媒体查询统一写 80rem，断点才不会散落成魔法数
+const hardcoded = cssFiles
+  .map(f => ({ rel: relative(root, f).replace(/\\/g, '/'), raw: stripComments(readFileSync(f, 'utf8')) }))
+  .filter(x => !x.rel.endsWith('tokens.css') && /\b1280\b/.test(x.raw))
+  .map(x => x.rel);
+if (hardcoded.length) fail(`断点硬编码 1280 散落在：${hardcoded.join(', ')}（应集中在 shared/layout-wide.css 的 @media (min-width: 80rem)）`);
+else ok('1280 只出现在断点令牌，CSS 内无硬编码断点');
+
+const wideMedia = cssFiles.reduce((n, f) => n + ((readFileSync(f, 'utf8').match(/@media\s*\(min-width:\s*80rem\)/g) || []).length), 0);
+if (wideMedia !== 1) fail(`大屏两栏媒体查询应恰好 1 处（集中在 shared/layout-wide.css），实际 ${wideMedia} 处`);
+else ok('大屏两栏断点集中定义（@media (min-width: 80rem) 仅 1 处）');
+
+// 打印样式：必须存在，且显式隐藏导航/侧栏/页脚/地图控件与非行程单节点
+const printCss = readSrc('src/shared/print.css');
+if (!printCss) fail('缺少 src/shared/print.css（Ctrl+P 打印样式表）');
+else {
+  const must = ['@media print', '.print-sheet', 'body > *:not(.print-sheet)', '.page-nav', '#sidebar', '.site-footer', '.leaflet-control', 'display: none'];
+  const missing = must.filter(s => !printCss.includes(s));
+  if (missing.length) fail(`print.css 缺少必要规则：${missing.join(' / ')}`);
+  else ok('print.css 只输出行程单，隐藏导航/侧栏/页脚/地图控件/按钮');
+}
+const planSrc = readSrc('src/pages/plan.js') || '';
+if (!/renderPrintSheet/.test(planSrc) || !/id = 'print-sheet'/.test(planSrc)) fail('plan.js：未生成 body 级 #print-sheet 行程单');
+else if (!/data-print/.test(planSrc)) fail('plan.js：缺少打印按钮（data-print，<button> 可被键盘聚焦）');
+else ok('plan.js 生成打印行程单并提供可聚焦打印按钮');
+
+// 快捷键映射：覆盖清单，且不占用浏览器原生快捷键、输入框内不劫持
+const sc = readSrc('src/shared/shortcuts.js');
+if (!sc) fail('缺少 src/shared/shortcuts.js（快捷键模块）');
+else {
+  const required = ["keys: ['/']", "keys: ['r']", "keys: ['j']", "keys: ['k']", "keys: ['b']", "keys: ['t']", "keys: ['p']", "keys: ['?']", "keys: ['Ctrl+P']"];
+  const missing = required.filter(s => !sc.includes(s));
+  if (missing.length) fail(`shortcuts.js 未覆盖快捷键：${missing.join(' / ')}`);
+  else ok('快捷键覆盖清单：/ r j k b t p ? 与打印说明 Ctrl+P');
+  if (!/isTypingTarget/.test(sc) || !/ctrlKey|metaKey|altKey/.test(sc)) fail('shortcuts.js：缺输入框守卫或修饰键放行（会劫持 Ctrl+P/Ctrl+F）');
+  else ok('输入框内不劫持按键，带修饰键一律放行（Ctrl+P/Ctrl+F 保留浏览器行为）');
+  const keyAction = sc.match(/const KEY_ACTION = \{[\s\S]*?\};/);
+  if (keyAction && /Ctrl|Meta|Alt/.test(keyAction[0])) fail('shortcuts.js：KEY_ACTION 绑定了带修饰键的组合（会劫持浏览器原生快捷键）');
+  else ok('KEY_ACTION 不含修饰键组合');
+}
+
 if (bad) { console.error(`\n设计门未通过：${bad} 项`); process.exit(1); }
 console.log(regressed ? '' : '\n设计门（静态层）通过');

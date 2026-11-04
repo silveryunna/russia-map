@@ -57,6 +57,13 @@
   --sp-6: 24px;
   --sp-8: 32px;
 
+  /* 板块识别色：只用于侧栏板块头与筛选 chip，城市/点位仍用 --city-* */
+  --region-ru: #3E7CB1;
+  --region-kz: #1F9E8E;
+  --region-ge: #7A5BD6;
+  --region-cn: #C0392B;
+  --region-other: #546570;
+
   /* 阴影：保留仓库原有的暖调（rgba(60,50,30,…)），不换中性黑 */
   --e1: 0 1px 2px rgba(60, 50, 30, .06), 0 1px 4px rgba(60, 50, 30, .04);
   --e2: 0 4px 14px rgba(60, 50, 30, .10);
@@ -76,6 +83,11 @@
   --dur-1: 120ms;
   --dur-2: 200ms;
   --ease-1: cubic-bezier(.2, 0, 0, 1);
+
+  /* 响应式断点：CSS 媒体查询无法引用变量，实际写法集中在 shared/layout-wide.css
+   * （min-width: 80rem = 1280px 大屏两栏；max-width: 48rem = 768px 移动端） */
+  --bp-wide: 1280px;
+  --bp-mobile: 768px;
 
   /* 旧变量 → 新令牌（迁移期别名，逐期删除；--muted 由 3.39:1 提到 5.39:1 是 DESIGN.md 唯一的强制色改） */
   --bg: var(--canvas);

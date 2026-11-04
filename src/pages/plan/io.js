@@ -7,6 +7,7 @@
 import { PERIOD_LABEL, dateRange, sourceLabel } from './format.js';
 import { download } from '../../shared/download.js';
 import { BACKUP_WARN_DAYS, backupReminder } from '../../shared/backup-reminder.js';
+import { dateInZone } from '../../shared/local-date.js';
 
 // 下载与备份提醒口径已抽到 shared（全站横幅共用），这里保留导出以兼容既有调用与测试。
 export { download, BACKUP_WARN_DAYS, backupReminder };
@@ -47,7 +48,7 @@ export function exportMarkdown(trip, { nameOf, save = download, toast = () => {}
 /** 全量备份：行程 + 打卡 + 变更日志 + 实际通行记录。 */
 export async function exportBackup({ store, save = download, toast = () => {}, afterExport = null }) {
   const payload = await store.exportAll();
-  save(`trips-backup-${new Date().toISOString().slice(0, 10)}.json`, JSON.stringify(payload, null, 2));
+  save(`trips-backup-${dateInZone()}.json`, JSON.stringify(payload, null, 2));
   if (afterExport) await afterExport(); // 例如写 meta backup:lastExportAt，供备份提醒用
   toast(`已导出 ${payload.trips.length} 份行程、${payload.visits.length} 条打卡记录`);
 }

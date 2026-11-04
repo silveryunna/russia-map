@@ -1,0 +1,136 @@
+/* 大屏两栏布局 + 键盘快捷键帮助面板
+ * 断点唯一来源：tokens.css 的 --bp-wide（1280px）；媒体查询用 80rem，避免散落魔法数。
+ * 1200–1280 之间不进入两栏（保持单栏，避免侧栏挤占正文）。
+ */
+
+/* 主列保持原有块级排版（子元素自带间距），避免改变窄屏版面 */
+.plan-main { min-width: 0; }
+
+/* 右侧栏卡片（列表概览 / 行程概览） */
+.aside-card {
+  background: var(--surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--r-md);
+  padding: var(--sp-4);
+  box-shadow: var(--e1);
+}
+.aside-card h3 {
+  margin: 0 0 var(--sp-3);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-2);
+}
+.aside-row {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--sp-3);
+  padding: var(--sp-1) 0;
+  font-size: 13px;
+  color: var(--text-2);
+}
+.aside-row b { color: var(--text-1); font-weight: 600; }
+.aside-stack { display: flex; flex-direction: column; gap: var(--sp-2); }
+.aside-note { font-size: 12px; line-height: 1.6; color: var(--text-3); }
+
+/* 键盘帮助（默认隐藏，openHelp 时改为 flex） */
+.kbd-help {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-dialog);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-4);
+  background: var(--surface-translucent);
+}
+.kbd-card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
+  box-shadow: var(--e3);
+  padding: var(--sp-6);
+}
+.kbd-card h2 { margin: 0 0 var(--sp-4); font-size: 16px; color: var(--text-1); }
+.kbd-list { display: grid; grid-template-columns: 96px minmax(0, 1fr); gap: var(--sp-2) var(--sp-4); margin: 0 0 var(--sp-5); }
+.kbd-list dt { margin: 0; }
+.kbd-list dd {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+.kbd-list kbd {
+  display: inline-block;
+  min-width: 28px;
+  padding: var(--sp-1) var(--sp-2);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-xs);
+  background: var(--surface-sunken);
+  color: var(--text-1);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  text-align: center;
+}
+.kbd-actions { display: flex; justify-content: flex-end; }
+.l-point.is-kbd { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* 两栏未启用时，行程概览不占版面（移动端零回归；声明在媒体查询前，避免被后置规则覆盖） */
+.plan-aside { display: none; }
+/* 头部打印按钮只在大屏出现：窄屏头部按钮数量与改动前一致，避免换行挤压 */
+.pl-head .pl-print-head { display: none; }
+
+/* ≥1280：内容 + 侧栏两栏 */
+@media (min-width: 80rem) {
+  /* 提升一级选择器权重，保证盖过 plan.css / list.css 里的窄屏 max-width */
+  body #list-app { max-width: 1180px; padding: var(--sp-6) var(--sp-4) var(--sp-8); }
+  body #plan-app { max-width: 1180px; padding: var(--sp-6) var(--sp-4) var(--sp-8); }
+
+  .list-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: var(--sp-6);
+    align-items: start;
+  }
+  .list-main { grid-column: 1; grid-row: 1; min-width: 0; }
+  .list-aside {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: 76px;
+    padding: var(--sp-4);
+    background: var(--surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: var(--r-md);
+    box-shadow: var(--e1);
+  }
+
+  .plan-shell {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 320px;
+    gap: var(--sp-6);
+    align-items: start;
+  }
+  .plan-main { grid-column: 1; grid-row: 1; min-width: 0; }
+  .plan-aside {
+    grid-column: 2;
+    grid-row: 1;
+    position: sticky;
+    top: 76px;
+    display: flex;
+    flex-direction: column;
+    gap: var(--sp-3);
+  }
+
+  /* 地图页本就是「地图 + 侧栏」，大屏只加宽侧栏（内层同宽，避免留白） */
+  body #sidebar { width: 420px; }
+  body #sidebar .sb-inner { width: 420px; }
+
+  /* 大屏头部补上打印入口（窄屏隐藏，见上方 .pl-head .pl-print-head） */
+  .pl-head .pl-print-head { display: inline-flex; }
+}
+
+@media print {
+  .kbd-help { display: none; }
+}

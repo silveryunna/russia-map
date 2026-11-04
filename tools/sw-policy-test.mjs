@@ -116,6 +116,26 @@ if (!policy) { console.error('❌ sw.js 未导出 __SW_POLICY__'); process.exit(
   else fail(`外壳引用了非数据文件：${stray.join('、')}`);
 }
 
+// 7b) 首访离线：构建产物 JS/CSS 与首屏数据必须随安装预缓存，核心载荷原子安装（本地线 BUILD_ASSETS）
+{
+  if (!/await cache\.addAll\(/.test(SRC)) fail('安装未用 cache.addAll：核心载荷可能出现半套缓存');
+  else ok('核心载荷（外壳 + BUILD_ASSETS）用 cache.addAll 原子安装');
+  if (/\[\.\.\.SHELL_ASSETS, \.\.\.BUILD_ASSETS\]/.test(SRC)) ok('安装合并"外壳 + 构建产物 JS/CSS"');
+  else fail('安装未合并 BUILD_ASSETS：JS/CSS 仍要等运行时缓存，首访断网白屏');
+  if (/Promise\.allSettled\(SHELL_ASSETS/.test(SRC)) fail('核心外壳仍用 allSettled：缺资源也"安装成功"');
+  else ok('核心外壳未用 allSettled（facts 账本逐文件容错除外）');
+  const list = policy.BUILD_ASSETS;
+  if (!Array.isArray(list)) fail('__SW_POLICY__ 未导出 BUILD_ASSETS');
+  else {
+    const bad = list.filter(a => !/^\.\/(assets\/[A-Za-z0-9._-]+\.(js|css)|data\/[a-z-]+\.json)$/.test(a) || a.includes('tdt-key'));
+    if (!bad.length) ok(`BUILD_ASSETS 清单合法（当前 ${list.length} 项；发布产物由 assemble 注入）`);
+    else fail(`BUILD_ASSETS 含非法条目：${bad.join('、')}`);
+    const ASM = readFileSync(new URL('./assemble.mjs', import.meta.url), 'utf8');
+    if (/DATA_ASSETS[\s\S]*'data\/points\.json'/.test(ASM) && /\[\.\.\.buildAssets, \.\.\.dataAssets\]/.test(ASM)) ok('assemble 会把首屏数据 JSON 注入预缓存（含 points.json）');
+    else fail('assemble 未把 points.json 注入预缓存：断网开地图/清单会整页失败');
+  }
+}
+
 // 8) 更新保留上一代缓存 + 照片缓存跨版本（P1-1/P1-2）
 {
   if (policy.PHOTO_CACHE && !policy.PHOTO_CACHE.includes(policy.VERSION)) ok(`照片缓存跨版本保留：${policy.PHOTO_CACHE}`);
