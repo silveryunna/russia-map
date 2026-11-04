@@ -94,6 +94,11 @@ execSync(
   { cwd: ROOT, stdio: 'inherit' },
 );
 
+// ── 5.1) 发布前必过的产物门（审计 P1-8：不能等 CI 在 push 之后才发现坏引用） ──
+step(5.1, '产物引用与体积');
+run('node', ['tools/check-artifact-refs.mjs'], { stdio: 'inherit' });
+run('node', ['tools/check-asset-budget.mjs'], { stdio: 'inherit' });
+
 const changed = run('git', ['status', '--porcelain']);
 if (!changed) {
   console.log('\n产物与仓库一致，无变化，无需发布');

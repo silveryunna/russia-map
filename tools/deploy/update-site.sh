@@ -47,13 +47,15 @@ fi
 git reset --hard "$TARGET" >/dev/null 2>&1 || { log "❌ reset --hard $TARGET 失败"; exit 1; }
 find "$WEBROOT" -mindepth 1 -maxdepth 1 ! -name '.git' -exec chown -R www:www {} + 2>/dev/null   # nginx 用户 www；须排除 .git，否则 root 运行的 git 触发 dubious ownership 拒绝执行
 
-# 自检清单：两个 HTML 入口 + SW + 核心地图 JS + 点位数据
-# 覆盖两类致命故障：白屏（JS 挂了）与数据损坏（points.json 解析不了）
-# 地图 JS 的文件名哈希每次构建都变，从 reset 后的 map.html 动态提取
-MAPJS=$(grep -o 'assets/map-[A-Za-z0-9_-]*\.js' map.html | head -1)
-[ -n "$MAPJS" ] || { log "⚠️ map.html 未找到地图 JS 引用，跳过 JS 自检"; }
-CHECKS=(index.html map.html sw.js data/points.json)
-[ -n "$MAPJS" ] && CHECKS+=( "$MAPJS" )
+# 自检清单：所有入口 HTML + SW + 各页主 JS + 点位数据
+# 覆盖致命故障：白屏（主 JS 挂了）、页面 404、数据损坏（points.json 解析不了）
+# 主 JS 的文件名哈希每次构建都变，从 reset 后的各页 HTML 动态提取（审计 P1-8：
+# 之前只查 map.html，plan/list/friend 的产物 404 也能上线）
+CHECKS=(index.html map.html list.html notes.html plan.html today.html friend.html sw.js data/points.json)
+for page in map.html list.html notes.html plan.html today.html friend.html; do
+  JS=$(grep -o 'assets/[A-Za-z0-9_-]*\.js' "$page" | head -1)
+  if [ -n "$JS" ]; then CHECKS+=( "$JS" ); else log "⚠️ $page 未找到主 JS 引用，跳过该页 JS 自检"; fi
+done
 
 check_url() {
   curl -s -o /dev/null -w '%{http_code}' --max-time 10 "$1" 2>/dev/null || echo 000
