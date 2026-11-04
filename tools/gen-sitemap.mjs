@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 // 生成 sitemap.xml：只收录可公开页面；私有页（admin / account / friend）永不进 sitemap。
+// 2026-11-04 T0-4 裁决：相册（0 张照片）与笔记（仅示例）为空头页面，从 sitemap 隐藏，有内容再放回。
 // 用法：node tools/gen-sitemap.mjs          生成
 //       node tools/gen-sitemap.mjs --check  只比对是否最新（有差异则退出 1）
 import { readFileSync, writeFileSync, existsSync } from 'node:fs';
@@ -8,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const ORIGIN = 'https://julyyunna.art';
-const PUBLIC = ['index.html', 'map.html', 'plan.html', 'today.html', 'list.html', 'notes.html', 'album.html'];
+const PUBLIC = ['index.html', 'map.html', 'plan.html', 'today.html', 'list.html'];
 
 const missing = PUBLIC.filter((p) => !existsSync(join(root, p)));
 if (missing.length) {
