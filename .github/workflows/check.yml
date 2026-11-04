@@ -47,6 +47,7 @@ jobs:
           node tools/test-plan-format.mjs
           node tools/test-plan-io.mjs
           node tools/test-storage-health.mjs
+          node tools/test-ai-key-status.mjs
           node tools/test-plan-ai.mjs
           node tools/test-plan-generate.mjs
           node tools/test-plan-list.mjs

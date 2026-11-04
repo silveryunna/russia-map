@@ -6,6 +6,8 @@ import './friend.css';
 import { loadCheckins, hasCheckin } from '../modules/checkin.js';
 import { openVisitRepository } from './visits/repository.js';
 import { AI_MODELS, modelInfo } from '../modules/ai-models.js';
+import { aiKeyStatusText } from '../shared/ai-key-status.js';
+import { registerSW } from '../shared/sw-register.js';
 
 const $app = document.getElementById('friend-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -90,6 +92,7 @@ async function renderAISettings(body) {
       </label>
       <input id="fa-model-custom" autocomplete="off" name="ai-cfg-model" style="display:${custom ? '' : 'none'}" value="${custom ? esc(cfg.model) : ''}" placeholder="自定义模型 ID">
       <label>API Key <input id="fa-key" name="ai-cfg-key" type="password" autocomplete="new-password" placeholder="${cfg.has_key ? '已保存（留空保持不变）' : 'sk-...'}"></label>
+      <div class="fr-note">${esc(aiKeyStatusText(cfg))}</div>
       <button class="pl-btn primary big" id="fa-save">保存</button>
       <div style="display:flex;gap:10px;flex-wrap:wrap">
         <button class="pl-btn small" id="fa-test">⚡ 测试连接</button>
@@ -287,3 +290,5 @@ function renderMine(body) {
   }
   renderLogin();
 })();
+
+registerSW();

@@ -75,5 +75,28 @@ for (const name of ['accounts', 'pending', 'approve', 'reject']) {
   assert((php.match(/[^a-zA-Z_]out\(/g) || []).length >= 5, '端点统一用 out() 响应');
 }
 
+// 7) AI Key：加密失败必须关闭（P1-3），ai_test 复用已存 Key 必须锁定 endpoint（P1-9）
+{
+  assert(php.includes('function ai_key_seal(string $plain): ?string'), 'ai_key_seal 允许返回 null（加密失败）');
+  assert(php.includes('ALLOW_PLAINTEXT_AI_KEY'), '明文兼容必须是显式开关');
+  const set = find('ai_settings');
+  assert(set && set.body.includes('ai_key_seal('), 'ai_settings 保存时调用 ai_key_seal');
+  assert(set && set.body.includes('if ($sealed === null) out('), 'ai_settings 加密失败必须拒绝保存');
+  assert(set && set.body.includes("'key_storage'"), 'ai_settings 回传加密状态');
+  assert(set && !set.body.includes("'key' =>"), 'ai_settings 不回传 key 明文');
+  const t = find('ai_test');
+  assert(t && t.body.includes('savedEndpoint'), 'ai_test 读取已存 endpoint');
+  assert(t && t.body.includes("rtrim($endpoint, '/') !== $savedEndpoint"), 'ai_test 复用已存 Key 必须匹配 endpoint');
+  assert(t && t.body.includes("model LIKE 'test:%'"), 'ai_test 有每日次数上限');
+}
+
+// 8) plan 端点：routes 上下文必须有上限（P1-4，不依赖客户端自觉）
+{
+  const s = find('plan');
+  assert(s && s.body.includes('array_slice($rts, 0, 10)'), 'routes 最多 10 条');
+  assert(s && s.body.includes("array_slice(array_values(array_filter((array)($r['steps'] ?? []), 'is_array')), 0, 30)"), '每条 route 最多 30 步');
+  assert(s && s.body.includes("mb_substr((string)($st['note'] ?? ''), 0, 120)"), '步骤 note 限长');
+}
+
 if (bad) { console.error(`\n${bad} 处 API 契约被破坏`); process.exit(1); }
 console.log('\nAPI 契约质量门通过');

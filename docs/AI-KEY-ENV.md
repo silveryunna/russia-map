@@ -19,8 +19,8 @@
 
 细节：
 
-- 用的是 `getenv(...) ?: 常量`，**不是 `??`**。`AI_KEY_FILE` 为空串等于没设，会回退下一级；而 `config.php` 里写空串会被 `??` 当成"已设置"，得到空路径 → 加密静默关闭。
-- 代码注释明确写着"不依赖 php-fpm 的 env[]"——因为池配置改动、`clear_env` 都会让覆盖悄悄失效，而失效的表现是**明文落库**，不报错。
+- 用的是 `getenv(...) ?: 常量`，**不是 `??`**。`AI_KEY_FILE` 为空串等于没设，会回退下一级；而 `config.php` 里写空串会被 `??` 当成"已设置"，得到空路径 → 加密不可用。
+- 代码注释明确写着"不依赖 php-fpm 的 env[]"——因为池配置改动、`clear_env` 都会让覆盖悄悄失效。失效的表现现在是**保存 Key 被 503 拒绝**（2026-11-04 起失败关闭），不再静默明文落库。
 
 ## 3. 密钥文件格式与解析分支
 
@@ -31,8 +31,8 @@
 | 64 位十六进制（可带 `\n`/`\r\n`） | `hex2bin` 直接用 | 推荐格式；当前生产 key 即此格式 |
 | 合法 base64 且解出 32 字节 | 直接当密钥 | `base64_decode(..., true)` 严格模式 |
 | 其它任意非空文本 | `sha256(文本)` 派生 | 口令模式，方便但熵取决于口令 |
-| 空文件 / 只有空白 | 视为未配置 → **明文落库** | 不会报错 |
-| 文件不存在 / 不可读 / 无 sodium | 视为未配置 → **明文落库** | 同上 |
+| 空文件 / 只有空白 | 视为未配置 → **拒绝保存（503）** | 除非显式设 `ALLOW_PLAINTEXT_AI_KEY=1` |
+| 文件不存在 / 不可读 / 无 sodium | 视为未配置 → **拒绝保存（503）** | 同上 |
 
 实测（2026-10-29，用真实 `ai_key_seal/ai_key_open` 与生产密文对照）：
 
@@ -40,7 +40,7 @@
 |---|---|---|---|
 | 不设（默认） | 是 | `enc:v1:` | 是 |
 | 另一把合法 64hex | 是 | `enc:v1:` | 否（解出空串） |
-| 路径不存在 / 空文件 / 纯空白 | 否 | **明文** | 否 |
+| 路径不存在 / 空文件 / 纯空白 | 否 | **拒绝保存（503）** | 否 |
 | 任意口令文本 | 是（sha256 派生） | `enc:v1:` | 否 |
 | base64(32B) | 是 | `enc:v1:` | 否 |
 | 生产 key + CRLF | 是 | `enc:v1:` | **是**（trim 容忍换行） |
@@ -88,7 +88,7 @@ env[AI_KEY_FILE] = /path/to/ai-at-rest.key
 nginx -t && systemctl reload php-fpm
 ```
 
-改池配置前先备份（`cp www.conf www.conf.bak-$(date +%Y%m%d)`），`reload` 后按 §6 验证；`env[]` 写错路径不会报错，只会明文落库。
+改池配置前先备份（`cp www.conf www.conf.bak-$(date +%Y%m%d)`），`reload` 后按 §6 验证；`env[]` 写错路径不会报错，但保存 Key 会被 503 拒绝（失败关闭），不会再明文落库。
 
 ### C. 不推荐
 
@@ -106,8 +106,8 @@ function kh_probe(): void {
   $sealed = ai_key_seal('PROBE');
   fwrite(STDERR, 'PROBE ' . json_encode([
     'master_loaded' => ai_key_master() !== null,
-    'sealed_as_enc' => strncmp($sealed, 'enc:v1:', 7) === 0,
-    'roundtrip_ok'  => ai_key_open($sealed) === 'PROBE',
+    'sealed_as_enc' => is_string($sealed) && strncmp($sealed, 'enc:v1:', 7) === 0,
+    'roundtrip_ok'  => is_string($sealed) && $sealed !== '' && ai_key_open($sealed) === 'PROBE',
   ]) . PHP_EOL);
 }
 register_shutdown_function('kh_probe');
@@ -119,7 +119,7 @@ php /tmp/kh.php >/dev/null            # 默认路径
 AI_KEY_FILE=/tmp/other.key php /tmp/kh.php >/dev/null   # 覆盖后的表现
 ```
 
-预期：`master_loaded`/`sealed_as_enc`/`roundtrip_ok` 全为 `true`；任一为 `false` 说明主密钥没被读到（此时新 key 会明文落库）。
+预期：`master_loaded`/`sealed_as_enc`/`roundtrip_ok` 全为 `true`；任一为 `false` 说明主密钥没被读到（此时保存新 key 会被 503 拒绝，不会明文落库）。
 
 2) **端到端（站内真实路径）**：在「我的 AI 接入」保存一次 Key，再查库里是否带 `enc:v1:` 前缀（只输出状态，不输出内容）：
 
@@ -138,8 +138,8 @@ su -s /bin/sh apache -c 'test -r /www/wwwroot/julyyunna-art-data/ai-at-rest.key 
 
 ## 7. 失败时的具体表现
 
-- 主密钥缺失/空/不可读：`ai_key_seal()` 原样返回 → **新保存的自定义 Key 明文落库**；旧 `enc:v1:` 仍按原逻辑尝试解密（同样解不开）。
-- 主密钥换了（含 BOM 事故）：`ai_key_open()` 返回空串 → `?a=plan` / `ai_test` 继续发请求但**不带 `Authorization`**，表现为上游 401/调用失败；不会崩、不会回退明文。
+- 主密钥缺失/空/不可读：`ai_key_seal()` 返回 `null` → **保存端点 503 拒绝**（显式 `ALLOW_PLAINTEXT_AI_KEY=1` 才明文兼容）；旧 `enc:v1:` 仍按原逻辑尝试解密（同样解不开）。`ai_settings` GET 的 `key_storage=encrypted` + `key_readable=false` 会提前暴露这一点。
+- 主密钥换了（含 BOM 事故）：`ai_key_open()` 返回空串 → `?a=plan` 继续发请求但**不带 `Authorization`**；`ai_test` 复用已存 Key 时直接 503 提示重新填写，不会把空 Key 发出去。
 - 轮换主密钥 = 已存 `enc:v1:` 全部作废，用户必须重新填写 Key。除非确认泄露，不要轮换。
 
 ## 8. 恢复与归档
@@ -154,7 +154,7 @@ su -s /bin/sh apache -c 'test -r /www/wwwroot/julyyunna-art-data/ai-at-rest.key 
 |---|---|
 | `api/index.php:13` | `AI_AT_REST_KEY_FILE` 常量（默认路径） |
 | `api/index.php:120` | `ai_key_master()`（优先级与格式解析） |
-| `api/index.php:132` / `:138` | `ai_key_seal()` / `ai_key_open()` |
-| `api/index.php:373` / `:571` / `:575` | 解密调用点（解不开返回空串，请求不带 Authorization） |
-| `api/index.php:489` | 保存时加密（无主密钥则明文） |
+| `api/index.php` 的 `ai_key_seal()` / `ai_key_open()` | 加解密（无主密钥时 seal 返回 null，调用方拒绝保存） |
+| `api/index.php` 的 `plan` / `ai_test` | 解密调用点（解不开返回空串；`ai_test` 复用已存 Key 要求 endpoint 匹配） |
+| `api/index.php` 的 `ai_settings` | 保存时加密（无主密钥则 503）；GET 只回 `key_storage`/`key_readable`，不回 key |
 | `AGENTS.md`「硬约束」段 | 运维红线（key 不入库、归档位置） |

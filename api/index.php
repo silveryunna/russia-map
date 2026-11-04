@@ -113,9 +113,11 @@ function ssrf_check(string $url): ?string {
   return ssrf_resolve($url)['error'] ?? null;
 }
 
-/* ---------- 自定义 AI Key 静态加密（可选） ----------
+/* ---------- 自定义 AI Key 静态加密（失败关闭） ----------
  * 设 AI_KEY_FILE 指向 webroot 之外的文件（32 字节 hex/base64，或任意口令，会 sha256 派生）
- * 时，新保存的 key 以 enc:v1: 前缀加密落库；文件不存在则维持明文（与旧版兼容）。
+ * 时，新保存的 key 以 enc:v1: 前缀加密落库。
+ * 2026-11-04 审计 P1-3：主密钥缺失时旧行为是「静默明文落库」，现在改为返回 null，
+ * 保存端点必须拒绝（503），除非运维显式设置 ALLOW_PLAINTEXT_AI_KEY=1 做兼容。
  * 读取时两种格式都认，所以开启/关闭都不会锁死已存的数据。 */
 function ai_key_master(): ?string {
   static $k = null;
@@ -129,9 +131,17 @@ function ai_key_master(): ?string {
   else $k = '';
   return $k ?: null;
 }
-function ai_key_seal(string $plain): string {
+/**
+ * 加密落库。返回 null 表示「无法加密，调用方必须拒绝保存」。
+ * 空字符串原样返回；旧明文兼容必须由 ALLOW_PLAINTEXT_AI_KEY=1 显式开启。
+ */
+function ai_key_seal(string $plain): ?string {
+  if ($plain === '') return '';
   $m = ai_key_master();
-  if ($plain === '' || $m === null) return $plain;
+  if ($m === null) {
+    $allowPlain = getenv('ALLOW_PLAINTEXT_AI_KEY') === '1';
+    return $allowPlain ? $plain : null;
+  }
   $nonce = random_bytes(SODIUM_CRYPTO_SECRETBOX_NONCEBYTES);
   return 'enc:v1:' . base64_encode($nonce . sodium_crypto_secretbox($plain, $nonce, $m));
 }
@@ -401,7 +411,20 @@ switch ($a) {
     $pts = array_values(array_filter((array)($ctx['points'] ?? []), fn($p) => is_array($p) && ($p['city'] ?? '') === $city && empty($p['pending'])));
     $pts = array_slice($pts, 0, 150);
     $pts = array_map(fn($p) => array_intersect_key($p, array_flip(['name', 'type', 'cluster', 'highlight', 'tags'])), $pts);
+    // 审计 P1-4：routes 也要有上限，否则一次请求能把 prompt/token 放大到任意大小
     $rts = array_values(array_filter((array)($ctx['routes'] ?? []), fn($r) => is_array($r) && ($r['city'] ?? '') === $city));
+    $rts = array_slice($rts, 0, 10);
+    $rts = array_map(function ($r) {
+      $steps = array_slice(array_values(array_filter((array)($r['steps'] ?? []), 'is_array')), 0, 30);
+      return [
+        'name' => mb_substr((string)($r['name'] ?? ''), 0, 60),
+        'summary' => mb_substr((string)($r['summary'] ?? ''), 0, 200),
+        'steps' => array_map(fn($st) => [
+          'label' => mb_substr((string)($st['label'] ?? $st['point'] ?? ''), 0, 60),
+          'note' => mb_substr((string)($st['note'] ?? ''), 0, 120),
+        ], $steps),
+      ];
+    }, $rts);
 
     $sys = '你是旅行行程规划助手。根据用户给定的城市、天数、兴趣与候选点位，输出一份每日行程。'
       . '只输出一个 JSON 对象，不要输出任何其他文字、解释或代码围栏。格式：'
@@ -469,8 +492,18 @@ switch ($a) {
       $st = $db->prepare('SELECT endpoint,model,api_key FROM ai_settings WHERE username=?');
       $st->execute([$who]);
       $row = $st->fetch(PDO::FETCH_ASSOC);
-      // key 明文永不出接口（2026-10 审计项）：只回 has_key 布尔
-      out(['endpoint' => $row['endpoint'] ?? '', 'model' => $row['model'] ?? '', 'has_key' => (bool)($row && $row['api_key'])]);
+      $stored = (string)($row['api_key'] ?? '');
+      $isEnc = strncmp($stored, 'enc:v1:', 7) === 0;
+      // key 明文永不出接口（2026-10 审计项）：只回状态，不回 key
+      out([
+        'endpoint' => $row['endpoint'] ?? '',
+        'model' => $row['model'] ?? '',
+        'has_key' => $stored !== '',
+        'key_storage' => $stored === '' ? 'missing' : ($isEnc ? 'encrypted' : 'plaintext'),
+        'key_encrypted' => $stored !== '' && $isEnc,
+        // 密文但主密钥缺失/轮换时读取会失败，提前暴露而不是等调用 AI 才发现
+        'key_readable' => $stored === '' ? null : (!$isEnc || ai_key_master() !== null),
+      ]);
     }
     $b = body();
     $endpoint = mb_substr(trim((string)($b['endpoint'] ?? '')), 0, 200);
@@ -486,7 +519,9 @@ switch ($a) {
       $st->execute([$who]);
       $key = (string)($st->fetchColumn() ?: '');
     } elseif (strncmp($key, 'enc:v1:', 7) !== 0) {
-      $key = ai_key_seal($key); // 配了 AI_KEY_FILE 才真加密，否则原样存
+      $sealed = ai_key_seal($key);
+      if ($sealed === null) out(['error' => '服务器未配置 AI Key 加密密钥，已拒绝保存（请联系管理员）'], 503);
+      $key = $sealed;
     }
     $db->prepare('INSERT INTO ai_settings(username,endpoint,api_key,model,updated) VALUES(?,?,?,?,?)
       ON CONFLICT(username) DO UPDATE SET endpoint=excluded.endpoint, api_key=excluded.api_key, model=excluded.model, updated=excluded.updated')
@@ -554,6 +589,10 @@ switch ($a) {
     $q->execute([$who]);
     if ((int)$q->fetchColumn() > time() - 10) out(['error' => '操作太频繁，请稍候再试'], 429);
     $b = body();
+    // 每日测试次数上限：test: 台账不占生成配额，但不该成为稳定的外带/烧钱通道
+    $q = $db->prepare("SELECT COUNT(*) FROM ai_calls WHERE username=? AND model LIKE 'test:%' AND created>=?");
+    $q->execute([$who, strtotime('today')]);
+    if ((int)$q->fetchColumn() >= 20) out(['error' => '今日连接测试次数已达上限（20 次）'], 429);
     $endpoint = mb_substr(trim((string)($b['endpoint'] ?? '')), 0, 200);
     $pin = [];
     if ($endpoint === '') {
@@ -567,12 +606,22 @@ switch ($a) {
       if (isset($chk['error'])) out(['error' => $chk['error']], 400);
       $pin = $chk;
       $url = $endpoint;
+      $st = $db->prepare('SELECT endpoint, api_key FROM ai_settings WHERE username=?');
+      $st->execute([$who]);
+      $saved = $st->fetch(PDO::FETCH_ASSOC) ?: [];
+      $savedEndpoint = rtrim((string)($saved['endpoint'] ?? ''), '/');
       $key = mb_substr((string)($b['key'] ?? ''), 0, 200);
       if (strncmp($key, 'enc:v1:', 7) === 0) $key = ai_key_open($key);
-      if ($key === '') { // 留空用已存的个人 key
-        $st = $db->prepare('SELECT api_key FROM ai_settings WHERE username=?');
-        $st->execute([$who]);
-        $key = ai_key_open((string)($st->fetchColumn() ?: ''));
+      if ($key === '') {
+        // 复用已存 key 时，endpoint 必须与已存配置一致（审计 P1-9）：
+        // 否则 ai_test 就是「把凭据发往任意 HTTPS 主机」的外带通道。
+        if ($savedEndpoint === '' || rtrim($endpoint, '/') !== $savedEndpoint) {
+          out(['error' => '测试地址与已保存的接口地址不一致：请先保存该地址，或显式填写要测试的 Key'], 400);
+        }
+        $stored = (string)($saved['api_key'] ?? '');
+        $key = ai_key_open($stored);
+        if ($stored !== '' && $key === '') out(['error' => '已保存的 Key 无法解密（服务器密钥缺失或已轮换），请重新填写'], 503);
+        if ($key === '') out(['error' => '尚未保存该接口的 Key，请填写后再测试'], 400);
       }
       $model = preg_replace('/[^\w.\/-]/', '', (string)($b['model'] ?? '')) ?: 'deepseek-v4-pro';
       $channel = 'custom';

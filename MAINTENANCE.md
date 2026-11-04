@@ -517,7 +517,7 @@ tail -c 25 data/points.json | od -c
 - **端点**：`?a=plan`（生成）/ `ai_settings`（个人接入读写）/ `ai_policy`（GET 调用者视图，admin 附完整策略；POST 仅 admin）/ `ai_usage`（admin：daily/by_model/by_user/month_by_model/items，供可视化）/ `ai_test`（连通性测试，返回延迟+应答预览）
 - **预设模型表**：`assets/ai-models-v1.js`（刊例价快照 2026-10-27；用 `thcli models get --id <id>` 更新价格，注意 glm-5.3-flashx 比 glm-5.3-flash 贵 2.5 倍这类同名陷阱）
 - **安全**：SSRF 校验（自定义 endpoint 仅 https + 拒私网/回环/CGNAT + 禁跟随重定向）、站点 Key 只发往硬编码 TokenHub 域名、日配额 + 月 token 熔断、同用户 10s 防重入、AI 返回点位名做幻觉过滤（不在点位库的剔除进 plan.note）、AI 接入表单已做 autocomplete 隔离（防浏览器把登录密码填进 Key 框）
-- **自定义 Key 静态加密**：主密钥 `ai-at-rest.key` 默认与 `config.php` 同目录（webroot 外，`root:apache 640`），新 key 以 `enc:v1:` 落库。来源优先级、`AI_KEY_FILE` 在 php-fpm 下的真实行为（`clear_env=yes` + `env[]` 才有效，`export` 无效；生产当前走默认路径）、文件格式陷阱（BOM 会静默换钥匙）与恢复步骤见 `docs/AI-KEY-ENV.md`
+- **自定义 Key 静态加密**：主密钥 `ai-at-rest.key` 默认与 `config.php` 同目录（webroot 外，`root:apache 640`），新 key 以 `enc:v1:` 落库；主密钥缺失时保存被 503 拒绝（失败关闭，`ALLOW_PLAINTEXT_AI_KEY=1` 才允许明文）。来源优先级、`AI_KEY_FILE` 在 php-fpm 下的真实行为（`clear_env=yes` + `env[]` 才有效，`export` 无效；生产当前走默认路径）、文件格式陷阱（BOM 会静默换钥匙）与恢复步骤见 `docs/AI-KEY-ENV.md`
 - 模型范围改了立即生效；换默认模型改 `config.php` 的 `tokenhub_model` 即可，不用动代码
 
 ### 10.2 投稿快照发布管道（2026-11-02 实况层 MVP）
@@ -560,7 +560,7 @@ tail -c 25 data/points.json | od -c
 改完文件"用户刷新了却没变化"几乎都是缓存问题，三层都要顾：
 
 1. **nginx**：`js|css|html|json` 必须 `Cache-Control: no-cache`（宝塔默认给 js/css 12h 强缓存，已改；配置备份 `/www/server/panel/vhost/nginx/*.conf.bak*`）。
-2. **Service Worker**（`sw.js`）：同源请求用 `fetch(req, { cache: 'no-cache' })` 强制回源校验（tn-v30 起）——否则 `data/*.json` 会被浏览器旧的启发式保质期顶住，SW 拿到的是陈旧副本，页面怎么刷都不变。
+2. **Service Worker**（`sw.js`）：同源请求用 `fetch(req, { cache: 'no-cache' })` 强制回源校验（tn-v30 起）——否则 `data/*.json` 会被浏览器旧的启发式保质期顶住，SW 拿到的是陈旧副本，页面怎么刷都不变。2026-11-04 起外壳预缓存关键数据（点位/城市/动线/交通矩阵/评分/事实账本/笔记索引），激活时保留当前版与上一版缓存（`tn-meta` 记上一版 VERSION，旧标签页懒加载旧哈希 chunk 仍能命中），照片走跨版本 `tn-photos`（上限 300），壳运行时资源上限 400 且裁剪时保护预缓存入口；配额写失败经 `cachePut()` 发 `sw-quota` 给页面提示。
 3. **版本号**（2026-10-28 P4 起）：`sw.js` 的 `VERSION` 由 `tools/assemble.mjs` 构建期注入 `tn-v<git sha>`，发布走 `npm run publish`，不再手动 +1；HTML 引用均为哈希文件名，`?v=` 兜底已废除。
 
 ## 13. tn-v28 新功能速查

@@ -4,6 +4,8 @@ import './plan.css';
 // 协作管理页（管理员）：账号管理 + 投稿审核 + AI 设置
 
 import { AI_MODELS, modelInfo, modelCost, TIER_CLASS } from '../modules/ai-models.js';
+import { aiKeyStatusText } from '../shared/ai-key-status.js';
+import { registerSW } from '../shared/sw-register.js';
 
 const $app = document.getElementById('account-app');
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
@@ -340,6 +342,7 @@ async function renderAI() {
       <label>Endpoint（https）<input id="aie-endpoint" name="ai-cfg-ep" autocomplete="off" value="${esc(mine.endpoint || '')}" placeholder="留空 = 使用站内通道"></label>
       <label style="margin-top:8px">模型 ${aiModelSelHtml('aie-model-sel', 'aie-model-custom', mine.model || '')}</label>
       <label style="margin-top:8px">API Key <input id="aie-key" name="ai-cfg-key" type="password" autocomplete="new-password" placeholder="${mine.has_key ? '已保存（留空保持不变）' : 'sk-...'}"></label>
+      <div class="fr-note" style="margin-top:4px">${esc(aiKeyStatusText(mine))}</div>
       <div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">
         <button class="pl-btn primary" id="aie-save">保存我的接入</button>
         <button class="pl-btn small" id="aie-test">⚡ 测试连接</button>
@@ -403,3 +406,5 @@ async function renderAI() {
   if (token) { try { await api('me'); renderMain(); return; } catch {} }
   renderLogin();
 })();
+
+registerSW();
