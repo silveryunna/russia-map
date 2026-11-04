@@ -4,7 +4,7 @@
 //
 // 【更新发布流程】VERSION 由 tools/publish.mjs 在构建期自动注入当前 git short sha（tn-v<sha>），
 // 不要手改——手改也会在下次 publish 时被覆盖。用户打开页面时 SW 检测到新值即自动刷新缓存。
-const VERSION = 'tn-vec4767f';
+const VERSION = 'tn-v06a6de2';
 const SHELL_CACHE = 'tn-shell-' + VERSION;
 const RUNTIME_CACHE = 'tn-runtime-' + VERSION;
 const PHOTO_CACHE = 'tn-photos';       // 照片跨版本保留（审计 P1-2：更新不再清空离线相册）
@@ -16,7 +16,7 @@ const PHOTO_CACHE_MAX = 300;           // 照片缓存条数上限
 // 构建期注入：vite 产出的 JS/CSS（带内容哈希）+ 首屏必需的数据 JSON（points/routes/meta 等）。
 // 仓库里默认空数组，tools/assemble.mjs 按 site-out 实际清单注入。
 // 不预缓存这些 JS/CSS，用户首次访问后一断网就是白屏（只有 HTML 外壳能离线）。
-const BUILD_ASSETS = [];
+const BUILD_ASSETS = ["./assets/account-CQcHhC-a.js","./assets/admin-v8wKqjPZ.css","./assets/admin-VSpJsdIr.js","./assets/album-B93SMXAG.js","./assets/album-CoOb3X97.css","./assets/checkin-CXOSYQp4.js","./assets/data-safety-B_kegElk.js","./assets/degraded-banner-DEOLr7E-.js","./assets/execution-OdKW9pOX.js","./assets/friend-BAFImyFb.js","./assets/icp-footer-Crs5Jn1v.js","./assets/leaflet-default-icon-vh-t_kPv.css","./assets/leaflet-default-icon-z5NjA5XR.js","./assets/leaflet.markercluster-src-C_Wk1_tu.js","./assets/list-BPCt1YVD.js","./assets/list-y62WYdWN.css","./assets/local-date-DMb6oAfl.js","./assets/main-8od2Qq_5.css","./assets/main-BTOlRNo-.js","./assets/map-BFnf6hbI.css","./assets/map-BjxMulNi.js","./assets/markdown-DRaKq2fB.js","./assets/notes-uPziRNvv.js","./assets/notes-z8K09Pu2.css","./assets/plan-C7bdfpU6.css","./assets/plan-DaleZnho.css","./assets/plan-Dt4z21PI.js","./assets/regions-B1YHvA7W.js","./assets/report-CuUDn4Fo.js","./assets/report-DZZiwGUb.css","./assets/repository-J-vaQOLh.js","./assets/share-B9T0n3LD.js","./assets/shortcuts-BO-UWl-J.css","./assets/shortcuts-Dwg1N52X.js","./assets/store-BaZsxKiV.js","./assets/sw-register-DYNvIEEb.css","./assets/sw-register-slL7fN2v.js","./assets/today-Ci9WZlWg.css","./assets/today-CmgBZdEs.js","./data/points.json","./data/regions.json","./data/routes.json","./data/meta.json","./data/site.json","./data/transit-matrix.json","./data/overlays.json","./data/ratings.json","./data/field.json","./data/china-boundary.json"];
 
 // 应用外壳（HTML 入口 + 清单 + 图标 + 关键数据）
 const SHELL_ASSETS = [
